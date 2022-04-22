@@ -8,22 +8,22 @@ import java.util.Collections;
 import java.util.List;
 
 @Data
-public class HookEvaluation {
-    private List<Hook> before = new ArrayList<>();
-    private List<Hook> after = new ArrayList<>();
-    private List<Hook> error = new ArrayList<>();
-    private List<Hook> afterAll = new ArrayList<>();
+public class HookEvaluation<T> {
+    private List<Hook<T>> before = new ArrayList<>();
+    private List<Hook<T>> after = new ArrayList<>();
+    private List<Hook<T>> error = new ArrayList<>();
+    private List<Hook<T>> afterAll = new ArrayList<>();
 
-    public void addBefore(Hook h) {
+    public void addBefore(Hook<T> h) {
         before.add(h);
     }
-    public void addAfter(Hook h) {
+    public void addAfter(Hook<T> h) {
         after.add(h);
     }
-    public void addError(Hook h) {
+    public void addError(Hook<T> h) {
         error.add(h);
     }
-    public void addAfterAll(Hook h) {
+    public void addAfterAll(Hook<T> h) {
         afterAll.add(h);
     }
 }

@@ -7,7 +7,7 @@ public class HookContext<T> {
     EvaluationContext ctx;
     FeatureProvider provider;
     T defaultValue;
-    HookEvaluation executedHooks;
+    HookEvaluation<T> executedHooks;
 
     public static <T> HookContext<T> from(String key, FlagValueType type, Client client, EvaluationContext ctx, T defaultValue) {
         HookContext<T> hc = new HookContext<>();
@@ -15,7 +15,7 @@ public class HookContext<T> {
         hc.type = type;
         hc.client = client;
         hc.ctx = ctx;
-        hc.executedHooks = new HookEvaluation();
+        hc.executedHooks = new HookEvaluation<T>();
         hc.defaultValue = defaultValue;
         return hc;
     }

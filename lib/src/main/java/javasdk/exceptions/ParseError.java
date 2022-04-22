@@ -5,6 +5,6 @@ import lombok.Getter;
 
 public class ParseError extends OpenFeatureError {
     @Getter
-    private ErrorCode errorCode = ErrorCode.PARSE_ERROR;
+    private final ErrorCode errorCode = ErrorCode.PARSE_ERROR;
 
 }

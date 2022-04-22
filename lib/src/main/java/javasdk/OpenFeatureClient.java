@@ -11,9 +11,9 @@ import java.util.List;
 
 public class OpenFeatureClient implements Client {
     private final OpenFeatureAPI openfeatureApi;
-    @Getter private String name;
-    @Getter private String version;
-    @Getter private List<Hook> clientHooks;
+    @Getter private final String name;
+    @Getter private final String version;
+    @Getter private final List<Hook> clientHooks;
 
     public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
         this.openfeatureApi = openFeatureAPI;
@@ -124,32 +124,32 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public String getStringValue(String key, String defaultValue) {
-        return null;
+        return this.getStringDetails(key, defaultValue).getValue();
     }
 
     @Override
     public String getStringValue(String key, String defaultValue, EvaluationContext ctx) {
-        return null;
+        return this.getStringDetails(key, defaultValue, ctx).getValue();
     }
 
     @Override
     public String getStringValue(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return null;
+        return this.getStringDetails(key, defaultValue, ctx, options).getValue();
     }
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue) {
-        return null;
+        return this.evaluateFlag(FlagValueType.STRING, key, defaultValue, null, null);
     }
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx) {
-        return null;
+        return this.evaluateFlag(FlagValueType.STRING, key, defaultValue, ctx, null);
     }
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return null;
+        return this.evaluateFlag(FlagValueType.STRING, key, defaultValue, ctx, options);
     }
 
     @Override

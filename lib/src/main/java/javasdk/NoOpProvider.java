@@ -4,7 +4,7 @@ import lombok.Getter;
 
 public class NoOpProvider<T extends EvaluationContext> implements FeatureProvider {
     @Getter
-    private String name = "No-op Provider";
+    private final String name = "No-op Provider";
 
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {

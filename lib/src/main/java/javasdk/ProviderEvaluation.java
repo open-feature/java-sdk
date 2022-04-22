@@ -2,7 +2,6 @@ package javasdk;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.annotation.Nullable;
 
