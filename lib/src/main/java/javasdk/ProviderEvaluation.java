@@ -1,13 +1,15 @@
 package javasdk;
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.annotation.Nullable;
 
-@Data
-public class ProviderEvaluation<T> {
-    final T value;
+@Data @Builder
+public class ProviderEvaluation<T> implements BaseEvaluation<T> {
+    T value;
     @Nullable String variant;
-    final Reason reason;
+    Reason reason;
     @Nullable ErrorCode errorCode;
 }

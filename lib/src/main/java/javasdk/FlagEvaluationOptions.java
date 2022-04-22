@@ -1,10 +1,12 @@
 package javasdk;
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.Singular;
 
 import java.util.List;
 
-@Data
+@Data @Builder
 public class FlagEvaluationOptions {
-    private List<Hook> hooks;
+    @Singular private List<Hook> hooks;
 }

@@ -8,16 +8,25 @@ public class NoOpProvider<T extends EvaluationContext> implements FeatureProvide
 
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return new ProviderEvaluation<Boolean>(defaultValue, Reason.DEFAULT);
+        return ProviderEvaluation.<Boolean>builder()
+                .value(defaultValue)
+                .reason(Reason.DEFAULT)
+                .build();
     }
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return new ProviderEvaluation<String>(defaultValue, Reason.DEFAULT);
+        return ProviderEvaluation.<String>builder()
+                .value(defaultValue)
+                .reason(Reason.DEFAULT)
+                .build();
     }
 
     @Override
     public ProviderEvaluation<Long> getNumberEvaluation(String key, Long defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return new ProviderEvaluation<Long>(defaultValue, Reason.DEFAULT);
+        return ProviderEvaluation.<Long>builder()
+                .value(defaultValue)
+                .reason(Reason.DEFAULT)
+                .build();
     }
 }

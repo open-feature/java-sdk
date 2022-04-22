@@ -1,26 +1,28 @@
 package javasdk;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class FlagEvaluationDetails<T> extends ProviderEvaluation {
+@Data @Builder
+public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
     String flagKey;
-    List<Hook> executedHooks;
+    HookEvaluation executedHooks;
+    T value;
+    @Nullable String variant;
+    Reason reason;
+    @Nullable ErrorCode errorCode;
 
-    public FlagEvaluationDetails(T value, Reason reason) {
-        super(value, reason);
-    }
-
-    public FlagEvaluationDetails(String flagKey, T value, Reason reason, @Nullable ErrorCode errorCode, List<Hook> executedHooks) {
-        super(value, reason);
-        this.errorCode = errorCode;
-        this.flagKey = flagKey;
-        this.executedHooks = executedHooks;
-    }
-
-    public static <T> FlagEvaluationDetails<T> from(ProviderEvaluation<T> providerEval, String flagKey, List<Hook> executedHooks) {
-        return new FlagEvaluationDetails(flagKey, providerEval.value, providerEval.reason, providerEval.errorCode, executedHooks);
+    public static <T> FlagEvaluationDetails<T> from(ProviderEvaluation<T> providerEval, String flagKey, HookEvaluation executedHooks) {
+        return FlagEvaluationDetails.<T>builder()
+                .flagKey(flagKey)
+                .executedHooks(executedHooks)
+                .value(providerEval.getValue())
+                .variant(providerEval.getVariant())
+                .reason(providerEval.getReason())
+                .errorCode(providerEval.getErrorCode())
+                .build();
     }
 }

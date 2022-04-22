@@ -1,5 +1,6 @@
 package javasdk;
 
+// TODO: interface? or abstract class?
 public interface Hook<T> {
     void before(HookContext<T> ctx);
     void after(HookContext<T> ctx, FlagEvaluationDetails<T> details);

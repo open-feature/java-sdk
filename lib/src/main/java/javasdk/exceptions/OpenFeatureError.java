@@ -1,6 +1,7 @@
 package javasdk.exceptions;
 
-public abstract class OpenFeatureError extends Exception {
-    // TODO: Handle error codes
+import javasdk.ErrorCode;
 
+public abstract class OpenFeatureError extends RuntimeException {
+    public abstract ErrorCode getErrorCode();
 }
