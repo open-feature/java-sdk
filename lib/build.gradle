@@ -10,6 +10,11 @@ plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
     id "io.freefair.lombok" version "6.4.3"
+    id 'pmd'
+}
+
+pmd {
+    pmdTest.enabled = false
 }
 
 repositories {

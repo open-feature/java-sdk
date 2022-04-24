@@ -1,5 +1,8 @@
 package javasdk;
 
+import lombok.Data;
+
+@Data
 public class HookContext<T> {
     String flagKey;
     FlagValueType type;

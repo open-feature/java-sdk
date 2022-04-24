@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 @Data @Builder
 public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {

@@ -9,8 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class OpenFeatureClient implements Client {
-    private final OpenFeatureAPI openfeatureApi;
+    private transient final OpenFeatureAPI openfeatureApi;
     @Getter private final String name;
     @Getter private final String version;
     @Getter private final List<Hook> clientHooks;
@@ -34,7 +35,10 @@ public class OpenFeatureClient implements Client {
 
         List<Hook> mergedHooks;
         if (options != null && options.getHooks() != null) {
-            mergedHooks = ImmutableList.<Hook>builder().addAll(options.getHooks()).addAll(clientHooks).build();
+            mergedHooks = ImmutableList.<Hook>builder()
+                    .addAll(options.getHooks())
+                    .addAll(clientHooks)
+                    .build();
         } else {
             mergedHooks = clientHooks;
         }
@@ -43,7 +47,7 @@ public class OpenFeatureClient implements Client {
         try {
             this.beforeHooks(hookCtx, mergedHooks);
 
-            final ProviderEvaluation<T> providerEval;
+            ProviderEvaluation<T> providerEval;
             if (type == FlagValueType.BOOLEAN) {
                 // TODO: Can we guarantee that defaultValue is a boolean? If not, how to we handle that?
                 providerEval = (ProviderEvaluation<T>) provider.getBooleanEvaluation(key, (Boolean) defaultValue, ctx, options);

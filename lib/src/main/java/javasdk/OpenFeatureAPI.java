@@ -1,15 +1,21 @@
 package javasdk;
 
-import lombok.Setter;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.annotation.Nullable;
 
 public class OpenFeatureAPI {
     @Getter @Setter private FeatureProvider provider;
+    private static OpenFeatureAPI api;
 
     public static OpenFeatureAPI getInstance() {
-        return new OpenFeatureAPI();
+        synchronized (OpenFeatureAPI.class) {
+            if (api == null) {
+                api = new OpenFeatureAPI();
+            }
+        }
+        return api;
     }
 
     public Client getClient() {
