@@ -11,6 +11,7 @@ plugins {
     id 'java-library'
     id "io.freefair.lombok" version "6.4.3"
     id 'pmd'
+    id 'maven-publish'
 }
 
 pmd {
@@ -39,4 +40,22 @@ dependencies {
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/open-feature/javasdk")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
+    }
 }
