@@ -14,6 +14,8 @@ plugins {
     id 'maven-publish'
 }
 
+group = 'dev.open-feature'
+
 pmd {
     pmdTest.enabled = false
 }
@@ -55,6 +57,8 @@ publishing {
     }
     publications {
         gpr(MavenPublication) {
+            artifactId = 'javasdk'
+            version = '0.0.1' + (Boolean.valueOf(System.getProperty("snapshot")) ? "-SNAPSHOT" : "")
             from(components.java)
         }
     }
