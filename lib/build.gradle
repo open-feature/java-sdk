@@ -44,22 +44,29 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-publishing {
-    repositories {
-        maven {
-            name = "OSSRH"
-            url = uri(System.getenv("REPOSITORY_URL"))
-            credentials {
-                username = System.getenv("USERNAME")
-                password = System.getenv("TOKEN")
+String repository_url = System.getenv("REPOSITORY_URL")
+String username = System.getenv("USERNAME")
+String password = System.getenv("TOKEN")
+if (repository_url && username && password) {
+
+    publishing {
+        repositories {
+            maven {
+                name = "OSSRH"
+                url = uri(repository_url)
+                credentials {
+                    username = username
+                    password = password
+                }
+            }
+        }
+        publications {
+            gpr(MavenPublication) {
+                artifactId = 'javasdk'
+                version = '0.0.1' + (Boolean.valueOf(System.getProperty("snapshot")) ? "-SNAPSHOT" : "")
+                from(components.java)
             }
         }
     }
-    publications {
-        gpr(MavenPublication) {
-            artifactId = 'javasdk'
-            version = '0.0.1' + (Boolean.valueOf(System.getProperty("snapshot")) ? "-SNAPSHOT" : "")
-            from(components.java)
-        }
-    }
+
 }
