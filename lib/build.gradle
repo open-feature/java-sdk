@@ -47,11 +47,11 @@ tasks.named('test') {
 publishing {
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/open-feature/javasdk")
+            name = "OSSRH"
+            url = uri(System.getenv("REPOSITORY_URL"))
             credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+                username = System.getenv("USERNAME")
+                password = System.getenv("TOKEN")
             }
         }
     }
