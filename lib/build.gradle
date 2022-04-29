@@ -12,9 +12,8 @@ plugins {
     id "io.freefair.lombok" version "6.4.3"
     id 'pmd'
     id 'maven-publish'
+    id 'signing'
 }
-
-group = 'dev.open-feature'
 
 pmd {
     pmdTest.enabled = false
@@ -44,29 +43,56 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-String repository_url = System.getenv("REPOSITORY_URL")
-String username = System.getenv("USERNAME")
-String password = System.getenv("TOKEN")
-if (repository_url && username && password) {
+def repo_url = System.getenv("REPOSITORY_URL")
 
-    publishing {
-        repositories {
-            maven {
-                name = "OSSRH"
-                url = uri(repository_url)
-                credentials {
-                    username = username
-                    password = password
+group = 'dev.openfeature'
+version = '0.0.1' + (Boolean.valueOf(System.getProperty("release")) ? "" : "-SNAPSHOT")
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId="javasdk"
+            from components.java
+
+            pom {
+                name = 'OpenFeature SDK'
+                packaging = 'jar'
+                // optionally artifactId can be defined here
+                description 'A library to abstract feature flagging across many providers'
+                url = 'https://openfeature.dev'
+
+                scm {
+                    connection = 'scm:git:https://github.com/openfeature/javasdk.git'
+                    developerConnection = 'scm:git:https://github.com/openfeature/javasdk.git'
+                    url = 'https://github.com/openfeature/javasdk'
                 }
-            }
-        }
-        publications {
-            gpr(MavenPublication) {
-                artifactId = 'javasdk'
-                version = '0.0.1' + (Boolean.valueOf(System.getProperty("snapshot")) ? "-SNAPSHOT" : "")
-                from(components.java)
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'abrahms'
+                        name = 'Justin Abrahms'
+                        email = 'jabrahms@ebay.com'
+                    }
+                }
             }
         }
     }
 
+    repositories {
+        maven {
+            credentials {
+                username = ossrhUsername
+                password = ossrhPassword
+            }
+
+            url = repo_url
+        }
+    }
 }

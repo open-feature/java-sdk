@@ -42,7 +42,6 @@ jobs:
       with:
         arguments: publish
       env:
-        snapshot: 1
         REPOSITORY_URL: https://s01.oss.sonatype.org/content/repositories/snapshots/
         USERNAME: ${{ secrets.OSSRH_USERNAME }}
         TOKEN: ${{ secrets.OSSRH_PASSWORD }}

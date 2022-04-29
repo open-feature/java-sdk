@@ -39,8 +39,9 @@ jobs:
     - name: Publish to GitHub Packages
       uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
       with:
-        arguments: publish
+        arguments: publish -PossrhUsername=${{ secrets.OSSRH_USERNAME }}
       env:
+        release=1
         REPOSITORY_URL: https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/
         USERNAME: ${{ secrets.OSSRH_USERNAME }}
         TOKEN: ${{ secrets.OSSRH_PASSWORD }}
