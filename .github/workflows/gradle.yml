@@ -40,8 +40,6 @@ jobs:
     - name: Publish to GitHub Packages
       uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
       with:
-        arguments: publish -PossrhUsername=${{ secrets.OSSRH_USERNAME }}
+        arguments: publish -PossrhUsername=${{ secrets.OSSRH_USERNAME }} -PossrhPassword=${{ secrets.OSSRH_PASSWORD }}
       env:
         REPOSITORY_URL: https://s01.oss.sonatype.org/content/repositories/snapshots/
-        USERNAME: ${{ secrets.OSSRH_USERNAME }}
-        TOKEN: ${{ secrets.OSSRH_PASSWORD }}
