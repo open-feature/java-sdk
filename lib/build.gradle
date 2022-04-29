@@ -88,8 +88,8 @@ publishing {
     repositories {
         maven {
             credentials {
-                username = ossrhUsername
-                password = ossrhPassword
+                username = project.findProperty('ossrhUsername') ?: 'anon'
+                password = project.findProperty('ossrhPassword') ?: 'no-op'
             }
 
             url = repo_url
