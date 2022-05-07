@@ -23,8 +23,8 @@ public class NoOpProvider<T extends EvaluationContext> implements FeatureProvide
     }
 
     @Override
-    public ProviderEvaluation<Long> getNumberEvaluation(String key, Long defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return ProviderEvaluation.<Long>builder()
+    public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return ProviderEvaluation.<Integer>builder()
                 .value(defaultValue)
                 .reason(Reason.DEFAULT)
                 .build();

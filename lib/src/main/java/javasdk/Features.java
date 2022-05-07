@@ -18,13 +18,13 @@ public interface Features {
     FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx);
     FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
 
-    Long getNumberValue(String key, Long defaultValue);
-    Long getNumberValue(String key, Long defaultValue, EvaluationContext ctx);
-    Long getNumberValue(String key, Long defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
+    Integer getIntegerValue(String key, Integer defaultValue);
+    Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx);
+    Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
 
-    FlagEvaluationDetails<Long> getNumberDetails(String key, Long defaultValue);
-    FlagEvaluationDetails<Long> getNumberDetails(String key, Long defaultValue, EvaluationContext ctx);
-    FlagEvaluationDetails<Long> getNumberDetails(String key, Long defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
+    FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue);
+    FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx);
+    FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
 
     // TODO: Object
 

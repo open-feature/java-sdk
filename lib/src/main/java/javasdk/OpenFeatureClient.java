@@ -157,32 +157,32 @@ public class OpenFeatureClient implements Client {
     }
 
     @Override
-    public Long getNumberValue(String key, Long defaultValue) {
-        return null;
+    public Integer getIntegerValue(String key, Integer defaultValue) {
+        return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, null, null).getValue();
     }
 
     @Override
-    public Long getNumberValue(String key, Long defaultValue, EvaluationContext ctx) {
-        return null;
+    public Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx) {
+        return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, ctx, null).getValue();
     }
 
     @Override
-    public Long getNumberValue(String key, Long defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return null;
+    public Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, ctx, options).getValue();
     }
 
     @Override
-    public FlagEvaluationDetails<Long> getNumberDetails(String key, Long defaultValue) {
-        return null;
+    public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue) {
+        return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, null, null);
     }
 
     @Override
-    public FlagEvaluationDetails<Long> getNumberDetails(String key, Long defaultValue, EvaluationContext ctx) {
-        return null;
+    public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx) {
+        return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, ctx, null);
     }
 
     @Override
-    public FlagEvaluationDetails<Long> getNumberDetails(String key, Long defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return null;
+    public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, ctx, options);
     }
 }
