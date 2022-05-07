@@ -1,10 +1,10 @@
 package javasdk;
 
-import javasdk.exceptions.ParseError;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -50,18 +50,10 @@ class DeveloperExperienceTest {
 
     @Test void brokenProvider() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new FeatureProvider() {
-            @Override
-            public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-                throw new ParseError();
-            }
-            @Override public String getName() { return null; }
-            @Override public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) { return null; }
-            @Override public ProviderEvaluation<Long> getNumberEvaluation(String key, Long defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {return null;}
-        });
+        api.setProvider(new AlwaysBrokenProvider());
         Client client = api.getClient();
         FlagEvaluationDetails<Boolean> retval = client.getBooleanDetails(flagKey, false);
-        assertEquals(ErrorCode.PARSE_ERROR, retval.getErrorCode());
+        assertEquals(ErrorCode.GENERAL, retval.getErrorCode());
         assertEquals(Reason.ERROR, retval.getReason());
         assertFalse(retval.getValue());
     }
