@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import javasdk.exceptions.GeneralError;
 import javasdk.exceptions.OpenFeatureError;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +17,7 @@ public class OpenFeatureClient implements Client {
     @Getter private final String name;
     @Getter private final String version;
     @Getter private final List<Hook> clientHooks;
+    private final Logger log = LoggerFactory.getLogger(OpenFeatureClient.class);
 
     public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
         this.openfeatureApi = openFeatureAPI;
@@ -57,14 +60,18 @@ public class OpenFeatureClient implements Client {
 
             details = FlagEvaluationDetails.from(providerEval, key, null);
             this.afterHooks(hookCtx, details, mergedHooks);
-        } catch (OpenFeatureError e) {
-            // TODO: convert to error type if that's relevant.
+        } catch (Exception e) {
+            log.error("Unable to correctly evaluate flag with key {} due to exception {}", key, e.getMessage());
             if (details == null) {
                 details = FlagEvaluationDetails.<T>builder().value(defaultValue).reason(Reason.ERROR).build();
             }
             details.value = defaultValue;
             details.reason = Reason.ERROR;
-            details.errorCode = e.getErrorCode();
+            if (e instanceof OpenFeatureError) {
+                details.errorCode = ((OpenFeatureError) e).getErrorCode();
+            } else {
+                details.errorCode = ErrorCode.GENERAL;
+            }
             details.executedHooks = hookCtx.executedHooks;
         } finally {
             this.afterAllHooks(hookCtx, mergedHooks);
