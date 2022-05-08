@@ -1,25 +1,25 @@
 package javasdk;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
 
-@Data
+@Value @Builder
 public class HookContext<T> {
-    String flagKey;
-    FlagValueType type;
+    @NonNull String flagKey;
+    @NonNull FlagValueType type;
+    @NonNull T defaultValue;
+    @NonNull EvaluationContext ctx;
     Client client;
-    EvaluationContext ctx;
     FeatureProvider provider;
-    T defaultValue;
-    HookEvaluation<T> executedHooks;
 
     public static <T> HookContext<T> from(String key, FlagValueType type, Client client, EvaluationContext ctx, T defaultValue) {
-        HookContext<T> hc = new HookContext<>();
-        hc.flagKey = key;
-        hc.type = type;
-        hc.client = client;
-        hc.ctx = ctx;
-        hc.executedHooks = new HookEvaluation<T>();
-        hc.defaultValue = defaultValue;
-        return hc;
+        return HookContext.<T>builder()
+                .flagKey(key)
+                .type(type)
+                .client(client)
+                .ctx(ctx)
+                .defaultValue(defaultValue)
+                .build();
     }
 }
