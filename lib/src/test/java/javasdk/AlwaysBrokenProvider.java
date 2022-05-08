@@ -1,6 +1,5 @@
 package javasdk;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class AlwaysBrokenProvider implements FeatureProvider {
     @Override

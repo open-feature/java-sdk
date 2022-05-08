@@ -17,7 +17,7 @@ public class OpenFeatureClient implements Client {
     @Getter private final String name;
     @Getter private final String version;
     @Getter private final List<Hook> clientHooks;
-    private final Logger log = LoggerFactory.getLogger(OpenFeatureClient.class);
+    private static final Logger log = LoggerFactory.getLogger(OpenFeatureClient.class);
 
     public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
         this.openfeatureApi = openFeatureAPI;
@@ -33,6 +33,9 @@ public class OpenFeatureClient implements Client {
 
     private <T> FlagEvaluationDetails<T> evaluateFlag(FlagValueType type, String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         FeatureProvider provider = this.openfeatureApi.getProvider();
+        if (ctx == null) {
+            ctx = new EvaluationContext();
+        }
         // TODO: Context transformation?
         HookContext hookCtx = HookContext.from(key, type, this, ctx, defaultValue);
 
@@ -67,7 +70,7 @@ public class OpenFeatureClient implements Client {
             }
             details.value = defaultValue;
             details.reason = Reason.ERROR;
-            if (e instanceof OpenFeatureError) {
+            if (e instanceof OpenFeatureError) { //NOPMD - suppressed AvoidInstanceofChecksInCatchClause - Don't want to duplicate detail creation logic.
                 details.errorCode = ((OpenFeatureError) e).getErrorCode();
             } else {
                 details.errorCode = ErrorCode.GENERAL;
@@ -116,7 +119,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue) {
-        return getBooleanDetails(key, defaultValue, null, null);
+        return getBooleanDetails(key, defaultValue, new EvaluationContext());
     }
 
     @Override
@@ -146,12 +149,12 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue) {
-        return this.evaluateFlag(FlagValueType.STRING, key, defaultValue, null, null);
+        return getStringDetails(key, defaultValue,  new EvaluationContext());
     }
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx) {
-        return this.evaluateFlag(FlagValueType.STRING, key, defaultValue, ctx, null);
+        return getStringDetails(key, defaultValue,  new EvaluationContext(), null);
     }
 
     @Override
@@ -176,12 +179,12 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue) {
-        return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, null, null);
+        return getIntegerDetails(key, defaultValue, new EvaluationContext());
     }
 
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx) {
-        return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, ctx, null);
+        return getIntegerDetails(key, defaultValue, new EvaluationContext(), null);
     }
 
     @Override
