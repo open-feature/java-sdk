@@ -72,7 +72,6 @@ public class OpenFeatureClient implements Client {
             } else {
                 details.errorCode = ErrorCode.GENERAL;
             }
-            details.executedHooks = hookCtx.executedHooks;
         } finally {
             this.afterAllHooks(hookCtx, mergedHooks);
         }
@@ -82,21 +81,18 @@ public class OpenFeatureClient implements Client {
 
     private void afterAllHooks(HookContext hookCtx, List<Hook> hooks) {
         for (Hook hook : hooks) {
-            hookCtx.executedHooks.addAfterAll(hook);
             hook.afterAll(hookCtx);
         }
     }
 
     private <T> void afterHooks(HookContext hookContext, FlagEvaluationDetails<T> details, List<Hook> hooks) {
         for (Hook hook : hooks) {
-            hookContext.executedHooks.addAfter(hook);
             hook.after(hookContext, details);
         }
     }
 
     private HookContext beforeHooks(HookContext hookCtx, List<Hook> hooks) {
         for (Hook hook : hooks) {
-            hookCtx.executedHooks.addBefore(hook);
             hook.before(hookCtx);
             // TODO: Merge returned context w/ hook context object
         }
