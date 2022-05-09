@@ -1,6 +1,7 @@
 package javasdk;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import javasdk.exceptions.GeneralError;
 import javasdk.exceptions.OpenFeatureError;
 import lombok.Getter;
@@ -44,6 +45,7 @@ public class OpenFeatureClient implements Client {
             mergedHooks = ImmutableList.<Hook>builder()
                     .addAll(options.getHooks())
                     .addAll(clientHooks)
+                    .addAll(openfeatureApi.getApiHooks())
                     .build();
         } else {
             mergedHooks = clientHooks;
@@ -75,6 +77,7 @@ public class OpenFeatureClient implements Client {
             } else {
                 details.errorCode = ErrorCode.GENERAL;
             }
+            this.errorHooks(hookCtx, e, mergedHooks);
         } finally {
             this.afterAllHooks(hookCtx, mergedHooks);
         }
@@ -82,9 +85,15 @@ public class OpenFeatureClient implements Client {
         return details;
     }
 
+    private void errorHooks(HookContext hookCtx, Exception e, List<Hook> hooks) {
+        for (Hook hook : hooks) {
+            hook.error(hookCtx, e);
+        }
+    }
+
     private void afterAllHooks(HookContext hookCtx, List<Hook> hooks) {
         for (Hook hook : hooks) {
-            hook.afterAll(hookCtx);
+            hook.finallyAfter(hookCtx);
         }
     }
 
@@ -95,7 +104,8 @@ public class OpenFeatureClient implements Client {
     }
 
     private HookContext beforeHooks(HookContext hookCtx, List<Hook> hooks) {
-        for (Hook hook : hooks) {
+        // These traverse backwards from normal.
+        for (Hook hook : Lists.reverse(hooks)) {
             hook.before(hookCtx);
             // TODO: Merge returned context w/ hook context object
         }

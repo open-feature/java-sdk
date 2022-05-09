@@ -75,16 +75,16 @@ public class FlagEvaluationSpecTests {
         String key = "key";
         assertFalse(c.getBooleanValue(key, false));
         assertFalse(c.getBooleanValue(key, false, new EvaluationContext()));
-        assertFalse(c.getBooleanValue(key, false, new EvaluationContext(), new FlagEvaluationOptions(null)));
+        assertFalse(c.getBooleanValue(key, false, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
 
 
         assertEquals("my-string", c.getStringValue(key, "my-string"));
         assertEquals("my-string", c.getStringValue(key, "my-string", new EvaluationContext()));
-        assertEquals("my-string", c.getStringValue(key, "my-string", new EvaluationContext(), new FlagEvaluationOptions(null)));
+        assertEquals("my-string", c.getStringValue(key, "my-string", new EvaluationContext(), FlagEvaluationOptions.builder().build()));
 
         assertEquals(4, c.getIntegerValue(key, 4));
         assertEquals(4, c.getIntegerValue(key, 4, new EvaluationContext()));
-        assertEquals(4, c.getIntegerValue(key, 4, new EvaluationContext(), new FlagEvaluationOptions(null)));
+        assertEquals(4, c.getIntegerValue(key, 4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
 
     }
 

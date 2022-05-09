@@ -29,7 +29,7 @@ class DeveloperExperienceTest {
         Client client = api.getClient();
         client.registerHooks(exampleHook);
         Boolean retval = client.getBooleanValue(flagKey, false);
-        verify(exampleHook, times(1)).afterAll(any());
+        verify(exampleHook, times(1)).finallyAfter(any());
         assertFalse(retval);
     }
 
@@ -43,8 +43,8 @@ class DeveloperExperienceTest {
         client.registerHooks(clientHook);
         Boolean retval = client.getBooleanValue(flagKey, false, new EvaluationContext(),
                 FlagEvaluationOptions.builder().hook(evalHook).build());
-        verify(clientHook, times(1)).afterAll(any());
-        verify(evalHook, times(1)).afterAll(any());
+        verify(clientHook, times(1)).finallyAfter(any());
+        verify(evalHook, times(1)).finallyAfter(any());
         assertFalse(retval);
     }
 

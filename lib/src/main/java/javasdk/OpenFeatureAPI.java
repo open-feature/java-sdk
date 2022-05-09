@@ -4,10 +4,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class OpenFeatureAPI {
     @Getter @Setter private FeatureProvider provider;
     private static OpenFeatureAPI api;
+    @Getter private List<Hook> apiHooks;
 
     public static OpenFeatureAPI getInstance() {
         synchronized (OpenFeatureAPI.class) {
@@ -16,6 +20,10 @@ public class OpenFeatureAPI {
             }
         }
         return api;
+    }
+
+    public OpenFeatureAPI() {
+        this.apiHooks = new ArrayList<>();
     }
 
     public Client getClient() {
@@ -30,4 +38,11 @@ public class OpenFeatureAPI {
         return new OpenFeatureClient(this, name, version);
     }
 
+    public void registerHooks(Hook... hooks) {
+        this.apiHooks.addAll(Arrays.asList(hooks));
+    }
+
+    public void clearHooks() {
+        this.apiHooks.clear();
+    }
 }
