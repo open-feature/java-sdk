@@ -1,9 +1,11 @@
 package javasdk;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -180,12 +182,14 @@ public class HookSpecTests {
 
         verify(h, times(0)).error(any(), any(), any());
     }
+
+    @Specification(spec="hooks", number="4.1", text="The API, Client and invocation MUST have a method for registering hooks which accepts flag evaluation options")
     @Specification(spec="hooks", number="4.2", text="Hooks MUST be evaluated in the following order:" +
             "before: API, Client, Invocation" +
             "after: Invocation, Client, API" +
             "error (if applicable): Invocation, Client, API" +
             "finally: Invocation, Client, API")
-    @Test void eval_order() {
+    @Test void hook_eval_order() {
         List<String> evalOrder = new ArrayList<String>();
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());
@@ -220,7 +224,7 @@ public class HookSpecTests {
             }
 
             @Override
-            void after(HookContext ctx, FlagEvaluationDetails details) {
+            void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
                 evalOrder.add("client after");
             }
 
@@ -268,25 +272,131 @@ public class HookSpecTests {
         assertEquals(expectedOrder, evalOrder);
     }
 
-    @Specification(spec="hooks", number="1.4", text="The evaluation context MUST be mutable only within the before hook.")
+    @Specification(spec="hooks", number="4.6", text="If an error is encountered in the error stage, it MUST NOT be returned to the user.")
+    @Disabled("Not actually sure what 'returned to the user' means in this context. There is no exception information returned.")
+    @Test void error_in_error_stage() {
+        Hook<Boolean> h = mock(Hook.class);
+        doThrow(RuntimeException.class).when(h).error(any(), any(), any());
+
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(new AlwaysBrokenProvider());
+        Client c = api.getClient();
+
+        FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", false, null, FlagEvaluationOptions.builder().hook(h).build());
+    }
+
+
     @Specification(spec="hooks", number="2.1", text="HookHints MUST be a map of objects.")
     @Specification(spec="hooks", number="2.2", text="Condition: HookHints MUST be immutable.")
-    @Specification(spec="hooks", number="3.1", text="Hooks MUST specify at least one stage.")
-    @Specification(spec="hooks", number="3.3", text="The after stage MUST run after flag evaluation occurs. It accepts a hook context (required), flag evaluation details (required) and HookHints (optional). It has no return value.")
-    @Specification(spec="hooks", number="3.5", text="The finally hook MUST run after the before, after, and error stages. It accepts a hook context (required) and HookHints (optional). There is no return value.")
-    @Specification(spec="hooks", number="4.1", text="The API, Client and invocation MUST have a method for registering hooks which accepts flag evaluation options")
-    @Specification(spec="hooks", number="4.4", text="If an error occurs in the before or after hooks, the error hooks MUST be invoked.")
-    @Specification(spec="hooks", number="4.5", text="If an error occurs during the evaluation of before or after hooks, any remaining hooks in the before or after stages MUST NOT be invoked.")
-    @Specification(spec="hooks", number="4.6", text="If an error is encountered in the error stage, it MUST NOT be returned to the user.")
-    @Specification(spec="hooks", number="5.2", text="Flag evaluation options MAY contain HookHints, a map of data to be provided to hook invocations.")
-    @Specification(spec="hooks", number="5.3", text="HookHints MUST be passed to each hook through a parameter. It is merged into the object in the precedence order API -> Client -> Invocation (last wins).")
     @Specification(spec="hooks", number="5.4", text="The hook MUST NOT alter the HookHints object.")
     @Specification(spec="hooks", number="6.1", text="HookHints MUST passed between each hook.")
+    @Test void hook_hints() {
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(new NoOpProvider<>());
+        Client client = api.getClient();
+        Hook<Boolean> mutatingHook = new Hook<Boolean>() {
+            @Override
+            void before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+                assertTrue(hints instanceof ImmutableMap);
+            }
+
+            @Override
+            void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
+                assertTrue(hints instanceof ImmutableMap);
+            }
+
+            @Override
+            void error(HookContext<Boolean> ctx, Exception error, ImmutableMap<String, Object> hints) {
+                assertTrue(hints instanceof ImmutableMap);
+            }
+
+            @Override
+            void finallyAfter(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+                assertTrue(hints instanceof ImmutableMap);
+            }
+        };
+
+        ImmutableMap<String, Object> hh = ImmutableMap.of("My hint key", "My hint value");
+
+        client.getBooleanValue("key", false, new EvaluationContext(), FlagEvaluationOptions.builder()
+                .hook(mutatingHook)
+                .hookHints(hh)
+                .build());
+    }
+
+    @Specification(spec="hooks", number="5.2", text="Flag evaluation options MAY contain HookHints, a map of data to be provided to hook invocations.")
+    @Test void missing_hook_hints() {
+        FlagEvaluationOptions feo = FlagEvaluationOptions.builder().build();
+        assertNotNull(feo.getHookHints());
+        assertTrue(feo.getHookHints().isEmpty());
+    }
+
+    @Specification(spec="hooks", number="3.3", text="The after stage MUST run after flag evaluation occurs. It accepts a hook context (required), flag evaluation details (required) and HookHints (optional). It has no return value.")
+    @Specification(spec="hooks", number="3.5", text="The finally hook MUST run after the before, after, and error stages. It accepts a hook context (required) and HookHints (optional). There is no return value.")
+    @Test void flag_eval_hook_order() {
+        Hook hook = mock(Hook.class);
+        FeatureProvider provider = mock(FeatureProvider.class);
+        when(provider.getBooleanEvaluation(any(), any(), any(), any()))
+                .thenReturn(ProviderEvaluation.<Boolean>builder()
+                        .value(true)
+                        .build());
+        InOrder order = inOrder(hook, provider);
+
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(provider);
+        Client client = api.getClient();
+        client.getBooleanValue("key", false, new EvaluationContext(),
+                FlagEvaluationOptions.builder().hook(hook).build());
+
+        order.verify(hook).before(any(),any());
+        order.verify(provider).getBooleanEvaluation(any(), any(), any(), any());
+        order.verify(hook).after(any(),any(),any());
+        order.verify(hook).finallyAfter(any(),any());
+    }
+
+    @Specification(spec="hooks", number="4.4", text="If an error occurs in the before or after hooks, the error hooks MUST be invoked.")
+    @Test void error_hooks() {
+        Hook hook = mock(Hook.class);
+        doThrow(RuntimeException.class).when(hook).before(any(), any());
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(new NoOpProvider<>());
+        Client client = api.getClient();
+        client.getBooleanValue("key", false, new EvaluationContext(),
+                FlagEvaluationOptions.builder().hook(hook).build());
+        verify(hook, times(1)).before(any(), any());
+        verify(hook, times(1)).error(any(), any(), any());
+    }
+
+    @Specification(spec="hooks", number="4.5", text="If an error occurs during the evaluation of before or after hooks, any remaining hooks in the before or after stages MUST NOT be invoked.")
+    @Test void multi_hooks_early_out__before() {
+        Hook hook = mock(Hook.class);
+        Hook hook2 = mock(Hook.class);
+        doThrow(RuntimeException.class).when(hook).before(any(), any());
+
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(new NoOpProvider<>());
+        Client client = api.getClient();
+
+        client.getBooleanValue("key", false, new EvaluationContext(),
+                FlagEvaluationOptions.builder()
+                        .hook(hook2)
+                        .hook(hook)
+                        .build());
+
+        verify(hook, times(1)).before(any(), any());
+        verify(hook2, times(0)).before(any(), any());
+
+        verify(hook, times(1)).error(any(), any(), any());
+        verify(hook2, times(1)).error(any(), any(), any());
+    }
+    @Specification(spec="hooks", number="1.4", text="The evaluation context MUST be mutable only within the before hook.")
+    @Specification(spec="hooks", number="3.1", text="Hooks MUST specify at least one stage.")
+    @Specification(spec="hooks", number="5.3", text="HookHints MUST be passed to each hook through a parameter. It is merged into the object in the precedence order API -> Client -> Invocation (last wins).")
     void todo() {}
 
     @SneakyThrows
     @Specification(spec="hooks", number="3.6", text="Condition: If finally is a reserved word in the language, finallyAfter SHOULD be used.")
-    @Disabled
+    @Disabled("Unsure why the getMethod() call doesn't work correctly")
     @Test void doesnt_use_finally() {
 //        Class [] carr = new Class[1];
 //        carr[0] = HookContext.class;

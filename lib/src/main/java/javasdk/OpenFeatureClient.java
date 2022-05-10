@@ -33,7 +33,7 @@ public class OpenFeatureClient implements Client {
         this.clientHooks.addAll(Arrays.asList(hooks));
     }
 
-    private <T> FlagEvaluationDetails<T> evaluateFlag(FlagValueType type, String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+    <T> FlagEvaluationDetails<T> evaluateFlag(FlagValueType type, String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         FeatureProvider provider = this.openfeatureApi.getProvider();
         if (ctx == null) {
             ctx = new EvaluationContext();
