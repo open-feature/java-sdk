@@ -1,6 +1,7 @@
 package javasdk;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import javasdk.exceptions.GeneralError;
 import javasdk.exceptions.OpenFeatureError;
@@ -37,6 +38,9 @@ public class OpenFeatureClient implements Client {
         if (ctx == null) {
             ctx = new EvaluationContext();
         }
+
+        ImmutableMap<String, Object> hints = options.getHookHints();
+
         // TODO: Context transformation?
         HookContext hookCtx = HookContext.from(key, type, this, ctx, defaultValue);
 
@@ -53,7 +57,7 @@ public class OpenFeatureClient implements Client {
 
         FlagEvaluationDetails<T> details = null;
         try {
-            this.beforeHooks(hookCtx, mergedHooks);
+            this.beforeHooks(hookCtx, mergedHooks, hints);
 
             ProviderEvaluation<T> providerEval;
             if (type == FlagValueType.BOOLEAN) {
@@ -64,7 +68,7 @@ public class OpenFeatureClient implements Client {
             }
 
             details = FlagEvaluationDetails.from(providerEval, key, null);
-            this.afterHooks(hookCtx, details, mergedHooks);
+            this.afterHooks(hookCtx, details, mergedHooks, hints);
         } catch (Exception e) {
             log.error("Unable to correctly evaluate flag with key {} due to exception {}", key, e.getMessage());
             if (details == null) {
@@ -77,36 +81,36 @@ public class OpenFeatureClient implements Client {
             } else {
                 details.errorCode = ErrorCode.GENERAL;
             }
-            this.errorHooks(hookCtx, e, mergedHooks);
+            this.errorHooks(hookCtx, e, mergedHooks, hints);
         } finally {
-            this.afterAllHooks(hookCtx, mergedHooks);
+            this.afterAllHooks(hookCtx, mergedHooks, hints);
         }
 
         return details;
     }
 
-    private void errorHooks(HookContext hookCtx, Exception e, List<Hook> hooks) {
+    private void errorHooks(HookContext hookCtx, Exception e, List<Hook> hooks, ImmutableMap<String, Object> hints) {
         for (Hook hook : hooks) {
-            hook.error(hookCtx, e);
+            hook.error(hookCtx, e, hints);
         }
     }
 
-    private void afterAllHooks(HookContext hookCtx, List<Hook> hooks) {
+    private void afterAllHooks(HookContext hookCtx, List<Hook> hooks, ImmutableMap<String, Object> hints) {
         for (Hook hook : hooks) {
-            hook.finallyAfter(hookCtx);
+            hook.finallyAfter(hookCtx, hints);
         }
     }
 
-    private <T> void afterHooks(HookContext hookContext, FlagEvaluationDetails<T> details, List<Hook> hooks) {
+    private <T> void afterHooks(HookContext hookContext, FlagEvaluationDetails<T> details, List<Hook> hooks, ImmutableMap<String, Object> hints) {
         for (Hook hook : hooks) {
-            hook.after(hookContext, details);
+            hook.after(hookContext, details, hints);
         }
     }
 
-    private HookContext beforeHooks(HookContext hookCtx, List<Hook> hooks) {
+    private HookContext beforeHooks(HookContext hookCtx, List<Hook> hooks, ImmutableMap<String, Object> hints) {
         // These traverse backwards from normal.
         for (Hook hook : Lists.reverse(hooks)) {
-            hook.before(hookCtx);
+            hook.before(hookCtx, hints);
             // TODO: Merge returned context w/ hook context object
         }
         return hookCtx;

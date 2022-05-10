@@ -135,8 +135,8 @@ public class FlagEvaluationSpecTests {
         c.getBooleanValue("key", false, null, FlagEvaluationOptions.builder()
                         .hook(invocationHook)
                         .build());
-        verify(clientHook, times(1)).before(any());
-        verify(invocationHook, times(1)).before(any());
+        verify(clientHook, times(1)).before(any(), any());
+        verify(invocationHook, times(1)).before(any(), any());
     }
 
     @Specification(spec="flag evaluation", number="1.18", text="Methods, functions, or operations on the client MUST " +
