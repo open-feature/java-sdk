@@ -195,23 +195,23 @@ public class HookSpecTests {
         api.setProvider(new NoOpProvider());
         api.registerHooks(new Hook<Boolean>() {
             @Override
-            void before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+            public void before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                 evalOrder.add("api before");
             }
 
             @Override
-            void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
+            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
                 evalOrder.add("api after");
                 throw new RuntimeException(); // trigger error flows.
             }
 
             @Override
-            void error(HookContext<Boolean> ctx, Exception error, ImmutableMap<String, Object> hints) {
+            public void error(HookContext<Boolean> ctx, Exception error, ImmutableMap<String, Object> hints) {
                 evalOrder.add("api error");
             }
 
             @Override
-            void finallyAfter(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+            public void finallyAfter(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                 evalOrder.add("api finally");
             }
         });
@@ -219,22 +219,22 @@ public class HookSpecTests {
         Client c = api.getClient();
         c.registerHooks(new Hook<Boolean>() {
             @Override
-            void before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+            public void before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                 evalOrder.add("client before");
             }
 
             @Override
-            void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
+            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
                 evalOrder.add("client after");
             }
 
             @Override
-            void error(HookContext<Boolean> ctx, Exception error, ImmutableMap<String, Object> hints) {
+            public void error(HookContext<Boolean> ctx, Exception error, ImmutableMap<String, Object> hints) {
                 evalOrder.add("client error");
             }
 
             @Override
-            void finallyAfter(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+            public void finallyAfter(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                 evalOrder.add("client finally");
             }
         });
@@ -242,22 +242,22 @@ public class HookSpecTests {
         c.getBooleanValue("key", false, null, FlagEvaluationOptions.builder()
                         .hook(new Hook<Boolean>() {
                             @Override
-                            void before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+                            public void before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                                 evalOrder.add("invocation before");
                             }
 
                             @Override
-                            void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
+                            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
                                 evalOrder.add("invocation after");
                             }
 
                             @Override
-                            void error(HookContext<Boolean> ctx, Exception error, ImmutableMap<String, Object> hints) {
+                            public void error(HookContext<Boolean> ctx, Exception error, ImmutableMap<String, Object> hints) {
                                 evalOrder.add("invocation error");
                             }
 
                             @Override
-                            void finallyAfter(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+                            public void finallyAfter(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                                 evalOrder.add("invocation finally");
                             }
                         })
@@ -296,22 +296,22 @@ public class HookSpecTests {
         Client client = api.getClient();
         Hook<Boolean> mutatingHook = new Hook<Boolean>() {
             @Override
-            void before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+            public void before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                 assertTrue(hints instanceof ImmutableMap);
             }
 
             @Override
-            void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
+            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
                 assertTrue(hints instanceof ImmutableMap);
             }
 
             @Override
-            void error(HookContext<Boolean> ctx, Exception error, ImmutableMap<String, Object> hints) {
+            public void error(HookContext<Boolean> ctx, Exception error, ImmutableMap<String, Object> hints) {
                 assertTrue(hints instanceof ImmutableMap);
             }
 
             @Override
-            void finallyAfter(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+            public void finallyAfter(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                 assertTrue(hints instanceof ImmutableMap);
             }
         };
@@ -397,21 +397,14 @@ public class HookSpecTests {
 
     @SneakyThrows
     @Specification(spec="hooks", number="3.6", text="Condition: If finally is a reserved word in the language, finallyAfter SHOULD be used.")
-    @Disabled("Unsure why the getMethod() call doesn't work correctly")
     @Test void doesnt_use_finally() {
-//        Class [] carr = new Class[1];
-//        carr[0] = HookContext.class;
-//
-//        try {
-//            Hook.class.getMethod("finally", carr);
-//            fail("Not possible. Finally is a reserved word.");
-//        } catch (NoSuchMethodException e) {
-//            // expected
-//        }
+        try {
+            Hook.class.getMethod("finally", HookContext.class, ImmutableMap.class);
+            fail("Not possible. Finally is a reserved word.");
+        } catch (NoSuchMethodException e) {
+            // expected
+        }
 
-        Hook.class.getMethod("finallyAfter", HookContext.class);
-
+        Hook.class.getMethod("finallyAfter", HookContext.class, ImmutableMap.class);
     }
-
-
 }
