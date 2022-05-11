@@ -138,7 +138,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue, EvaluationContext ctx) {
-        return getBooleanDetails(key, defaultValue, ctx, null);
+        return getBooleanDetails(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
     }
 
     @Override
@@ -148,17 +148,17 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public String getStringValue(String key, String defaultValue) {
-        return this.getStringDetails(key, defaultValue).getValue();
+        return getStringDetails(key, defaultValue).getValue();
     }
 
     @Override
     public String getStringValue(String key, String defaultValue, EvaluationContext ctx) {
-        return this.getStringDetails(key, defaultValue, ctx).getValue();
+        return getStringDetails(key, defaultValue, ctx).getValue();
     }
 
     @Override
     public String getStringValue(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return this.getStringDetails(key, defaultValue, ctx, options).getValue();
+        return getStringDetails(key, defaultValue, ctx, options).getValue();
     }
 
     @Override
@@ -168,7 +168,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx) {
-        return getStringDetails(key, defaultValue,  new EvaluationContext(), null);
+        return getStringDetails(key, defaultValue,  new EvaluationContext(), FlagEvaluationOptions.builder().build());
     }
 
     @Override
@@ -178,17 +178,17 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public Integer getIntegerValue(String key, Integer defaultValue) {
-        return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, null, null).getValue();
+        return getIntegerDetails(key, defaultValue).getValue();
     }
 
     @Override
     public Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx) {
-        return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, ctx, null).getValue();
+        return getIntegerDetails(key, defaultValue, ctx).getValue();
     }
 
     @Override
     public Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, ctx, options).getValue();
+        return getIntegerDetails(key, defaultValue, ctx, options).getValue();
     }
 
     @Override
@@ -198,7 +198,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx) {
-        return getIntegerDetails(key, defaultValue, new EvaluationContext(), null);
+        return getIntegerDetails(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
     }
 
     @Override
