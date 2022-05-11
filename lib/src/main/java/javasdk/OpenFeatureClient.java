@@ -67,7 +67,7 @@ public class OpenFeatureClient implements Client {
                 throw new GeneralError("Unknown flag type");
             }
 
-            details = FlagEvaluationDetails.from(providerEval, key, null);
+            details = FlagEvaluationDetails.from(providerEval, key);
             this.afterHooks(hookCtx, details, mergedHooks, hints);
         } catch (Exception e) {
             log.error("Unable to correctly evaluate flag with key {} due to exception {}", key, e.getMessage());
