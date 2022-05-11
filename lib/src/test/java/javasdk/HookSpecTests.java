@@ -165,7 +165,7 @@ public class HookSpecTests {
         doThrow(RuntimeException.class).when(h).finallyAfter(any(), any());
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider<>());
+        api.setProvider(new NoOpProvider());
         Client c= api.getClient();
 
         assertThrows(RuntimeException.class, () -> c.getBooleanValue("key", false, null, FlagEvaluationOptions.builder().hook(h).build()));
@@ -292,7 +292,7 @@ public class HookSpecTests {
     @Specification(spec="hooks", number="6.1", text="HookHints MUST passed between each hook.")
     @Test void hook_hints() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider<>());
+        api.setProvider(new NoOpProvider());
         Client client = api.getClient();
         Hook<Boolean> mutatingHook = new Hook<Boolean>() {
             @Override
@@ -359,7 +359,7 @@ public class HookSpecTests {
         Hook hook = mock(Hook.class);
         doThrow(RuntimeException.class).when(hook).before(any(), any());
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider<>());
+        api.setProvider(new NoOpProvider());
         Client client = api.getClient();
         client.getBooleanValue("key", false, new EvaluationContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
@@ -374,7 +374,7 @@ public class HookSpecTests {
         doThrow(RuntimeException.class).when(hook).before(any(), any());
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider<>());
+        api.setProvider(new NoOpProvider());
         Client client = api.getClient();
 
         client.getBooleanValue("key", false, new EvaluationContext(),

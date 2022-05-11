@@ -2,7 +2,7 @@ package javasdk;
 
 import lombok.Getter;
 
-public class NoOpProvider<T extends EvaluationContext> implements FeatureProvider {
+public class NoOpProvider implements FeatureProvider {
     @Getter
     private final String name = "No-op Provider";
 
