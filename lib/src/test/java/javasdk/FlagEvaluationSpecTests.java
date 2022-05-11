@@ -174,7 +174,8 @@ public class FlagEvaluationSpecTests {
 
     @Specification(spec="flag evaluation", number="1.20", text="The client SHOULD provide asynchronous or non-blocking " +
             "mechanisms for flag evaluation.")
-    @Disabled @Test void explicitly_not_doing() {
+    @Disabled("We're operating in a one request per thread model")
+    @Test void explicitly_not_doing() {
 
     }
 }
