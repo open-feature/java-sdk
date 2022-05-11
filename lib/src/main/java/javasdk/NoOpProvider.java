@@ -10,6 +10,7 @@ public class NoOpProvider implements FeatureProvider {
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return ProviderEvaluation.<Boolean>builder()
                 .value(defaultValue)
+                .variant("Passed in default")
                 .reason(Reason.DEFAULT)
                 .build();
     }
@@ -18,6 +19,7 @@ public class NoOpProvider implements FeatureProvider {
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return ProviderEvaluation.<String>builder()
                 .value(defaultValue)
+                .variant("Passed in default")
                 .reason(Reason.DEFAULT)
                 .build();
     }
@@ -26,6 +28,7 @@ public class NoOpProvider implements FeatureProvider {
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return ProviderEvaluation.<Integer>builder()
                 .value(defaultValue)
+                .variant("Passed in default")
                 .reason(Reason.DEFAULT)
                 .build();
     }

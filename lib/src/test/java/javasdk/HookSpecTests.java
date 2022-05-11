@@ -389,6 +389,7 @@ public class HookSpecTests {
         verify(hook, times(1)).error(any(), any(), any());
         verify(hook2, times(1)).error(any(), any(), any());
     }
+
     @Specification(spec="hooks", number="1.4", text="The evaluation context MUST be mutable only within the before hook.")
     @Specification(spec="hooks", number="3.1", text="Hooks MUST specify at least one stage.")
     @Specification(spec="hooks", number="5.3", text="HookHints MUST be passed to each hook through a parameter. It is merged into the object in the precedence order API -> Client -> Invocation (last wins).")
