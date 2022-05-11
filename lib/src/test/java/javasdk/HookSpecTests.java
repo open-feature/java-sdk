@@ -392,7 +392,7 @@ public class HookSpecTests {
     @Specification(spec="hooks", number="1.4", text="The evaluation context MUST be mutable only within the before hook.")
     @Specification(spec="hooks", number="3.1", text="Hooks MUST specify at least one stage.")
     @Specification(spec="hooks", number="5.3", text="HookHints MUST be passed to each hook through a parameter. It is merged into the object in the precedence order API -> Client -> Invocation (last wins).")
-    void todo() {}
+    @Test @Disabled void todo() {}
 
     @SneakyThrows
     @Specification(spec="hooks", number="3.6", text="Condition: If finally is a reserved word in the language, finallyAfter SHOULD be used.")
