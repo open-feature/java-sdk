@@ -38,8 +38,18 @@ public class FlagEvaluationSpecTests {
     @Specification(spec="flag evaluation", number="1.3", text="The API MUST provide a function to add hooks which " +
             "accepts one or more API-conformant hooks, and appends them to the collection of any previously added hooks." +
             "When new hooks are added, previously added hooks are not removed.")
-    @Disabled @Test void hook_addition() {
-        throw new NotImplementedException();
+    @Test void hook_addition() {
+        Hook h1 = mock(Hook.class);
+        Hook h2 = mock(Hook.class);
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.registerHooks(h1);
+
+        assertEquals(1, api.getApiHooks().size());
+        assertEquals(h1, api.getApiHooks().get(0));
+
+        api.registerHooks(h2);
+        assertEquals(2, api.getApiHooks().size());
+        assertEquals(h2, api.getApiHooks().get(1));
     }
 
     @Specification(spec="flag evaluation", number="1.5", text="The API MUST provide a function for creating a client " +
@@ -160,7 +170,7 @@ public class FlagEvaluationSpecTests {
     @Specification(spec="flag evaluation", number="1.21", text="The client MUST transform the evaluation context using " +
             "the provider's context transformer function, before passing the result of the transformation to the " +
             "provider's flag resolution functions.")
-    void todo() {}
+    @Test @Disabled void todo() {}
 
     @Specification(spec="flag evaluation", number="1.20", text="The client SHOULD provide asynchronous or non-blocking " +
             "mechanisms for flag evaluation.")
