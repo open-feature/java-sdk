@@ -289,7 +289,7 @@ public class HookSpecTests {
     @Specification(spec="hooks", number="2.1", text="HookHints MUST be a map of objects.")
     @Specification(spec="hooks", number="2.2", text="Condition: HookHints MUST be immutable.")
     @Specification(spec="hooks", number="5.4", text="The hook MUST NOT alter the HookHints object.")
-    @Specification(spec="hooks", number="6.1", text="HookHints MUST passed between each hook.")
+    @Specification(spec="hooks", number="5.3", text="HookHints MUST be passed to each hook.")
     @Test void hook_hints() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());
@@ -392,7 +392,6 @@ public class HookSpecTests {
 
     @Specification(spec="hooks", number="1.4", text="The evaluation context MUST be mutable only within the before hook.")
     @Specification(spec="hooks", number="3.1", text="Hooks MUST specify at least one stage.")
-    @Specification(spec="hooks", number="5.3", text="HookHints MUST be passed to each hook through a parameter. It is merged into the object in the precedence order API -> Client -> Invocation (last wins).")
     @Test @Disabled void todo() {}
 
     @SneakyThrows
