@@ -45,6 +45,8 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+jar.archiveBaseName = 'openfeature'
+
 def repo_url = System.getenv("REPOSITORY_URL")
 
 group = 'dev.openfeature'
