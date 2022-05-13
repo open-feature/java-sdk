@@ -65,10 +65,8 @@ publishing {
         maven(MavenPublication) {
             artifactId="javasdk"
             from components.java
-            artifacts {
-                archives sourcesJar
-                archives jar
-            }
+
+            artifact sourcesJar
 
             pom {
                 name = 'OpenFeature SDK'
