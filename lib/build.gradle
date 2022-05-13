@@ -78,9 +78,9 @@ publishing {
                 url = 'https://openfeature.dev'
 
                 scm {
-                    connection = 'scm:git:https://github.com/openfeature/javasdk.git'
-                    developerConnection = 'scm:git:https://github.com/openfeature/javasdk.git'
-                    url = 'https://github.com/openfeature/javasdk'
+                    connection = 'scm:git:https://github.com/openfeature/java-sdk.git'
+                    developerConnection = 'scm:git:https://github.com/openfeature/java-sdk.git'
+                    url = 'https://github.com/openfeature/java-sdk'
                 }
 
                 licenses {
