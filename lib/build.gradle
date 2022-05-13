@@ -45,6 +45,17 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'sources'
+    archiveBaseName = 'openfeature'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+
 jar.archiveBaseName = 'openfeature'
 
 def repo_url = System.getenv("REPOSITORY_URL")
@@ -57,6 +68,10 @@ publishing {
         maven(MavenPublication) {
             artifactId="javasdk"
             from components.java
+            artifacts {
+                archives sourcesJar
+                archives jar
+            }
 
             pom {
                 name = 'OpenFeature SDK'
