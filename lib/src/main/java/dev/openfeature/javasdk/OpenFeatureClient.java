@@ -35,14 +35,12 @@ public class OpenFeatureClient implements Client {
 
     <T> FlagEvaluationDetails<T> evaluateFlag(FlagValueType type, String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         FeatureProvider provider = this.openfeatureApi.getProvider();
-        if (ctx == null) {
-            ctx = new EvaluationContext();
-        }
-
         ImmutableMap<String, Object> hints = options.getHookHints();
 
+        // merge of: API.context, client.context, invocation.context
+
         // TODO: Context transformation?
-        HookContext hookCtx = HookContext.from(key, type, this, ctx, defaultValue);
+        HookContext hookCtx = HookContext.from(key, type, this, null, defaultValue);
 
         List<Hook> mergedHooks;
         if (options != null && options.getHooks() != null) {
@@ -139,7 +137,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue) {
-        return getBooleanDetails(key, defaultValue, new EvaluationContext());
+        return getBooleanDetails(key, defaultValue, null);
     }
 
     @Override
@@ -169,12 +167,12 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue) {
-        return getStringDetails(key, defaultValue,  new EvaluationContext());
+        return getStringDetails(key, defaultValue,  null);
     }
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx) {
-        return getStringDetails(key, defaultValue,  new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        return getStringDetails(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
     }
 
     @Override
@@ -199,7 +197,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue) {
-        return getIntegerDetails(key, defaultValue, new EvaluationContext());
+        return getIntegerDetails(key, defaultValue, null);
     }
 
     @Override

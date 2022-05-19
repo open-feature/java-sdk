@@ -65,7 +65,7 @@ public class HookSpecTests {
         try {
             HookContext.<Integer>builder()
                     .flagKey("key")
-                    .ctx(new EvaluationContext())
+                    .ctx(null)
                     .defaultValue(1)
                     .build();
             fail("Missing type shouldn't be valid");
@@ -77,7 +77,7 @@ public class HookSpecTests {
         try {
             HookContext.<Integer>builder()
                     .type(FlagValueType.INTEGER)
-                    .ctx(new EvaluationContext())
+                    .ctx(null)
                     .defaultValue(1)
                     .build();
             fail("Missing key shouldn't be valid");
