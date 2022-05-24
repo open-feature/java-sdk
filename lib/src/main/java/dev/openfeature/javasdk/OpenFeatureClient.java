@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class OpenFeatureClient implements Client {
@@ -56,13 +57,15 @@ public class OpenFeatureClient implements Client {
 
         FlagEvaluationDetails<T> details = null;
         try {
-            this.beforeHooks(hookCtx, mergedHooks, hints);
+            EvaluationContext ctxFromHook = this.beforeHooks(hookCtx, mergedHooks, hints);
+            EvaluationContext invocationContext = EvaluationContext.merge(ctxFromHook, ctx);
 
             ProviderEvaluation<T> providerEval;
             if (type == FlagValueType.BOOLEAN) {
                 // TODO: Can we guarantee that defaultValue is a boolean? If not, how to we handle that?
-                providerEval = (ProviderEvaluation<T>) provider.getBooleanEvaluation(key, (Boolean) defaultValue, ctx, options);
+                providerEval = (ProviderEvaluation<T>) provider.getBooleanEvaluation(key, (Boolean) defaultValue, invocationContext, options);
             } else {
+                // TODO: Support other flag types.
                 throw new GeneralError("Unknown flag type");
             }
 
@@ -106,13 +109,17 @@ public class OpenFeatureClient implements Client {
         }
     }
 
-    private HookContext beforeHooks(HookContext hookCtx, List<Hook> hooks, ImmutableMap<String, Object> hints) {
+    private EvaluationContext beforeHooks(HookContext hookCtx, List<Hook> hooks, ImmutableMap<String, Object> hints) {
         // These traverse backwards from normal.
+        EvaluationContext ctx = hookCtx.getCtx();
         for (Hook hook : Lists.reverse(hooks)) {
-            hook.before(hookCtx, hints);
-            // TODO: Merge returned context w/ hook context object
+            Optional<EvaluationContext> newCtx = hook.before(hookCtx, hints);
+            if (newCtx.isPresent()) {
+                ctx = EvaluationContext.merge(ctx, newCtx.get());
+                hookCtx = hookCtx.withCtx(ctx);
+            }
         }
-        return hookCtx;
+        return ctx;
     }
 
     @Override

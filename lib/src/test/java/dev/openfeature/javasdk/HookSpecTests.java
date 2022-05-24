@@ -1,7 +1,6 @@
 package dev.openfeature.javasdk;
 
 import com.google.common.collect.ImmutableMap;
-import dev.openfeature.javasdk.*;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
@@ -11,6 +10,7 @@ import org.mockito.InOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -140,7 +140,7 @@ public class HookSpecTests {
                 .build();
     }
 
-    @Specification(spec="hooks", number="3.2", text="The before stage MUST run before flag evaluation occurs. It accepts a hook context (required) and HookHints (optional) as parameters and returns either a HookContext or nothing.")
+    @Specification(spec="hooks", number="3.2", text="The before stage MUST run before flag evaluation occurs. It accepts a hook context (required) and HookHints (optional) as parameters and returns either a EvaluationContext or nothing.")
     @Test void before_runs_ahead_of_evaluation() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new AlwaysBrokenProvider());
@@ -175,7 +175,7 @@ public class HookSpecTests {
         verify(h, times(0)).error(any(), any(), any());
     }
 
-    @Specification(spec="hooks", number="3.4", text="The error hook MUST run when errors are encountered in the before stage, the after stage or during flag evaluation. It accepts hook context (required), exception for what went wrong (required), and HookHints (optional). It has no return value.")
+    @Specification(spec="hooks", number="3.6", text="The error hook MUST run when errors are encountered in the before stage, the after stage or during flag evaluation. It accepts hook context (required), exception for what went wrong (required), and HookHints (optional). It has no return value.")
     @Test void error_hook_run_during_non_finally_stage() {
         final boolean[] error_called = {false};
         Hook h = mock(Hook.class);
@@ -196,8 +196,9 @@ public class HookSpecTests {
         api.setProvider(new NoOpProvider());
         api.registerHooks(new Hook<Boolean>() {
             @Override
-            public void before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                 evalOrder.add("api before");
+                return null;
             }
 
             @Override
@@ -220,8 +221,9 @@ public class HookSpecTests {
         Client c = api.getClient();
         c.registerHooks(new Hook<Boolean>() {
             @Override
-            public void before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                 evalOrder.add("client before");
+                return null;
             }
 
             @Override
@@ -243,8 +245,9 @@ public class HookSpecTests {
         c.getBooleanValue("key", false, null, FlagEvaluationOptions.builder()
                         .hook(new Hook<Boolean>() {
                             @Override
-                            public void before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+                            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                                 evalOrder.add("invocation before");
+                                return null;
                             }
 
                             @Override
@@ -297,8 +300,9 @@ public class HookSpecTests {
         Client client = api.getClient();
         Hook<Boolean> mutatingHook = new Hook<Boolean>() {
             @Override
-            public void before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                 assertTrue(hints instanceof ImmutableMap);
+                return null;
             }
 
             @Override
@@ -332,8 +336,8 @@ public class HookSpecTests {
         assertTrue(feo.getHookHints().isEmpty());
     }
 
-    @Specification(spec="hooks", number="3.3", text="The after stage MUST run after flag evaluation occurs. It accepts a hook context (required), flag evaluation details (required) and HookHints (optional). It has no return value.")
-    @Specification(spec="hooks", number="3.5", text="The finally hook MUST run after the before, after, and error stages. It accepts a hook context (required) and HookHints (optional). There is no return value.")
+    @Specification(spec="hooks", number="3.5", text="The after stage MUST run after flag evaluation occurs. It accepts a hook context (required), flag evaluation details (required) and HookHints (optional). It has no return value.")
+    @Specification(spec="hooks", number="3.7", text="The finally hook MUST run after the before, after, and error stages. It accepts a hook context (required) and HookHints (optional). There is no return value.")
     @Test void flag_eval_hook_order() {
         Hook hook = mock(Hook.class);
         FeatureProvider provider = mock(FeatureProvider.class);
@@ -391,12 +395,14 @@ public class HookSpecTests {
         verify(hook2, times(1)).error(any(), any(), any());
     }
 
+    @Specification(spec="hooks", number="3.3", text="Any `EvaluationContext` returned from a `before` hook **MUST** be passed to subsequent `before` hooks (via `HookContext`).")
+    @Specification(spec="hooks", number="3.4", text="When `before` hooks have finished executing, any resulting `EvaluationContext` **MUST** be merged with the invocation `EvaluationContext` wherein the invocation `EvaluationContext` win any conflicts.")
     @Specification(spec="hooks", number="1.4", text="The evaluation context MUST be mutable only within the before hook.")
     @Specification(spec="hooks", number="3.1", text="Hooks MUST specify at least one stage.")
     @Test @Disabled void todo() {}
 
     @SneakyThrows
-    @Specification(spec="hooks", number="3.6", text="Condition: If finally is a reserved word in the language, finallyAfter SHOULD be used.")
+    @Specification(spec="hooks", number="3.8", text="Condition: If finally is a reserved word in the language, finallyAfter SHOULD be used.")
     @Test void doesnt_use_finally() {
         try {
             Hook.class.getMethod("finally", HookContext.class, ImmutableMap.class);
