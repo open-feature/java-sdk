@@ -28,4 +28,6 @@ public interface Features {
 
     // TODO: Object
 
+    // Ah, I see this is still a TODO. I think ObjectMapper might be a decent candidate for a generic object... but I'm not sure
+
 }

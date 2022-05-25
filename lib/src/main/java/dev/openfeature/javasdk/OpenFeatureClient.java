@@ -59,8 +59,12 @@ public class OpenFeatureClient implements Client {
             this.beforeHooks(hookCtx, mergedHooks, hints);
 
             ProviderEvaluation<T> providerEval;
+            // I suppose eventually all the types will go here? looks like only boolean is handled so far, or am I missing something huge?
+            // If so, it would be nice to find some way of avoiding a big switch case, but that may not be reasonable in Java
             if (type == FlagValueType.BOOLEAN) {
                 // TODO: Can we guarantee that defaultValue is a boolean? If not, how to we handle that?
+                // the compiler will guarantee this no? Since the Features interface ensures that the default matches the return value?
+                // if somebody casts or otherwise override that assurance, I think the're on their own. (maybe I'm misunderstanding your question)
                 providerEval = (ProviderEvaluation<T>) provider.getBooleanEvaluation(key, (Boolean) defaultValue, ctx, options);
             } else {
                 throw new GeneralError("Unknown flag type");
@@ -201,6 +205,7 @@ public class OpenFeatureClient implements Client {
     }
 
     @Override
+    // it would be great if lombok had a feature that would allow you to not have to write all these overloads, but I see no such feature :( 
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, ctx, options);
     }

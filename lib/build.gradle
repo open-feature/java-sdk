@@ -9,6 +9,9 @@
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+
+    // Since this is just a plugin, it's purely a compile time dependency, correct? 
+    // I certainly appreciate how this reduces the verbosity of the codebase by generating getters/setters, it's pretty slick...
     id "io.freefair.lombok" version "6.4.3"
     id 'pmd'
     id 'maven-publish'
@@ -25,6 +28,8 @@ repositories {
 }
 
 dependencies {
+    // dependency comments below are appreciated! I wish I could add similar to package.json :(
+
     implementation 'org.slf4j:slf4j-log4j12:1.7.29'
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.guava:guava:30.1.1-jre'

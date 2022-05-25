@@ -22,6 +22,7 @@ public class OpenFeatureAPI {
         return api;
     }
 
+    // should this constructor be private?
     public OpenFeatureAPI() {
         this.apiHooks = new ArrayList<>();
     }

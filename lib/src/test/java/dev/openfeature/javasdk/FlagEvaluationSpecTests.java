@@ -82,6 +82,7 @@ public class FlagEvaluationSpecTests {
     @Specification(spec="flag evaluation", number="1.8.1",text="The client MUST provide methods for typed flag " +
             "evaluation, including boolean, numeric, string, and structure.")
     @Test void value_flags() {
+        // it might be a good idea to add assertions that the underlying provider is called as expected Mochito's verify().
         Client c = _client();
         String key = "key";
         assertFalse(c.getBooleanValue(key, false));
