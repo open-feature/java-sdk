@@ -36,11 +36,14 @@ public class OpenFeatureClient implements Client {
     <T> FlagEvaluationDetails<T> evaluateFlag(FlagValueType type, String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         FeatureProvider provider = this.openfeatureApi.getProvider();
         ImmutableMap<String, Object> hints = options.getHookHints();
+        if (ctx == null) {
+            ctx = new EvaluationContext();
+        }
 
         // merge of: API.context, client.context, invocation.context
 
         // TODO: Context transformation?
-        HookContext hookCtx = HookContext.from(key, type, this, null, defaultValue);
+        HookContext hookCtx = HookContext.from(key, type, this, ctx, defaultValue);
 
         List<Hook> mergedHooks;
         if (options != null && options.getHooks() != null) {
@@ -112,7 +115,7 @@ public class OpenFeatureClient implements Client {
         EvaluationContext ctx = hookCtx.getCtx();
         for (Hook hook : Lists.reverse(hooks)) {
             Optional<EvaluationContext> newCtx = hook.before(hookCtx, hints);
-            if (newCtx.isPresent()) {
+            if (newCtx != null && newCtx.isPresent()) {
                 ctx = EvaluationContext.merge(ctx, newCtx.get());
                 hookCtx = hookCtx.withCtx(ctx);
             }
@@ -137,7 +140,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue) {
-        return getBooleanDetails(key, defaultValue, null);
+        return getBooleanDetails(key, defaultValue, new EvaluationContext());
     }
 
     @Override
@@ -197,7 +200,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue) {
-        return getIntegerDetails(key, defaultValue, null);
+        return getIntegerDetails(key, defaultValue, new EvaluationContext());
     }
 
     @Override

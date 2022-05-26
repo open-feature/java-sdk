@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
 import java.util.ArrayList;
@@ -396,7 +397,66 @@ public class HookSpecTests {
     }
 
     @Specification(spec="hooks", number="3.3", text="Any `EvaluationContext` returned from a `before` hook **MUST** be passed to subsequent `before` hooks (via `HookContext`).")
+    @Test void beforeContextUpdated() {
+        EvaluationContext ctx = new EvaluationContext();
+        Hook hook = mock(Hook.class);
+        when(hook.before(any(), any())).thenReturn(Optional.of(ctx));
+        Hook hook2 = mock(Hook.class);
+        when(hook.before(any(), any())).thenReturn(Optional.empty());
+        InOrder order = inOrder(hook, hook2);
+
+
+
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(new NoOpProvider());
+        Client client = api.getClient();
+        client.getBooleanValue("key", false, new EvaluationContext(),
+                FlagEvaluationOptions.builder()
+                        .hook(hook2)
+                        .hook(hook)
+                        .build());
+
+        order.verify(hook).before(any(), any());
+        ArgumentCaptor<HookContext> captor = ArgumentCaptor.forClass(HookContext.class);
+        order.verify(hook2).before(captor.capture(), any());
+
+        HookContext hc = captor.getValue();
+        assertEquals(hc.getCtx(), ctx);
+
+    }
     @Specification(spec="hooks", number="3.4", text="When `before` hooks have finished executing, any resulting `EvaluationContext` **MUST** be merged with the invocation `EvaluationContext` wherein the invocation `EvaluationContext` win any conflicts.")
+    @Test void mergeHappensCorrectly() {
+        EvaluationContext hookCtx = new EvaluationContext();
+        hookCtx.addStringAttribute("test", "broken");
+        hookCtx.addStringAttribute("another", "exists");
+
+        EvaluationContext invocationCtx = new EvaluationContext();
+        invocationCtx.addStringAttribute("test", "works");
+
+        Hook hook = mock(Hook.class);
+        when(hook.before(any(), any())).thenReturn(Optional.of(hookCtx));
+
+        FeatureProvider provider = mock(FeatureProvider.class);
+        when(provider.getBooleanEvaluation(any(),any(),any(),any())).thenReturn(ProviderEvaluation.<Boolean>builder()
+                        .value(true)
+                .build());
+
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(provider);
+        Client client = api.getClient();
+        client.getBooleanValue("key", false, invocationCtx,
+                FlagEvaluationOptions.builder()
+                        .hook(hook)
+                        .build());
+
+        ArgumentCaptor<EvaluationContext> captor = ArgumentCaptor.forClass(EvaluationContext.class);
+        verify(provider).getBooleanEvaluation(any(), any(), captor.capture(), any());
+        EvaluationContext ec = captor.getValue();
+        assertEquals("works", ec.getStringAttribute("test"));
+        assertEquals("exists", ec.getStringAttribute("another"));
+    }
+
+
     @Specification(spec="hooks", number="1.4", text="The evaluation context MUST be mutable only within the before hook.")
     @Specification(spec="hooks", number="3.1", text="Hooks MUST specify at least one stage.")
     @Test @Disabled void todo() {}

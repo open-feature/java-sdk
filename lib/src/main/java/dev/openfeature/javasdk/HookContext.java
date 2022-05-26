@@ -4,14 +4,13 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.With;
-import javax.annotation.Nullable;
 
 @Value @Builder @With
 public class HookContext<T> {
     @NonNull String flagKey;
     @NonNull FlagValueType type;
     @NonNull T defaultValue;
-    @Nullable EvaluationContext ctx;
+    @NonNull EvaluationContext ctx;
     Client client;
     FeatureProvider provider;
 
