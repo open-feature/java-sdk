@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ToString @EqualsAndHashCode
+@SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class EvaluationContext {
     @Setter @Getter private String targetingKey;
     private final Map<String, Integer> integerAttributes;
