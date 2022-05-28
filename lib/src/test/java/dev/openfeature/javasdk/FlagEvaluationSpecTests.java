@@ -81,20 +81,48 @@ public class FlagEvaluationSpecTests {
     @Specification(spec="flag evaluation", number="1.8.1",text="The client MUST provide methods for typed flag " +
             "evaluation, including boolean, numeric, string, and structure.")
     @Test void value_flags() {
-        Client c = _client();
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(new FeatureProvider() {
+            @Override
+            public String getName() {
+                return "test";
+            }
+
+            @Override
+            public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+                return ProviderEvaluation.<Boolean>builder()
+                        .value(!defaultValue).build();
+            }
+
+            @Override
+            public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+                return ProviderEvaluation.<String>builder()
+                        .value(new StringBuilder(defaultValue).reverse().toString())
+                        .build();
+            }
+
+            @Override
+            public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+                return ProviderEvaluation.<Integer>builder()
+                        .value(defaultValue * 100)
+                        .build();
+            }
+        });
+        Client c = api.getClient();
         String key = "key";
-        assertFalse(c.getBooleanValue(key, false));
-        assertFalse(c.getBooleanValue(key, false, new EvaluationContext()));
-        assertFalse(c.getBooleanValue(key, false, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+
+        assertEquals(true, c.getBooleanValue(key, false));
+        assertEquals(true, c.getBooleanValue(key, false, new EvaluationContext()));
+        assertEquals(true, c.getBooleanValue(key, false, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
 
 
-        assertEquals("my-string", c.getStringValue(key, "my-string"));
-        assertEquals("my-string", c.getStringValue(key, "my-string", new EvaluationContext()));
-        assertEquals("my-string", c.getStringValue(key, "my-string", new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals("gnirts-ym", c.getStringValue(key, "my-string"));
+        assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new EvaluationContext()));
+        assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new EvaluationContext(), FlagEvaluationOptions.builder().build()));
 
-        assertEquals(4, c.getIntegerValue(key, 4));
-        assertEquals(4, c.getIntegerValue(key, 4, new EvaluationContext()));
-        assertEquals(4, c.getIntegerValue(key, 4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(400, c.getIntegerValue(key, 4));
+        assertEquals(400, c.getIntegerValue(key, 4, new EvaluationContext()));
+        assertEquals(400, c.getIntegerValue(key, 4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
 
     }
 

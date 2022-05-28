@@ -65,6 +65,10 @@ public class OpenFeatureClient implements Client {
             if (type == FlagValueType.BOOLEAN) {
                 // TODO: Can we guarantee that defaultValue is a boolean? If not, how to we handle that?
                 providerEval = (ProviderEvaluation<T>) provider.getBooleanEvaluation(key, (Boolean) defaultValue, invocationContext, options);
+            } else if(type == FlagValueType.STRING) {
+                providerEval = (ProviderEvaluation<T>) provider.getStringEvaluation(key, (String) defaultValue, invocationContext, options);
+            } else if (type == FlagValueType.INTEGER) {
+                providerEval = (ProviderEvaluation<T>) provider.getIntegerEvaluation(key, (Integer) defaultValue, invocationContext, options);
             } else {
                 // TODO: Support other flag types.
                 throw new GeneralError("Unknown flag type");
