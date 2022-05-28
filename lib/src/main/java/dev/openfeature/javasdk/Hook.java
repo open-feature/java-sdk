@@ -4,12 +4,11 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.Optional;
 
-// TODO: interface? or abstract class?
-public abstract class Hook<T> {
-    public Optional<EvaluationContext> before(HookContext<T> ctx, ImmutableMap<String, Object> hints) {
+public interface Hook<T> {
+    default Optional<EvaluationContext> before(HookContext<T> ctx, ImmutableMap<String, Object> hints) {
         return Optional.empty();
     }
-    public void after(HookContext<T> ctx, FlagEvaluationDetails<T> details, ImmutableMap<String, Object> hints) {}
-    public void error(HookContext<T> ctx, Exception error, ImmutableMap<String, Object> hints) {}
-    public void finallyAfter(HookContext<T> ctx, ImmutableMap<String, Object> hints) {}
+    default void after(HookContext<T> ctx, FlagEvaluationDetails<T> details, ImmutableMap<String, Object> hints) {}
+    default void error(HookContext<T> ctx, Exception error, ImmutableMap<String, Object> hints) {}
+    default void finallyAfter(HookContext<T> ctx, ImmutableMap<String, Object> hints) {}
 }
