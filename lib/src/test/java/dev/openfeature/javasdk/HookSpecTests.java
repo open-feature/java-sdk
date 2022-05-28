@@ -195,7 +195,7 @@ public class HookSpecTests {
         List<String> evalOrder = new ArrayList<String>();
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());
-        api.registerHooks(new Hook<Boolean>() {
+        api.addHooks(new Hook<Boolean>() {
             @Override
             public Optional<EvaluationContext> before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                 evalOrder.add("api before");
@@ -220,7 +220,7 @@ public class HookSpecTests {
         });
 
         Client c = api.getClient();
-        c.registerHooks(new Hook<Boolean>() {
+        c.addHooks(new Hook<Boolean>() {
             @Override
             public Optional<EvaluationContext> before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
                 evalOrder.add("client before");

@@ -42,12 +42,12 @@ public class FlagEvaluationSpecTests {
         Hook h1 = mock(Hook.class);
         Hook h2 = mock(Hook.class);
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.registerHooks(h1);
+        api.addHooks(h1);
 
         assertEquals(1, api.getApiHooks().size());
         assertEquals(h1, api.getApiHooks().get(0));
 
-        api.registerHooks(h2);
+        api.addHooks(h2);
         assertEquals(2, api.getApiHooks().size());
         assertEquals(h2, api.getApiHooks().get(1));
     }
@@ -67,8 +67,8 @@ public class FlagEvaluationSpecTests {
         Client c = _client();
         Hook m1 = mock(Hook.class);
         Hook m2 = mock(Hook.class);
-        c.registerHooks(m1);
-        c.registerHooks(m2);
+        c.addHooks(m1);
+        c.addHooks(m2);
         List<Hook> hooks = c.getClientHooks();
         assertEquals(2, hooks.size());
         assertTrue(hooks.contains(m1));
@@ -142,7 +142,7 @@ public class FlagEvaluationSpecTests {
         Client c = _client();
         Hook clientHook = mock(Hook.class);
         Hook invocationHook = mock(Hook.class);
-        c.registerHooks(clientHook);
+        c.addHooks(clientHook);
         c.getBooleanValue("key", false, null, FlagEvaluationOptions.builder()
                         .hook(invocationHook)
                         .build());

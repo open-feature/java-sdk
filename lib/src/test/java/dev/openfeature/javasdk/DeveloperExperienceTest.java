@@ -27,7 +27,7 @@ class DeveloperExperienceTest {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());
         Client client = api.getClient();
-        client.registerHooks(exampleHook);
+        client.addHooks(exampleHook);
         Boolean retval = client.getBooleanValue(flagKey, false);
         verify(exampleHook, times(1)).finallyAfter(any(), any());
         assertFalse(retval);
@@ -40,7 +40,7 @@ class DeveloperExperienceTest {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());
         Client client = api.getClient();
-        client.registerHooks(clientHook);
+        client.addHooks(clientHook);
         Boolean retval = client.getBooleanValue(flagKey, false, null,
                 FlagEvaluationOptions.builder().hook(evalHook).build());
         verify(clientHook, times(1)).finallyAfter(any(), any());

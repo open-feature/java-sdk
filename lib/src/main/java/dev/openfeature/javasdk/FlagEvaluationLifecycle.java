@@ -3,6 +3,6 @@ package dev.openfeature.javasdk;
 import java.util.List;
 
 public interface FlagEvaluationLifecycle {
-    void registerHooks(Hook... hooks);
+    void addHooks(Hook... hooks);
     List<Hook> getClientHooks();
 }

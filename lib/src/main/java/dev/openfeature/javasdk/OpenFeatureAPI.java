@@ -38,7 +38,7 @@ public class OpenFeatureAPI {
         return new OpenFeatureClient(this, name, version);
     }
 
-    public void registerHooks(Hook... hooks) {
+    public void addHooks(Hook... hooks) {
         this.apiHooks.addAll(Arrays.asList(hooks));
     }
 

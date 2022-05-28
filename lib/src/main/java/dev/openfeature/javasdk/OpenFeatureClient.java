@@ -29,7 +29,7 @@ public class OpenFeatureClient implements Client {
     }
 
     @Override
-    public void registerHooks(Hook... hooks) {
+    public void addHooks(Hook... hooks) {
         this.clientHooks.addAll(Arrays.asList(hooks));
     }
 
