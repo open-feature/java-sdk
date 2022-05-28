@@ -69,6 +69,8 @@ public class OpenFeatureClient implements Client {
                 providerEval = (ProviderEvaluation<T>) provider.getStringEvaluation(key, (String) defaultValue, invocationContext, options);
             } else if (type == FlagValueType.INTEGER) {
                 providerEval = (ProviderEvaluation<T>) provider.getIntegerEvaluation(key, (Integer) defaultValue, invocationContext, options);
+            } else if (type == FlagValueType.OBJECT) {
+                providerEval = (ProviderEvaluation<T>) provider.getObjectEvaluation(key, defaultValue, invocationContext, options);
             } else {
                 throw new GeneralError("Unknown flag type");
             }
@@ -214,5 +216,35 @@ public class OpenFeatureClient implements Client {
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, ctx, options);
+    }
+
+    @Override
+    public <T> T getObjectValue(String key, T defaultValue) {
+        return getObjectDetails(key, defaultValue).getValue();
+    }
+
+    @Override
+    public <T> T getObjectValue(String key, T defaultValue, EvaluationContext ctx) {
+        return getObjectDetails(key, defaultValue, ctx).getValue();
+    }
+
+    @Override
+    public <T> T getObjectValue(String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return getObjectDetails(key, defaultValue, ctx, options).getValue();
+    }
+
+    @Override
+    public <T> FlagEvaluationDetails<T> getObjectDetails(String key, T defaultValue) {
+        return getObjectDetails(key, defaultValue, null);
+    }
+
+    @Override
+    public <T> FlagEvaluationDetails<T> getObjectDetails(String key, T defaultValue, EvaluationContext ctx) {
+        return getObjectDetails(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+    }
+
+    @Override
+    public <T> FlagEvaluationDetails<T> getObjectDetails(String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return this.evaluateFlag(FlagValueType.OBJECT, key, defaultValue, ctx, options);
     }
 }

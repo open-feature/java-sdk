@@ -99,16 +99,10 @@ public class FlagEvaluationSpecTests {
         assertEquals(400, c.getIntegerValue(key, 4, new EvaluationContext()));
         assertEquals(400, c.getIntegerValue(key, 4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
 
+        assertEquals(null, c.getObjectValue(key, new Node<Integer>()));
+        assertEquals(null, c.getObjectValue(key, new Node<Integer>(), new EvaluationContext()));
+        assertEquals(null, c.getObjectValue(key, new Node<Integer>(), new EvaluationContext(), FlagEvaluationOptions.builder().build()));
     }
-
-    @Specification(spec="flag evaluation", number="1.7", text="The client MUST provide methods for flag evaluation, with" +
-            " parameters flag key (string, required), default value (boolean | number | string | structure, required), " +
-            "evaluation context (optional), and evaluation options (optional), which returns the flag value.")
-    @Disabled
-    @Test void value_flags__object() {
-        throw new NotImplementedException();
-    }
-
 
     @Specification(spec="flag evaluation", number="1.9", text="The client MUST provide methods for detailed flag value " +
             "evaluation with parameters flag key (string, required), default value (boolean | number | string | " +

@@ -1,6 +1,5 @@
 package dev.openfeature.javasdk;
 
-import dev.openfeature.javasdk.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +14,8 @@ public class ProviderSpecTests {
         assertNotNull(p.getName());
     }
 
+    @Specification(spec="provider", number="2.3.1", text="The feature provider interface MUST define methods for typed " +
+            "flag resolution, including boolean, numeric, string, and structure.")
     @Specification(spec="provider", number="2.4", text="In cases of normal execution, the provider MUST populate the " +
             "flag resolution structure's value field with the resolved flag value.")
     @Specification(spec="provider", number="2.2", text="The feature provider interface MUST define methods to resolve " +
@@ -32,6 +33,9 @@ public class ProviderSpecTests {
 
         ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, new EvaluationContext(), FlagEvaluationOptions.builder().build());
         assertNotNull(boolean_result.getValue());
+
+        ProviderEvaluation<Node<Integer>> object_result = p.getObjectEvaluation("key", new Node<Integer>(), new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        assertNotNull(boolean_result.getValue());
     }
 
     @Specification(spec="provider", number="2.6", text="The provider SHOULD populate the flag resolution structure's " +
@@ -46,12 +50,6 @@ public class ProviderSpecTests {
     @Test void no_error_code_by_default() {
         ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new EvaluationContext(), FlagEvaluationOptions.builder().build());
         assertNull(result.getErrorCode());
-    }
-
-    @Specification(spec="provider", number="2.3.1", text="The feature provider interface MUST define methods for typed " +
-            "flag resolution, including boolean, numeric, string, and structure.")
-    @Disabled("Don't yet support structures") @Test void structure_validation() {
-
     }
 
     @Specification(spec="provider", number="2.8", text="In cases of abnormal execution, the provider MUST indicate an " +

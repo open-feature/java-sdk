@@ -32,4 +32,13 @@ public class NoOpProvider implements FeatureProvider {
                 .reason(Reason.DEFAULT)
                 .build();
     }
+
+    @Override
+    public <T> ProviderEvaluation<T> getObjectEvaluation(String key, T defaultValue, EvaluationContext invocationContext, FlagEvaluationOptions options) {
+        return ProviderEvaluation.<T>builder()
+                .value(defaultValue)
+                .variant("Passed in default")
+                .reason(Reason.DEFAULT)
+                .build();
+    }
 }

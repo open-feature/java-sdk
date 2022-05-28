@@ -21,4 +21,9 @@ public class AlwaysBrokenProvider implements FeatureProvider {
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         throw new NotImplementedException();
     }
+
+    @Override
+    public <T> ProviderEvaluation<T> getObjectEvaluation(String key, T defaultValue, EvaluationContext invocationContext, FlagEvaluationOptions options) {
+        throw new NotImplementedException();
+    }
 }
