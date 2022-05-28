@@ -41,7 +41,7 @@ class DeveloperExperienceTest {
         api.setProvider(new NoOpProvider());
         Client client = api.getClient();
         client.registerHooks(clientHook);
-        Boolean retval = client.getBooleanValue(flagKey, false, new EvaluationContext(),
+        Boolean retval = client.getBooleanValue(flagKey, false, null,
                 FlagEvaluationOptions.builder().hook(evalHook).build());
         verify(clientHook, times(1)).finallyAfter(any(), any());
         verify(evalHook, times(1)).finallyAfter(any(), any());

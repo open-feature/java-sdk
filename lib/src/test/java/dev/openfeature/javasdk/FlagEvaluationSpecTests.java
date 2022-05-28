@@ -1,6 +1,5 @@
 package dev.openfeature.javasdk;
 
-import dev.openfeature.javasdk.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -132,6 +131,7 @@ public class FlagEvaluationSpecTests {
             "unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")
     @Disabled
     @Test void detail_flags() {
+        // TODO: Add tests re: detail functions.
         throw new NotImplementedException();
     }
 

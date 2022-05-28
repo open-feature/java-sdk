@@ -3,8 +3,9 @@ package dev.openfeature.javasdk;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
+import lombok.With;
 
-@Value @Builder
+@Value @Builder @With
 public class HookContext<T> {
     @NonNull String flagKey;
     @NonNull FlagValueType type;

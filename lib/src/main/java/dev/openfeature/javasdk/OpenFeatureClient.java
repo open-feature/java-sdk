@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class OpenFeatureClient implements Client {
@@ -34,11 +35,12 @@ public class OpenFeatureClient implements Client {
 
     <T> FlagEvaluationDetails<T> evaluateFlag(FlagValueType type, String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         FeatureProvider provider = this.openfeatureApi.getProvider();
+        ImmutableMap<String, Object> hints = options.getHookHints();
         if (ctx == null) {
             ctx = new EvaluationContext();
         }
 
-        ImmutableMap<String, Object> hints = options.getHookHints();
+        // merge of: API.context, client.context, invocation.context
 
         // TODO: Context transformation?
         HookContext hookCtx = HookContext.from(key, type, this, ctx, defaultValue);
@@ -56,13 +58,15 @@ public class OpenFeatureClient implements Client {
 
         FlagEvaluationDetails<T> details = null;
         try {
-            this.beforeHooks(hookCtx, mergedHooks, hints);
+            EvaluationContext ctxFromHook = this.beforeHooks(hookCtx, mergedHooks, hints);
+            EvaluationContext invocationContext = EvaluationContext.merge(ctxFromHook, ctx);
 
             ProviderEvaluation<T> providerEval;
             if (type == FlagValueType.BOOLEAN) {
                 // TODO: Can we guarantee that defaultValue is a boolean? If not, how to we handle that?
-                providerEval = (ProviderEvaluation<T>) provider.getBooleanEvaluation(key, (Boolean) defaultValue, ctx, options);
+                providerEval = (ProviderEvaluation<T>) provider.getBooleanEvaluation(key, (Boolean) defaultValue, invocationContext, options);
             } else {
+                // TODO: Support other flag types.
                 throw new GeneralError("Unknown flag type");
             }
 
@@ -106,13 +110,17 @@ public class OpenFeatureClient implements Client {
         }
     }
 
-    private HookContext beforeHooks(HookContext hookCtx, List<Hook> hooks, ImmutableMap<String, Object> hints) {
+    private EvaluationContext beforeHooks(HookContext hookCtx, List<Hook> hooks, ImmutableMap<String, Object> hints) {
         // These traverse backwards from normal.
+        EvaluationContext ctx = hookCtx.getCtx();
         for (Hook hook : Lists.reverse(hooks)) {
-            hook.before(hookCtx, hints);
-            // TODO: Merge returned context w/ hook context object
+            Optional<EvaluationContext> newCtx = hook.before(hookCtx, hints);
+            if (newCtx != null && newCtx.isPresent()) {
+                ctx = EvaluationContext.merge(ctx, newCtx.get());
+                hookCtx = hookCtx.withCtx(ctx);
+            }
         }
-        return hookCtx;
+        return ctx;
     }
 
     @Override
@@ -162,12 +170,12 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue) {
-        return getStringDetails(key, defaultValue,  new EvaluationContext());
+        return getStringDetails(key, defaultValue,  null);
     }
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx) {
-        return getStringDetails(key, defaultValue,  new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        return getStringDetails(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
     }
 
     @Override
