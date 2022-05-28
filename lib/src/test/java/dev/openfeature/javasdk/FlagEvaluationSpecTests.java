@@ -82,32 +82,7 @@ public class FlagEvaluationSpecTests {
             "evaluation, including boolean, numeric, string, and structure.")
     @Test void value_flags() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new FeatureProvider() {
-            @Override
-            public String getName() {
-                return "test";
-            }
-
-            @Override
-            public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-                return ProviderEvaluation.<Boolean>builder()
-                        .value(!defaultValue).build();
-            }
-
-            @Override
-            public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-                return ProviderEvaluation.<String>builder()
-                        .value(new StringBuilder(defaultValue).reverse().toString())
-                        .build();
-            }
-
-            @Override
-            public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-                return ProviderEvaluation.<Integer>builder()
-                        .value(defaultValue * 100)
-                        .build();
-            }
-        });
+        api.setProvider(new DoSomethingProvider());
         Client c = api.getClient();
         String key = "key";
 
@@ -146,21 +121,37 @@ public class FlagEvaluationSpecTests {
             "field.")
     @Specification(spec="flag evaluation", number="1.12", text="The evaluation details structure's flag key field MUST " +
             "contain the flag key argument passed to the detailed flag evaluation method.")
-    @Specification(spec="flag evaluation", number="1.13", text="In cases of normal execution, the evaluation details " +
-            "structure's variant field MUST contain the value of the variant field in the flag resolution structure " +
-            "returned by the configured provider, if the field is set.")
-    @Specification(spec="flag evaluation", number="1.14", text="In cases of normal execution, the evaluation details " +
-            "structure's reason field MUST contain the value of the reason field in the flag resolution structure " +
-            "returned by the configured provider, if the field is set.")
-    @Specification(spec="flag evaluation", number="1.15", text="In cases of abnormal execution, the evaluation details " +
-            "structure's error code field MUST identify an error occurred during flag evaluation, having possible " +
-            "values PROVIDER_NOT_READY, FLAG_NOT_FOUND, PARSE_ERROR, TYPE_MISMATCH, or GENERAL.")
-    @Specification(spec="flag evaluation", number="1.16", text="In cases of abnormal execution (network failure, " +
-            "unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")
-    @Disabled
     @Test void detail_flags() {
-        // TODO: Add tests re: detail functions.
-        throw new NotImplementedException();
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(new DoSomethingProvider());
+        Client c = api.getClient();
+        String key = "key";
+
+        FlagEvaluationDetails<Boolean> bd = FlagEvaluationDetails.<Boolean>builder()
+                .flagKey(key)
+                .value(false)
+                .variant(null)
+                .build();
+        assertEquals(bd, c.getBooleanDetails(key, true));
+        assertEquals(bd, c.getBooleanDetails(key, true, new EvaluationContext()));
+        assertEquals(bd, c.getBooleanDetails(key, true, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+
+        FlagEvaluationDetails<String> sd = FlagEvaluationDetails.<String>builder()
+                .flagKey(key)
+                .value("tset")
+                .variant(null)
+                .build();
+        assertEquals(sd, c.getStringDetails(key, "test"));
+        assertEquals(sd, c.getStringDetails(key, "test", new EvaluationContext()));
+        assertEquals(sd, c.getStringDetails(key, "test", new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+
+        FlagEvaluationDetails<Integer> id = FlagEvaluationDetails.<Integer>builder()
+                .flagKey(key)
+                .value(400)
+                .build();
+        assertEquals(id, c.getIntegerDetails(key, 4));
+        assertEquals(id, c.getIntegerDetails(key, 4, new EvaluationContext()));
+        assertEquals(id, c.getIntegerDetails(key, 4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
     }
 
     @Specification(spec="flag evaluation", number="1.17", text="The evaluation options structure's hooks field denotes " +
@@ -199,6 +190,17 @@ public class FlagEvaluationSpecTests {
     @Specification(spec="flag evaluation", number="1.21", text="The client MUST transform the evaluation context using " +
             "the provider's context transformer function, before passing the result of the transformation to the " +
             "provider's flag resolution functions.")
+    @Specification(spec="flag evaluation", number="1.13", text="In cases of normal execution, the evaluation details " +
+            "structure's variant field MUST contain the value of the variant field in the flag resolution structure " +
+            "returned by the configured provider, if the field is set.")
+    @Specification(spec="flag evaluation", number="1.14", text="In cases of normal execution, the evaluation details " +
+            "structure's reason field MUST contain the value of the reason field in the flag resolution structure " +
+            "returned by the configured provider, if the field is set.")
+    @Specification(spec="flag evaluation", number="1.15", text="In cases of abnormal execution, the evaluation details " +
+            "structure's error code field MUST identify an error occurred during flag evaluation, having possible " +
+            "values PROVIDER_NOT_READY, FLAG_NOT_FOUND, PARSE_ERROR, TYPE_MISMATCH, or GENERAL.")
+    @Specification(spec="flag evaluation", number="1.16", text="In cases of abnormal execution (network failure, " +
+            "unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")
     @Test @Disabled void todo() {}
 
     @Specification(spec="flag evaluation", number="1.20", text="The client SHOULD provide asynchronous or non-blocking " +

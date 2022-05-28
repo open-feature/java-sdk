@@ -70,7 +70,6 @@ public class OpenFeatureClient implements Client {
             } else if (type == FlagValueType.INTEGER) {
                 providerEval = (ProviderEvaluation<T>) provider.getIntegerEvaluation(key, (Integer) defaultValue, invocationContext, options);
             } else {
-                // TODO: Support other flag types.
                 throw new GeneralError("Unknown flag type");
             }
 
