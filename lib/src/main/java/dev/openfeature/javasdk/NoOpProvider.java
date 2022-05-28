@@ -3,6 +3,7 @@ package dev.openfeature.javasdk;
 import lombok.Getter;
 
 public class NoOpProvider implements FeatureProvider {
+    public static final String PASSED_IN_DEFAULT = "Passed in default";
     @Getter
     private final String name = "No-op Provider";
 
@@ -10,7 +11,7 @@ public class NoOpProvider implements FeatureProvider {
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return ProviderEvaluation.<Boolean>builder()
                 .value(defaultValue)
-                .variant("Passed in default")
+                .variant(PASSED_IN_DEFAULT)
                 .reason(Reason.DEFAULT)
                 .build();
     }
@@ -19,7 +20,7 @@ public class NoOpProvider implements FeatureProvider {
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return ProviderEvaluation.<String>builder()
                 .value(defaultValue)
-                .variant("Passed in default")
+                .variant(PASSED_IN_DEFAULT)
                 .reason(Reason.DEFAULT)
                 .build();
     }
@@ -28,7 +29,7 @@ public class NoOpProvider implements FeatureProvider {
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return ProviderEvaluation.<Integer>builder()
                 .value(defaultValue)
-                .variant("Passed in default")
+                .variant(PASSED_IN_DEFAULT)
                 .reason(Reason.DEFAULT)
                 .build();
     }
@@ -37,7 +38,7 @@ public class NoOpProvider implements FeatureProvider {
     public <T> ProviderEvaluation<T> getObjectEvaluation(String key, T defaultValue, EvaluationContext invocationContext, FlagEvaluationOptions options) {
         return ProviderEvaluation.<T>builder()
                 .value(defaultValue)
-                .variant("Passed in default")
+                .variant(PASSED_IN_DEFAULT)
                 .reason(Reason.DEFAULT)
                 .build();
     }
