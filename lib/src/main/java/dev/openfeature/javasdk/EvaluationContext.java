@@ -1,9 +1,7 @@
 package dev.openfeature.javasdk;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.*;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,14 +11,32 @@ import java.util.Map;
 @ToString @EqualsAndHashCode
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class EvaluationContext {
+    @EqualsAndHashCode.Exclude private final ObjectMapper objMapper;
     @Setter @Getter private String targetingKey;
     private final Map<String, Integer> integerAttributes;
     private final Map<String, String> stringAttributes;
+    private final Map<String, Boolean> booleanAttributes;
+    final Map<String, String> jsonAttributes;
 
     EvaluationContext() {
+        objMapper = new ObjectMapper();
         this.targetingKey = "";
         this.integerAttributes = new HashMap<>();
         this.stringAttributes = new HashMap<>();
+        booleanAttributes = new HashMap<>();
+        jsonAttributes = new HashMap<>();
+    }
+
+    // TODO Not sure if I should have sneakythrows or checked exceptions here..
+    @SneakyThrows
+    public <T> void addStructureAttribute(String key, T value) {
+        jsonAttributes.put(key, objMapper.writeValueAsString(value));
+    }
+
+    @SneakyThrows
+    public <T> T getStructureAttribute(String key, Class<T> klass) {
+        String val = jsonAttributes.get(key);
+        return objMapper.readValue(val, klass);
     }
 
     public void addStringAttribute(String key, String value) {
@@ -40,18 +56,16 @@ public class EvaluationContext {
     }
 
     public Boolean getBooleanAttribute(String key) {
-        return Boolean.valueOf(stringAttributes.get(key));
+        return booleanAttributes.get(key);
     }
 
     public void addBooleanAttribute(String key, Boolean b) {
-        stringAttributes.put(key, b.toString());
+        booleanAttributes.put(key, b);
     }
 
     public void addDatetimeAttribute(String key, ZonedDateTime value) {
         this.stringAttributes.put(key, value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
     }
-
-    // TODO: addStructure or similar.
 
     public ZonedDateTime getDatetimeAttribute(String key) {
         String attr = this.stringAttributes.get(key);
@@ -66,21 +80,19 @@ public class EvaluationContext {
      */
     public static EvaluationContext merge(EvaluationContext ctx1, EvaluationContext ctx2) {
         EvaluationContext ec = new EvaluationContext();
-        for (Map.Entry<String, Integer> e : ctx1.integerAttributes.entrySet()) {
-            ec.addIntegerAttribute(e.getKey(), e.getValue());
-        }
 
-        for (Map.Entry<String, Integer> e : ctx2.integerAttributes.entrySet()) {
-            ec.addIntegerAttribute(e.getKey(), e.getValue());
-        }
+        ec.stringAttributes.putAll(ctx1.stringAttributes);
+        ec.stringAttributes.putAll(ctx2.stringAttributes);
 
-        for (Map.Entry<String, String> e : ctx1.stringAttributes.entrySet()) {
-            ec.addStringAttribute(e.getKey(), e.getValue());
-        }
+        ec.integerAttributes.putAll(ctx1.integerAttributes);
+        ec.integerAttributes.putAll(ctx2.integerAttributes);
 
-        for (Map.Entry<String, String> e : ctx2.stringAttributes.entrySet()) {
-            ec.addStringAttribute(e.getKey(), e.getValue());
-        }
+        ec.booleanAttributes.putAll(ctx1.booleanAttributes);
+        ec.booleanAttributes.putAll(ctx2.booleanAttributes);
+
+        ec.jsonAttributes.putAll(ctx1.jsonAttributes);
+        ec.jsonAttributes.putAll(ctx2.jsonAttributes);
+
         if (ctx1.getTargetingKey() != null) {
             ec.setTargetingKey(ctx1.getTargetingKey());
         }
