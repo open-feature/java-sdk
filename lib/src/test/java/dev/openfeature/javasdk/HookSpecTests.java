@@ -24,7 +24,7 @@ public class HookSpecTests {
         OpenFeatureAPI.getInstance().clearHooks();
     }
 
-    @Specification(spec="hooks", number="1.3", text="flag key, flag type, default value properties MUST be immutable. If the language does not support immutability, the hook MUST NOT modify these properties.")
+    @Specification(number="4.1.3", text="The flag key, flag type, and default value properties MUST be immutable. If the language does not support immutability, the hook MUST NOT modify these properties.")
     @Test void immutableValues() {
         try {
             HookContext.class.getMethod("setFlagKey");
@@ -48,7 +48,7 @@ public class HookSpecTests {
         }
     }
 
-    @Specification(spec="hooks", number="1.1", text="Hook context MUST provide: the flag key, flag type, evaluation context, and the default value.")
+    @Specification(number="4.1.1", text="Hook context MUST provide: the flag key, flag value type, evaluation context, and the default value.")
     @Test void nullish_properties_on_hookcontext() {
         // missing ctx
         try {
@@ -112,7 +112,6 @@ public class HookSpecTests {
 
     }
 
-    @Specification(spec="hooks", number="1.2", text="Hook context SHOULD provide: provider (instance) and client (instance)")
     @Test void optional_properties() {
         // don't specify
         HookContext.<Integer>builder()
@@ -141,7 +140,6 @@ public class HookSpecTests {
                 .build();
     }
 
-    @Specification(spec="hooks", number="3.2", text="The before stage MUST run before flag evaluation occurs. It accepts a hook context (required) and HookHints (optional) as parameters and returns either a EvaluationContext or nothing.")
     @Test void before_runs_ahead_of_evaluation() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new AlwaysBrokenProvider());
@@ -154,14 +152,12 @@ public class HookSpecTests {
         verify(evalHook, times(1)).before(any(), any());
     }
 
-    @Specification(spec="hooks", number="5.1", text="Flag evalution options MUST contain a list of hooks to evaluate.")
     @Test void feo_has_hook_list() {
         FlagEvaluationOptions feo = FlagEvaluationOptions.builder()
                 .build();
         assertNotNull(feo.getHooks());
     }
 
-    @Specification(spec="hooks", number="4.3", text="If an error occurs in the finally hook, it MUST NOT trigger the error hook.")
     @Test void errors_in_finally() {
         Hook<Boolean> h = mock(Hook.class);
         doThrow(RuntimeException.class).when(h).finallyAfter(any(), any());
@@ -176,7 +172,6 @@ public class HookSpecTests {
         verify(h, times(0)).error(any(), any(), any());
     }
 
-    @Specification(spec="hooks", number="3.6", text="The error hook MUST run when errors are encountered in the before stage, the after stage or during flag evaluation. It accepts hook context (required), exception for what went wrong (required), and HookHints (optional). It has no return value.")
     @Test void error_hook_run_during_non_finally_stage() {
         final boolean[] error_called = {false};
         Hook h = mock(Hook.class);
@@ -185,12 +180,7 @@ public class HookSpecTests {
         verify(h, times(0)).error(any(), any(), any());
     }
 
-    @Specification(spec="hooks", number="4.1", text="The API, Client and invocation MUST have a method for registering hooks which accepts flag evaluation options")
-    @Specification(spec="hooks", number="4.2", text="Hooks MUST be evaluated in the following order:" +
-            "before: API, Client, Invocation" +
-            "after: Invocation, Client, API" +
-            "error (if applicable): Invocation, Client, API" +
-            "finally: Invocation, Client, API")
+    @Specification(number="4.4.1", text="The API, Client and invocation MUST have a method for registering hooks which accepts flag evaluation options")
     @Test void hook_eval_order() {
         List<String> evalOrder = new ArrayList<String>();
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
@@ -277,7 +267,7 @@ public class HookSpecTests {
         assertEquals(expectedOrder, evalOrder);
     }
 
-    @Specification(spec="hooks", number="4.6", text="If an error is encountered in the error stage, it MUST NOT be returned to the user.")
+    @Specification(number="4.4.6", text="If an error occurs during the evaluation of before or after hooks, any remaining hooks in the before or after stages MUST NOT be invoked.")
     @Disabled("Not actually sure what 'returned to the user' means in this context. There is no exception information returned.")
     @Test void error_in_error_stage() {
         Hook<Boolean> h = mock(Hook.class);
@@ -291,10 +281,6 @@ public class HookSpecTests {
     }
 
 
-    @Specification(spec="hooks", number="2.1", text="HookHints MUST be a map of objects.")
-    @Specification(spec="hooks", number="2.2", text="Condition: HookHints MUST be immutable.")
-    @Specification(spec="hooks", number="5.4", text="The hook MUST NOT alter the HookHints object.")
-    @Specification(spec="hooks", number="5.3", text="HookHints MUST be passed to each hook.")
     @Test void hook_hints() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());
@@ -330,15 +316,12 @@ public class HookSpecTests {
                 .build());
     }
 
-    @Specification(spec="hooks", number="5.2", text="Flag evaluation options MAY contain HookHints, a map of data to be provided to hook invocations.")
     @Test void missing_hook_hints() {
         FlagEvaluationOptions feo = FlagEvaluationOptions.builder().build();
         assertNotNull(feo.getHookHints());
         assertTrue(feo.getHookHints().isEmpty());
     }
 
-    @Specification(spec="hooks", number="3.5", text="The after stage MUST run after flag evaluation occurs. It accepts a hook context (required), flag evaluation details (required) and HookHints (optional). It has no return value.")
-    @Specification(spec="hooks", number="3.7", text="The finally hook MUST run after the before, after, and error stages. It accepts a hook context (required) and HookHints (optional). There is no return value.")
     @Test void flag_eval_hook_order() {
         Hook hook = mock(Hook.class);
         FeatureProvider provider = mock(FeatureProvider.class);
@@ -360,7 +343,6 @@ public class HookSpecTests {
         order.verify(hook).finallyAfter(any(),any());
     }
 
-    @Specification(spec="hooks", number="4.4", text="If an error occurs in the before or after hooks, the error hooks MUST be invoked.")
     @Test void error_hooks() {
         Hook hook = mock(Hook.class);
         doThrow(RuntimeException.class).when(hook).before(any(), any());
@@ -373,7 +355,6 @@ public class HookSpecTests {
         verify(hook, times(1)).error(any(), any(), any());
     }
 
-    @Specification(spec="hooks", number="4.5", text="If an error occurs during the evaluation of before or after hooks, any remaining hooks in the before or after stages MUST NOT be invoked.")
     @Test void multi_hooks_early_out__before() {
         Hook hook = mock(Hook.class);
         Hook hook2 = mock(Hook.class);
@@ -396,7 +377,6 @@ public class HookSpecTests {
         verify(hook2, times(1)).error(any(), any(), any());
     }
 
-    @Specification(spec="hooks", number="3.3", text="Any `EvaluationContext` returned from a `before` hook **MUST** be passed to subsequent `before` hooks (via `HookContext`).")
     @Test void beforeContextUpdated() {
         EvaluationContext ctx = new EvaluationContext();
         Hook hook = mock(Hook.class);
@@ -424,7 +404,6 @@ public class HookSpecTests {
         assertEquals(hc.getCtx(), ctx);
 
     }
-    @Specification(spec="hooks", number="3.4", text="When `before` hooks have finished executing, any resulting `EvaluationContext` **MUST** be merged with the invocation `EvaluationContext` wherein the invocation `EvaluationContext` win any conflicts.")
     @Test void mergeHappensCorrectly() {
         EvaluationContext hookCtx = new EvaluationContext();
         hookCtx.addStringAttribute("test", "broken");
@@ -457,12 +436,30 @@ public class HookSpecTests {
     }
 
 
-    @Specification(spec="hooks", number="1.4", text="The evaluation context MUST be mutable only within the before hook.")
-    @Specification(spec="hooks", number="3.1", text="Hooks MUST specify at least one stage.")
+    @Specification(number="4.1.2", text="The hook context SHOULD provide: access to the client metadata and the provider metadata fields.")
+    @Specification(number="4.1.4", text="The evaluation context MUST be mutable only within the before hook.")
+    @Specification(number="4.2.1", text="hook hints MUST be a structure supports definition of arbitrary properties, with keys of type string, and values of type boolean | string | number | datetime | structure..")
+    @Specification(number="4.2.2.1", text="Condition: Hook hints MUST be immutable.")
+    @Specification(number="4.2.2.2", text="Condition: The client metadata field in the hook context MUST be immutable.")
+    @Specification(number="4.2.2.3", text="Condition: The provider metadata field in the hook context MUST be immutable.")
+    @Specification(number="4.3.1", text="Hooks MUST specify at least one stage.")
+    @Specification(number="4.3.2", text="The before stage MUST run before flag resolution occurs. It accepts a hook context (required) and hook hints (optional) as parameters and returns either an evaluation context or nothing.")
+    @Specification(number="4.3.3", text="Any evaluation context returned from a before hook MUST be passed to subsequent before hooks (via HookContext).")
+    @Specification(number="4.3.4", text="When before hooks have finished executing, any resulting evaluation context MUST be merged with the invocation evaluation context with the invocation evaluation context taking precedence in the case of any conflicts.")
+    @Specification(number="4.3.5", text="The after stage MUST run after flag resolution occurs. It accepts a hook context (required), flag evaluation details (required) and hook hints (optional). It has no return value.")
+    @Specification(number="4.3.6", text="The error hook MUST run when errors are encountered in the before stage, the after stage or during flag resolution. It accepts hook context (required), exception representing what went wrong (required), and hook hints (optional). It has no return value.")
+    @Specification(number="4.3.7", text="The finally hook MUST run after the before, after, and error stages. It accepts a hook context (required) and hook hints (optional). There is no return value.")
+    @Specification(number="4.3.8.1", text="Instead of finally, finallyAfter SHOULD be used.")
+    @Specification(number="4.4.2", text="Hooks MUST be evaluated in the following order:  - before: API, Client, Invocation - after: Invocation, Client, API - error (if applicable): Invocation, Client, API - finally: Invocation, Client, API")
+    @Specification(number="4.4.3", text="If a finally hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining finally hooks.")
+    @Specification(number="4.4.4", text="If an error hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining error hooks.")
+    @Specification(number="4.4.5", text="If an error occurs in the before or after hooks, the error hooks MUST be invoked.")
+    @Specification(number="4.5.1", text="Flag evaluation options MAY contain hook hints, a map of data to be provided to hook invocations.")
+    @Specification(number="4.5.2", text="hook hints MUST be passed to each hook.")
+    @Specification(number="4.5.3", text="The hook MUST NOT alter the hook hints structure.")
     @Test @Disabled void todo() {}
 
     @SneakyThrows
-    @Specification(spec="hooks", number="3.8", text="Condition: If finally is a reserved word in the language, finallyAfter SHOULD be used.")
     @Test void doesnt_use_finally() {
         try {
             Hook.class.getMethod("finally", HookContext.class, ImmutableMap.class);
