@@ -78,6 +78,5 @@ public class ProviderSpecTests {
     @Specification(number="2.10", text="The provider interface MAY define a context transformer method " +
             "or function, which can be optionally implemented in order to transform the evaluation context prior to " +
             "flag value resolution.")
-    @Disabled("I don't think we should do that until we figure out the call signature differences")
     @Test void not_doing() {}
 }

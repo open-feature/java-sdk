@@ -53,7 +53,7 @@ class DeveloperExperienceTest {
         api.setProvider(new AlwaysBrokenProvider());
         Client client = api.getClient();
         FlagEvaluationDetails<Boolean> retval = client.getBooleanDetails(flagKey, false);
-        assertEquals(ErrorCode.GENERAL, retval.getErrorCode());
+        assertEquals("BORK", retval.getErrorCode());
         assertEquals(Reason.ERROR, retval.getReason());
         assertFalse(retval.getValue());
     }

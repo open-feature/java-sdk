@@ -3,7 +3,6 @@ package dev.openfeature.javasdk;
 import com.google.common.collect.ImmutableMap;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -112,6 +111,7 @@ public class HookSpecTests {
 
     }
 
+    @Specification(number="4.1.2", text="The hook context SHOULD provide: access to the client metadata and the provider metadata fields.")
     @Test void optional_properties() {
         // don't specify
         HookContext.<Integer>builder()
@@ -126,7 +126,7 @@ public class HookSpecTests {
                 .flagKey("key")
                 .type(FlagValueType.INTEGER)
                 .ctx(new EvaluationContext())
-                .provider(new NoOpProvider())
+                .providerMetadata(new NoOpProvider().getMetadata())
                 .defaultValue(1)
                 .build();
 
@@ -136,7 +136,7 @@ public class HookSpecTests {
                 .type(FlagValueType.INTEGER)
                 .ctx(new EvaluationContext())
                 .defaultValue(1)
-                .client(OpenFeatureAPI.getInstance().getClient())
+                .clientMetadata(OpenFeatureAPI.getInstance().getClient().getMetadata())
                 .build();
     }
 
@@ -157,20 +157,6 @@ public class HookSpecTests {
         FlagEvaluationOptions feo = FlagEvaluationOptions.builder()
                 .build();
         assertNotNull(feo.getHooks());
-    }
-
-    @Test void errors_in_finally() {
-        Hook<Boolean> h = mock(Hook.class);
-        doThrow(RuntimeException.class).when(h).finallyAfter(any(), any());
-
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider());
-        Client c= api.getClient();
-
-        assertThrows(RuntimeException.class, () -> c.getBooleanValue("key", false, null, FlagEvaluationOptions.builder().hook(h).build()));
-
-        verify(h, times(1)).finallyAfter(any(), any());
-        verify(h, times(0)).error(any(), any(), any());
     }
 
     @Test void error_hook_run_during_non_finally_stage() {
@@ -274,25 +260,45 @@ public class HookSpecTests {
     }
 
     @Specification(number="4.4.6", text="If an error occurs during the evaluation of before or after hooks, any remaining hooks in the before or after stages MUST NOT be invoked.")
-    @Disabled("Not actually sure what 'returned to the user' means in this context. There is no exception information returned.")
-    @Test void error_in_error_stage() {
+    @Test void error_stops_before() {
         Hook<Boolean> h = mock(Hook.class);
-        doThrow(RuntimeException.class).when(h).error(any(), any(), any());
+        doThrow(RuntimeException.class).when(h).before(any(), any());
+        Hook<Boolean> h2 = mock(Hook.class);
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
 
-        FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", false, null, FlagEvaluationOptions.builder().hook(h).build());
+        c.getBooleanDetails("key", false, null, FlagEvaluationOptions.builder()
+                .hook(h2)
+                .hook(h)
+                .build());
+        verify(h, times(1)).before(any(), any());
+        verify(h2, times(0)).before(any(), any());
     }
 
+    @Specification(number="4.4.6", text="If an error occurs during the evaluation of before or after hooks, any remaining hooks in the before or after stages MUST NOT be invoked.")
+    @Test void error_stops_after() {
+        Hook<Boolean> h = mock(Hook.class);
+        doThrow(RuntimeException.class).when(h).after(any(), any(), any());
+        Hook<Boolean> h2 = mock(Hook.class);
+
+        Client c = getClient(null);
+
+        c.getBooleanDetails("key", false, null, FlagEvaluationOptions.builder()
+                .hook(h)
+                .hook(h2)
+                .build());
+        verify(h, times(1)).after(any(), any(), any());
+        verify(h2, times(0)).after(any(), any(), any());
+    }
 
     @Specification(number="4.2.1", text="hook hints MUST be a structure supports definition of arbitrary properties, with keys of type string, and values of type boolean | string | number | datetime | structure..")
     @Specification(number="4.5.2", text="hook hints MUST be passed to each hook.")
+    @Specification(number="4.2.2.1", text="Condition: Hook hints MUST be immutable.")
+    @Specification(number="4.5.3", text="The hook MUST NOT alter the hook hints structure.")
     @Test void hook_hints() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider());
-        Client client = api.getClient();
+        Client client = getClient(null);
         Hook<Boolean> mutatingHook = new Hook<Boolean>() {
             @Override
             public Optional<EvaluationContext> before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
@@ -356,9 +362,7 @@ public class HookSpecTests {
     @Test void error_hooks__before() {
         Hook hook = mock(Hook.class);
         doThrow(RuntimeException.class).when(hook).before(any(), any());
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider());
-        Client client = api.getClient();
+        Client client = getClient(null);
         client.getBooleanValue("key", false, new EvaluationContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
         verify(hook, times(1)).before(any(), any());
@@ -369,9 +373,7 @@ public class HookSpecTests {
     @Test void error_hooks__after() {
         Hook hook = mock(Hook.class);
         doThrow(RuntimeException.class).when(hook).after(any(), any(), any());
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider());
-        Client client = api.getClient();
+        Client client = getClient(null);
         client.getBooleanValue("key", false, new EvaluationContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
         verify(hook, times(1)).after(any(), any(), any());
@@ -383,9 +385,7 @@ public class HookSpecTests {
         Hook hook2 = mock(Hook.class);
         doThrow(RuntimeException.class).when(hook).before(any(), any());
 
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider());
-        Client client = api.getClient();
+        Client client = getClient(null);
 
         client.getBooleanValue("key", false, new EvaluationContext(),
                 FlagEvaluationOptions.builder()
@@ -411,10 +411,7 @@ public class HookSpecTests {
         InOrder order = inOrder(hook, hook2);
 
 
-
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider());
-        Client client = api.getClient();
+        Client client = getClient(null);
         client.getBooleanValue("key", false, new EvaluationContext(),
                 FlagEvaluationOptions.builder()
                         .hook(hook2)
@@ -462,18 +459,57 @@ public class HookSpecTests {
         assertEquals("exists", ec.getStringAttribute("another"));
     }
 
-
-    @Specification(number="4.1.2", text="The hook context SHOULD provide: access to the client metadata and the provider metadata fields.")
-    @Specification(number="4.2.2.1", text="Condition: Hook hints MUST be immutable.")
-    @Specification(number="4.2.2.2", text="Condition: The client metadata field in the hook context MUST be immutable.")
-    @Specification(number="4.2.2.3", text="Condition: The provider metadata field in the hook context MUST be immutable.")
-
-
     @Specification(number="4.4.3", text="If a finally hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining finally hooks.")
-    @Specification(number="4.4.4", text="If an error hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining error hooks.")
+    @Test void first_finally_broken() {
+        Hook hook = mock(Hook.class);
+        doThrow(RuntimeException.class).when(hook).before(any(), any());
+        doThrow(RuntimeException.class).when(hook).finallyAfter(any(), any());
+        Hook hook2 = mock(Hook.class);
+        InOrder order = inOrder(hook, hook2);
 
-    @Specification(number="4.5.3", text="The hook MUST NOT alter the hook hints structure.")
-    @Test @Disabled void todo() {}
+        Client client = getClient(null);
+        client.getBooleanValue("key", false, new EvaluationContext(),
+                FlagEvaluationOptions.builder()
+                        .hook(hook2)
+                        .hook(hook)
+                        .build());
+
+        order.verify(hook).before(any(), any());
+        order.verify(hook2).finallyAfter(any(), any());
+        order.verify(hook).finallyAfter(any(), any());
+    }
+
+    @Specification(number="4.4.4", text="If an error hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining error hooks.")
+    @Test void first_error_broken() {
+
+        Hook hook = mock(Hook.class);
+        doThrow(RuntimeException.class).when(hook).before(any(), any());
+        doThrow(RuntimeException.class).when(hook).error(any(), any(), any());
+        Hook hook2 = mock(Hook.class);
+        InOrder order = inOrder(hook, hook2);
+
+        Client client = getClient(null);
+        client.getBooleanValue("key", false, new EvaluationContext(),
+                FlagEvaluationOptions.builder()
+                        .hook(hook2)
+                        .hook(hook)
+                        .build());
+
+        order.verify(hook).before(any(), any());
+        order.verify(hook2).error(any(), any(), any());
+        order.verify(hook).error(any(), any(), any());
+    }
+
+    private Client getClient(FeatureProvider provider) {
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        if (provider == null) {
+            api.setProvider(new NoOpProvider());
+        } else {
+            api.setProvider(provider);
+        }
+        Client client = api.getClient();
+        return client;
+    }
 
     @Specification(number="4.3.1", text="Hooks MUST specify at least one stage.")
     @Test void default_methods_so_impossible() {}

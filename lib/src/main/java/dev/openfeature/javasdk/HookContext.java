@@ -11,14 +11,15 @@ public class HookContext<T> {
     @NonNull FlagValueType type;
     @NonNull T defaultValue;
     @NonNull EvaluationContext ctx;
-    Client client;
-    FeatureProvider provider;
+    Metadata clientMetadata;
+    Metadata providerMetadata;
 
-    public static <T> HookContext<T> from(String key, FlagValueType type, Client client, EvaluationContext ctx, T defaultValue) {
+    public static <T> HookContext<T> from(String key, FlagValueType type, Metadata clientMetadata, Metadata providerMetadata, EvaluationContext ctx, T defaultValue) {
         return HookContext.<T>builder()
                 .flagKey(key)
                 .type(type)
-                .client(client)
+                .clientMetadata(clientMetadata)
+                .providerMetadata(providerMetadata)
                 .ctx(ctx)
                 .defaultValue(defaultValue)
                 .build();
