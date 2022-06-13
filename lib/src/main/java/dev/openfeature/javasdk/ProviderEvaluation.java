@@ -10,5 +10,5 @@ public class ProviderEvaluation<T> implements BaseEvaluation<T> {
     T value;
     @Nullable String variant;
     Reason reason;
-    @Nullable ErrorCode errorCode;
+    @Nullable String errorCode;
 }

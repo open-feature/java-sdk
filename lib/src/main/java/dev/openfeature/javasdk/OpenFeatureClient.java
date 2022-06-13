@@ -43,7 +43,7 @@ public class OpenFeatureClient implements Client {
         // merge of: API.context, client.context, invocation.context
 
         // TODO: Context transformation?
-        HookContext hookCtx = HookContext.from(key, type, this, ctx, defaultValue);
+        HookContext hookCtx = HookContext.from(key, type, this.getMetadata(), OpenFeatureAPI.getInstance().getProvider().getMetadata(), ctx, defaultValue);
 
         List<Hook> mergedHooks;
         if (options != null && options.getHooks() != null) {
@@ -84,11 +84,7 @@ public class OpenFeatureClient implements Client {
             }
             details.value = defaultValue;
             details.reason = Reason.ERROR;
-            if (e instanceof OpenFeatureError) { //NOPMD - suppressed AvoidInstanceofChecksInCatchClause - Don't want to duplicate detail creation logic.
-                details.errorCode = ((OpenFeatureError) e).getErrorCode();
-            } else {
-                details.errorCode = ErrorCode.GENERAL;
-            }
+            details.errorCode = e.getMessage();
             this.errorHooks(hookCtx, e, mergedHooks, hints);
         } finally {
             this.afterAllHooks(hookCtx, mergedHooks, hints);
@@ -99,13 +95,21 @@ public class OpenFeatureClient implements Client {
 
     private void errorHooks(HookContext hookCtx, Exception e, List<Hook> hooks, ImmutableMap<String, Object> hints) {
         for (Hook hook : hooks) {
-            hook.error(hookCtx, e, hints);
+            try {
+                hook.error(hookCtx, e, hints);
+            } catch (Exception inner_exception) {
+                log.error("Exception when running error hooks " + hook.getClass().toString(), inner_exception);
+            }
         }
     }
 
     private void afterAllHooks(HookContext hookCtx, List<Hook> hooks, ImmutableMap<String, Object> hints) {
         for (Hook hook : hooks) {
-            hook.finallyAfter(hookCtx, hints);
+            try {
+                hook.finallyAfter(hookCtx, hints);
+            } catch (Exception inner_exception) {
+                log.error("Exception when running finally hooks " + hook.getClass().toString(), inner_exception);
+            }
         }
     }
 
@@ -246,5 +250,15 @@ public class OpenFeatureClient implements Client {
     @Override
     public <T> FlagEvaluationDetails<T> getObjectDetails(String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.OBJECT, key, defaultValue, ctx, options);
+    }
+
+    @Override
+    public Metadata getMetadata() {
+        return new Metadata() {
+            @Override
+            public String getName() {
+                return name;
+            }
+        };
     }
 }

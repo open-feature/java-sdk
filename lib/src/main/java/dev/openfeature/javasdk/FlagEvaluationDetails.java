@@ -11,7 +11,7 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
     T value;
     @Nullable String variant;
     Reason reason;
-    @Nullable ErrorCode errorCode;
+    @Nullable String errorCode;
 
     public static <T> FlagEvaluationDetails<T> from(ProviderEvaluation<T> providerEval, String flagKey) {
         return FlagEvaluationDetails.<T>builder()

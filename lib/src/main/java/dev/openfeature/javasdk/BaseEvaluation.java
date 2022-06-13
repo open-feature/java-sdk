@@ -23,5 +23,5 @@ public interface BaseEvaluation<T> {
      * The error code, if applicable. Should only be set when the Reason is ERROR.
      * @return {ErrorCode}
      */
-    ErrorCode getErrorCode();
+    String getErrorCode();
 }

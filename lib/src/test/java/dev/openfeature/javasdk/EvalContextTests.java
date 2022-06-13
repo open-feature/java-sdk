@@ -7,7 +7,7 @@ import java.time.ZonedDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EvalContextTests {
-    @Specification(spec="Evaluation Context", number="3.1",
+    @Specification(number="3.1",
             text="The `evaluation context` structure **MUST** define an optional `targeting key` field of " +
                     "type string, identifying the subject of the flag evaluation.")
     @Test void requires_targeting_key() {
@@ -16,7 +16,7 @@ public class EvalContextTests {
         assertEquals("targeting-key", ec.getTargetingKey());
     }
 
-    @Specification(spec="Evaluation Context", number="3.2", text="The evaluation context MUST support the inclusion of " +
+    @Specification(number="3.2", text="The evaluation context MUST support the inclusion of " +
             "custom fields, having keys of type `string`, and " +
             "values of type `boolean | string | number | datetime | structure`.")
     @Test void eval_context() {
@@ -36,7 +36,7 @@ public class EvalContextTests {
         assertEquals(dt, ec.getDatetimeAttribute("dt"));
     }
 
-    @Specification(spec="Evaluation Context", number="3.2", text="The evaluation context MUST support the inclusion of " +
+    @Specification(number="3.2", text="The evaluation context MUST support the inclusion of " +
             "custom fields, having keys of type `string`, and " +
             "values of type `boolean | string | number | datetime | structure`.")
     @Test void eval_context__structure() {

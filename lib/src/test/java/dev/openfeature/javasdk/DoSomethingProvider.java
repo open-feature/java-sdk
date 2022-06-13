@@ -1,9 +1,15 @@
 package dev.openfeature.javasdk;
 
 public class DoSomethingProvider implements FeatureProvider {
+
     @Override
-    public String getName() {
-        return "test";
+    public Metadata getMetadata() {
+        return new Metadata() {
+            @Override
+            public String getName() {
+                return "test";
+            }
+        };
     }
 
     @Override

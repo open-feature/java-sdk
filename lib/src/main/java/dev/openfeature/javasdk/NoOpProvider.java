@@ -8,6 +8,16 @@ public class NoOpProvider implements FeatureProvider {
     private final String name = "No-op Provider";
 
     @Override
+    public Metadata getMetadata() {
+        return new Metadata() {
+            @Override
+            public String getName() {
+                return name;
+            }
+        };
+    }
+
+    @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return ProviderEvaluation.<Boolean>builder()
                 .value(defaultValue)

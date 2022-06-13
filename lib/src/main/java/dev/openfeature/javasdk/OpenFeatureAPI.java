@@ -30,6 +30,10 @@ public class OpenFeatureAPI {
         return getClient(null, null);
     }
 
+    public Metadata getProviderMetadata() {
+        return provider.getMetadata();
+    }
+
     public Client getClient(@Nullable String name) {
         return getClient(name, null);
     }
