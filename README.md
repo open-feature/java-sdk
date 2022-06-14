@@ -14,7 +14,7 @@ This library is intended to be used in server-side contexts and has not been eva
 
 ## Usage
 
-There are a variety flag types that we offer, but `Boolean` provides the simplest introduction. We can use this SDK to 
+There are a variety flag types that we offer, but `Boolean` provides the simplest introduction. We can use this SDK to determine if we should show our latest redesign or not. 
 
 ```java
 class MyClass {
