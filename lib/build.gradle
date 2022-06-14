@@ -13,6 +13,7 @@ plugins {
     id 'pmd'
     id 'maven-publish'
     id 'signing'
+    id 'jacoco'
 }
 
 pmd {
@@ -44,6 +45,16 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+test {
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    reports {
+        xml.required = true
+    }
+}
+
 task sourcesJar(type: Jar, dependsOn: classes) {
     archiveClassifier = 'sources'
     archiveBaseName = 'openfeature'
@@ -53,7 +64,6 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 artifacts {
     archives sourcesJar
 }
-
 
 jar.archiveBaseName = 'openfeature'
 

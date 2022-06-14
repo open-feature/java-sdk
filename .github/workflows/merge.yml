@@ -31,6 +31,14 @@ jobs:
       uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
       with:
         arguments: build
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        directory: lib/build
+        flags: unittests # optional
+        name: coverage # optional
+        fail_ci_if_error: true # optional (default = false)
+        verbose: true # optional (default = false)
     # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
     # the publishing section of your build.gradle
     - name: Publish to Sonatype (Maven)

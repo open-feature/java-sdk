@@ -31,3 +31,11 @@ jobs:
         uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
         with:
           arguments: build
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          directory: lib/build
+          flags: unittests # optional
+          name: pr coverage # optional
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
