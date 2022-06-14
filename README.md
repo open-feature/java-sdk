@@ -14,18 +14,35 @@ This library is intended to be used in server-side contexts and has not been eva
 
 ## Usage
 
-There are a variety flag types that we offer, but `Boolean` provides the simplest introduction. We can use this SDK to determine if we should show our latest redesign or not. 
+While `Boolean` provides the simplest introduction, we offer a variety of flag types. 
 
 ```java
 class MyClass {
-    // ...
-    public void myFunction() {
+    public UI booleanExample() {
+        // Should we render the redesign? Or the default webpage? 
         if (client.getBooleanValue("redesign_enabled", false)) {
             return render_redesign();
         }
         return render_normal();
     }
-    // ...
+    
+    public Template stringExample() {
+        // Get the template to load for the custom new homepage
+        String template = client.getStringValue("homepage_template", "default-homepage.html")
+        return render_template(template);
+    }
+    
+    public List<Module> numberExample() {
+        // How many modules should we be fetching?
+        Integer count = client.getIntegerValue("module-fetch-count", 4);
+        return fetch_modules(count);
+    }
+    
+    public Module structureExample() {
+        // This deserializes into the Module structure for you.
+        Module heroModule = client.getObjectValue("hero-module", myExampleModule);
+        return heroModule;
+    }
 }
 ```
 
