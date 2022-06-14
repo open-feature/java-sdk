@@ -2,6 +2,9 @@ package dev.openfeature.javasdk;
 
 import lombok.Getter;
 
+/**
+ * A {@link FeatureProvider} that simply returns the default values passed to it.
+ */
 public class NoOpProvider implements FeatureProvider {
     public static final String PASSED_IN_DEFAULT = "Passed in default";
     @Getter

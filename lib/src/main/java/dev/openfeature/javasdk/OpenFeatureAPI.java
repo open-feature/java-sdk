@@ -8,6 +8,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * A global singleton which holds base configuration for the OpenFeature library.
+ *
+ * Configuration here will be shared across all {@link Client}s.
+ */
 public class OpenFeatureAPI {
     @Getter @Setter private FeatureProvider provider;
     private static OpenFeatureAPI api;
