@@ -26,10 +26,40 @@ class MyClass {
 ```
 
 ## Requirements
-- Java 11
+- Java 11+
 
 ## Installation
-TODO
+
+### Add it to your build
+
+Maven:
+```xml
+<dependency>
+    <groupId>dev.openfeature</groupId>
+    <artifactId>javasdk</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+</dependency>
+```
+
+Gradle:
+```groovy
+dependencies {
+    implementation 'dev.openfeature:javasdk:0.0.1-SNAPSHOT'
+}
+```
+
+### Configure it
+To configure it, you'll need to add a provider to the global singleton `OpenFeatureAPI`. From there, you can generate a `Client` which is usable by your code. While you'll likely want a provider for your specific backend, we've provided a `NoOpProvider`, which simply returns the default passed in.
+```java
+class MyApp {
+    public void example(){
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(new NoOpProvider());
+        Client client = api.getClient();
+        // Now use your `client` instance to evaluate some feature flags!
+    }
+}
+```
 ## Contacting us
 We hold regular meetings which you can see [here](https://github.com/open-feature/community/#meetings-and-events).
 
