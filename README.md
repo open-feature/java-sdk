@@ -67,7 +67,7 @@ class MyApp {
 ## Contacting us
 We hold regular meetings which you can see [here](https://github.com/open-feature/community/#meetings-and-events).
 
-We are also present on the #openfeature channel in the [CNCF slack](https://slack.cncf.io/).
+We are also present on the `#openfeature` channel in the [CNCF slack](https://slack.cncf.io/).
 
 ## Contributors
 
