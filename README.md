@@ -6,7 +6,11 @@
 [![codecov](https://codecov.io/gh/open-feature/java-sdk/branch/main/graph/badge.svg?token=XMS9L7PBY1)](https://codecov.io/gh/open-feature/java-sdk)
 
 
-This is the Java implementation of [Open Feature](https://openfeature.dev). It is intended to be used in server-side contexts and has not been evaluated for use in mobile devices.
+This is the Java implementation of [OpenFeature](https://openfeature.dev), a vendor-agnostic abstraction library for evaluating feature flags.
+
+We support multiple data types for flags (numbers, strings, booleans, objects) as well as  hooks, which can alter the lifecycle of a flag evaluation.
+
+This library is intended to be used in server-side contexts and has not been evaluated for use in mobile devices.
 
 ## Usage
 
