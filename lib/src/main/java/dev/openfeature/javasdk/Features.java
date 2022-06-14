@@ -1,5 +1,8 @@
 package dev.openfeature.javasdk;
 
+/**
+ * An API for the type-specific fetch methods we offer end users.
+ */
 public interface Features {
 
     Boolean getBooleanValue(String key, Boolean defaultValue);

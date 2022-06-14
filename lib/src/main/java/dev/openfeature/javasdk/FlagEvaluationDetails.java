@@ -5,6 +5,10 @@ import lombok.Data;
 
 import javax.annotation.Nullable;
 
+/**
+ * Contains information about how the evaluation happened, including any resolved values.
+ * @param <T> the type of the flag being evaluated.
+ */
 @Data @Builder
 public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
     String flagKey;
