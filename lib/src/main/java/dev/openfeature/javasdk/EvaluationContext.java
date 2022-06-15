@@ -1,6 +1,6 @@
 package dev.openfeature.javasdk;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper; // jackson is pretty standard, I'm glad you decided on this for object support
 import lombok.*;
 
 import java.time.ZonedDateTime;
@@ -28,6 +28,8 @@ public class EvaluationContext {
     }
 
     // TODO Not sure if I should have sneakythrows or checked exceptions here..
+    // do you mean un-checked exceptions?
+    // I had no idea about SneakyThrows, but it seems like a nicer solution than swallowing in an unchecked exception. 
     @SneakyThrows
     public <T> void addStructureAttribute(String key, T value) {
         jsonAttributes.put(key, objMapper.writeValueAsString(value));
