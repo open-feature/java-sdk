@@ -179,7 +179,13 @@ public class FlagEvaluationSpecTests {
     }
 
     @Specification(number="1.4.8", text="In cases of abnormal execution (network failure, unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")
-    @Test @Disabled void question_pending() {}
+    @Test void reason_is_error_when_there_are_errors() {
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(new AlwaysBrokenProvider());
+        Client c = api.getClient();
+        FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
+        assertEquals(Reason.ERROR, result.getReason());
+    }
 
     @Specification(number="1.3.3", text="The client SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied default value should be returned.")
     @Specification(number="1.1.6", text="The client creation function MUST NOT throw, or otherwise abnormally terminate.")
