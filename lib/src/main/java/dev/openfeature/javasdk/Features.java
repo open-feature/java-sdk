@@ -1,7 +1,7 @@
 package dev.openfeature.javasdk;
 
 /**
- * An API for the type-specific fetch methods we offer end users.
+ * An API for the type-specific fetch methods offered to users.
  */
 public interface Features {
 

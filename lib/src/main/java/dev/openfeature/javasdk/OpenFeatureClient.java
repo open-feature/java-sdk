@@ -93,6 +93,7 @@ public class OpenFeatureClient implements Client {
         return details;
     }
 
+    // errorHooks and afterAllHooks error handling seems consistent with spec, and what I implemented. I'm glad we landed here.
     private void errorHooks(HookContext hookCtx, Exception e, List<Hook> hooks, ImmutableMap<String, Object> hints) {
         for (Hook hook : hooks) {
             try {
@@ -122,6 +123,7 @@ public class OpenFeatureClient implements Client {
     private EvaluationContext beforeHooks(HookContext hookCtx, List<Hook> hooks, ImmutableMap<String, Object> hints) {
         // These traverse backwards from normal.
         EvaluationContext ctx = hookCtx.getCtx();
+        // This is a bit counter-intuitive to me, just want to make sure... this is the stage that gets reversed because ArrayList.addAll() does a prepend, right?
         for (Hook hook : Lists.reverse(hooks)) {
             Optional<EvaluationContext> newCtx = hook.before(hookCtx, hints);
             if (newCtx != null && newCtx.isPresent()) {
