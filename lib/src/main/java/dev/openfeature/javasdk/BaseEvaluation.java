@@ -1,7 +1,7 @@
 package dev.openfeature.javasdk;
 
 /**
- * We differ between the evaluation results that providers return and what is given to the end users. This is a common interface between them.
+ * This is a common interface between the evaluation results that providers return and what is given to the end users.
  * @param <T> The type of flag being evaluated.
  */
 public interface BaseEvaluation<T> {
