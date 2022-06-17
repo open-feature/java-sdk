@@ -1,16 +1,20 @@
 package dev.openfeature.javasdk;
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.slf4j.*;
+import uk.org.lidalia.slf4jtest.*;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class FlagEvaluationSpecTests {
+class FlagEvaluationSpecTests {
 
-    Client _client() {
+    private static final TestLogger TEST_LOGGER = TestLoggerFactory.getTestLogger(OpenFeatureClient.class);
+
+    private Client _client() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());
         return api.getClient();
@@ -160,10 +164,16 @@ public class FlagEvaluationSpecTests {
         FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", false);
         assertEquals("BORK", details.getErrorCode());
     }
+
     @Specification(number="1.4.10", text="In the case of abnormal execution, the client SHOULD log an informative error message.")
-    @Disabled("Not actually sure how to mock out the slf4j logger")
     @Test void log_on_error() throws NotImplementedException {
-        throw new NotImplementedException("Dunno.");
+        TEST_LOGGER.clear();
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(new AlwaysBrokenProvider());
+        Client c = api.getClient();
+        FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
+        assertEquals(Reason.ERROR, result.getReason());
+        assertThat(TEST_LOGGER.getLoggingEvents()).contains(LoggingEvent.error("Unable to correctly evaluate flag with key {} due to exception {}", "test", "BORK"));
     }
 
 
