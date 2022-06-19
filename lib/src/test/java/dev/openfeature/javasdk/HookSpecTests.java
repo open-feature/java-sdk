@@ -7,11 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -161,7 +160,7 @@ public class HookSpecTests {
 
     @Test void error_hook_run_during_non_finally_stage() {
         final boolean[] error_called = {false};
-        Hook h = mock(Hook.class);
+        Hook h = createBooleanHook();
         doThrow(RuntimeException.class).when(h).finallyAfter(any(), any());
 
         verify(h, times(0)).error(any(), any(), any());
@@ -179,73 +178,88 @@ public class HookSpecTests {
         api.setProvider(new NoOpProvider());
         api.addHooks(new Hook<Boolean>() {
             @Override
-            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
                 evalOrder.add("api before");
                 return null;
             }
 
             @Override
-            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
+            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, Map<String, Object> hints) {
                 evalOrder.add("api after");
                 throw new RuntimeException(); // trigger error flows.
             }
 
             @Override
-            public void error(HookContext<Boolean> ctx, Exception error, ImmutableMap<String, Object> hints) {
+            public void error(HookContext<Boolean> ctx, Exception error, Map<String, Object> hints) {
                 evalOrder.add("api error");
             }
 
             @Override
-            public void finallyAfter(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+            public void finallyAfter(HookContext<Boolean> ctx, Map<String, Object> hints) {
                 evalOrder.add("api finally");
+            }
+
+            @Override
+            public FlagValueType supportsFlagValueType() {
+                return FlagValueType.BOOLEAN;
             }
         });
 
         Client c = api.getClient();
         c.addHooks(new Hook<Boolean>() {
             @Override
-            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
                 evalOrder.add("client before");
                 return null;
             }
 
             @Override
-            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
+            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, Map<String, Object> hints) {
                 evalOrder.add("client after");
             }
 
             @Override
-            public void error(HookContext<Boolean> ctx, Exception error, ImmutableMap<String, Object> hints) {
+            public void error(HookContext<Boolean> ctx, Exception error, Map<String, Object> hints) {
                 evalOrder.add("client error");
             }
 
             @Override
-            public void finallyAfter(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+            public void finallyAfter(HookContext<Boolean> ctx, Map<String, Object> hints) {
                 evalOrder.add("client finally");
+            }
+
+            @Override
+            public FlagValueType supportsFlagValueType() {
+                return FlagValueType.BOOLEAN;
             }
         });
 
         c.getBooleanValue("key", false, null, FlagEvaluationOptions.builder()
                         .hook(new Hook<Boolean>() {
                             @Override
-                            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+                            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
                                 evalOrder.add("invocation before");
                                 return null;
                             }
 
                             @Override
-                            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
+                            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, Map<String, Object> hints) {
                                 evalOrder.add("invocation after");
                             }
 
                             @Override
-                            public void error(HookContext<Boolean> ctx, Exception error, ImmutableMap<String, Object> hints) {
+                            public void error(HookContext<Boolean> ctx, Exception error, Map<String, Object> hints) {
                                 evalOrder.add("invocation error");
                             }
 
                             @Override
-                            public void finallyAfter(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
+                            public void finallyAfter(HookContext<Boolean> ctx, Map<String, Object> hints) {
                                 evalOrder.add("invocation finally");
+                            }
+
+                            @Override
+                            public FlagValueType supportsFlagValueType() {
+                                return FlagValueType.BOOLEAN;
                             }
                         })
                 .build());
@@ -279,9 +293,9 @@ public class HookSpecTests {
 
     @Specification(number="4.4.6", text="If an error occurs during the evaluation of before or after hooks, any remaining hooks in the before or after stages MUST NOT be invoked.")
     @Test void error_stops_after() {
-        Hook<Boolean> h = mock(Hook.class);
+        Hook<Boolean> h = createBooleanHook();
         doThrow(RuntimeException.class).when(h).after(any(), any(), any());
-        Hook<Boolean> h2 = mock(Hook.class);
+        Hook<Boolean> h2 = createBooleanHook();
 
         Client c = getClient(null);
 
@@ -298,31 +312,37 @@ public class HookSpecTests {
     @Specification(number="4.2.2.1", text="Condition: Hook hints MUST be immutable.")
     @Specification(number="4.5.3", text="The hook MUST NOT alter the hook hints structure.")
     @Test void hook_hints() {
+        String hintKey = "My hint key";
         Client client = getClient(null);
-        Hook<Boolean> mutatingHook = new Hook<Boolean>() {
+        Hook<Boolean> mutatingHook = new Hook<>() {
             @Override
-            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
-                assertTrue(hints instanceof ImmutableMap);
-                return null;
+            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
+                assertThatCode(() -> hints.put(hintKey, "changed value")).isInstanceOf(UnsupportedOperationException.class);
+                return Optional.empty();
             }
 
             @Override
-            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, ImmutableMap<String, Object> hints) {
-                assertTrue(hints instanceof ImmutableMap);
+            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, Map<String, Object> hints) {
+                assertThatCode(() -> hints.put(hintKey, "changed value")).isInstanceOf(UnsupportedOperationException.class);
             }
 
             @Override
-            public void error(HookContext<Boolean> ctx, Exception error, ImmutableMap<String, Object> hints) {
-                assertTrue(hints instanceof ImmutableMap);
+            public void error(HookContext<Boolean> ctx, Exception error, Map<String, Object> hints) {
+                assertThatCode(() -> hints.put(hintKey, "changed value")).isInstanceOf(UnsupportedOperationException.class);
             }
 
             @Override
-            public void finallyAfter(HookContext<Boolean> ctx, ImmutableMap<String, Object> hints) {
-                assertTrue(hints instanceof ImmutableMap);
+            public void finallyAfter(HookContext<Boolean> ctx, Map<String, Object> hints) {
+                assertThatCode(() -> hints.put(hintKey, "changed value")).isInstanceOf(UnsupportedOperationException.class);
+            }
+
+            @Override
+            public FlagValueType supportsFlagValueType() {
+                return FlagValueType.BOOLEAN;
             }
         };
 
-        ImmutableMap<String, Object> hh = ImmutableMap.of("My hint key", "My hint value");
+        Map<String, Object> hh = new HashMap<>(Map.of(hintKey, "My hint value"));
 
         client.getBooleanValue("key", false, new EvaluationContext(), FlagEvaluationOptions.builder()
                 .hook(mutatingHook)
@@ -338,7 +358,7 @@ public class HookSpecTests {
     }
 
     @Test void flag_eval_hook_order() {
-        Hook hook = mock(Hook.class);
+        Hook hook = createBooleanHook();
         FeatureProvider provider = mock(FeatureProvider.class);
         when(provider.getBooleanEvaluation(any(), any(), any(), any()))
                 .thenReturn(ProviderEvaluation.<Boolean>builder()
@@ -360,7 +380,7 @@ public class HookSpecTests {
 
     @Specification(number="4.4.5", text="If an error occurs in the before or after hooks, the error hooks MUST be invoked.")
     @Test void error_hooks__before() {
-        Hook hook = mock(Hook.class);
+        Hook hook = createBooleanHook();
         doThrow(RuntimeException.class).when(hook).before(any(), any());
         Client client = getClient(null);
         client.getBooleanValue("key", false, new EvaluationContext(),
@@ -371,7 +391,7 @@ public class HookSpecTests {
 
     @Specification(number="4.4.5", text="If an error occurs in the before or after hooks, the error hooks MUST be invoked.")
     @Test void error_hooks__after() {
-        Hook hook = mock(Hook.class);
+        Hook hook = createBooleanHook();
         doThrow(RuntimeException.class).when(hook).after(any(), any(), any());
         Client client = getClient(null);
         client.getBooleanValue("key", false, new EvaluationContext(),
@@ -380,9 +400,15 @@ public class HookSpecTests {
         verify(hook, times(1)).error(any(), any(), any());
     }
 
-    @Test void multi_hooks_early_out__before() {
+    private Hook createBooleanHook() {
         Hook hook = mock(Hook.class);
-        Hook hook2 = mock(Hook.class);
+        when(hook.supportsFlagValueType()).thenReturn(FlagValueType.BOOLEAN);
+        return hook;
+    }
+
+    @Test void multi_hooks_early_out__before() {
+        Hook hook = createBooleanHook();
+        Hook hook2 = createBooleanHook();
         doThrow(RuntimeException.class).when(hook).before(any(), any());
 
         Client client = getClient(null);
@@ -404,9 +430,9 @@ public class HookSpecTests {
     @Specification(number="4.3.3", text="Any evaluation context returned from a before hook MUST be passed to subsequent before hooks (via HookContext).")
     @Test void beforeContextUpdated() {
         EvaluationContext ctx = new EvaluationContext();
-        Hook hook = mock(Hook.class);
+        Hook hook = createBooleanHook();
         when(hook.before(any(), any())).thenReturn(Optional.of(ctx));
-        Hook hook2 = mock(Hook.class);
+        Hook hook2 = createBooleanHook();
         when(hook.before(any(), any())).thenReturn(Optional.empty());
         InOrder order = inOrder(hook, hook2);
 
@@ -436,7 +462,7 @@ public class HookSpecTests {
         EvaluationContext invocationCtx = new EvaluationContext();
         invocationCtx.addStringAttribute("test", "works");
 
-        Hook hook = mock(Hook.class);
+        Hook hook = createBooleanHook();
         when(hook.before(any(), any())).thenReturn(Optional.of(hookCtx));
 
         FeatureProvider provider = mock(FeatureProvider.class);
@@ -461,10 +487,10 @@ public class HookSpecTests {
 
     @Specification(number="4.4.3", text="If a finally hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining finally hooks.")
     @Test void first_finally_broken() {
-        Hook hook = mock(Hook.class);
+        Hook hook = createBooleanHook();
         doThrow(RuntimeException.class).when(hook).before(any(), any());
         doThrow(RuntimeException.class).when(hook).finallyAfter(any(), any());
-        Hook hook2 = mock(Hook.class);
+        Hook hook2 = createBooleanHook();
         InOrder order = inOrder(hook, hook2);
 
         Client client = getClient(null);
@@ -482,10 +508,10 @@ public class HookSpecTests {
     @Specification(number="4.4.4", text="If an error hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining error hooks.")
     @Test void first_error_broken() {
 
-        Hook hook = mock(Hook.class);
+        Hook hook = createBooleanHook();
         doThrow(RuntimeException.class).when(hook).before(any(), any());
         doThrow(RuntimeException.class).when(hook).error(any(), any(), any());
-        Hook hook2 = mock(Hook.class);
+        Hook hook2 = createBooleanHook();
         InOrder order = inOrder(hook, hook2);
 
         Client client = getClient(null);
@@ -518,12 +544,12 @@ public class HookSpecTests {
     @SneakyThrows
     @Test void doesnt_use_finally() {
         try {
-            Hook.class.getMethod("finally", HookContext.class, ImmutableMap.class);
+            Hook.class.getMethod("finally", HookContext.class, Map.class);
             fail("Not possible. Finally is a reserved word.");
         } catch (NoSuchMethodException e) {
             // expected
         }
 
-        Hook.class.getMethod("finallyAfter", HookContext.class, ImmutableMap.class);
+        Hook.class.getMethod("finallyAfter", HookContext.class, Map.class);
     }
 }

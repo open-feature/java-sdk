@@ -6,8 +6,7 @@ import org.mockito.Mockito;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 
 @SuppressWarnings("unchecked")
@@ -22,7 +21,7 @@ class DeveloperExperienceTest {
     }
 
     @Test void clientHooks() {
-        Hook<Boolean> exampleHook = (Hook<Boolean>) Mockito.mock(Hook.class);
+        Hook<Boolean> exampleHook = createBooleanHook();
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());
@@ -33,9 +32,15 @@ class DeveloperExperienceTest {
         assertFalse(retval);
     }
 
+    private Hook<Boolean> createBooleanHook() {
+        var hook = Mockito.mock(Hook.class);
+        when(hook.supportsFlagValueType()).thenReturn(FlagValueType.BOOLEAN);
+        return hook;
+    }
+
     @Test void evalHooks() {
-        Hook<Boolean> clientHook = (Hook<Boolean>) Mockito.mock(Hook.class);
-        Hook<Boolean> evalHook = (Hook<Boolean>) Mockito.mock(Hook.class);
+        Hook<Boolean> clientHook = createBooleanHook();
+        Hook<Boolean> evalHook = createBooleanHook();
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());

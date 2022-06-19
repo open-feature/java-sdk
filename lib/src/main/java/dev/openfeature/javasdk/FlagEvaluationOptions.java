@@ -1,15 +1,14 @@
 package dev.openfeature.javasdk;
 
-import com.google.common.collect.ImmutableMap;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Singular;
+import java.util.*;
 
-import java.util.List;
+import lombok.*;
 
-@Data @Builder
+@Value
+@Builder
 public class FlagEvaluationOptions {
-    @Singular private List<Hook> hooks;
+    @Singular
+    List<Hook> hooks;
     @Builder.Default
-    private ImmutableMap<String, Object> hookHints = ImmutableMap.of();
+    Map<String, Object> hookHints = Map.of();
 }
