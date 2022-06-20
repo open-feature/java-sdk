@@ -8,27 +8,24 @@ import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
+@SuppressWarnings({"unchecked", "rawtypes", "PMD.LoggerIsNotStaticFinal"})
 @RequiredArgsConstructor
 class HookSupport {
 
     private final Logger log;
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public void errorHooks(FlagValueType flagValueType, HookContext hookCtx, Exception e, List<Hook> hooks, Map<String, Object> hints) {
         executeHooks(flagValueType, hooks, "error", hook -> hook.error(hookCtx, e, hints));
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public void afterAllHooks(FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks, Map<String, Object> hints) {
         executeHooks(flagValueType, hooks, "finally", hook -> hook.finallyAfter(hookCtx, hints));
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public void afterHooks(FlagValueType flagValueType, HookContext hookContext, FlagEvaluationDetails details, List<Hook> hooks, Map<String, Object> hints) {
         executeHooksUnchecked(flagValueType, hooks, hook -> hook.after(hookContext, details, hints));
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     private <T> void executeHooks(
         FlagValueType flagValueType, List<Hook> hooks,
         String hookMethod,
@@ -40,7 +37,6 @@ class HookSupport {
             .forEach(hook -> executeChecked(hook, hookCode, hookMethod));
     }
 
-    @SuppressWarnings("rawtypes")
     private <T> void executeHooksUnchecked(
         FlagValueType flagValueType, List<Hook> hooks,
         Consumer<Hook<T>> hookCode
@@ -59,13 +55,11 @@ class HookSupport {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     public EvaluationContext beforeHooks(FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks, Map<String, Object> hints) {
         var result = callBeforeHooks(flagValueType, hookCtx, hooks, hints);
         return EvaluationContext.merge(hookCtx.getCtx(), collectContexts(result));
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     private Stream<EvaluationContext> callBeforeHooks(FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks, Map<String, Object> hints) {
         // These traverse backwards from normal.
         return Lists

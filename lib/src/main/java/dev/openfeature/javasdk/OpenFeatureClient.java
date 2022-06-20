@@ -7,7 +7,7 @@ import dev.openfeature.javasdk.internal.ObjectUtils;
 import lombok.Getter;
 import org.slf4j.*;
 
-@SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "unchecked", "rawtypes"})
+@SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "PMD.BeanMembersShouldSerialize", "unchecked", "rawtypes"})
 public class OpenFeatureClient implements Client {
     private static final Logger log = LoggerFactory.getLogger(OpenFeatureClient.class);
 
