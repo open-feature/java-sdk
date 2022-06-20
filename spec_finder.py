@@ -55,10 +55,11 @@ def main(refresh_spec=False, diff_output=False, limit_numbers=None):
                 data = ''.join(f.readlines())
 
             for match in re.findall('@Specification\((?P<innards>.*?)"\)', data.replace('\n', ''), re.MULTILINE | re.DOTALL):
-                number = re.findall('number="(.*?)"', match)[0]
+                number = re.findall('number\s*=\s*"(.*?)"', match)[0]
+
                 if number in missing:
                     missing.remove(number)
-                text_with_concat_chars = re.findall('text=(.*)', match)
+                text_with_concat_chars = re.findall('text\s*=\s*(.*)', match)
                 try:
                     # We have to match for ") to capture text with parens inside, so we add the trailing " back in.
                     text = _demarkdown(eval(''.join(text_with_concat_chars) + '"'))
