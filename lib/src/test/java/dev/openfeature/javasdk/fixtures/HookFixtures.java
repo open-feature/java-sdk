@@ -1,0 +1,25 @@
+package dev.openfeature.javasdk.fixtures;
+
+import dev.openfeature.javasdk.*;
+
+import static org.mockito.Mockito.spy;
+
+public interface HookFixtures {
+
+    default Hook<Boolean> mockBooleanHook() {
+        return spy(BooleanHook.class);
+    }
+
+    default Hook<String> mockStringHook() {
+        return spy(StringHook.class);
+    }
+
+    default Hook<Integer> mockIntegerHook() {
+        return spy(IntegerHook.class);
+    }
+
+    default Hook<?> mockGenericHook() {
+        return spy(Hook.class);
+    }
+
+}

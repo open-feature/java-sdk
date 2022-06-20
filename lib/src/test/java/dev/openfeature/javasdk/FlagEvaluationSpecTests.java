@@ -1,7 +1,7 @@
 package dev.openfeature.javasdk;
 
+import dev.openfeature.javasdk.fixtures.HookFixtures;
 import org.junit.jupiter.api.*;
-import org.slf4j.*;
 import uk.org.lidalia.slf4jtest.*;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class FlagEvaluationSpecTests {
+class FlagEvaluationSpecTests implements HookFixtures {
 
     private static final TestLogger TEST_LOGGER = TestLoggerFactory.getTestLogger(OpenFeatureClient.class);
 
@@ -143,9 +143,9 @@ class FlagEvaluationSpecTests {
 
     @Specification(number="1.5.1", text="The evaluation options structure's hooks field denotes an ordered collection of hooks that the client MUST execute for the respective flag evaluation, in addition to those already configured.")
     @Test void hooks() {
-        Client c = _client();
-        Hook clientHook = mock(Hook.class);
-        Hook invocationHook = mock(Hook.class);
+        var c = _client();
+        var clientHook = mockBooleanHook();
+        var invocationHook = mockBooleanHook();
         c.addHooks(clientHook);
         c.getBooleanValue("key", false, null, FlagEvaluationOptions.builder()
                         .hook(invocationHook)

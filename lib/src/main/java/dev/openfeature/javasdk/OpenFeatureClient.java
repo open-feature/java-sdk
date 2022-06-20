@@ -50,7 +50,7 @@ public class OpenFeatureClient implements Client {
 
         FlagEvaluationDetails<T> details = null;
         try {
-            EvaluationContext ctxFromHook = hookSupport.beforeHooks(hookCtx, mergedHooks, hints);
+            EvaluationContext ctxFromHook = hookSupport.beforeHooks(type, hookCtx, mergedHooks, hints);
             EvaluationContext invocationContext = EvaluationContext.merge(ctxFromHook, ctx);
 
             ProviderEvaluation<T> providerEval = (ProviderEvaluation<T>) createProviderEvaluation(type, key, defaultValue, options, provider, invocationContext);
