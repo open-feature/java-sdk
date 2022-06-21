@@ -11,11 +11,11 @@ import javax.annotation.Nullable;
  */
 @Data @Builder
 public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
-    String flagKey;
-    T value;
-    @Nullable String variant;
-    Reason reason;
-    @Nullable String errorCode;
+    private String flagKey;
+    private T value;
+    @Nullable private String variant;
+    private Reason reason;
+    @Nullable private String errorCode;
 
     public static <T> FlagEvaluationDetails<T> from(ProviderEvaluation<T> providerEval, String flagKey) {
         return FlagEvaluationDetails.<T>builder()

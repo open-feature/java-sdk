@@ -42,6 +42,12 @@ dependencies {
     api 'org.apache.commons:commons-math3:3.6.1'
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
+}
+
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()

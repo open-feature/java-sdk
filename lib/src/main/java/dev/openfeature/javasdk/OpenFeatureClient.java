@@ -1,31 +1,28 @@
 package dev.openfeature.javasdk;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import dev.openfeature.javasdk.exceptions.*;
+import java.util.*;
+
+import dev.openfeature.javasdk.exceptions.GeneralError;
+import dev.openfeature.javasdk.internal.ObjectUtils;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
+@Slf4j
+@SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "PMD.BeanMembersShouldSerialize", "unchecked", "rawtypes"})
 public class OpenFeatureClient implements Client {
-    private transient final OpenFeatureAPI openfeatureApi;
+
+    private final OpenFeatureAPI openfeatureApi;
     @Getter private final String name;
     @Getter private final String version;
     @Getter private final List<Hook> clientHooks;
-    private static final Logger log = LoggerFactory.getLogger(OpenFeatureClient.class);
+    private final HookSupport hookSupport;
 
     public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
         this.openfeatureApi = openFeatureAPI;
         this.name = name;
         this.version = version;
         this.clientHooks = new ArrayList<>();
+        this.hookSupport = new HookSupport();
     }
 
     @Override
@@ -33,9 +30,10 @@ public class OpenFeatureClient implements Client {
         this.clientHooks.addAll(Arrays.asList(hooks));
     }
 
-    <T> FlagEvaluationDetails<T> evaluateFlag(FlagValueType type, String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        FeatureProvider provider = this.openfeatureApi.getProvider();
-        ImmutableMap<String, Object> hints = options.getHookHints();
+    private <T> FlagEvaluationDetails<T> evaluateFlag(FlagValueType type, String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        FlagEvaluationOptions flagOptions = ObjectUtils.defaultIfNull(options, () -> FlagEvaluationOptions.builder().build());
+        FeatureProvider provider = openfeatureApi.getProvider();
+        Map<String, Object> hints = Collections.unmodifiableMap(flagOptions.getHookHints());
         if (ctx == null) {
             ctx = new EvaluationContext();
         }
@@ -43,93 +41,55 @@ public class OpenFeatureClient implements Client {
         // merge of: API.context, client.context, invocation.context
 
         // TODO: Context transformation?
-        HookContext hookCtx = HookContext.from(key, type, this.getMetadata(), OpenFeatureAPI.getInstance().getProvider().getMetadata(), ctx, defaultValue);
+        HookContext<T> hookCtx = HookContext.from(key, type, this.getMetadata(), openfeatureApi.getProvider().getMetadata(), ctx, defaultValue);
 
-        List<Hook> mergedHooks;
-        if (options != null && options.getHooks() != null) {
-            mergedHooks = ImmutableList.<Hook>builder()
-                    .addAll(options.getHooks())
-                    .addAll(clientHooks)
-                    .addAll(openfeatureApi.getApiHooks())
-                    .build();
-        } else {
-            mergedHooks = clientHooks;
-        }
+        List<Hook> mergedHooks = ObjectUtils.merge(flagOptions.getHooks(), clientHooks, openfeatureApi.getApiHooks());
 
         FlagEvaluationDetails<T> details = null;
         try {
-            EvaluationContext ctxFromHook = this.beforeHooks(hookCtx, mergedHooks, hints);
+            EvaluationContext ctxFromHook = hookSupport.beforeHooks(type, hookCtx, mergedHooks, hints);
             EvaluationContext invocationContext = EvaluationContext.merge(ctxFromHook, ctx);
 
-            ProviderEvaluation<T> providerEval;
-            if (type == FlagValueType.BOOLEAN) {
-                // TODO: Can we guarantee that defaultValue is a boolean? If not, how to we handle that?
-                providerEval = (ProviderEvaluation<T>) provider.getBooleanEvaluation(key, (Boolean) defaultValue, invocationContext, options);
-            } else if(type == FlagValueType.STRING) {
-                providerEval = (ProviderEvaluation<T>) provider.getStringEvaluation(key, (String) defaultValue, invocationContext, options);
-            } else if (type == FlagValueType.INTEGER) {
-                providerEval = (ProviderEvaluation<T>) provider.getIntegerEvaluation(key, (Integer) defaultValue, invocationContext, options);
-            } else if (type == FlagValueType.OBJECT) {
-                providerEval = (ProviderEvaluation<T>) provider.getObjectEvaluation(key, defaultValue, invocationContext, options);
-            } else {
-                throw new GeneralError("Unknown flag type");
-            }
+            ProviderEvaluation<T> providerEval = (ProviderEvaluation<T>) createProviderEvaluation(type, key, defaultValue, options, provider, invocationContext);
 
             details = FlagEvaluationDetails.from(providerEval, key);
-            this.afterHooks(hookCtx, details, mergedHooks, hints);
+            hookSupport.afterHooks(type, hookCtx, details, mergedHooks, hints);
         } catch (Exception e) {
             log.error("Unable to correctly evaluate flag with key {} due to exception {}", key, e.getMessage());
             if (details == null) {
-                details = FlagEvaluationDetails.<T>builder().value(defaultValue).reason(Reason.ERROR).build();
+                details = FlagEvaluationDetails.<T>builder().build();
             }
-            details.value = defaultValue;
-            details.reason = Reason.ERROR;
-            details.errorCode = e.getMessage();
-            this.errorHooks(hookCtx, e, mergedHooks, hints);
+            details.setValue(defaultValue);
+            details.setReason(Reason.ERROR);
+            details.setErrorCode(e.getMessage());
+            hookSupport.errorHooks(type, hookCtx, e, mergedHooks, hints);
         } finally {
-            this.afterAllHooks(hookCtx, mergedHooks, hints);
+            hookSupport.afterAllHooks(type, hookCtx, mergedHooks, hints);
         }
 
         return details;
     }
 
-    private void errorHooks(HookContext hookCtx, Exception e, List<Hook> hooks, ImmutableMap<String, Object> hints) {
-        for (Hook hook : hooks) {
-            try {
-                hook.error(hookCtx, e, hints);
-            } catch (Exception inner_exception) {
-                log.error("Exception when running error hooks " + hook.getClass().toString(), inner_exception);
-            }
+    private <T> ProviderEvaluation<?> createProviderEvaluation(
+        FlagValueType type,
+        String key,
+        T defaultValue,
+        FlagEvaluationOptions options,
+        FeatureProvider provider,
+        EvaluationContext invocationContext
+    ) {
+        switch (type) {
+            case BOOLEAN:
+                return provider.getBooleanEvaluation(key, (Boolean) defaultValue, invocationContext, options);
+            case STRING:
+                return provider.getStringEvaluation(key, (String) defaultValue, invocationContext, options);
+            case INTEGER:
+                return provider.getIntegerEvaluation(key, (Integer) defaultValue, invocationContext, options);
+            case OBJECT:
+                return provider.getObjectEvaluation(key, defaultValue, invocationContext, options);
+            default:
+                throw new GeneralError("Unknown flag type");
         }
-    }
-
-    private void afterAllHooks(HookContext hookCtx, List<Hook> hooks, ImmutableMap<String, Object> hints) {
-        for (Hook hook : hooks) {
-            try {
-                hook.finallyAfter(hookCtx, hints);
-            } catch (Exception inner_exception) {
-                log.error("Exception when running finally hooks " + hook.getClass().toString(), inner_exception);
-            }
-        }
-    }
-
-    private <T> void afterHooks(HookContext hookContext, FlagEvaluationDetails<T> details, List<Hook> hooks, ImmutableMap<String, Object> hints) {
-        for (Hook hook : hooks) {
-            hook.after(hookContext, details, hints);
-        }
-    }
-
-    private EvaluationContext beforeHooks(HookContext hookCtx, List<Hook> hooks, ImmutableMap<String, Object> hints) {
-        // These traverse backwards from normal.
-        EvaluationContext ctx = hookCtx.getCtx();
-        for (Hook hook : Lists.reverse(hooks)) {
-            Optional<EvaluationContext> newCtx = hook.before(hookCtx, hints);
-            if (newCtx != null && newCtx.isPresent()) {
-                ctx = EvaluationContext.merge(ctx, newCtx.get());
-                hookCtx = hookCtx.withCtx(ctx);
-            }
-        }
-        return ctx;
     }
 
     @Override
@@ -179,7 +139,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue) {
-        return getStringDetails(key, defaultValue,  null);
+        return getStringDetails(key, defaultValue, null);
     }
 
     @Override
@@ -254,11 +214,6 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public Metadata getMetadata() {
-        return new Metadata() {
-            @Override
-            public String getName() {
-                return name;
-            }
-        };
+        return () -> name;
     }
 }

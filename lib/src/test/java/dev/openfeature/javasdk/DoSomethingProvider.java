@@ -4,12 +4,7 @@ public class DoSomethingProvider implements FeatureProvider {
 
     @Override
     public Metadata getMetadata() {
-        return new Metadata() {
-            @Override
-            public String getName() {
-                return "test";
-            }
-        };
+        return () -> "test";
     }
 
     @Override
