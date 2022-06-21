@@ -5,19 +5,16 @@ import java.util.*;
 import dev.openfeature.javasdk.exceptions.GeneralError;
 import dev.openfeature.javasdk.internal.ObjectUtils;
 import lombok.Getter;
-import org.slf4j.*;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "PMD.BeanMembersShouldSerialize", "unchecked", "rawtypes"})
 public class OpenFeatureClient implements Client {
-    private static final Logger log = LoggerFactory.getLogger(OpenFeatureClient.class);
 
     private final OpenFeatureAPI openfeatureApi;
-    @Getter
-    private final String name;
-    @Getter
-    private final String version;
-    @Getter
-    private final List<Hook> clientHooks;
+    @Getter private final String name;
+    @Getter private final String version;
+    @Getter private final List<Hook> clientHooks;
     private final HookSupport hookSupport;
 
     public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
@@ -25,7 +22,7 @@ public class OpenFeatureClient implements Client {
         this.name = name;
         this.version = version;
         this.clientHooks = new ArrayList<>();
-        this.hookSupport = new HookSupport(log);
+        this.hookSupport = new HookSupport();
     }
 
     @Override

@@ -6,13 +6,12 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
-@SuppressWarnings({"unchecked", "rawtypes", "PMD.LoggerIsNotStaticFinal"})
+@Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings({"unchecked", "rawtypes"})
 class HookSupport {
-
-    private final Logger log;
 
     public void errorHooks(FlagValueType flagValueType, HookContext hookCtx, Exception e, List<Hook> hooks, Map<String, Object> hints) {
         executeHooks(flagValueType, hooks, "error", hook -> hook.error(hookCtx, e, hints));
@@ -33,8 +32,12 @@ class HookSupport {
     ) {
         hooks
             .stream()
-            .filter(hook -> hook.supportsFlagValueType() == flagValueType)
+            .filter(hook -> isHookCompatible(flagValueType, hook))
             .forEach(hook -> executeChecked(hook, hookCode, hookMethod));
+    }
+
+    private boolean isHookCompatible(FlagValueType flagValueType, Hook hook) {
+        return hook.supportsFlagValueType() == flagValueType || hook.supportsFlagValueType() == FlagValueType.OBJECT;
     }
 
     private <T> void executeHooksUnchecked(
@@ -43,7 +46,7 @@ class HookSupport {
     ) {
         hooks
             .stream()
-            .filter(hook -> hook.supportsFlagValueType() == flagValueType)
+            .filter(hook -> isHookCompatible(flagValueType, hook))
             .forEach(hookCode::accept);
     }
 
@@ -65,7 +68,7 @@ class HookSupport {
         return Lists
             .reverse(hooks)
             .stream()
-            .filter(hook -> hook.supportsFlagValueType() == flagValueType)
+            .filter(hook -> isHookCompatible(flagValueType, hook))
             .map(hook -> hook.before(hookCtx, hints))
             .filter(Objects::nonNull)
             .flatMap(Optional::stream);
