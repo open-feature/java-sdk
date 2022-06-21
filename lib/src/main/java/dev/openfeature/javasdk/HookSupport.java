@@ -32,12 +32,8 @@ class HookSupport {
     ) {
         hooks
             .stream()
-            .filter(hook -> isHookCompatible(flagValueType, hook))
+            .filter(hook -> hook.supportsFlagValueType(flagValueType))
             .forEach(hook -> executeChecked(hook, hookCode, hookMethod));
-    }
-
-    private boolean isHookCompatible(FlagValueType flagValueType, Hook hook) {
-        return hook.supportsFlagValueType(flagValueType);
     }
 
     private <T> void executeHooksUnchecked(
@@ -46,7 +42,7 @@ class HookSupport {
     ) {
         hooks
             .stream()
-            .filter(hook -> isHookCompatible(flagValueType, hook))
+            .filter(hook -> hook.supportsFlagValueType(flagValueType))
             .forEach(hookCode::accept);
     }
 
@@ -68,7 +64,7 @@ class HookSupport {
         return Lists
             .reverse(hooks)
             .stream()
-            .filter(hook -> isHookCompatible(flagValueType, hook))
+            .filter(hook -> hook.supportsFlagValueType(flagValueType))
             .map(hook -> hook.before(hookCtx, hints))
             .filter(Objects::nonNull)
             .filter(Optional::isPresent)
