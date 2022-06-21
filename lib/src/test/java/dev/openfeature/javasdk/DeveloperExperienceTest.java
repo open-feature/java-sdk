@@ -1,5 +1,6 @@
 package dev.openfeature.javasdk;
 
+import dev.openfeature.javasdk.fixtures.HookFixtures;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -10,7 +11,7 @@ import static org.mockito.Mockito.*;
 
 
 @SuppressWarnings("unchecked")
-class DeveloperExperienceTest {
+class DeveloperExperienceTest implements HookFixtures {
     transient String flagKey = "mykey";
     @Test void simpleBooleanFlag() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
@@ -21,7 +22,7 @@ class DeveloperExperienceTest {
     }
 
     @Test void clientHooks() {
-        Hook<Boolean> exampleHook = createBooleanHook();
+        Hook<Boolean> exampleHook = mockBooleanHook();
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());
@@ -32,15 +33,9 @@ class DeveloperExperienceTest {
         assertFalse(retval);
     }
 
-    private Hook<Boolean> createBooleanHook() {
-        Hook hook = mock(Hook.class);
-        when(hook.supportsFlagValueType()).thenReturn(FlagValueType.BOOLEAN);
-        return hook;
-    }
-
     @Test void evalHooks() {
-        Hook<Boolean> clientHook = createBooleanHook();
-        Hook<Boolean> evalHook = createBooleanHook();
+        Hook<Boolean> clientHook = mockBooleanHook();
+        Hook<Boolean> evalHook = mockBooleanHook();
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());

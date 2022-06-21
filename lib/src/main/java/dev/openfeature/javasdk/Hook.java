@@ -49,7 +49,7 @@ public interface Hook<T> {
     default void finallyAfter(HookContext<T> ctx, Map<String, Object> hints) {
     }
 
-    default FlagValueType supportsFlagValueType() {
-        return FlagValueType.OBJECT;
+    default boolean supportsFlagValueType(FlagValueType flagValueType) {
+        return true;
     }
 }

@@ -37,7 +37,7 @@ class HookSupport {
     }
 
     private boolean isHookCompatible(FlagValueType flagValueType, Hook hook) {
-        return hook.supportsFlagValueType() == flagValueType || hook.supportsFlagValueType() == FlagValueType.OBJECT;
+        return hook.supportsFlagValueType(flagValueType);
     }
 
     private <T> void executeHooksUnchecked(
