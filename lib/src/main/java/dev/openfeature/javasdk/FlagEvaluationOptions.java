@@ -10,5 +10,5 @@ public class FlagEvaluationOptions {
     @Singular
     List<Hook> hooks;
     @Builder.Default
-    Map<String, Object> hookHints = Map.of();
+    Map<String, Object> hookHints = new HashMap<>();
 }

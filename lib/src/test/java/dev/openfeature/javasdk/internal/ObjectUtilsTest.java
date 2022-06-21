@@ -2,6 +2,7 @@ package dev.openfeature.javasdk.internal;
 
 import java.util.*;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.*;
 
 import static dev.openfeature.javasdk.internal.ObjectUtils.defaultIfNull;
@@ -14,9 +15,9 @@ class ObjectUtilsTest {
         @Test
         @DisplayName("should return default value if null")
         void shouldReturnDefaultValueIfNull() {
-            var defaultValue = "default";
+            String defaultValue = "default";
 
-            var actual = defaultIfNull(null, () -> defaultValue);
+            String actual = defaultIfNull(null, () -> defaultValue);
 
             assertThat(actual).isEqualTo(defaultValue);
         }
@@ -24,10 +25,10 @@ class ObjectUtilsTest {
         @Test
         @DisplayName("should return given value if not null")
         void shouldReturnGivenValueIfNotNull() {
-            var defaultValue = "default";
-            var expectedValue = "expected";
+            String defaultValue = "default";
+            String expectedValue = "expected";
 
-            var actual = defaultIfNull(expectedValue, () -> defaultValue);
+            String actual = defaultIfNull(expectedValue, () -> defaultValue);
 
             assertThat(actual).isEqualTo(expectedValue);
         }
@@ -39,9 +40,9 @@ class ObjectUtilsTest {
         @Test
         @DisplayName("should return default list if given one is null")
         void shouldReturnDefaultListIfGivenOneIsNull() {
-            var defaultValue = List.of("default");
+            List<String> defaultValue = Collections.singletonList("default");
 
-            var actual = defaultIfNull(null, () -> defaultValue);
+            List<String> actual = defaultIfNull(null, () -> defaultValue);
 
             assertThat(actual).isEqualTo(defaultValue);
         }
@@ -49,10 +50,10 @@ class ObjectUtilsTest {
         @Test
         @DisplayName("should return given list if not null")
         void shouldReturnGivenListIfNotNull() {
-            var defaultValue = List.of("default");
-            var expectedValue = List.of("expected");
+            List<String> defaultValue = Collections.singletonList("default");
+            List<String> expectedValue = Collections.singletonList("expected");
 
-            var actual = defaultIfNull(expectedValue, () -> defaultValue);
+            List<String> actual = defaultIfNull(expectedValue, () -> defaultValue);
 
             assertThat(actual).isEqualTo(expectedValue);
         }
@@ -64,9 +65,9 @@ class ObjectUtilsTest {
         @Test
         @DisplayName("should return default map if given one is null")
         void shouldReturnDefaultMapIfGivenOneIsNull() {
-            var defaultValue = Map.of("key", "default");
+            Map<String, Object> defaultValue = ImmutableMap.of("key", "default");
 
-            var actual = defaultIfNull(null, () -> defaultValue);
+            Map<String, Object> actual = defaultIfNull(null, () -> defaultValue);
 
             assertThat(actual).isEqualTo(defaultValue);
         }
@@ -74,10 +75,10 @@ class ObjectUtilsTest {
         @Test
         @DisplayName("should return given map if not null")
         void shouldReturnGivenMapIfNotNull() {
-            var defaultValue = Map.of("key", "default");
-            var expectedValue = Map.of("key", "expected");
+            Map<String, String> defaultValue = ImmutableMap.of("key", "default");
+            Map<String, String> expectedValue = ImmutableMap.of("key", "expected");
 
-            var actual = defaultIfNull(expectedValue, () -> defaultValue);
+            Map<String, String> actual = defaultIfNull(expectedValue, () -> defaultValue);
 
             assertThat(actual).isEqualTo(expectedValue);
         }

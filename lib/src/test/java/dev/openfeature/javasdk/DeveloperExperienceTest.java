@@ -33,7 +33,7 @@ class DeveloperExperienceTest {
     }
 
     private Hook<Boolean> createBooleanHook() {
-        var hook = Mockito.mock(Hook.class);
+        Hook hook = mock(Hook.class);
         when(hook.supportsFlagValueType()).thenReturn(FlagValueType.BOOLEAN);
         return hook;
     }

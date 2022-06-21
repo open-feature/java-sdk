@@ -27,11 +27,11 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public void addHooks(Hook... hooks) {
-        this.clientHooks.addAll(List.of(hooks));
+        this.clientHooks.addAll(Arrays.asList(hooks));
     }
 
     private <T> FlagEvaluationDetails<T> evaluateFlag(FlagValueType type, String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        var flagOptions = ObjectUtils.defaultIfNull(options, () -> FlagEvaluationOptions.builder().build());
+        FlagEvaluationOptions flagOptions = ObjectUtils.defaultIfNull(options, () -> FlagEvaluationOptions.builder().build());
         FeatureProvider provider = openfeatureApi.getProvider();
         Map<String, Object> hints = Collections.unmodifiableMap(flagOptions.getHookHints());
         if (ctx == null) {

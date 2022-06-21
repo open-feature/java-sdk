@@ -143,9 +143,9 @@ class FlagEvaluationSpecTests implements HookFixtures {
 
     @Specification(number="1.5.1", text="The evaluation options structure's hooks field denotes an ordered collection of hooks that the client MUST execute for the respective flag evaluation, in addition to those already configured.")
     @Test void hooks() {
-        var c = _client();
-        var clientHook = mockBooleanHook();
-        var invocationHook = mockBooleanHook();
+        Client c = _client();
+        Hook<Boolean> clientHook = mockBooleanHook();
+        Hook<Boolean> invocationHook = mockBooleanHook();
         c.addHooks(clientHook);
         c.getBooleanValue("key", false, null, FlagEvaluationOptions.builder()
                         .hook(invocationHook)

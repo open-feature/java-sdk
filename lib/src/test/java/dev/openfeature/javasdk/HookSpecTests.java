@@ -2,6 +2,7 @@ package dev.openfeature.javasdk;
 
 import java.util.*;
 
+import com.google.common.collect.ImmutableMap;
 import dev.openfeature.javasdk.fixtures.HookFixtures;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
@@ -248,7 +249,7 @@ public class HookSpecTests implements HookFixtures {
             })
             .build());
 
-        List<String> expectedOrder = List.of(
+        List<String> expectedOrder = Arrays.asList(
             "api before", "client before", "invocation before",
             "invocation after", "client after", "api after",
             "invocation error", "client error", "api error",
@@ -320,7 +321,7 @@ public class HookSpecTests implements HookFixtures {
             }
         };
 
-        Map<String, Object> hh = new HashMap<>(Map.of(hintKey, "My hint value"));
+        Map<String, Object> hh = new HashMap<>(ImmutableMap.of(hintKey, "My hint value"));
 
         client.getBooleanValue("key", false, new EvaluationContext(), FlagEvaluationOptions.builder()
                 .hook(mutatingHook)

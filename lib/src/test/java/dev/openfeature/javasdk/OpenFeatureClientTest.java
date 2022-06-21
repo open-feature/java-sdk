@@ -3,7 +3,6 @@ package dev.openfeature.javasdk;
 import java.util.*;
 
 import dev.openfeature.javasdk.fixtures.HookFixtures;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.*;
 import uk.org.lidalia.slf4jext.Level;
 import uk.org.lidalia.slf4jtest.*;
@@ -19,13 +18,13 @@ class OpenFeatureClientTest implements HookFixtures {
     @DisplayName("should not throw exception if hook has different type argument than hookContext")
     void shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext() {
         TEST_LOGGER.clear();
-        var api = mock(OpenFeatureAPI.class);
+        OpenFeatureAPI api = mock(OpenFeatureAPI.class);
         when(api.getProvider()).thenReturn(new DoSomethingProvider());
-        when(api.getApiHooks()).thenReturn(List.of(mockBooleanHook(), mockStringHook()));
+        when(api.getApiHooks()).thenReturn(Arrays.asList(mockBooleanHook(), mockStringHook()));
 
-        var client = new OpenFeatureClient(api, "name", "version");
+        OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
 
-        var actual = client.getBooleanDetails("feature key", Boolean.FALSE);
+        FlagEvaluationDetails<Boolean> actual = client.getBooleanDetails("feature key", Boolean.FALSE);
 
         assertThat(actual.getValue()).isTrue();
         assertThat(TEST_LOGGER.getLoggingEvents()).filteredOn(event -> event.getLevel().equals(Level.ERROR)).isEmpty();

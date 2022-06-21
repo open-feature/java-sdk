@@ -15,16 +15,16 @@ class HookSupportTest implements HookFixtures {
     @Test
     @DisplayName("should merge EvaluationContexts on before hooks correctly")
     void shouldMergeEvaluationContextsOnBeforeHooksCorrectly() {
-        var baseContext = new EvaluationContext();
+        EvaluationContext baseContext = new EvaluationContext();
         baseContext.addStringAttribute("baseKey", "baseValue");
-        var hookContext = new HookContext<>("flagKey", FlagValueType.STRING, "defaultValue", baseContext, () -> "client", () -> "provider");
-        var hook1 = mockStringHook();
-        var hook2 = mockStringHook();
+        HookContext<String> hookContext = new HookContext<>("flagKey", FlagValueType.STRING, "defaultValue", baseContext, () -> "client", () -> "provider");
+        Hook<String> hook1 = mockStringHook();
+        Hook<String> hook2 = mockStringHook();
         when(hook1.before(any(), any())).thenReturn(Optional.of(evaluationContextWithValue("bla", "blubber")));
         when(hook2.before(any(), any())).thenReturn(Optional.of(evaluationContextWithValue("foo", "bar")));
-        var hookSupport = new HookSupport();
+        HookSupport hookSupport = new HookSupport();
 
-        var result = hookSupport.beforeHooks(FlagValueType.STRING, hookContext, List.of(hook1, hook2), Map.of());
+        EvaluationContext result = hookSupport.beforeHooks(FlagValueType.STRING, hookContext, Arrays.asList(hook1, hook2), Collections.emptyMap());
 
         assertThat(result.getStringAttribute("bla")).isEqualTo("blubber");
         assertThat(result.getStringAttribute("foo")).isEqualTo("bar");
@@ -35,15 +35,16 @@ class HookSupportTest implements HookFixtures {
     @EnumSource(value = FlagValueType.class)
     @DisplayName("should always call generic hook")
     void shouldAlwaysCallGenericHook(FlagValueType flagValueType) {
-        var genericHook = mockGenericHook();
-        var hookSupport = new HookSupport();
-        var baseContext = new EvaluationContext();
-        var hookContext = new HookContext<>("flagKey", flagValueType, createDefaultValue(flagValueType), baseContext, () -> "client", () -> "provider");
+        Hook<?> genericHook = mockGenericHook();
+        HookSupport hookSupport = new HookSupport();
+        EvaluationContext baseContext = new EvaluationContext();
+        IllegalStateException expectedException = new IllegalStateException("All fine, just a test");
+        HookContext<Object> hookContext = new HookContext<>("flagKey", flagValueType, createDefaultValue(flagValueType), baseContext, () -> "client", () -> "provider");
 
-        hookSupport.beforeHooks(flagValueType, hookContext, List.of(genericHook), Map.of());
-        hookSupport.afterHooks(flagValueType, hookContext, FlagEvaluationDetails.builder().build(), List.of(genericHook), Map.of());
-        hookSupport.afterAllHooks(flagValueType, hookContext, List.of(genericHook), Map.of());
-        hookSupport.errorHooks(flagValueType, hookContext, new IllegalStateException("All fine, just a test"), List.of(genericHook), Map.of());
+        hookSupport.beforeHooks(flagValueType, hookContext, Collections.singletonList(genericHook), Collections.emptyMap());
+        hookSupport.afterHooks(flagValueType, hookContext, FlagEvaluationDetails.builder().build(), Collections.singletonList(genericHook), Collections.emptyMap());
+        hookSupport.afterAllHooks(flagValueType, hookContext, Collections.singletonList(genericHook), Collections.emptyMap());
+        hookSupport.errorHooks(flagValueType, hookContext, expectedException, Collections.singletonList(genericHook), Collections.emptyMap());
 
         verify(genericHook).before(any(), any());
         verify(genericHook).after(any(), any(), any());
@@ -67,7 +68,7 @@ class HookSupportTest implements HookFixtures {
     }
 
     private EvaluationContext evaluationContextWithValue(String key, String value) {
-        var result = new EvaluationContext();
+        EvaluationContext result = new EvaluationContext();
         result.addStringAttribute(key, value);
         return result;
     }

@@ -1,7 +1,7 @@
 package dev.openfeature.javasdk;
 
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.function.*;
 import java.util.stream.Stream;
 
 import com.google.common.collect.Lists;
@@ -59,7 +59,7 @@ class HookSupport {
     }
 
     public EvaluationContext beforeHooks(FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks, Map<String, Object> hints) {
-        var result = callBeforeHooks(flagValueType, hookCtx, hooks, hints);
+        Stream<EvaluationContext> result = callBeforeHooks(flagValueType, hookCtx, hooks, hints);
         return EvaluationContext.merge(hookCtx.getCtx(), collectContexts(result));
     }
 
@@ -71,7 +71,9 @@ class HookSupport {
             .filter(hook -> isHookCompatible(flagValueType, hook))
             .map(hook -> hook.before(hookCtx, hints))
             .filter(Objects::nonNull)
-            .flatMap(Optional::stream);
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(EvaluationContext.class::cast);
     }
 
     //for whatever reason, an error `error: incompatible types: invalid method reference` is thrown on compilation with javac
