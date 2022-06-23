@@ -37,5 +37,5 @@ jobs:
       with:
         arguments: publish -PossrhUsername=${{ secrets.OSSRH_USERNAME }} -PossrhPassword=${{ secrets.OSSRH_PASSWORD }}
       env:
-        - release=1
-        - REPOSITORY_URL=https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/
+        release: 1
+        REPOSITORY_URL: https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/
