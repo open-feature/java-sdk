@@ -76,9 +76,11 @@ artifacts {
 jar.archiveBaseName = 'openfeature'
 
 def repo_url = System.getenv("REPOSITORY_URL")
+def is_release = Boolean.valueOf(System.getenv("release"))
+System.out.println("Value of thing was >" + System.getenv("release") + "< so the result is: " + is_release)
 
 group = 'dev.openfeature'
-version = '0.0.1' + (Boolean.valueOf(System.getenv("release")) ? "" : "-SNAPSHOT")
+version = '0.0.1' + (is_release ? "" : "-SNAPSHOT")
 
 publishing {
     publications {
