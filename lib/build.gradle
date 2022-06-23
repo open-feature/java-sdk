@@ -78,7 +78,7 @@ jar.archiveBaseName = 'openfeature'
 def repo_url = System.getenv("REPOSITORY_URL")
 
 group = 'dev.openfeature'
-version = '0.0.1' + (Boolean.valueOf(System.getProperty("release")) ? "" : "-SNAPSHOT")
+version = '0.0.1' + (Boolean.valueOf(System.getenv("release")) ? "" : "-SNAPSHOT")
 
 publishing {
     publications {
