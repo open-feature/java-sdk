@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ProviderSpecTests {
+public class ProviderSpecTest {
     NoOpProvider p = new NoOpProvider();
 
     @Specification(number="2.1", text="The provider interface MUST define a metadata member or accessor, containing a name field or accessor of type string, which identifies the provider implementation.")

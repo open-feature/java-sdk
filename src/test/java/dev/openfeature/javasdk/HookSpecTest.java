@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class HookSpecTests implements HookFixtures {
+public class HookSpecTest implements HookFixtures {
     @AfterEach
     void emptyApiHooks() {
         // it's a singleton. Don't pollute each test.
