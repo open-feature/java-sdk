@@ -6,6 +6,30 @@
   <artifactId>javasdk</artifactId>
   <version>0.0.1</version>
 
+  <name>OpenFeature Java SDK</name>
+  <description>This is the Java implementation of OpenFeature, a vendor-agnostic abstraction library for evaluating feature flags.</description>
+  <url>https://openfeature.dev</url>
+  <developers>
+    <developer>
+       <id>abrahms</id>
+       <name>Justin Abrahms</name>
+       <organization>eBay</organization>
+       <url>https://justin.abrah.ms/</url>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>Apache License 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:https://github.com/open-feature/java-sdk.git</connection>
+    <developerConnection>scm:git:https://github.com/open-feature/java-sdk.git</developerConnection>
+    <url>https://github.com/open-feature/java-sdk</url>
+  </scm>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
