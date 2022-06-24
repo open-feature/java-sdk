@@ -4,7 +4,7 @@
 
   <groupId>dev.openfeature</groupId>
   <artifactId>javasdk</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
 
   <name>OpenFeature Java SDK</name>
   <description>This is the Java implementation of OpenFeature, a vendor-agnostic abstraction library for evaluating feature flags.</description>
