@@ -119,7 +119,7 @@
         <version>2.22.2</version>
         <configuration>
           <argLine>
-            --illegal-access=permit
+            ${surefireArgLine}
           </argLine>
         </configuration>
       </plugin>
@@ -144,7 +144,7 @@
 
           <execution>
             <id>report</id>
-            <phase>test</phase>
+            <phase>verify</phase>
             <goals>
               <goal>report</goal>
             </goals>
@@ -155,14 +155,17 @@
             </configuration>
           </execution>
 
-
-
           <execution>
             <id>jacoco-check</id>
             <goals>
               <goal>check</goal>
             </goals>
             <configuration>
+              <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
+              <excludes>
+                <exclude>dev/openfeature/javasdk/exceptions/**</exclude>
+              </excludes>
+
               <rules>
                 <rule>
                   <element>PACKAGE</element>
@@ -170,7 +173,7 @@
                     <limit>
                       <counter>LINE</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>0.50</minimum>
+                      <minimum>0.80</minimum>
                     </limit>
                   </limits>
                 </rule>
