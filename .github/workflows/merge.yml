@@ -56,9 +56,12 @@ jobs:
         name: coverage # optional
         fail_ci_if_error: true # optional (default = false)
         verbose: true # optional (default = false)
-    - run: mkdir staging && cp target/*.jar staging
-    - name: Publish package
-      run: mvn --batch-mode deploy
+    - name: Deploy
+      run: |
+        mvn -P gpg_verify \
+          --no-transfer-progress \
+          --batch-mode \
+          --file pom.xml -s release/m2-settings.xml verify deploy
       env:
-        MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-        MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+        OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
