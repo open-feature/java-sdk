@@ -5,6 +5,8 @@
 # This workflow will build a package using Gradle and then publish it to GitHub packages when a release is created
 # For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#Publishing-using-gradle
 
+# maven deploy commands via via https://tech.clevertap.com/automate-releases-to-maven-central-via-github-actions/
+
 name: Release
 
 on:
@@ -26,16 +28,34 @@ jobs:
       with:
         java-version: '8'
         distribution: 'temurin'
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
-      with:
-        arguments: build
-    # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
-    # the publishing section of your build.gradle
-    - name: Publish to Sonatype (Maven)
-      uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
-      with:
-        arguments: publish -PossrhUsername=${{ secrets.OSSRH_USERNAME }} -PossrhPassword=${{ secrets.OSSRH_PASSWORD }}
+        cache: maven
+        server-id: ossrh
+        server-username: ${{ secrets.OSSRH_USERNAME }}
+        server-password: ${{ secrets.OSSRH_PASSWORD }}
+
+    - name: Configure GPG Key
+      run: |
+        echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
       env:
-        release: true
-        REPOSITORY_URL: https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/
+        GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+
+    - name: Build with Maven
+      run: mvn --batch-mode --update-snapshots verify
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        directory: lib/build
+        flags: unittests # optional
+        name: coverage # optional
+        fail_ci_if_error: true # optional (default = false)
+        verbose: true # optional (default = false)
+    - name: Deploy
+      run: |
+        mvn -P gpg_verify \
+          --no-transfer-progress \
+          --batch-mode \
+          --file pom.xml -s release/m2-settings.xml verify deploy
+      env:
+        OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}

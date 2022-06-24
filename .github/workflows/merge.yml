@@ -32,6 +32,14 @@ jobs:
         server-username: ${{ secrets.OSSRH_USERNAME }}
         server-password: ${{ secrets.OSSRH_PASSWORD }}
 
+    - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
     - name: Configure GPG Key
       run: |
         echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
