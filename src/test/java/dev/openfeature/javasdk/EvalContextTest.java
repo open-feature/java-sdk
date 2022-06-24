@@ -6,7 +6,7 @@ import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class EvalContextTests {
+public class EvalContextTest {
     @Specification(number="3.1",
             text="The `evaluation context` structure **MUST** define an optional `targeting key` field of " +
                     "type string, identifying the subject of the flag evaluation.")

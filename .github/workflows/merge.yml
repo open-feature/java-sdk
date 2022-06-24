@@ -27,10 +27,28 @@ jobs:
       with:
         java-version: '8'
         distribution: 'temurin'
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
+        cache: maven
+        server-id: ossrh
+        server-username: ${{ secrets.OSSRH_USERNAME }}
+        server-password: ${{ secrets.OSSRH_PASSWORD }}
+
+    - name: Cache local Maven repository
+      uses: actions/cache@v2
       with:
-        arguments: build
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    - name: Configure GPG Key
+      run: |
+        echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
+      env:
+        GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+
+    - name: Build with Maven
+      run: mvn --batch-mode --update-snapshots verify
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
@@ -39,11 +57,9 @@ jobs:
         name: coverage # optional
         fail_ci_if_error: true # optional (default = false)
         verbose: true # optional (default = false)
-    # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
-    # the publishing section of your build.gradle
-    - name: Publish to Sonatype (Maven)
-      uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
-      with:
-        arguments: publish -PossrhUsername=${{ secrets.OSSRH_USERNAME }} -PossrhPassword=${{ secrets.OSSRH_PASSWORD }}
+    - run: mkdir staging && cp target/*.jar staging
+    - name: Publish package
+      run: mvn --batch-mode deploy
       env:
-        REPOSITORY_URL: https://s01.oss.sonatype.org/content/repositories/snapshots/
+        MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}

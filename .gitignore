@@ -5,3 +5,5 @@
 build
 .idea
 specification.json
+target
+.DS_Store
