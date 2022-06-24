@@ -109,7 +109,7 @@
         <version>2.22.2</version>
         <configuration>
           <argLine>
-            ${surefireArgLine} --illegal-access=permit
+            ${surefireArgLine}
           </argLine>
         </configuration>
       </plugin>
