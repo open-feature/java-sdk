@@ -4,7 +4,7 @@
 
   <groupId>dev.openfeature</groupId>
   <artifactId>javasdk</artifactId>
-  <version>0.0.2${version.modifier}</version>
+  <version>0.0.3${version.modifier}</version>
 
   <properties>
     <!-- During releases, we override this to make it empty -->
