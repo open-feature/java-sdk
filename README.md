@@ -47,7 +47,7 @@ class MyClass {
 ```
 
 ## Requirements
-- Java 11+
+- Java 8+
 
 ## Installation
 
