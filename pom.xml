@@ -4,7 +4,16 @@
 
   <groupId>dev.openfeature</groupId>
   <artifactId>javasdk</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.2${version.modifier}</version>
+
+  <properties>
+    <!-- During releases, we override this to make it empty -->
+    <version.modifier>-SNAPSHOT</version.modifier>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
+    <junit.jupiter.version>5.8.1</junit.jupiter.version>
+  </properties>
 
   <name>OpenFeature Java SDK</name>
   <description>This is the Java implementation of OpenFeature, a vendor-agnostic abstraction library for evaluating feature flags.</description>
@@ -29,13 +38,6 @@
     <developerConnection>scm:git:https://github.com/open-feature/java-sdk.git</developerConnection>
     <url>https://github.com/open-feature/java-sdk</url>
   </scm>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
-    <junit.jupiter.version>5.8.1</junit.jupiter.version>
-  </properties>
 
   <dependencies>
 
