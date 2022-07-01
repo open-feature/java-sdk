@@ -1,6 +1,8 @@
 package dev.openfeature.javasdk;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import java.util.stream.Collectors;
 import lombok.*;
 
 import java.time.ZonedDateTime;
@@ -102,5 +104,50 @@ public class EvaluationContext {
         }
 
         return ec;
+    }
+
+    public EvaluationContext fromMap(Map<String, Object> map) {
+        EvaluationContext context = new EvaluationContext();
+        context.integerAttributes.putAll(
+                map.entrySet()
+                        .stream()
+                        .filter(entry -> entry.getValue() instanceof Integer)
+                        .collect(Collectors.toMap(Map.Entry::getKey, e -> (Integer) e.getValue()))
+        );
+        context.stringAttributes.putAll(
+            map.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() instanceof String)
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> (String)e.getValue()))
+        );
+        context.booleanAttributes.putAll(
+            map.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() instanceof Boolean)
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> (Boolean)e.getValue()))
+        );
+//        Hmmm, this won't work as we already have a string type.
+//        I would recommend changing the type to Map<String, JsonNode> from Jackson
+//        context.jsonAttributes.putAll(
+//            map.entrySet()
+//                .stream()
+//                .filter(entry -> entry.getValue() instanceof String)
+//                .collect(Collectors.toMap(e -> e.getKey(), e -> (String)e.getValue()))
+//        );
+
+        return null;
+    }
+
+    /**
+     * Converts the Evaluation Context into a standard {@link Map}
+     */
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        // 🤔 This will fail if two different maps have the same key.
+        map.putAll(integerAttributes);
+        map.putAll(stringAttributes);
+        map.putAll(booleanAttributes);
+        map.putAll(jsonAttributes);
+        return ImmutableMap.copyOf(map);
     }
 }
