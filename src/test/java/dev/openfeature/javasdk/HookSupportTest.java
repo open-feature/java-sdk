@@ -16,7 +16,7 @@ class HookSupportTest implements HookFixtures {
     @DisplayName("should merge EvaluationContexts on before hooks correctly")
     void shouldMergeEvaluationContextsOnBeforeHooksCorrectly() {
         EvaluationContext baseContext = new EvaluationContext();
-        baseContext.addStringAttribute("baseKey", "baseValue");
+        baseContext.withStringAttribute("baseKey", "baseValue");
         HookContext<String> hookContext = new HookContext<>("flagKey", FlagValueType.STRING, "defaultValue", baseContext, () -> "client", () -> "provider");
         Hook<String> hook1 = mockStringHook();
         Hook<String> hook2 = mockStringHook();
@@ -69,7 +69,7 @@ class HookSupportTest implements HookFixtures {
 
     private EvaluationContext evaluationContextWithValue(String key, String value) {
         EvaluationContext result = new EvaluationContext();
-        result.addStringAttribute(key, value);
+        result.withStringAttribute(key, value);
         return result;
     }
 

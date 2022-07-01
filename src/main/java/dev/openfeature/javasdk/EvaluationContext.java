@@ -31,8 +31,9 @@ public class EvaluationContext {
 
     // TODO Not sure if I should have sneakythrows or checked exceptions here..
     @SneakyThrows
-    public <T> void addStructureAttribute(String key, T value) {
+    public <T> EvaluationContext withStructureAttribute(String key, T value) {
         jsonAttributes.put(key, objMapper.writeValueAsString(value));
+        return this;
     }
 
     @SneakyThrows
@@ -41,16 +42,18 @@ public class EvaluationContext {
         return objMapper.readValue(val, klass);
     }
 
-    public void addStringAttribute(String key, String value) {
+    public EvaluationContext withStringAttribute(String key, String value) {
         stringAttributes.put(key, value);
+        return this;
     }
 
     public String getStringAttribute(String key) {
         return stringAttributes.get(key);
     }
 
-    public void addIntegerAttribute(String key, Integer value) {
+    public EvaluationContext withIntegerAttribute(String key, Integer value) {
         integerAttributes.put(key, value);
+        return this;
     }
 
     public Integer getIntegerAttribute(String key) {
@@ -61,12 +64,14 @@ public class EvaluationContext {
         return booleanAttributes.get(key);
     }
 
-    public void addBooleanAttribute(String key, Boolean b) {
+    public EvaluationContext withBooleanAttribute(String key, Boolean b) {
         booleanAttributes.put(key, b);
+        return this;
     }
 
-    public void addDatetimeAttribute(String key, ZonedDateTime value) {
+    public EvaluationContext withDatetimeAttribute(String key, ZonedDateTime value) {
         this.stringAttributes.put(key, value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+        return this;
     }
 
     public ZonedDateTime getDatetimeAttribute(String key) {
