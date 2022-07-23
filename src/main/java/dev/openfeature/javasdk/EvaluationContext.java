@@ -18,7 +18,7 @@ public class EvaluationContext {
     private final Map<String, Boolean> booleanAttributes;
     final Map<String, String> jsonAttributes;
 
-    EvaluationContext() {
+    public EvaluationContext() {
         objMapper = new ObjectMapper();
         this.targetingKey = "";
         this.integerAttributes = new HashMap<>();
