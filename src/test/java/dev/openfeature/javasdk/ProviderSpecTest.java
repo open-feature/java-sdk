@@ -27,6 +27,9 @@ public class ProviderSpecTest {
         ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new EvaluationContext(), FlagEvaluationOptions.builder().build());
         assertNotNull(int_result.getValue());
 
+        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        assertNotNull(double_result.getValue());
+
         ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", new EvaluationContext(), FlagEvaluationOptions.builder().build());
         assertNotNull(string_result.getValue());
 
@@ -66,6 +69,9 @@ public class ProviderSpecTest {
     @Test void variant_set() {
         ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new EvaluationContext(), FlagEvaluationOptions.builder().build());
         assertNotNull(int_result.getReason());
+
+        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        assertNotNull(double_result.getReason());
 
         ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", new EvaluationContext(), FlagEvaluationOptions.builder().build());
         assertNotNull(string_result.getReason());
