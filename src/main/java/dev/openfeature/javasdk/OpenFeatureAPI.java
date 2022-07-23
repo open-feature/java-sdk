@@ -1,12 +1,10 @@
 package dev.openfeature.javasdk;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nullable;
+import lombok.Getter;
 
 /**
  * A global singleton which holds base configuration for the OpenFeature library.
@@ -14,9 +12,19 @@ import java.util.List;
  * Configuration here will be shared across all {@link Client}s.
  */
 public class OpenFeatureAPI {
-    @Getter @Setter private FeatureProvider provider;
+    @Getter private FeatureProvider provider;
+
+    public void setProvider(FeatureProvider provider) {
+        this.provider = provider;
+        // set the event hooks
+        if (provider instanceof EventAwareFeatureProvider) {
+            ((EventAwareFeatureProvider)provider).setEventHookCallback(event -> eventHooks.forEach(hook -> hook.onEvent(event)));
+        }
+    }
     private static OpenFeatureAPI api;
-    @Getter private List<Hook> apiHooks;
+    @Getter private List<Hook> apiHooks = new ArrayList<>();
+
+    @Getter private List<EventHook> eventHooks = new ArrayList<>();
 
     public static OpenFeatureAPI getInstance() {
         synchronized (OpenFeatureAPI.class) {
@@ -25,10 +33,6 @@ public class OpenFeatureAPI {
             }
         }
         return api;
-    }
-
-    public OpenFeatureAPI() {
-        this.apiHooks = new ArrayList<>();
     }
 
     public Client getClient() {
@@ -49,6 +53,10 @@ public class OpenFeatureAPI {
 
     public void addHooks(Hook... hooks) {
         this.apiHooks.addAll(Arrays.asList(hooks));
+    }
+
+    public void addEventHooks(EventHook... hooks) {
+        this.eventHooks.addAll(Arrays.asList(hooks));
     }
 
     public void clearHooks() {
