@@ -22,17 +22,17 @@ public class EvalContextTest {
     @Test void eval_context() {
         EvaluationContext ec = new EvaluationContext();
 
-        ec.addStringAttribute("str", "test");
+        ec.withStringAttribute("str", "test");
         assertEquals("test", ec.getStringAttribute("str"));
 
-        ec.addBooleanAttribute("bool", true);
+        ec.withBooleanAttribute("bool", true);
         assertEquals(true, ec.getBooleanAttribute("bool"));
 
-        ec.addIntegerAttribute("int", 4);
+        ec.withIntegerAttribute("int", 4);
         assertEquals(4, ec.getIntegerAttribute("int"));
 
         ZonedDateTime dt = ZonedDateTime.now();
-        ec.addDatetimeAttribute("dt", dt);
+        ec.withDatetimeAttribute("dt", dt);
         assertEquals(dt, ec.getDatetimeAttribute("dt"));
     }
 
@@ -47,7 +47,7 @@ public class EvalContextTest {
         n2.left = n1;
 
         EvaluationContext ec = new EvaluationContext();
-        ec.addStructureAttribute("obj", n2);
+        ec.withStructureAttribute("obj", n2);
 
 
         String stringyObject = ec.jsonAttributes.get("obj");

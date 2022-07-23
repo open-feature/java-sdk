@@ -429,11 +429,11 @@ public class HookSpecTest implements HookFixtures {
     @Specification(number="4.3.4", text="When before hooks have finished executing, any resulting evaluation context MUST be merged with the invocation evaluation context with the invocation evaluation context taking precedence in the case of any conflicts.")
     @Test void mergeHappensCorrectly() {
         EvaluationContext hookCtx = new EvaluationContext();
-        hookCtx.addStringAttribute("test", "broken");
-        hookCtx.addStringAttribute("another", "exists");
+        hookCtx.withStringAttribute("test", "broken");
+        hookCtx.withStringAttribute("another", "exists");
 
         EvaluationContext invocationCtx = new EvaluationContext();
-        invocationCtx.addStringAttribute("test", "works");
+        invocationCtx.withStringAttribute("test", "works");
 
         Hook<Boolean> hook = mockBooleanHook();
         when(hook.before(any(), any())).thenReturn(Optional.of(hookCtx));
