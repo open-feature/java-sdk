@@ -46,7 +46,14 @@ public class NoOpProvider implements FeatureProvider {
                 .reason(Reason.DEFAULT)
                 .build();
     }
-
+    @Override
+    public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return ProviderEvaluation.<Double>builder()
+                .value(defaultValue)
+                .variant(PASSED_IN_DEFAULT)
+                .reason(Reason.DEFAULT)
+                .build();
+    }
     @Override
     public <T> ProviderEvaluation<T> getObjectEvaluation(String key, T defaultValue, EvaluationContext invocationContext, FlagEvaluationOptions options) {
         return ProviderEvaluation.<T>builder()

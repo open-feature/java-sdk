@@ -24,6 +24,12 @@ public class NoOpProviderTest {
         assertEquals(4, eval.getValue());
     }
 
+    @Test void noOpdouble() {
+        NoOpProvider p = new NoOpProvider();
+        ProviderEvaluation<Double> eval = p.getDoubleEvaluation("key", 0.4, null, null);
+        assertEquals(0.4, eval.getValue());
+    }
+
     @Test void structure() {
         NoOpProvider p = new NoOpProvider();
         Node<Integer> node = new Node<Integer>();

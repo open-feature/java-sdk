@@ -28,6 +28,13 @@ public class DoSomethingProvider implements FeatureProvider {
     }
 
     @Override
+    public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return ProviderEvaluation.<Double>builder()
+                .value(defaultValue * 100)
+                .build();
+    }
+
+    @Override
     public <T> ProviderEvaluation<T> getObjectEvaluation(String key, T defaultValue, EvaluationContext invocationContext, FlagEvaluationOptions options) {
         return ProviderEvaluation.<T>builder()
                 .value(null)
