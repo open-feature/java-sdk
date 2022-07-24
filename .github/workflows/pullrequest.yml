@@ -36,11 +36,11 @@ jobs:
 
       - name: Build with Maven
         run: |
-        if [ ${{ github.event.pull_request.head.repo.full_name }} = ${{ github.repository }} ]; then
-          mvn --batch-mode --update-snapshots verify
-        else
-          mvn --batch-mode --update-snapshots verify -Dgpg.skip
-        fi
+          if [ ${{ github.event.pull_request.head.repo.full_name }} = ${{ github.repository }} ]; then
+            mvn --batch-mode --update-snapshots verify
+          else
+            mvn --batch-mode --update-snapshots verify -Dgpg.skip
+          fi
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
