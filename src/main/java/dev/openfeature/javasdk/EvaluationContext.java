@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 @ToString @EqualsAndHashCode
@@ -39,12 +40,20 @@ public class EvaluationContext {
         return objMapper.readValue(val, klass);
     }
 
+    public Iterator<Map.Entry<String, String>> getStructureAttributes() {
+        return jsonAttributes.entrySet().iterator();
+    }
+
     public void addStringAttribute(String key, String value) {
         stringAttributes.put(key, value);
     }
 
     public String getStringAttribute(String key) {
         return stringAttributes.get(key);
+    }
+
+    public Iterator<Map.Entry<String, String>> getStringAttributes() {
+        return stringAttributes.entrySet().iterator();
     }
 
     public void addIntegerAttribute(String key, Integer value) {
@@ -55,12 +64,20 @@ public class EvaluationContext {
         return integerAttributes.get(key);
     }
 
+    public Iterator<Map.Entry<String, Integer>> getIntegerAttributes() {
+        return integerAttributes.entrySet().iterator();
+    }
+
     public Boolean getBooleanAttribute(String key) {
         return booleanAttributes.get(key);
     }
 
     public void addBooleanAttribute(String key, Boolean b) {
         booleanAttributes.put(key, b);
+    }
+
+    public Iterator<Map.Entry<String, Boolean>> getBooleanAttributes() {
+        return booleanAttributes.entrySet().iterator();
     }
 
     public void addDatetimeAttribute(String key, ZonedDateTime value) {
