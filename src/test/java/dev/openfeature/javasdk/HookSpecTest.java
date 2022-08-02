@@ -411,7 +411,7 @@ public class HookSpecTest implements HookFixtures {
 
 
         Client client = getClient(null);
-        client.getBooleanValue("key", false, new EvaluationContext(),
+        client.getBooleanValue("key", false, ctx,
                 FlagEvaluationOptions.builder()
                         .hook(hook2)
                         .hook(hook)
