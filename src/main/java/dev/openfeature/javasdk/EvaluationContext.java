@@ -39,12 +39,20 @@ public class EvaluationContext {
         return objMapper.readValue(val, klass);
     }
 
+    public Map<String, String> getStructureAttributes() {
+        return new HashMap<>(jsonAttributes);
+    }
+
     public void addStringAttribute(String key, String value) {
         stringAttributes.put(key, value);
     }
 
     public String getStringAttribute(String key) {
         return stringAttributes.get(key);
+    }
+
+    public Map<String, String> getStringAttributes() {
+        return new HashMap<>(stringAttributes);
     }
 
     public void addIntegerAttribute(String key, Integer value) {
@@ -55,12 +63,20 @@ public class EvaluationContext {
         return integerAttributes.get(key);
     }
 
+    public Map<String, Integer> getIntegerAttributes() {
+        return new HashMap<>(integerAttributes);
+    }
+
     public Boolean getBooleanAttribute(String key) {
         return booleanAttributes.get(key);
     }
 
     public void addBooleanAttribute(String key, Boolean b) {
         booleanAttributes.put(key, b);
+    }
+
+    public Map<String, Boolean> getBooleanAttributes() {
+        return new HashMap<>(booleanAttributes);
     }
 
     public void addDatetimeAttribute(String key, ZonedDateTime value) {
