@@ -1,5 +1,7 @@
 package dev.openfeature.javasdk;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
@@ -8,6 +10,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class EvalContextTest {
     @Specification(number="3.1.1",
@@ -88,18 +91,22 @@ public class EvalContextTest {
         ec.addStructureAttribute("obj", n2);
 
         Map<String, String> foundStr = ec.getStringAttributes();
-        assertEquals("test", foundStr.get("str"));
-        assertEquals("test2", foundStr.get("str2"));
+        assertEquals(ec.getStringAttribute("str"), foundStr.get("str"));
+        assertEquals(ec.getStringAttribute("str2"), foundStr.get("str2"));
 
         Map<String, Boolean> foundBool = ec.getBooleanAttributes();
-        assertTrue(foundBool.get("bool"));
-        assertFalse(foundBool.get("bool2"));
+        assertEquals(ec.getBooleanAttribute("bool"), foundBool.get("bool"));
+        assertEquals(ec.getBooleanAttribute("bool2"), foundBool.get("bool2"));
 
         Map<String, Integer> foundInt = ec.getIntegerAttributes();
-        assertEquals(4, foundInt.get("int"));
-        assertEquals(2, foundInt.get("int2"));
+        assertEquals(ec.getIntegerAttribute("int"), foundInt.get("int"));
+        assertEquals(ec.getIntegerAttribute("int2"), foundInt.get("int2"));
 
         Map<String, String> foundObj = ec.getStructureAttributes();
-        assertEquals("{\"left\":{\"left\":null,\"right\":null,\"value\":4},\"right\":null,\"value\":2}", foundObj.get("obj"));
+        try {
+            assertEquals(ec.getStructureAttribute("obj", Node.class), new ObjectMapper().readValue(foundObj.get("obj"), Node.class));
+        } catch (JsonProcessingException e) {
+            fail("Unexpected exception occurred: ", e);
+        }
     }
 }
