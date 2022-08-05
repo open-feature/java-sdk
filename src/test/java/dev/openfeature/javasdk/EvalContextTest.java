@@ -66,8 +66,7 @@ public class EvalContextTest {
         assertEquals(4, nodeFromString.left.value);
     }
 
-    @Specification(number="3.1.3", text="The evaluation context MUST support fetching the custom fields by key and " +
-            "also fetching all of the keys and values.")
+    @Specification(number="3.1.3", text="The evaluation context MUST support fetching the custom fields by key and also fetching all key value pairs.")
     @Test void fetch_all() {
         EvaluationContext ec = new EvaluationContext();
 
