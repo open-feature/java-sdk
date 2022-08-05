@@ -86,11 +86,13 @@ def main(refresh_spec=False, diff_output=False, limit_numbers=None):
                     print(number + '\n' + '\n'.join([li for li in difflib.ndiff([txt], [spec_map[number]]) if not li.startswith(' ')]))
                 continue
 
-        print(f"Couldn't find the number {number}")
-        print("\n\n")
+        print(f"{number} is defined in our tests, but couldn't find it in the spec")
+    print("")
 
     if len(missing) > 0:
-        print('Missing: ', missing)
+        print('In the spec, but not in our tests: ')
+        for m in missing:
+            print(f"  {m}: {spec_map[m]}")
 
     sys.exit(bad_num)
 
