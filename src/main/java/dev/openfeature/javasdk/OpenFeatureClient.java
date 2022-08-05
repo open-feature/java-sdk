@@ -39,8 +39,6 @@ public class OpenFeatureClient implements Client {
         }
 
         // merge of: API.context, client.context, invocation.context
-
-        // TODO: Context transformation?
         HookContext<T> hookCtx = HookContext.from(key, type, this.getMetadata(), openfeatureApi.getProvider().getMetadata(), ctx, defaultValue);
 
         List<Hook> mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getApiHooks());

@@ -385,14 +385,16 @@ public class HookSpecTest implements HookFixtures {
     }
 
     @Specification(number="4.4.5", text="If an error occurs in the before or after hooks, the error hooks MUST be invoked.")
+    @Specification(number="4.4.7", text="If an error occurs in the before hooks, the default value MUST be returned.")
     @Test void error_hooks__before() {
         Hook hook = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).before(any(), any());
         Client client = getClient(null);
-        client.getBooleanValue("key", false, new EvaluationContext(),
+        Boolean value = client.getBooleanValue("key", false, new EvaluationContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
         verify(hook, times(1)).before(any(), any());
         verify(hook, times(1)).error(any(), any(), any());
+        assertEquals(false, value, "Falls through to the default.");
     }
 
     @Specification(number="4.4.5", text="If an error occurs in the before or after hooks, the error hooks MUST be invoked.")
