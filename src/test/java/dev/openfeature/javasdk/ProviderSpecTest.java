@@ -80,9 +80,9 @@ public class ProviderSpecTest {
         assertNotNull(boolean_result.getReason());
     }
 
-    @Specification(number="2.11.1", text="If the implementation includes a context transformer, the provider SHOULD accept a generic argument (or use an equivalent language feature) indicating the type of the transformed context.  If such type information is supplied, more accurate type information can be supplied in the flag resolution methods.")
-    @Specification(number="2.10", text="The provider interface MAY define a context transformer method " +
-            "or function, which can be optionally implemented in order to transform the evaluation context prior to " +
-            "flag value resolution.")
-    @Test void not_doing() {}
+    @Specification(number="2.10", text="The provider interface MUST define a provider hook mechanism which can be optionally implemented in order to add hook instances to the evaluation life-cycle.")
+    @Specification(number="4.4.1", text="The API, Client, Provider, and invocation MUST have a method for registering hooks.")
+    @Test void provider_hooks() {
+        assertEquals(0, p.getProviderHooks().size());
+    }
 }

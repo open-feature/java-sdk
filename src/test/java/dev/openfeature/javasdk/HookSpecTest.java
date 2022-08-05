@@ -3,6 +3,7 @@ package dev.openfeature.javasdk;
 import java.util.*;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import dev.openfeature.javasdk.fixtures.HookFixtures;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
@@ -166,15 +167,41 @@ public class HookSpecTest implements HookFixtures {
     }
 
 
-    @Specification(number="4.4.1", text="The API, Client and invocation MUST have a method for registering hooks which accepts flag evaluation options")
+    @Specification(number="4.4.1", text="The API, Client, Provider, and invocation MUST have a method for registering hooks.")
     @Specification(number="4.3.5", text="The after stage MUST run after flag resolution occurs. It accepts a hook context (required), flag evaluation details (required) and hook hints (optional). It has no return value.")
-    @Specification(number="4.4.2", text="Hooks MUST be evaluated in the following order:  - before: API, Client, Invocation - after: Invocation, Client, API - error (if applicable): Invocation, Client, API - finally: Invocation, Client, API")
+    @Specification(number="4.4.2", text="Hooks MUST be evaluated in the following order:  - before: API, Client, Invocation, Provider - after: Provider, Invocation, Client, API - error (if applicable): Provider, Invocation, Client, API - finally: Provider, Invocation, Client, API")
     @Specification(number="4.3.6", text="The error hook MUST run when errors are encountered in the before stage, the after stage or during flag resolution. It accepts hook context (required), exception representing what went wrong (required), and hook hints (optional). It has no return value.")
     @Specification(number="4.3.7", text="The finally hook MUST run after the before, after, and error stages. It accepts a hook context (required) and hook hints (optional). There is no return value.")
     @Test void hook_eval_order() {
         List<String> evalOrder = new ArrayList<>();
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider());
+        api.setProvider(new NoOpProvider() {
+            public List<Hook> getProviderHooks() {
+                return Lists.newArrayList(new BooleanHook() {
+
+                    @Override
+                    public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
+                        evalOrder.add("provider before");
+                        return null;
+                    }
+
+                    @Override
+                    public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, Map<String, Object> hints) {
+                        evalOrder.add("provider after");
+                    }
+
+                    @Override
+                    public void error(HookContext<Boolean> ctx, Exception error, Map<String, Object> hints) {
+                        evalOrder.add("provider error");
+                    }
+
+                    @Override
+                    public void finallyAfter(HookContext<Boolean> ctx, Map<String, Object> hints) {
+                        evalOrder.add("provider finally");
+                    }
+                });
+            }
+        });
         api.addHooks(new BooleanHook() {
             @Override
             public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
@@ -250,10 +277,10 @@ public class HookSpecTest implements HookFixtures {
             .build());
 
         List<String> expectedOrder = Arrays.asList(
-            "api before", "client before", "invocation before",
-            "invocation after", "client after", "api after",
-            "invocation error", "client error", "api error",
-            "invocation finally", "client finally", "api finally");
+            "api before", "client before", "invocation before", "provider before",
+            "provider after", "invocation after", "client after", "api after",
+            "provider error", "invocation error", "client error", "api error",
+            "provider finally", "invocation finally", "client finally", "api finally");
         assertEquals(expectedOrder, evalOrder);
     }
 

@@ -1,10 +1,19 @@
 package dev.openfeature.javasdk;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 /**
  * The interface implemented by upstream flag providers to resolve flags for their service.
  */
 public interface FeatureProvider {
     Metadata getMetadata();
+
+    default List<Hook> getProviderHooks() {
+        return Lists.newArrayList();
+    }
+
     ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
     ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
     ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
