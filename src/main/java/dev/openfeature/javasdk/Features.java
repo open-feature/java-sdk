@@ -29,6 +29,15 @@ public interface Features {
     FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx);
     FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
 
+    Double getDoubleValue(String key, Double defaultValue);
+    Double getDoubleValue(String key, Double defaultValue, EvaluationContext ctx);
+    Double getDoubleValue(String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
+
+    FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue);
+    FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx);
+    FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
+
+
     <T> T getObjectValue(String key, T defaultValue);
     <T> T getObjectValue(String key, T defaultValue, EvaluationContext ctx);
     <T> T getObjectValue(String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);

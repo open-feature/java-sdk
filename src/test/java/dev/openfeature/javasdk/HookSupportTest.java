@@ -62,6 +62,8 @@ class HookSupportTest implements HookFixtures {
                 return "defaultValue";
             case OBJECT:
                 return "object";
+            case DOUBLE:
+                return "double";
             default:
                 throw new IllegalArgumentException();
         }

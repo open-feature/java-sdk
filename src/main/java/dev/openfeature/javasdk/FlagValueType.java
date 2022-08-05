@@ -1,5 +1,5 @@
 package dev.openfeature.javasdk;
 
 public enum FlagValueType {
-    STRING, INTEGER, OBJECT, BOOLEAN;
+    STRING, INTEGER, DOUBLE, OBJECT, BOOLEAN;
 }

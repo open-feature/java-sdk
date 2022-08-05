@@ -85,6 +85,8 @@ public class OpenFeatureClient implements Client {
                 return provider.getStringEvaluation(key, (String) defaultValue, invocationContext, options);
             case INTEGER:
                 return provider.getIntegerEvaluation(key, (Integer) defaultValue, invocationContext, options);
+            case DOUBLE:
+                return provider.getDoubleEvaluation(key, (Double) defaultValue, invocationContext, options);
             case OBJECT:
                 return provider.getObjectEvaluation(key, defaultValue, invocationContext, options);
             default:
@@ -180,6 +182,36 @@ public class OpenFeatureClient implements Client {
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, ctx, options);
+    }
+
+    @Override
+    public Double getDoubleValue(String key, Double defaultValue) {
+        return getDoubleValue(key, defaultValue, null);
+    }
+
+    @Override
+    public Double getDoubleValue(String key, Double defaultValue, EvaluationContext ctx) {
+        return getDoubleValue(key, defaultValue, ctx, null);
+    }
+
+    @Override
+    public Double getDoubleValue(String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return this.evaluateFlag(FlagValueType.DOUBLE, key, defaultValue, ctx, options).getValue();
+    }
+
+    @Override
+    public FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue) {
+        return getDoubleDetails(key, defaultValue, null);
+    }
+
+    @Override
+    public FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx) {
+        return getDoubleDetails(key, defaultValue, ctx, null);
+    }
+
+    @Override
+    public FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return this.evaluateFlag(FlagValueType.DOUBLE, key, defaultValue, ctx, options);
     }
 
     @Override

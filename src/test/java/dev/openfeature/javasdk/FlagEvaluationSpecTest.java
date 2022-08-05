@@ -74,8 +74,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertTrue(hooks.contains(m1));
         assertTrue(hooks.contains(m2));
     }
-    @Specification(number="1.3.1", text="The client MUST provide methods for flag evaluation, with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns the flag value.")
-    @Specification(number="1.3.2.1", text="The client MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure.")
+    @Specification(number="1.3.1", text="The client MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure, with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns the flag value.")
+    @Specification(number="1.3.2.1", text="The client SHOULD provide functions for floating-point numbers and integers, consistent with language idioms.")
     @Test void value_flags() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new DoSomethingProvider());
@@ -94,6 +94,10 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(400, c.getIntegerValue(key, 4));
         assertEquals(400, c.getIntegerValue(key, 4, new EvaluationContext()));
         assertEquals(400, c.getIntegerValue(key, 4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+
+        assertEquals(40.0, c.getDoubleValue(key, .4));
+        assertEquals(40.0, c.getDoubleValue(key, .4, new EvaluationContext()));
+        assertEquals(40.0, c.getDoubleValue(key, .4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
 
         assertEquals(null, c.getObjectValue(key, new Node<Integer>()));
         assertEquals(null, c.getObjectValue(key, new Node<Integer>(), new EvaluationContext()));
@@ -137,6 +141,14 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(id, c.getIntegerDetails(key, 4));
         assertEquals(id, c.getIntegerDetails(key, 4, new EvaluationContext()));
         assertEquals(id, c.getIntegerDetails(key, 4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+
+        FlagEvaluationDetails<Double> dd = FlagEvaluationDetails.<Double>builder()
+                .flagKey(key)
+                .value(40.0)
+                .build();
+        assertEquals(dd, c.getDoubleDetails(key, .4));
+        assertEquals(dd, c.getDoubleDetails(key, .4, new EvaluationContext()));
+        assertEquals(dd, c.getDoubleDetails(key, .4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
 
         // TODO: Structure detail tests.
     }
