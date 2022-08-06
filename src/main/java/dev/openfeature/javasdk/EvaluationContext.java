@@ -1,6 +1,6 @@
 package dev.openfeature.javasdk;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.openfeature.javasdk.internal.Pair;
 import lombok.*;
 
 import java.time.ZonedDateTime;
@@ -11,80 +11,90 @@ import java.util.Map;
 @ToString @EqualsAndHashCode
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class EvaluationContext {
-    @EqualsAndHashCode.Exclude private final ObjectMapper objMapper;
     @Setter @Getter private String targetingKey;
-    private final Map<String, Integer> integerAttributes;
-    private final Map<String, String> stringAttributes;
-    private final Map<String, Boolean> booleanAttributes;
-    final Map<String, String> jsonAttributes;
+    private final Map<String, dev.openfeature.javasdk.internal.Pair<FlagValueType, Object>> attributes;
 
     public EvaluationContext() {
-        objMapper = new ObjectMapper();
         this.targetingKey = "";
-        this.integerAttributes = new HashMap<>();
-        this.stringAttributes = new HashMap<>();
-        booleanAttributes = new HashMap<>();
-        jsonAttributes = new HashMap<>();
+        this.attributes = new HashMap<>();
     }
 
     // TODO Not sure if I should have sneakythrows or checked exceptions here..
     @SneakyThrows
     public <T> void addStructureAttribute(String key, T value) {
-        jsonAttributes.put(key, objMapper.writeValueAsString(value));
+        attributes.put(key, new Pair<>(FlagValueType.OBJECT, value));
     }
 
     @SneakyThrows
-    public <T> T getStructureAttribute(String key, Class<T> klass) {
-        String val = jsonAttributes.get(key);
-        return objMapper.readValue(val, klass);
+    public <T> T getStructureAttribute(String key) {
+        return getAttributeByType(key, FlagValueType.OBJECT);
     }
 
     public Map<String, String> getStructureAttributes() {
-        return new HashMap<>(jsonAttributes);
+        return getAttributesByType(FlagValueType.OBJECT);
     }
 
     public void addStringAttribute(String key, String value) {
-        stringAttributes.put(key, value);
+        attributes.put(key, new Pair<>(FlagValueType.STRING, value));
     }
 
     public String getStringAttribute(String key) {
-        return stringAttributes.get(key);
+        return getAttributeByType(key, FlagValueType.STRING);
+    }
+
+    private <T> Map<String, T> getAttributesByType(FlagValueType type) {
+        HashMap<String, T> hm = new HashMap<>();
+        for (Map.Entry<String, Pair<FlagValueType, Object>> entry : attributes.entrySet()) {
+            String key = entry.getKey();
+            if (entry.getValue().getFirst() == type) {
+                hm.put(key, (T) entry.getValue().getSecond());
+            }
+        }
+        return hm;
+    }
+
+    private <T> T getAttributeByType(String key, FlagValueType type) {
+        Pair<FlagValueType, Object> val = attributes.get(key);
+        if (val.getFirst() == type) {
+            return (T) val.getSecond();
+        }
+        return null;
     }
 
     public Map<String, String> getStringAttributes() {
-        return new HashMap<>(stringAttributes);
+        return getAttributesByType(FlagValueType.STRING);
     }
 
     public void addIntegerAttribute(String key, Integer value) {
-        integerAttributes.put(key, value);
+        attributes.put(key, new Pair<>(FlagValueType.INTEGER, value));
     }
 
     public Integer getIntegerAttribute(String key) {
-        return integerAttributes.get(key);
+        return getAttributeByType(key, FlagValueType.INTEGER);
     }
 
     public Map<String, Integer> getIntegerAttributes() {
-        return new HashMap<>(integerAttributes);
+        return getAttributesByType(FlagValueType.INTEGER);
     }
 
     public Boolean getBooleanAttribute(String key) {
-        return booleanAttributes.get(key);
+        return getAttributeByType(key, FlagValueType.BOOLEAN);
     }
 
     public void addBooleanAttribute(String key, Boolean b) {
-        booleanAttributes.put(key, b);
+        attributes.put(key, new Pair<>(FlagValueType.BOOLEAN, b));
     }
 
     public Map<String, Boolean> getBooleanAttributes() {
-        return new HashMap<>(booleanAttributes);
+        return getAttributesByType(FlagValueType.BOOLEAN);
     }
 
     public void addDatetimeAttribute(String key, ZonedDateTime value) {
-        this.stringAttributes.put(key, value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+        attributes.put(key, new Pair<>(FlagValueType.STRING, value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)));
     }
 
     public ZonedDateTime getDatetimeAttribute(String key) {
-        String attr = this.stringAttributes.get(key);
+        String attr = getAttributeByType(key, FlagValueType.STRING);
         if (attr == null) {
             return null;
         }
@@ -96,18 +106,8 @@ public class EvaluationContext {
      */
     public static EvaluationContext merge(EvaluationContext ctx1, EvaluationContext ctx2) {
         EvaluationContext ec = new EvaluationContext();
-
-        ec.stringAttributes.putAll(ctx1.stringAttributes);
-        ec.stringAttributes.putAll(ctx2.stringAttributes);
-
-        ec.integerAttributes.putAll(ctx1.integerAttributes);
-        ec.integerAttributes.putAll(ctx2.integerAttributes);
-
-        ec.booleanAttributes.putAll(ctx1.booleanAttributes);
-        ec.booleanAttributes.putAll(ctx2.booleanAttributes);
-
-        ec.jsonAttributes.putAll(ctx1.jsonAttributes);
-        ec.jsonAttributes.putAll(ctx2.jsonAttributes);
+        ec.attributes.putAll(ctx1.attributes);
+        ec.attributes.putAll(ctx2.attributes);
 
         if (ctx1.getTargetingKey() != null) {
             ec.setTargetingKey(ctx1.getTargetingKey());

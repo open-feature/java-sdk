@@ -1,7 +1,5 @@
 package dev.openfeature.javasdk;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
@@ -55,11 +53,7 @@ public class EvalContextTest {
         EvaluationContext ec = new EvaluationContext();
         ec.addStructureAttribute("obj", n2);
 
-
-        String stringyObject = ec.jsonAttributes.get("obj");
-        assertEquals("{\"left\":{\"left\":null,\"right\":null,\"value\":4},\"right\":null,\"value\":2}", stringyObject);
-
-        Node nodeFromString = ec.getStructureAttribute("obj", Node.class);
+        Node nodeFromString = ec.getStructureAttribute("obj");
         assertEquals(n2, nodeFromString);
         assertEquals(n1, nodeFromString.left);
         assertEquals(2, nodeFromString.value);
@@ -102,10 +96,17 @@ public class EvalContextTest {
         assertEquals(ec.getIntegerAttribute("int2"), foundInt.get("int2"));
 
         Map<String, String> foundObj = ec.getStructureAttributes();
-        try {
-            assertEquals(ec.getStructureAttribute("obj", Node.class), new ObjectMapper().readValue(foundObj.get("obj"), Node.class));
-        } catch (JsonProcessingException e) {
-            fail("Unexpected exception occurred: ", e);
-        }
+        assertEquals(ec.<Node>getStructureAttribute("obj"), n2);
+    }
+
+    @Specification(number="3.1.4", text="The evaluation context fields MUST have an unique key.")
+    @Test void unique_key_across_types() {
+        EvaluationContext ec = new EvaluationContext();
+        ec.addStringAttribute("key", "val");
+        ec.addStringAttribute("key", "val2");
+        assertEquals("val2", ec.getStringAttribute("key"));
+        ec.addIntegerAttribute("key", 3);
+        assertEquals(null, ec.getStringAttribute("key"));
+        assertEquals(3, ec.getIntegerAttribute("key"));
     }
 }
