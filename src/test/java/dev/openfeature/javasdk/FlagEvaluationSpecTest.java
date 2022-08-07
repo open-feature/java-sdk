@@ -218,7 +218,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Specification(number="3.2.2", text="Evaluation context MUST be merged in the order: API (global) - client - invocation, with duplicate values being overwritten.")
     @Test void multi_layer_context_merges_correctly() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        NoOpProvider provider = new NoOpProvider();
+        DoSomethingProvider provider = new DoSomethingProvider();
         api.setProvider(provider);
 
         EvaluationContext apiCtx = new EvaluationContext();
@@ -238,7 +238,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
         clientCtx.addStringAttribute("common", "5");
         clientCtx.addStringAttribute("invocation", "6");
 
-        assertFalse(c.getBooleanValue("key", false, invocationCtx));
+        // dosomethingprovider inverts this value.
+        assertTrue(c.getBooleanValue("key", false, invocationCtx));
 
         EvaluationContext merged = provider.getMergedContext();
         assertEquals("6", merged.getStringAttribute("invocation"));

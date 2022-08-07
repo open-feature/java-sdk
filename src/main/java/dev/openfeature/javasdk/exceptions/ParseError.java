@@ -6,7 +6,7 @@ import lombok.experimental.StandardException;
 
 @StandardException
 public class ParseError extends OpenFeatureError {
-    private static long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     @Getter private final ErrorCode errorCode = ErrorCode.PARSE_ERROR;
 

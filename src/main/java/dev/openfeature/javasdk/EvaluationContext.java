@@ -12,7 +12,7 @@ import java.util.Map;
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class EvaluationContext {
     @Setter @Getter private String targetingKey;
-    private final Map<String, dev.openfeature.javasdk.internal.Pair<FlagValueType, Object>> attributes;
+    private final Map<String, Pair<FlagValueType, Object>> attributes;
 
     public EvaluationContext() {
         this.targetingKey = "";

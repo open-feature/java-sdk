@@ -9,12 +9,6 @@ public class NoOpProvider implements FeatureProvider {
     public static final String PASSED_IN_DEFAULT = "Passed in default";
     @Getter
     private final String name = "No-op Provider";
-    private EvaluationContext ctx;
-
-    public EvaluationContext getMergedContext() {
-        return ctx;
-    }
-
     @Override
     public Metadata getMetadata() {
         return new Metadata() {
@@ -27,7 +21,6 @@ public class NoOpProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        this.ctx = ctx;
         return ProviderEvaluation.<Boolean>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
@@ -37,7 +30,6 @@ public class NoOpProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        this.ctx = ctx;
         return ProviderEvaluation.<String>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
@@ -47,7 +39,6 @@ public class NoOpProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        this.ctx = ctx;
         return ProviderEvaluation.<Integer>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
@@ -56,7 +47,6 @@ public class NoOpProvider implements FeatureProvider {
     }
     @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        this.ctx = ctx;
         return ProviderEvaluation.<Double>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
@@ -65,7 +55,6 @@ public class NoOpProvider implements FeatureProvider {
     }
     @Override
     public <T> ProviderEvaluation<T> getObjectEvaluation(String key, T defaultValue, EvaluationContext invocationContext, FlagEvaluationOptions options) {
-        this.ctx = ctx;
         return ProviderEvaluation.<T>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
