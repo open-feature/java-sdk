@@ -55,6 +55,9 @@ public class EvaluationContext {
 
     private <T> T getAttributeByType(String key, FlagValueType type) {
         Pair<FlagValueType, Object> val = attributes.get(key);
+        if (val == null) {
+            return null;
+        }
         if (val.getFirst() == type) {
             return (T) val.getSecond();
         }
@@ -106,6 +109,12 @@ public class EvaluationContext {
      */
     public static EvaluationContext merge(EvaluationContext ctx1, EvaluationContext ctx2) {
         EvaluationContext ec = new EvaluationContext();
+        if (ctx1 == null) {
+            return ctx2;
+        } else if (ctx2 == null) {
+            return ctx1;
+        }
+
         ec.attributes.putAll(ctx1.attributes);
         ec.attributes.putAll(ctx2.attributes);
 

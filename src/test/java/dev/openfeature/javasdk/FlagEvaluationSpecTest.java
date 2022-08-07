@@ -20,6 +20,11 @@ class FlagEvaluationSpecTest implements HookFixtures {
         return api.getClient();
     }
 
+    @AfterEach void reset_ctx() {
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setCtx(null);
+    }
+
     @Specification(number="1.1.1", text="The API, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the API are present at runtime.")
     @Test void global_singleton() {
         assertSame(OpenFeatureAPI.getInstance(), OpenFeatureAPI.getInstance());
@@ -207,6 +212,41 @@ class FlagEvaluationSpecTest implements HookFixtures {
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
         assertEquals(Reason.ERROR, result.getReason());
+    }
+
+    @Specification(number="3.2.1", text="The API, Client and invocation MUST have a method for supplying evaluation context.")
+    @Specification(number="3.2.2", text="Evaluation context MUST be merged in the order: API (global) - client - invocation, with duplicate values being overwritten.")
+    @Test void multi_layer_context_merges_correctly() {
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        NoOpProvider provider = new NoOpProvider();
+        api.setProvider(provider);
+
+        EvaluationContext apiCtx = new EvaluationContext();
+        apiCtx.addStringAttribute("common", "1");
+        apiCtx.addStringAttribute("common2", "1");
+        apiCtx.addStringAttribute("api", "2");
+        api.setCtx(apiCtx);
+
+        Client c = api.getClient();
+        EvaluationContext clientCtx = new EvaluationContext();
+        clientCtx.addStringAttribute("common", "3");
+        clientCtx.addStringAttribute("common2", "3");
+        clientCtx.addStringAttribute("client", "4");
+        c.setEvaluationContext(clientCtx);
+
+        EvaluationContext invocationCtx = new EvaluationContext();
+        clientCtx.addStringAttribute("common", "5");
+        clientCtx.addStringAttribute("invocation", "6");
+
+        assertFalse(c.getBooleanValue("key", false, invocationCtx));
+
+        EvaluationContext merged = provider.getMergedContext();
+        assertEquals("6", merged.getStringAttribute("invocation"));
+        assertEquals("5", merged.getStringAttribute("common"), "invocation merge is incorrect");
+        assertEquals("4", merged.getStringAttribute("client"));
+        assertEquals("3", merged.getStringAttribute("common2"), "api client merge is incorrect");
+        assertEquals("2", merged.getStringAttribute("api"));
+
     }
 
     @Specification(number="1.3.3", text="The client SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied default value should be returned.")

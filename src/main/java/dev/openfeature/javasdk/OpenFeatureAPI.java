@@ -16,6 +16,8 @@ import java.util.List;
 public class OpenFeatureAPI {
     @Getter @Setter private FeatureProvider provider;
     private static OpenFeatureAPI api;
+
+    @Getter @Setter private EvaluationContext ctx;
     @Getter private List<Hook> apiHooks;
 
     public static OpenFeatureAPI getInstance() {

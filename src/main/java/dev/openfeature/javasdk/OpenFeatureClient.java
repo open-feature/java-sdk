@@ -5,6 +5,7 @@ import java.util.*;
 import dev.openfeature.javasdk.exceptions.GeneralError;
 import dev.openfeature.javasdk.internal.ObjectUtils;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -16,6 +17,9 @@ public class OpenFeatureClient implements Client {
     @Getter private final String version;
     @Getter private final List<Hook> clientHooks;
     private final HookSupport hookSupport;
+
+    @Getter @Setter private EvaluationContext evaluationContext;
+
 
     public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
         this.openfeatureApi = openFeatureAPI;
@@ -38,7 +42,6 @@ public class OpenFeatureClient implements Client {
             ctx = new EvaluationContext();
         }
 
-        // merge of: API.context, client.context, invocation.context
         HookContext<T> hookCtx = HookContext.from(key, type, this.getMetadata(), openfeatureApi.getProvider().getMetadata(), ctx, defaultValue);
 
         List<Hook> mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getApiHooks());
@@ -46,9 +49,19 @@ public class OpenFeatureClient implements Client {
         FlagEvaluationDetails<T> details = null;
         try {
             EvaluationContext ctxFromHook = hookSupport.beforeHooks(type, hookCtx, mergedHooks, hints);
-            EvaluationContext invocationContext = EvaluationContext.merge(ctxFromHook, ctx);
 
-            ProviderEvaluation<T> providerEval = (ProviderEvaluation<T>) createProviderEvaluation(type, key, defaultValue, options, provider, invocationContext);
+            EvaluationContext invocationCtx = EvaluationContext.merge(ctxFromHook, ctx);
+
+            // merge of: API.context, client.context, invocation.context
+            EvaluationContext mergedCtx = EvaluationContext.merge(
+                    EvaluationContext.merge(
+                            openfeatureApi.getCtx(),
+                            this.getEvaluationContext()
+                    ),
+                    invocationCtx
+            );
+
+            ProviderEvaluation<T> providerEval = (ProviderEvaluation<T>) createProviderEvaluation(type, key, defaultValue, options, provider, mergedCtx);
 
             details = FlagEvaluationDetails.from(providerEval, key);
             hookSupport.afterHooks(type, hookCtx, details, mergedHooks, hints);
