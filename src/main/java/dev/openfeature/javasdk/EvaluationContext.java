@@ -21,8 +21,9 @@ public class EvaluationContext {
 
     // TODO Not sure if I should have sneakythrows or checked exceptions here..
     @SneakyThrows
-    public <T> void addStructureAttribute(String key, T value) {
+    public <T> EvaluationContext addStructureAttribute(String key, T value) {
         attributes.put(key, new Pair<>(FlagValueType.OBJECT, value));
+        return this;
     }
 
     @SneakyThrows
@@ -34,8 +35,9 @@ public class EvaluationContext {
         return getAttributesByType(FlagValueType.OBJECT);
     }
 
-    public void addStringAttribute(String key, String value) {
+    public EvaluationContext addStringAttribute(String key, String value) {
         attributes.put(key, new Pair<>(FlagValueType.STRING, value));
+        return this;
     }
 
     public String getStringAttribute(String key) {
@@ -68,8 +70,9 @@ public class EvaluationContext {
         return getAttributesByType(FlagValueType.STRING);
     }
 
-    public void addIntegerAttribute(String key, Integer value) {
+    public EvaluationContext addIntegerAttribute(String key, Integer value) {
         attributes.put(key, new Pair<>(FlagValueType.INTEGER, value));
+        return this;
     }
 
     public Integer getIntegerAttribute(String key) {
@@ -84,16 +87,18 @@ public class EvaluationContext {
         return getAttributeByType(key, FlagValueType.BOOLEAN);
     }
 
-    public void addBooleanAttribute(String key, Boolean b) {
+    public EvaluationContext addBooleanAttribute(String key, Boolean b) {
         attributes.put(key, new Pair<>(FlagValueType.BOOLEAN, b));
+        return this;
     }
 
     public Map<String, Boolean> getBooleanAttributes() {
         return getAttributesByType(FlagValueType.BOOLEAN);
     }
 
-    public void addDatetimeAttribute(String key, ZonedDateTime value) {
+    public EvaluationContext addDatetimeAttribute(String key, ZonedDateTime value) {
         attributes.put(key, new Pair<>(FlagValueType.STRING, value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)));
+        return this;
     }
 
     public ZonedDateTime getDatetimeAttribute(String key) {

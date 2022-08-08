@@ -109,4 +109,13 @@ public class EvalContextTest {
         assertEquals(null, ec.getStringAttribute("key"));
         assertEquals(3, ec.getIntegerAttribute("key"));
     }
+
+    @Test void can_chain_attribute_addition() {
+        EvaluationContext ec = new EvaluationContext();
+        EvaluationContext out = ec.addStructureAttribute("str", "test")
+                .addIntegerAttribute("int", 4)
+                .addBooleanAttribute("bool", false)
+                .addStructureAttribute("str", new Node<Integer>());
+        assertEquals(EvaluationContext.class, out.getClass());
+    }
 }
