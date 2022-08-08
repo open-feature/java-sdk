@@ -101,6 +101,12 @@ public class EvaluationContext {
         return this;
     }
 
+    /**
+     * Fetch date-time relevant key.
+     * @param key feature key
+     * @return date time object.
+     * @throws java.time.format.DateTimeParseException if it's not a datetime
+     */
     public ZonedDateTime getDatetimeAttribute(String key) {
         String attr = getAttributeByType(key, FlagValueType.STRING);
         if (attr == null) {

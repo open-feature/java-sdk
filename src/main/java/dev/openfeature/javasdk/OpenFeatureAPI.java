@@ -10,16 +10,27 @@ import java.util.List;
 
 /**
  * A global singleton which holds base configuration for the OpenFeature library.
- *
  * Configuration here will be shared across all {@link Client}s.
  */
 public class OpenFeatureAPI {
-    @Getter @Setter private FeatureProvider provider;
     private static OpenFeatureAPI api;
+    @Getter
+    @Setter
+    private FeatureProvider provider;
+    @Getter
+    @Setter
+    private EvaluationContext ctx;
+    @Getter
+    private List<Hook> apiHooks;
 
-    @Getter @Setter private EvaluationContext ctx;
-    @Getter private List<Hook> apiHooks;
+    public OpenFeatureAPI() {
+        this.apiHooks = new ArrayList<>();
+    }
 
+    /**
+     * Provisions the {@link OpenFeatureAPI} singleton (if needed) and returns it.
+     * @return The singleton instance.
+     */
     public static OpenFeatureAPI getInstance() {
         synchronized (OpenFeatureAPI.class) {
             if (api == null) {
@@ -29,16 +40,12 @@ public class OpenFeatureAPI {
         return api;
     }
 
-    public OpenFeatureAPI() {
-        this.apiHooks = new ArrayList<>();
+    public Metadata getProviderMetadata() {
+        return provider.getMetadata();
     }
 
     public Client getClient() {
         return getClient(null, null);
-    }
-
-    public Metadata getProviderMetadata() {
-        return provider.getMetadata();
     }
 
     public Client getClient(@Nullable String name) {

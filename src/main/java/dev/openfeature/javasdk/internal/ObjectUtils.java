@@ -9,6 +9,9 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class ObjectUtils {
 
+    /**
+     * If the source param is null, return the default value.
+     */
     public static <T> List<T> defaultIfNull(List<T> source, Supplier<List<T>> defaultValue) {
         if (source == null) {
             return defaultValue.get();
@@ -16,6 +19,9 @@ public class ObjectUtils {
         return source;
     }
 
+    /**
+     * If the source param is null, return the default value.
+     */
     public static <K, V> Map<K, V> defaultIfNull(Map<K, V> source, Supplier<Map<K, V>> defaultValue) {
         if (source == null) {
             return defaultValue.get();
@@ -23,6 +29,9 @@ public class ObjectUtils {
         return source;
     }
 
+    /**
+     * If the source param is null, return the default value.
+     */
     public static <T> T defaultIfNull(T source, Supplier<T> defaultValue) {
         if (source == null) {
             return defaultValue.get();
@@ -30,6 +39,9 @@ public class ObjectUtils {
         return source;
     }
 
+    /**
+     * Concatenate a bunch of lists.
+     */
     @SafeVarargs
     public static <T> List<T> merge(List<T>... sources) {
         return Arrays

@@ -19,7 +19,19 @@ public class HookContext<T> {
     Metadata clientMetadata;
     Metadata providerMetadata;
 
-    public static <T> HookContext<T> from(String key, FlagValueType type, Metadata clientMetadata, Metadata providerMetadata, EvaluationContext ctx, T defaultValue) {
+    /**
+     * Builds a {@link HookContext} instances from request data.
+     * @param key feature flag key
+     * @param type flag value type
+     * @param clientMetadata info on which client is calling
+     * @param providerMetadata info on the provider
+     * @param ctx Evaluation Context for the request
+     * @param defaultValue Fallback value
+     * @param <T> type that the flag is evaluating against
+     * @return resulting context for hook
+     */
+    public static <T> HookContext<T> from(String key, FlagValueType type, Metadata clientMetadata,
+                                          Metadata providerMetadata, EvaluationContext ctx, T defaultValue) {
         return HookContext.<T>builder()
                 .flagKey(key)
                 .type(type)

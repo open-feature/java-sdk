@@ -22,7 +22,6 @@ public interface Client extends Features {
 
     /**
      * Adds hooks for evaluation.
-     *
      * Hooks are run in the order they're added in the before stage. They are run in reverse order for all other stages.
      *
      * @param hooks The hook to add.

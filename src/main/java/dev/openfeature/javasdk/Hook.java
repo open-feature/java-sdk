@@ -1,6 +1,7 @@
 package dev.openfeature.javasdk;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * An extension point which can run around flag resolution. They are intended to be used as a way to add custom logic
@@ -14,7 +15,8 @@ public interface Hook<T> {
      *
      * @param ctx   Information about the particular flag evaluation
      * @param hints An immutable mapping of data for users to communicate to the hooks.
-     * @return An optional {@link EvaluationContext}. If returned, it will be merged with the EvaluationContext instances from other hooks, the client and API.
+     * @return An optional {@link EvaluationContext}. If returned, it will be merged with the EvaluationContext
+     *     instances from other hooks, the client and API.
      */
     default Optional<EvaluationContext> before(HookContext<T> ctx, Map<String, Object> hints) {
         return Optional.empty();
