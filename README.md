@@ -1,6 +1,7 @@
 # OpenFeature SDK for Java
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/dev.openfeature/javasdk/badge.svg)](https://maven-badges.herokuapp.com/maven-central/dev.openfeature/javasdk)
+[![javadoc](https://javadoc.io/badge2/dev.openfeature/javasdk/javadoc.svg)](https://javadoc.io/doc/dev.openfeature/javasdk) 
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![Known Vulnerabilities](https://snyk.io/test/github/open-feature/java-sdk/badge.svg)](https://snyk.io/test/github/open-feature/java-sdk)
 [![on-merge](https://github.com/open-feature/java-sdk/actions/workflows/merge.yml/badge.svg)](https://github.com/open-feature/java-sdk/actions/workflows/merge.yml)
