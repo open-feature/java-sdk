@@ -56,7 +56,7 @@ class MyClass {
 
 ### Add it to your build
 
-Maven:
+#### Maven
 ```xml
 <dependency>
     <groupId>dev.openfeature</groupId>
@@ -65,10 +65,25 @@ Maven:
 </dependency>
 ```
 
-Gradle:
+If you would like snapshot builds, this is the relevant repository information:
+
+```xml
+<repositories>
+    <repository>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+        <id>sonartype</id>
+        <name>Sonartype Repository</name>
+        <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
+</repositories>
+```
+
+#### Gradle
 ```groovy
 dependencies {
-    implementation 'dev.openfeature:javasdk:0.0.1-SNAPSHOT'
+    implementation 'dev.openfeature:javasdk:0.0.3-SNAPSHOT'
 }
 ```
 
