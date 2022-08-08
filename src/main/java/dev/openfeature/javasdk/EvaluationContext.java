@@ -111,6 +111,10 @@ public class EvaluationContext {
 
     /**
      * Merges two EvaluationContext objects with the second overriding the first in case of conflict.
+     *
+     * @param ctx1 base context
+     * @param ctx2 overriding context
+     * @return resulting merged context
      */
     public static EvaluationContext merge(EvaluationContext ctx1, EvaluationContext ctx2) {
         EvaluationContext ec = new EvaluationContext();
