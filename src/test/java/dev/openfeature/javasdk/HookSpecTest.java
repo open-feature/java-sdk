@@ -455,14 +455,15 @@ public class HookSpecTest implements HookFixtures {
 
     }
 
-    @Specification(number="4.3.4", text="When before hooks have finished executing, any resulting evaluation context MUST be merged with the invocation evaluation context with the invocation evaluation context taking precedence in the case of any conflicts.")
+    @Specification(number="4.3.4", text="When before hooks have finished executing, any resulting evaluation context MUST be merged with the existing evaluation context in the following order: before-hook (highest precedence), invocation, client, api (lowest precedence).")
     @Test void mergeHappensCorrectly() {
         EvaluationContext hookCtx = new EvaluationContext();
-        hookCtx.addStringAttribute("test", "broken");
+        hookCtx.addStringAttribute("test", "works");
         hookCtx.addStringAttribute("another", "exists");
 
         EvaluationContext invocationCtx = new EvaluationContext();
-        invocationCtx.addStringAttribute("test", "works");
+        invocationCtx.addStringAttribute("something", "here");
+        invocationCtx.addStringAttribute("test", "broken");
 
         Hook<Boolean> hook = mockBooleanHook();
         when(hook.before(any(), any())).thenReturn(Optional.of(hookCtx));
@@ -485,6 +486,7 @@ public class HookSpecTest implements HookFixtures {
         EvaluationContext ec = captor.getValue();
         assertEquals("works", ec.getStringAttribute("test"));
         assertEquals("exists", ec.getStringAttribute("another"));
+        assertEquals("here", ec.getStringAttribute("something"));
     }
 
     @Specification(number="4.4.3", text="If a finally hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining finally hooks.")

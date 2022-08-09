@@ -64,7 +64,7 @@ public class OpenFeatureClient implements Client {
         try {
             EvaluationContext ctxFromHook = hookSupport.beforeHooks(type, hookCtx, mergedHooks, hints);
 
-            EvaluationContext invocationCtx = EvaluationContext.merge(ctxFromHook, ctx);
+            EvaluationContext invocationCtx = EvaluationContext.merge(ctx, ctxFromHook);
 
             // merge of: API.context, client.context, invocation.context
             EvaluationContext mergedCtx = EvaluationContext.merge(
