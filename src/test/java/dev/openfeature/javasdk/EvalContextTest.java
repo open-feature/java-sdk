@@ -118,4 +118,23 @@ public class EvalContextTest {
                 .addStructureAttribute("str", new Node<Integer>());
         assertEquals(EvaluationContext.class, out.getClass());
     }
+
+    @Test void merge_targeting_key() {
+        String key1 = "key1";
+        EvaluationContext ctx1 = new EvaluationContext();
+        ctx1.setTargetingKey(key1);
+        EvaluationContext ctx2 = new EvaluationContext();
+
+        EvaluationContext ctxMerged = EvaluationContext.merge(ctx1, ctx2);
+        assertEquals(key1, ctxMerged.getTargetingKey());
+
+        String key2 = "key2";
+        ctx2.setTargetingKey(key2);
+        ctxMerged = EvaluationContext.merge(ctx1, ctx2);
+        assertEquals(key2, ctxMerged.getTargetingKey());
+
+        ctx2.setTargetingKey("  ");
+        ctxMerged = EvaluationContext.merge(ctx1, ctx2);
+        assertEquals(key1, ctxMerged.getTargetingKey());
+    }
 }

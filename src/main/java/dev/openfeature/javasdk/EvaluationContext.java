@@ -133,11 +133,11 @@ public class EvaluationContext {
         ec.attributes.putAll(ctx1.attributes);
         ec.attributes.putAll(ctx2.attributes);
 
-        if (ctx1.getTargetingKey() != null) {
+        if (ctx1.getTargetingKey() != null && !ctx1.getTargetingKey().trim().equals("")) {
             ec.setTargetingKey(ctx1.getTargetingKey());
         }
 
-        if (ctx2.getTargetingKey() != null) {
+        if (ctx2.getTargetingKey() != null && !ctx2.getTargetingKey().trim().equals("")) {
             ec.setTargetingKey(ctx2.getTargetingKey());
         }
 
