@@ -121,8 +121,7 @@ public class EvalContextTest {
 
     @Test void merge_targeting_key() {
         String key1 = "key1";
-        EvaluationContext ctx1 = new EvaluationContext();
-        ctx1.setTargetingKey(key1);
+        EvaluationContext ctx1 = new EvaluationContext(key1);
         EvaluationContext ctx2 = new EvaluationContext();
 
         EvaluationContext ctxMerged = EvaluationContext.merge(ctx1, ctx2);

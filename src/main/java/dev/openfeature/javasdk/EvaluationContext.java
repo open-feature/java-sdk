@@ -19,6 +19,11 @@ public class EvaluationContext {
         this.attributes = new HashMap<>();
     }
 
+    public EvaluationContext(String targetingKey) {
+        this();
+        this.targetingKey = targetingKey;
+    }
+
     // TODO Not sure if I should have sneakythrows or checked exceptions here..
     @SneakyThrows
     public <T> EvaluationContext addStructureAttribute(String key, T value) {
