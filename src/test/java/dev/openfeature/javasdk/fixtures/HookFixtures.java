@@ -18,6 +18,10 @@ public interface HookFixtures {
         return spy(IntegerHook.class);
     }
 
+    default Hook<Double> mockDoubleHook() {
+        return spy(DoubleHook.class);
+    }
+
     default Hook<?> mockGenericHook() {
         return spy(Hook.class);
     }
