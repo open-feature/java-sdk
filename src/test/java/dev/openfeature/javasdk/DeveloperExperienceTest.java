@@ -1,18 +1,28 @@
 package dev.openfeature.javasdk;
 
-import dev.openfeature.javasdk.fixtures.HookFixtures;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import org.junit.jupiter.api.Test;
+
+import dev.openfeature.javasdk.fixtures.HookFixtures;
 
 @SuppressWarnings("unchecked")
 class DeveloperExperienceTest implements HookFixtures {
     transient String flagKey = "mykey";
+
+    @Test void noProviderSet() {
+        final String noOp = "no-op";
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(null);
+        Client client = api.getClient();
+        String retval = client.getStringValue(flagKey, noOp);
+        assertEquals(noOp, retval);
+    }
+
     @Test void simpleBooleanFlag() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());

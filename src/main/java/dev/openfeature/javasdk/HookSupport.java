@@ -1,15 +1,16 @@
 package dev.openfeature.javasdk;
 
-import com.google.common.collect.Lists;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+
+import com.google.common.collect.Lists;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,20 +37,24 @@ class HookSupport {
             String hookMethod,
             Consumer<Hook<T>> hookCode
     ) {
-        hooks
+        if (hooks != null) {
+            hooks
                 .stream()
                 .filter(hook -> hook.supportsFlagValueType(flagValueType))
                 .forEach(hook -> executeChecked(hook, hookCode, hookMethod));
+        }
     }
 
     private <T> void executeHooksUnchecked(
             FlagValueType flagValueType, List<Hook> hooks,
             Consumer<Hook<T>> hookCode
     ) {
-        hooks
+        if (hooks != null) {
+            hooks
                 .stream()
                 .filter(hook -> hook.supportsFlagValueType(flagValueType))
                 .forEach(hookCode::accept);
+        }
     }
 
     private <T> void executeChecked(Hook<T> hook, Consumer<Hook<T>> hookCode, String hookMethod) {

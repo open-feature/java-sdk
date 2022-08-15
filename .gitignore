@@ -7,3 +7,6 @@ build
 specification.json
 target
 .DS_Store
+
+# vscode stuff - we may want to use a more specific pattern later if we'd like to suggest editor configurations
+.vscode/
