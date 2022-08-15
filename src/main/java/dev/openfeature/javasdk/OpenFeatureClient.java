@@ -1,12 +1,16 @@
 package dev.openfeature.javasdk;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import dev.openfeature.javasdk.exceptions.GeneralError;
 import dev.openfeature.javasdk.internal.ObjectUtils;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.*;
 
 @Slf4j
 @SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "PMD.BeanMembersShouldSerialize", "unchecked", "rawtypes"})
@@ -48,20 +52,25 @@ public class OpenFeatureClient implements Client {
                                                       EvaluationContext ctx, FlagEvaluationOptions options) {
         FlagEvaluationOptions flagOptions = ObjectUtils.defaultIfNull(options,
             () -> FlagEvaluationOptions.builder().build());
-        FeatureProvider provider = openfeatureApi.getProvider();
         Map<String, Object> hints = Collections.unmodifiableMap(flagOptions.getHookHints());
-        if (ctx == null) {
-            ctx = new EvaluationContext();
-        }
-
-        HookContext<T> hookCtx = HookContext.from(key, type, this.getMetadata(),
-                openfeatureApi.getProvider().getMetadata(), ctx, defaultValue);
-
-        List<Hook> mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
-                openfeatureApi.getApiHooks());
+        ctx =  ObjectUtils.defaultIfNull(ctx, () -> new EvaluationContext());
+        FeatureProvider provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {
+            log.debug("No provider configured, using no-op provider.");
+            return new NoOpProvider();
+        });
 
         FlagEvaluationDetails<T> details = null;
+        List<Hook> mergedHooks = null;
+        HookContext<T> hookCtx = null;
+        
         try {
+
+            hookCtx = HookContext.from(key, type, this.getMetadata(),
+            openfeatureApi.getProvider().getMetadata(), ctx, defaultValue);
+
+            mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
+            openfeatureApi.getApiHooks());
+
             EvaluationContext ctxFromHook = hookSupport.beforeHooks(type, hookCtx, mergedHooks, hints);
 
             EvaluationContext invocationCtx = EvaluationContext.merge(ctx, ctxFromHook);

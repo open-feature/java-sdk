@@ -1,9 +1,10 @@
 package dev.openfeature.javasdk;
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class ProviderSpecTest {
     NoOpProvider p = new NoOpProvider();
@@ -37,7 +38,7 @@ public class ProviderSpecTest {
         assertNotNull(boolean_result.getValue());
 
         ProviderEvaluation<Node<Integer>> object_result = p.getObjectEvaluation("key", new Node<Integer>(), new EvaluationContext(), FlagEvaluationOptions.builder().build());
-        assertNotNull(boolean_result.getValue());
+        assertNotNull(object_result.getValue());
     }
 
     @Specification(number="2.6", text="The provider SHOULD populate the flag resolution structure's " +
@@ -52,16 +53,6 @@ public class ProviderSpecTest {
     @Test void no_error_code_by_default() {
         ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new EvaluationContext(), FlagEvaluationOptions.builder().build());
         assertNull(result.getErrorCode());
-    }
-
-    @Specification(number="2.8", text="In cases of abnormal execution, the provider MUST indicate an " +
-            "error using the idioms of the implementation language, with an associated error code having possible " +
-            "values PROVIDER_NOT_READY, FLAG_NOT_FOUND, PARSE_ERROR, TYPE_MISMATCH, or GENERAL.")
-    @Disabled("I don't think we expect the provider to do all the exception catching.. right?")
-    @Test void error_populates_error_code() {
-        AlwaysBrokenProvider broken = new AlwaysBrokenProvider();
-        ProviderEvaluation<Boolean> result = broken.getBooleanEvaluation("key", false, new EvaluationContext(), FlagEvaluationOptions.builder().build());
-        assertEquals(ErrorCode.GENERAL, result.getErrorCode());
     }
 
     @Specification(number="2.5", text="In cases of normal execution, the provider SHOULD populate the " +

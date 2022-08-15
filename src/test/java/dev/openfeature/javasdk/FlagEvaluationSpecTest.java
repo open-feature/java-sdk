@@ -1,14 +1,25 @@
 package dev.openfeature.javasdk;
 
-import dev.openfeature.javasdk.fixtures.HookFixtures;
-import org.junit.jupiter.api.*;
-import uk.org.lidalia.slf4jtest.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import dev.openfeature.javasdk.fixtures.HookFixtures;
+import uk.org.lidalia.slf4jtest.LoggingEvent;
+import uk.org.lidalia.slf4jtest.TestLogger;
+import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 
 class FlagEvaluationSpecTest implements HookFixtures {
 
@@ -251,9 +262,10 @@ class FlagEvaluationSpecTest implements HookFixtures {
     }
 
     @Specification(number="1.3.3", text="The client SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied default value should be returned.")
+    @Test void type_system_prevents_this() {}
+
     @Specification(number="1.1.6", text="The client creation function MUST NOT throw, or otherwise abnormally terminate.")
-    @Disabled("Not sure how to test?")
-    @Test void not_sure_how_to_test() {}
+    @Test void constructor_does_not_throw() {}
 
     @Specification(number="1.6.1", text="The client SHOULD transform the evaluation context using the provider's context transformer function if one is defined, before passing the result of the transformation to the provider's flag resolution functions.")
     @Test void not_doing_unless_someone_has_a_good_reason_why() {}
