@@ -55,6 +55,11 @@ public class ProviderSpecTest {
         assertNull(result.getErrorCode());
     }
 
+    @Specification(number="2.8", text="In cases of abnormal execution, the provider MUST indicate an " +
+    "error using the idioms of the implementation language, with an associated error code having possible " +
+    "values PROVIDER_NOT_READY, FLAG_NOT_FOUND, PARSE_ERROR, TYPE_MISMATCH, or GENERAL.")
+    @Test void up_to_provider_implementation() {}
+
     @Specification(number="2.5", text="In cases of normal execution, the provider SHOULD populate the " +
             "flag resolution structure's variant field with a string identifier corresponding to the returned flag value.")
     @Test void variant_set() {
