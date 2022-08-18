@@ -3,7 +3,9 @@ package dev.openfeature.javasdk;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -97,6 +99,10 @@ public class EvalContextTest {
 
         Map<String, String> foundObj = ec.getStructureAttributes();
         assertEquals(ec.<Node>getStructureAttribute("obj"), n2);
+
+        Map<String, Object> all = ec.getAllAttributes();
+        Set<String> ks = all.keySet();
+        assertTrue(ks.containsAll(Arrays.asList("str", "str2", "bool", "bool2", "int", "int2", "obj")));
     }
 
     @Specification(number="3.1.4", text="The evaluation context fields MUST have an unique key.")

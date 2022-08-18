@@ -60,6 +60,18 @@ public class EvaluationContext {
         return hm;
     }
 
+    /**
+     * Get all attributes, regardless of type.
+     * @return all attributes on the context
+     */
+    public Map<String, Object> getAllAttributes() {
+        HashMap<String, Object> hm = new HashMap<>();
+        for (Map.Entry<String, Pair<FlagValueType, Object>> entry : attributes.entrySet()) {
+            hm.put(entry.getKey(), entry.getValue().getSecond());
+        }
+        return hm;
+    }
+
     private <T> T getAttributeByType(String key, FlagValueType type) {
         Pair<FlagValueType, Object> val = attributes.get(key);
         if (val == null) {
