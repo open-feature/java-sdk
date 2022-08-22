@@ -1,13 +1,10 @@
 package dev.openfeature.javasdk;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import com.google.common.collect.Lists;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,8 +71,13 @@ class HookSupport {
     private Stream<EvaluationContext> callBeforeHooks(FlagValueType flagValueType, HookContext hookCtx,
                                                       List<Hook> hooks, Map<String, Object> hints) {
         // These traverse backwards from normal.
-        return Lists
-                .reverse(hooks)
+        List<Hook> reversedHooks = IntStream
+                .range(0, hooks.size())
+                .map(i -> hooks.size() - 1 - i)
+                .mapToObj(hooks::get)
+                .collect(Collectors.toList());
+
+        return reversedHooks
                 .stream()
                 .filter(hook -> hook.supportsFlagValueType(flagValueType))
                 .map(hook -> hook.before(hookCtx, hints))

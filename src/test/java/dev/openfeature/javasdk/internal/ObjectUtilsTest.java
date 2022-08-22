@@ -2,7 +2,6 @@ package dev.openfeature.javasdk.internal;
 
 import java.util.*;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.*;
 
 import static dev.openfeature.javasdk.internal.ObjectUtils.defaultIfNull;
@@ -65,7 +64,9 @@ class ObjectUtilsTest {
         @Test
         @DisplayName("should return default map if given one is null")
         void shouldReturnDefaultMapIfGivenOneIsNull() {
-            Map<String, Object> defaultValue = ImmutableMap.of("key", "default");
+            HashMap<String, String> hm = new HashMap<>();
+            hm.put("key", "default");
+            Map<String, Object> defaultValue = Collections.unmodifiableMap(hm);
 
             Map<String, Object> actual = defaultIfNull(null, () -> defaultValue);
 
@@ -75,8 +76,13 @@ class ObjectUtilsTest {
         @Test
         @DisplayName("should return given map if not null")
         void shouldReturnGivenMapIfNotNull() {
-            Map<String, String> defaultValue = ImmutableMap.of("key", "default");
-            Map<String, String> expectedValue = ImmutableMap.of("key", "expected");
+            Map<String, String> dv = new HashMap<>();
+            dv.put("key", "default");
+            Map<String, String> defaultValue = Collections.unmodifiableMap(dv);
+
+            Map<String, String> ev = new HashMap<>();
+            ev.put("key", "expected");
+            Map<String, String> expectedValue = Collections.unmodifiableMap(ev);
 
             Map<String, String> actual = defaultIfNull(expectedValue, () -> defaultValue);
 

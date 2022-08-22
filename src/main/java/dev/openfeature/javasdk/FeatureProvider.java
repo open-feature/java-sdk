@@ -1,7 +1,6 @@
 package dev.openfeature.javasdk;
 
-import com.google.common.collect.Lists;
-
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,7 +10,7 @@ public interface FeatureProvider {
     Metadata getMetadata();
 
     default List<Hook> getProviderHooks() {
-        return Lists.newArrayList();
+        return new ArrayList<>();
     }
 
     ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx,

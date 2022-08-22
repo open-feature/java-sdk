@@ -2,8 +2,6 @@ package dev.openfeature.javasdk;
 
 import java.util.*;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import dev.openfeature.javasdk.fixtures.HookFixtures;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
@@ -177,7 +175,7 @@ public class HookSpecTest implements HookFixtures {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider() {
             public List<Hook> getProviderHooks() {
-                return Lists.newArrayList(new BooleanHook() {
+                return Collections.singletonList(new BooleanHook() {
 
                     @Override
                     public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
@@ -186,7 +184,8 @@ public class HookSpecTest implements HookFixtures {
                     }
 
                     @Override
-                    public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, Map<String, Object> hints) {
+                    public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, Map<String,
+                            Object> hints) {
                         evalOrder.add("provider after");
                     }
 
@@ -348,7 +347,9 @@ public class HookSpecTest implements HookFixtures {
             }
         };
 
-        Map<String, Object> hh = new HashMap<>(ImmutableMap.of(hintKey, "My hint value"));
+        Map<String, Object> hh = new HashMap<>();
+        hh.put(hintKey, "My hint value");
+        hh = Collections.unmodifiableMap(hh);
 
         client.getBooleanValue("key", false, new EvaluationContext(), FlagEvaluationOptions.builder()
                 .hook(mutatingHook)
