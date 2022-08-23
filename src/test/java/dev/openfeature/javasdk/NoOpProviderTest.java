@@ -1,8 +1,8 @@
 package dev.openfeature.javasdk;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 public class NoOpProviderTest {
     @Test void bool() {
@@ -32,8 +32,8 @@ public class NoOpProviderTest {
 
     @Test void structure() {
         NoOpProvider p = new NoOpProvider();
-        Node<Integer> node = new Node<Integer>();
-        ProviderEvaluation<Node> eval = p.getObjectEvaluation("key", node, null, null);
-        assertEquals(node, eval.getValue());
+        Structure s = new Structure();
+        ProviderEvaluation<Structure> eval = p.getObjectEvaluation("key", s, null, null);
+        assertEquals(s, eval.getValue());
     }
 }

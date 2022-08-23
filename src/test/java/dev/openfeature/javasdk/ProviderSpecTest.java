@@ -1,5 +1,4 @@
 package dev.openfeature.javasdk;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -37,8 +36,9 @@ public class ProviderSpecTest {
         ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, new EvaluationContext(), FlagEvaluationOptions.builder().build());
         assertNotNull(boolean_result.getValue());
 
-        ProviderEvaluation<Node<Integer>> object_result = p.getObjectEvaluation("key", new Node<Integer>(), new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        ProviderEvaluation<Structure> object_result = p.getObjectEvaluation("key", new Structure(), new EvaluationContext(), FlagEvaluationOptions.builder().build());
         assertNotNull(object_result.getValue());
+
     }
 
     @Specification(number="2.6", text="The provider SHOULD populate the flag resolution structure's " +
