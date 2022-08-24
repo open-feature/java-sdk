@@ -3,15 +3,17 @@ package dev.openfeature.javasdk;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Delegate;
 
-@ToString @EqualsAndHashCode(callSuper = true)
+@ToString
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
-public class EvaluationContext extends Structure {
+public class EvaluationContext {
+    
     @Setter @Getter private String targetingKey;
+    @Delegate private Structure structure = new Structure();
 
     public EvaluationContext() {
         super();
@@ -39,8 +41,8 @@ public class EvaluationContext extends Structure {
             return ctx1;
         }
 
-        ec.attributes.putAll(ctx1.attributes);
-        ec.attributes.putAll(ctx2.attributes);
+        ec.structure.attributes.putAll(ctx1.structure.attributes);
+        ec.structure.attributes.putAll(ctx2.structure.attributes);
 
         if (ctx1.getTargetingKey() != null && !ctx1.getTargetingKey().trim().equals("")) {
             ec.setTargetingKey(ctx1.getTargetingKey());
@@ -53,40 +55,40 @@ public class EvaluationContext extends Structure {
         return ec;
     }
 
-    // overrides so we can use "add" methods and still return EvaluationContext, not superclass
-    @Override
+    // override some @Delegate methods so we can use "add" methods and still return EvaluationContext, not Structure
     public EvaluationContext add(String key, Boolean value) {
-        return (EvaluationContext)super.add(key, value);
+        this.structure.add(key, value);
+        return this;
     }
 
-    @Override
     public EvaluationContext add(String key, String value) {
-        return (EvaluationContext)super.add(key, value);
+        this.structure.add(key, value);
+        return this;
     }
 
-    @Override
     public EvaluationContext add(String key, Integer value) {
-        return (EvaluationContext)super.add(key, value);
+        this.structure.add(key, value);
+        return this;
     }
 
-    @Override
     public EvaluationContext add(String key, Double value) {
-        return (EvaluationContext)super.add(key, value);
+        this.structure.add(key, value);
+        return this;
     }
 
-    @Override
     public EvaluationContext add(String key, ZonedDateTime value) {
-        return (EvaluationContext)super.add(key, value);
+        this.structure.add(key, value);
+        return this;
     }
 
-    @Override
     public EvaluationContext add(String key, Structure value) {
-        return (EvaluationContext)super.add(key, value);
+        this.structure.add(key, value);
+        return this;
     }
 
-    @Override
     public <T> EvaluationContext add(String key, List<T> value) {
-        return (EvaluationContext)super.add(key, value);
+        this.structure.add(key, value);
+        return this;
     }
 
 }

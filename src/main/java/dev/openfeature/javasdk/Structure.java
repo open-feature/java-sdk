@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import dev.openfeature.javasdk.internal.Pair;
+import dev.openfeature.javasdk.internal.StructureFieldType;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -16,7 +17,7 @@ import lombok.ToString;
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class Structure {
 
-    protected final Map<String, Pair<FlagValueType, Object>> attributes;
+    protected final Map<String, Pair<StructureFieldType, Object>> attributes;
 
     public Structure() {
         this.attributes = new HashMap<>();
@@ -28,27 +29,27 @@ public class Structure {
 
     // getters
     public Boolean getBooleanAttribute(String key) {
-        return getAttributeByType(key, FlagValueType.BOOLEAN);
+        return getAttributeByType(key, StructureFieldType.BOOLEAN);
     }
 
     public String getStringAttribute(String key) {
-        return getAttributeByType(key, FlagValueType.STRING);
+        return getAttributeByType(key, StructureFieldType.STRING);
     }
 
     public Integer getIntegerAttribute(String key) {
-        return getAttributeByType(key, FlagValueType.INTEGER);
+        return getAttributeByType(key, StructureFieldType.INTEGER);
     }
 
     public Double getDoubleAttribute(String key) {
-        return getAttributeByType(key, FlagValueType.DOUBLE);
+        return getAttributeByType(key, StructureFieldType.DOUBLE);
     }
 
     public <T> List<T> getArrayAttribute(String key) {
-        return getAttributeByType(key, FlagValueType.ARRAY);
+        return getAttributeByType(key, StructureFieldType.ARRAY);
     }
 
     public Structure getStructureAttribute(String key) {
-        return getAttributeByType(key, FlagValueType.OBJECT);
+        return getAttributeByType(key, StructureFieldType.OBJECT);
     }
 
     /**
@@ -59,7 +60,7 @@ public class Structure {
      * @throws java.time.format.DateTimeParseException if it's not a datetime
      */
     public ZonedDateTime getDatetimeAttribute(String key) {
-        String attr = getAttributeByType(key, FlagValueType.STRING);
+        String attr = getAttributeByType(key, StructureFieldType.STRING);
         if (attr == null) {
             return null;
         }
@@ -68,22 +69,22 @@ public class Structure {
 
     // adders
     public Structure add(String key, Boolean value) {
-        attributes.put(key, new Pair<>(FlagValueType.BOOLEAN, value));
+        attributes.put(key, new Pair<>(StructureFieldType.BOOLEAN, value));
         return this;
     }
 
     public Structure add(String key, String value) {
-        attributes.put(key, new Pair<>(FlagValueType.STRING, value));
+        attributes.put(key, new Pair<>(StructureFieldType.STRING, value));
         return this;
     }
 
     public Structure add(String key, Integer value) {
-        attributes.put(key, new Pair<>(FlagValueType.INTEGER, value));
+        attributes.put(key, new Pair<>(StructureFieldType.INTEGER, value));
         return this;
     }
 
     public Structure add(String key, Double value) {
-        attributes.put(key, new Pair<>(FlagValueType.DOUBLE, value));
+        attributes.put(key, new Pair<>(StructureFieldType.DOUBLE, value));
         return this;
     }
 
@@ -95,18 +96,18 @@ public class Structure {
      * @return Structure
      */
     public Structure add(String key, ZonedDateTime value) {
-        attributes.put(key, new Pair<>(FlagValueType.STRING, value != null 
+        attributes.put(key, new Pair<>(StructureFieldType.STRING, value != null 
             ? value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME) : null));
         return this;
     }
 
     public Structure add(String key, Structure value) {
-        attributes.put(key, new Pair<>(FlagValueType.OBJECT, value));
+        attributes.put(key, new Pair<>(StructureFieldType.OBJECT, value));
         return this;
     }
 
     public <T> Structure add(String key, List<T> value) {
-        attributes.put(key, new Pair<>(FlagValueType.ARRAY, value));
+        attributes.put(key, new Pair<>(StructureFieldType.ARRAY, value));
         return this;
     }
 
@@ -117,14 +118,14 @@ public class Structure {
      */
     public Map<String, Object> getAllAttributes() {
         HashMap<String, Object> hm = new HashMap<>();
-        for (Map.Entry<String, Pair<FlagValueType, Object>> entry : attributes.entrySet()) {
+        for (Map.Entry<String, Pair<StructureFieldType, Object>> entry : attributes.entrySet()) {
             hm.put(entry.getKey(), entry.getValue().getInnerValue());
         }
         return hm;
     }
 
-    private <T> T getAttributeByType(String key, FlagValueType type) {
-        Pair<FlagValueType, Object> val = attributes.get(key);
+    private <T> T getAttributeByType(String key, StructureFieldType type) {
+        Pair<StructureFieldType, Object> val = attributes.get(key);
         if (val == null) {
             return null;
         }
