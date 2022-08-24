@@ -87,8 +87,16 @@ public class Structure {
         return this;
     }
 
+    /** 
+     * Add date-time relevant key.
+     * 
+     * @param key feature key
+     * @param value date-time value
+     * @return Structure
+     */
     public Structure add(String key, ZonedDateTime value) {
-        attributes.put(key, new Pair<>(FlagValueType.STRING, value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)));
+        attributes.put(key, new Pair<>(FlagValueType.STRING, value != null 
+            ? value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME) : null));
         return this;
     }
 

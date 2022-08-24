@@ -107,11 +107,28 @@ public class EvalContextTest {
 
     @Test void can_chain_attribute_addition() {
         EvaluationContext ec = new EvaluationContext();
-        Structure out = ec.add("str", "test")
+        EvaluationContext out = ec.add("str", "test")
                 .add("int", 4)
                 .add("bool", false)
                 .add("str", new Structure());
         assertEquals(EvaluationContext.class, out.getClass());
+    }
+
+    @Test void can_add_key_with_null() {
+        EvaluationContext ec = new EvaluationContext()
+                .add("Boolean", (Boolean)null)
+                .add("String", (String)null)
+                .add("Double", (Double)null)
+                .add("Structure", (Structure)null)
+                .add("List", (List<Object>)null)
+                .add("ZonedDateTime", (ZonedDateTime)null);
+        assertEquals(6, ec.getAllAttributes().size());
+        assertEquals(null, ec.getBooleanAttribute("Boolean"));
+        assertEquals(null, ec.getStringAttribute("String"));
+        assertEquals(null, ec.getDoubleAttribute("Double"));
+        assertEquals(null, ec.getStructureAttribute("Structure"));
+        assertEquals(null, ec.getDoubleAttribute("List"));
+        assertEquals(null, ec.getStructureAttribute("ZonedDateTime"));
     }
 
     @Test void merge_targeting_key() {

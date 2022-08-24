@@ -1,5 +1,8 @@
 package dev.openfeature.javasdk;
 
+import java.time.ZonedDateTime;
+import java.util.List;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,4 +52,41 @@ public class EvaluationContext extends Structure {
 
         return ec;
     }
+
+    // overrides so we can use "add" methods and still return EvaluationContext, not superclass
+    @Override
+    public EvaluationContext add(String key, Boolean value) {
+        return (EvaluationContext)super.add(key, value);
+    }
+
+    @Override
+    public EvaluationContext add(String key, String value) {
+        return (EvaluationContext)super.add(key, value);
+    }
+
+    @Override
+    public EvaluationContext add(String key, Integer value) {
+        return (EvaluationContext)super.add(key, value);
+    }
+
+    @Override
+    public EvaluationContext add(String key, Double value) {
+        return (EvaluationContext)super.add(key, value);
+    }
+
+    @Override
+    public EvaluationContext add(String key, ZonedDateTime value) {
+        return (EvaluationContext)super.add(key, value);
+    }
+
+    @Override
+    public EvaluationContext add(String key, Structure value) {
+        return (EvaluationContext)super.add(key, value);
+    }
+
+    @Override
+    public <T> EvaluationContext add(String key, List<T> value) {
+        return (EvaluationContext)super.add(key, value);
+    }
+
 }
