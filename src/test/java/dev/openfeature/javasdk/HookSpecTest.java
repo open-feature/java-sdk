@@ -499,9 +499,9 @@ public class HookSpecTest implements HookFixtures {
         ArgumentCaptor<EvaluationContext> captor = ArgumentCaptor.forClass(EvaluationContext.class);
         verify(provider).getBooleanEvaluation(any(), any(), captor.capture(), any());
         EvaluationContext ec = captor.getValue();
-        assertEquals("works", ec.getStringAttribute("test"));
-        assertEquals("exists", ec.getStringAttribute("another"));
-        assertEquals("here", ec.getStringAttribute("something"));
+        assertEquals("works", ec.getValue("test").asString());
+        assertEquals("exists", ec.getValue("another").asString());
+        assertEquals("here", ec.getValue("something").asString());
     }
 
     @Specification(number="4.4.3", text="If a finally hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining finally hooks.")

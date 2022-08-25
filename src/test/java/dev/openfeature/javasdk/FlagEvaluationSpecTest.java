@@ -252,11 +252,11 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertTrue(c.getBooleanValue("key", false, invocationCtx));
 
         EvaluationContext merged = provider.getMergedContext();
-        assertEquals("6", merged.getStringAttribute("invocation"));
-        assertEquals("5", merged.getStringAttribute("common"), "invocation merge is incorrect");
-        assertEquals("4", merged.getStringAttribute("client"));
-        assertEquals("3", merged.getStringAttribute("common2"), "api client merge is incorrect");
-        assertEquals("2", merged.getStringAttribute("api"));
+        assertEquals("6", merged.getValue("invocation").asString());
+        assertEquals("5", merged.getValue("common").asString(), "invocation merge is incorrect");
+        assertEquals("4", merged.getValue("client").asString());
+        assertEquals("3", merged.getValue("common2").asString(), "api client merge is incorrect");
+        assertEquals("2", merged.getValue("api").asString());
 
     }
 

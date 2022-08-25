@@ -32,9 +32,9 @@ class HookSupportTest implements HookFixtures {
 
         EvaluationContext result = hookSupport.beforeHooks(FlagValueType.STRING, hookContext, Arrays.asList(hook1, hook2), Collections.emptyMap());
 
-        assertThat(result.getStringAttribute("bla")).isEqualTo("blubber");
-        assertThat(result.getStringAttribute("foo")).isEqualTo("bar");
-        assertThat(result.getStringAttribute("baseKey")).isEqualTo("baseValue");
+        assertThat(result.getValue("bla").asString()).isEqualTo("blubber");
+        assertThat(result.getValue("foo").asString()).isEqualTo("bar");
+        assertThat(result.getValue("baseKey").asString()).isEqualTo("baseValue");
     }
 
     @ParameterizedTest

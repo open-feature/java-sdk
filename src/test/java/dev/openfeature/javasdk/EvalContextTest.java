@@ -26,17 +26,17 @@ public class EvalContextTest {
         EvaluationContext ec = new EvaluationContext();
 
         ec.add("str", "test");
-        assertEquals("test", ec.getStringAttribute("str"));
+        assertEquals("test", ec.getValue("str").asString());
 
         ec.add("bool", true);
-        assertEquals(true, ec.getBooleanAttribute("bool"));
+        assertEquals(true, ec.getValue("bool").asBoolean());
 
         ec.add("int", 4);
-        assertEquals(4, ec.getIntegerAttribute("int"));
+        assertEquals(4, ec.getValue("int").asInteger());
 
         ZonedDateTime dt = ZonedDateTime.now();
         ec.add("dt", dt);
-        assertEquals(dt, ec.getDatetimeAttribute("dt"));
+        assertEquals(dt, ec.getValue("dt").asZonedDateTime());
     }
 
     @Specification(number="3.1.2", text="The evaluation context MUST support the inclusion of " +
@@ -45,18 +45,18 @@ public class EvalContextTest {
     @Test void eval_context_structure_array() {
         EvaluationContext ec = new EvaluationContext();
         ec.add("obj", new Structure().add("val1", 1).add("val2", "2"));
-        ec.add("arr", new ArrayList<String>(){{
-            add(0, "one");
-            add(1, "two");
+        ec.add("arr", new ArrayList<Value>(){{
+            add(new Value("one"));
+            add(new Value("two"));
         }});
 
-        Structure str = ec.getStructureAttribute("obj");
-        assertEquals(1, str.getIntegerAttribute("val1"));
-        assertEquals("2", str.getStringAttribute("val2"));
+        Structure str = ec.getValue("obj").asStructure();
+        assertEquals(1, str.getValue("val1").asInteger());
+        assertEquals("2", str.getValue("val2").asString());
 
-        List<String> arr = ec.getArrayAttribute("arr");
-        assertEquals("one", arr.get(0));
-        assertEquals("two", arr.get(1));
+        List<Value> arr = ec.getValue("arr").asList();
+        assertEquals("one", arr.get(0).asString());
+        assertEquals("two", arr.get(1).asString());
     }
 
     @Specification(number="3.1.3", text="The evaluation context MUST support fetching the custom fields by key and also fetching all key value pairs.")
@@ -77,21 +77,21 @@ public class EvalContextTest {
 
         ec.add("obj", new Structure().add("val1", 1).add("val2", "2"));
 
-        Map<String, Object> foundStr = ec.getAllAttributes();
-        assertEquals(ec.getStringAttribute("str"), foundStr.get("str"));
-        assertEquals(ec.getStringAttribute("str2"), foundStr.get("str2"));
+        Map<String, Value> foundStr = ec.asMap();
+        assertEquals(ec.getValue("str").asString(), foundStr.get("str").asString());
+        assertEquals(ec.getValue("str2").asString(), foundStr.get("str2").asString());
 
-        Map<String, Object> foundBool = ec.getAllAttributes();
-        assertEquals(ec.getBooleanAttribute("bool"), foundBool.get("bool"));
-        assertEquals(ec.getBooleanAttribute("bool2"), foundBool.get("bool2"));
+        Map<String, Value> foundBool = ec.asMap();
+        assertEquals(ec.getValue("bool").asBoolean(), foundBool.get("bool").asBoolean());
+        assertEquals(ec.getValue("bool2").asBoolean(), foundBool.get("bool2").asBoolean());
 
-        Map<String, Object> foundInt = ec.getAllAttributes();
-        assertEquals(ec.getIntegerAttribute("int"), foundInt.get("int"));
-        assertEquals(ec.getIntegerAttribute("int2"), foundInt.get("int2"));
+        Map<String, Value> foundInt = ec.asMap();
+        assertEquals(ec.getValue("int").asInteger(), foundInt.get("int").asInteger());
+        assertEquals(ec.getValue("int2").asInteger(), foundInt.get("int2").asInteger());
 
-        Structure foundObj = ec.getStructureAttribute("obj");
-        assertEquals(1, foundObj.getIntegerAttribute("val1"));
-        assertEquals("2", foundObj.getStringAttribute("val2"));
+        Structure foundObj = ec.getValue("obj").asStructure();
+        assertEquals(1, foundObj.getValue("val1").asInteger());
+        assertEquals("2", foundObj.getValue("val2").asString());
     }
 
     @Specification(number="3.1.4", text="The evaluation context fields MUST have an unique key.")
@@ -99,10 +99,10 @@ public class EvalContextTest {
         EvaluationContext ec = new EvaluationContext();
         ec.add("key", "val");
         ec.add("key", "val2");
-        assertEquals("val2", ec.getStringAttribute("key"));
+        assertEquals("val2", ec.getValue("key").asString());
         ec.add("key", 3);
-        assertEquals(null, ec.getStringAttribute("key"));
-        assertEquals(3, ec.getIntegerAttribute("key"));
+        assertEquals(null, ec.getValue("key").asString());
+        assertEquals(3, ec.getValue("key").asInteger());
     }
 
     @Test void can_chain_attribute_addition() {
@@ -120,15 +120,15 @@ public class EvalContextTest {
                 .add("String", (String)null)
                 .add("Double", (Double)null)
                 .add("Structure", (Structure)null)
-                .add("List", (List<Object>)null)
+                .add("List", (List<Value>)null)
                 .add("ZonedDateTime", (ZonedDateTime)null);
-        assertEquals(6, ec.getAllAttributes().size());
-        assertEquals(null, ec.getBooleanAttribute("Boolean"));
-        assertEquals(null, ec.getStringAttribute("String"));
-        assertEquals(null, ec.getDoubleAttribute("Double"));
-        assertEquals(null, ec.getStructureAttribute("Structure"));
-        assertEquals(null, ec.getDoubleAttribute("List"));
-        assertEquals(null, ec.getStructureAttribute("ZonedDateTime"));
+        assertEquals(6, ec.asMap().size());
+        assertEquals(null, ec.getValue("Boolean").asBoolean());
+        assertEquals(null, ec.getValue("String").asString());
+        assertEquals(null, ec.getValue("Double").asDouble());
+        assertEquals(null, ec.getValue("Structure").asStructure());
+        assertEquals(null, ec.getValue("List").asList());
+        assertEquals(null, ec.getValue("ZonedDateTime").asString());
     }
 
     @Test void merge_targeting_key() {

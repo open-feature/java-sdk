@@ -86,7 +86,7 @@ public class EvaluationContext {
         return this;
     }
 
-    public <T> EvaluationContext add(String key, List<T> value) {
+    public <T extends Value> EvaluationContext add(String key, List<Value> value) {
         this.structure.add(key, value);
         return this;
     }

@@ -1,10 +1,13 @@
 package dev.openfeature.javasdk;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Singular;
 
-@Value
+@lombok.Value
 @Builder
 public class FlagEvaluationOptions {
     @Singular
