@@ -11,9 +11,9 @@ import lombok.experimental.Delegate;
 @ToString
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class EvaluationContext {
-    
+
     @Setter @Getter private String targetingKey;
-    @Delegate private Structure structure = new Structure();
+    @Delegate(excludes = HideDelegateAddMethods.class) private final Structure structure = new Structure();
 
     public EvaluationContext() {
         super();
@@ -55,7 +55,7 @@ public class EvaluationContext {
         return ec;
     }
 
-    // override some @Delegate methods so we can use "add" methods and still return EvaluationContext, not Structure
+    // override @Delegate methods so that we can use "add" methods and still return EvaluationContext, not Structure
     public EvaluationContext add(String key, Boolean value) {
         this.structure.add(key, value);
         return this;
@@ -86,9 +86,22 @@ public class EvaluationContext {
         return this;
     }
 
-    public <T extends Value> EvaluationContext add(String key, List<Value> value) {
+    public EvaluationContext add(String key, List<Value> value) {
         this.structure.add(key, value);
         return this;
     }
 
+    /**
+     * Hidden class to tell Lombok not to copy these methods over via delegation.
+     */
+    private static class HideDelegateAddMethods {
+        public Structure add(String ignoredKey, Boolean ignoredValue) { return null; }
+        public Structure add(String ignoredKey, Double ignoredValue) { return null; }
+        public Structure add(String ignoredKey, String ignoredValue) { return null; }
+        public Structure add(String ignoredKey, Value ignoredValue) { return null; }
+        public Structure add(String ignoredKey, Integer ignoredValue) { return null; }
+        public Structure add(String ignoredKey, List<Value> ignoredValue) { return null; }
+        public Structure add(String ignoredKey, Structure ignoredValue) { return null; }
+        public Structure add(String ignoredKey, ZonedDateTime ignoredValue) { return null; }
+    }
 }
