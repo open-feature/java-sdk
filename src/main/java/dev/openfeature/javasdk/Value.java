@@ -1,7 +1,6 @@
 package dev.openfeature.javasdk;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import lombok.EqualsAndHashCode;
@@ -43,8 +42,7 @@ public class Value {
     }
 
     public Value(ZonedDateTime value) {
-        this.innerObject = value != null 
-            ? value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME) : null;
+        this.innerObject = value;
     }
 
     /** 
@@ -107,15 +105,7 @@ public class Value {
      * @return boolean
      */
     public boolean isZonedDateTime() {
-        if (this.innerObject instanceof String) {
-            try {
-                ZonedDateTime.parse((String)this.innerObject, DateTimeFormatter.ISO_ZONED_DATE_TIME);
-            } catch (Exception e) {
-                return false;
-            }
-            return true;
-        }
-        return false;
+        return this.innerObject instanceof ZonedDateTime;
     }
     
     /** 
@@ -199,7 +189,7 @@ public class Value {
      */
     public ZonedDateTime asZonedDateTime() {
         if (this.isZonedDateTime()) {
-            return ZonedDateTime.parse((String)this.innerObject, DateTimeFormatter.ISO_ZONED_DATE_TIME);
+            return (ZonedDateTime)this.innerObject;
         }
         return null;
     }
