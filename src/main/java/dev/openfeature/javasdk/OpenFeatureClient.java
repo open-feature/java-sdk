@@ -53,7 +53,7 @@ public class OpenFeatureClient implements Client {
         FlagEvaluationOptions flagOptions = ObjectUtils.defaultIfNull(options,
             () -> FlagEvaluationOptions.builder().build());
         Map<String, Object> hints = Collections.unmodifiableMap(flagOptions.getHookHints());
-        ctx =  ObjectUtils.defaultIfNull(ctx, () -> new EvaluationContext());
+        ctx = ObjectUtils.defaultIfNull(ctx, () -> new EvaluationContext());
         FeatureProvider provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {
             log.debug("No provider configured, using no-op provider.");
             return new NoOpProvider();
@@ -62,14 +62,14 @@ public class OpenFeatureClient implements Client {
         FlagEvaluationDetails<T> details = null;
         List<Hook> mergedHooks = null;
         HookContext<T> hookCtx = null;
-        
+
         try {
 
             hookCtx = HookContext.from(key, type, this.getMetadata(),
-            openfeatureApi.getProvider().getMetadata(), ctx, defaultValue);
+                openfeatureApi.getProvider().getMetadata(), ctx, defaultValue);
 
             mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
-            openfeatureApi.getApiHooks());
+                openfeatureApi.getApiHooks());
 
             EvaluationContext ctxFromHook = hookSupport.beforeHooks(type, hookCtx, mergedHooks, hints);
 
@@ -253,38 +253,40 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx,
-                                                          FlagEvaluationOptions options) {
+                                FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.DOUBLE, key, defaultValue, ctx, options);
     }
 
     @Override
-    public <T> T getObjectValue(String key, T defaultValue) {
+    public Structure getObjectValue(String key, Structure defaultValue) {
         return getObjectDetails(key, defaultValue).getValue();
     }
 
     @Override
-    public <T> T getObjectValue(String key, T defaultValue, EvaluationContext ctx) {
+    public Structure getObjectValue(String key, Structure defaultValue, EvaluationContext ctx) {
         return getObjectDetails(key, defaultValue, ctx).getValue();
     }
 
     @Override
-    public <T> T getObjectValue(String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+    public Structure getObjectValue(String key, Structure defaultValue, EvaluationContext ctx,
+            FlagEvaluationOptions options) {
         return getObjectDetails(key, defaultValue, ctx, options).getValue();
     }
 
     @Override
-    public <T> FlagEvaluationDetails<T> getObjectDetails(String key, T defaultValue) {
+    public FlagEvaluationDetails<Structure> getObjectDetails(String key, Structure defaultValue) {
         return getObjectDetails(key, defaultValue, null);
     }
 
     @Override
-    public <T> FlagEvaluationDetails<T> getObjectDetails(String key, T defaultValue, EvaluationContext ctx) {
+    public FlagEvaluationDetails<Structure> getObjectDetails(String key, Structure defaultValue,
+                                EvaluationContext ctx) {
         return getObjectDetails(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
     }
 
     @Override
-    public <T> FlagEvaluationDetails<T> getObjectDetails(String key, T defaultValue, EvaluationContext ctx,
-                                                         FlagEvaluationOptions options) {
+    public FlagEvaluationDetails<Structure> getObjectDetails(String key, Structure defaultValue, EvaluationContext ctx,
+                                 FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.OBJECT, key, defaultValue, ctx, options);
     }
 

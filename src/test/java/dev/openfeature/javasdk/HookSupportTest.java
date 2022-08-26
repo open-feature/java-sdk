@@ -1,14 +1,20 @@
 package dev.openfeature.javasdk;
 
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import dev.openfeature.javasdk.fixtures.HookFixtures;
-import org.junit.jupiter.api.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import dev.openfeature.javasdk.fixtures.HookFixtures;
 
 class HookSupportTest implements HookFixtures {
 
@@ -16,7 +22,7 @@ class HookSupportTest implements HookFixtures {
     @DisplayName("should merge EvaluationContexts on before hooks correctly")
     void shouldMergeEvaluationContextsOnBeforeHooksCorrectly() {
         EvaluationContext baseContext = new EvaluationContext();
-        baseContext.addStringAttribute("baseKey", "baseValue");
+        baseContext.add("baseKey", "baseValue");
         HookContext<String> hookContext = new HookContext<>("flagKey", FlagValueType.STRING, "defaultValue", baseContext, () -> "client", () -> "provider");
         Hook<String> hook1 = mockStringHook();
         Hook<String> hook2 = mockStringHook();
@@ -26,9 +32,9 @@ class HookSupportTest implements HookFixtures {
 
         EvaluationContext result = hookSupport.beforeHooks(FlagValueType.STRING, hookContext, Arrays.asList(hook1, hook2), Collections.emptyMap());
 
-        assertThat(result.getStringAttribute("bla")).isEqualTo("blubber");
-        assertThat(result.getStringAttribute("foo")).isEqualTo("bar");
-        assertThat(result.getStringAttribute("baseKey")).isEqualTo("baseValue");
+        assertThat(result.getValue("bla").asString()).isEqualTo("blubber");
+        assertThat(result.getValue("foo").asString()).isEqualTo("bar");
+        assertThat(result.getValue("baseKey").asString()).isEqualTo("baseValue");
     }
 
     @ParameterizedTest
@@ -71,7 +77,7 @@ class HookSupportTest implements HookFixtures {
 
     private EvaluationContext evaluationContextWithValue(String key, String value) {
         EvaluationContext result = new EvaluationContext();
-        result.addStringAttribute(key, value);
+        result.add(key, value);
         return result;
     }
 

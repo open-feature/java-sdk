@@ -1,17 +1,33 @@
 package dev.openfeature.javasdk;
 
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 
 import dev.openfeature.javasdk.fixtures.HookFixtures;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.*;
-import org.mockito.*;
-
-import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 public class HookSpecTest implements HookFixtures {
     @AfterEach
@@ -163,7 +179,6 @@ public class HookSpecTest implements HookFixtures {
 
         verify(h, times(0)).error(any(), any(), any());
     }
-
 
     @Specification(number="4.4.1", text="The API, Client, Provider, and invocation MUST have a method for registering hooks.")
     @Specification(number="4.3.5", text="The after stage MUST run after flag resolution occurs. It accepts a hook context (required), flag evaluation details (required) and hook hints (optional). It has no return value.")
@@ -379,10 +394,10 @@ public class HookSpecTest implements HookFixtures {
         client.getBooleanValue("key", false, new EvaluationContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
 
-        order.verify(hook).before(any(),any());
+        order.verify(hook).before(any(), any());
         order.verify(provider).getBooleanEvaluation(any(), any(), any(), any());
-        order.verify(hook).after(any(),any(),any());
-        order.verify(hook).finallyAfter(any(),any());
+        order.verify(hook).after(any(), any(), any());
+        order.verify(hook).finallyAfter(any(), any());
     }
 
     @Specification(number="4.4.5", text="If an error occurs in the before or after hooks, the error hooks MUST be invoked.")
@@ -439,7 +454,6 @@ public class HookSpecTest implements HookFixtures {
         when(hook.before(any(), any())).thenReturn(Optional.empty());
         InOrder order = inOrder(hook, hook2);
 
-
         Client client = getClient(null);
         client.getBooleanValue("key", false, ctx,
                 FlagEvaluationOptions.builder()
@@ -459,19 +473,19 @@ public class HookSpecTest implements HookFixtures {
     @Specification(number="4.3.4", text="When before hooks have finished executing, any resulting evaluation context MUST be merged with the existing evaluation context in the following order: before-hook (highest precedence), invocation, client, api (lowest precedence).")
     @Test void mergeHappensCorrectly() {
         EvaluationContext hookCtx = new EvaluationContext();
-        hookCtx.addStringAttribute("test", "works");
-        hookCtx.addStringAttribute("another", "exists");
+        hookCtx.add("test", "works");
+        hookCtx.add("another", "exists");
 
         EvaluationContext invocationCtx = new EvaluationContext();
-        invocationCtx.addStringAttribute("something", "here");
-        invocationCtx.addStringAttribute("test", "broken");
+        invocationCtx.add("something", "here");
+        invocationCtx.add("test", "broken");
 
         Hook<Boolean> hook = mockBooleanHook();
         when(hook.before(any(), any())).thenReturn(Optional.of(hookCtx));
 
         FeatureProvider provider = mock(FeatureProvider.class);
-        when(provider.getBooleanEvaluation(any(),any(),any(),any())).thenReturn(ProviderEvaluation.<Boolean>builder()
-                        .value(true)
+        when(provider.getBooleanEvaluation(any(), any(), any(), any())).thenReturn(ProviderEvaluation.<Boolean>builder()
+                .value(true)
                 .build());
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
@@ -485,9 +499,9 @@ public class HookSpecTest implements HookFixtures {
         ArgumentCaptor<EvaluationContext> captor = ArgumentCaptor.forClass(EvaluationContext.class);
         verify(provider).getBooleanEvaluation(any(), any(), captor.capture(), any());
         EvaluationContext ec = captor.getValue();
-        assertEquals("works", ec.getStringAttribute("test"));
-        assertEquals("exists", ec.getStringAttribute("another"));
-        assertEquals("here", ec.getStringAttribute("something"));
+        assertEquals("works", ec.getValue("test").asString());
+        assertEquals("exists", ec.getValue("another").asString());
+        assertEquals("here", ec.getValue("something").asString());
     }
 
     @Specification(number="4.4.3", text="If a finally hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining finally hooks.")

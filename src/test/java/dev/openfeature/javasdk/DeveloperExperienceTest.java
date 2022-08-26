@@ -10,7 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import dev.openfeature.javasdk.fixtures.HookFixtures;
 
-@SuppressWarnings("unchecked")
+import java.util.Arrays;
+
 class DeveloperExperienceTest implements HookFixtures {
     transient String flagKey = "mykey";
 
@@ -55,6 +56,27 @@ class DeveloperExperienceTest implements HookFixtures {
                 FlagEvaluationOptions.builder().hook(evalHook).build());
         verify(clientHook, times(1)).finallyAfter(any(), any());
         verify(evalHook, times(1)).finallyAfter(any(), any());
+        assertFalse(retval);
+    }
+
+    /**
+     * As an application author, you probably know special things about your users. You can communicate these to the
+     * provider via {@link EvaluationContext}
+     */
+    @Test void providingContext() {
+
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider(new NoOpProvider());
+        Client client = api.getClient();
+
+        EvaluationContext ctx = new EvaluationContext()
+                .add("int-val", 3)
+                .add("double-val", 4.0)
+                .add("str-val", "works")
+                .add("bool-val", false)
+                .add("value-val", Arrays.asList(new Value(2), new Value(4)));
+
+        Boolean retval = client.getBooleanValue(flagKey, false, ctx);
         assertFalse(retval);
     }
 

@@ -90,6 +90,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertTrue(hooks.contains(m1));
         assertTrue(hooks.contains(m2));
     }
+
     @Specification(number="1.3.1", text="The client MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure, with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns the flag value.")
     @Specification(number="1.3.2.1", text="The client SHOULD provide functions for floating-point numbers and integers, consistent with language idioms.")
     @Test void value_flags() {
@@ -101,7 +102,6 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(true, c.getBooleanValue(key, false));
         assertEquals(true, c.getBooleanValue(key, false, new EvaluationContext()));
         assertEquals(true, c.getBooleanValue(key, false, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
-
 
         assertEquals("gnirts-ym", c.getStringValue(key, "my-string"));
         assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new EvaluationContext()));
@@ -115,9 +115,9 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(40.0, c.getDoubleValue(key, .4, new EvaluationContext()));
         assertEquals(40.0, c.getDoubleValue(key, .4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
 
-        assertEquals(null, c.getObjectValue(key, new Node<Integer>()));
-        assertEquals(null, c.getObjectValue(key, new Node<Integer>(), new EvaluationContext()));
-        assertEquals(null, c.getObjectValue(key, new Node<Integer>(), new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(null, c.getObjectValue(key, new Structure()));
+        assertEquals(null, c.getObjectValue(key, new Structure(), new EvaluationContext()));
+        assertEquals(null, c.getObjectValue(key, new Structure(), new EvaluationContext(), FlagEvaluationOptions.builder().build()));
     }
 
     @Specification(number="1.4.1", text="The client MUST provide methods for detailed flag value evaluation with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns an evaluation details structure.")
@@ -176,8 +176,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
         Hook<Boolean> invocationHook = mockBooleanHook();
         c.addHooks(clientHook);
         c.getBooleanValue("key", false, null, FlagEvaluationOptions.builder()
-                        .hook(invocationHook)
-                        .build());
+            .hook(invocationHook)
+            .build());
         verify(clientHook, times(1)).before(any(), any());
         verify(invocationHook, times(1)).before(any(), any());
     }
@@ -203,7 +203,6 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(Reason.ERROR, result.getReason());
         assertThat(TEST_LOGGER.getLoggingEvents()).contains(LoggingEvent.error("Unable to correctly evaluate flag with key {} due to exception {}", "test", "BORK"));
     }
-
 
     @Specification(number="1.2.2", text="The client interface MUST define a metadata member or accessor, containing an immutable name field or accessor of type string, which corresponds to the name value supplied during client creation.")
     @Test void clientMetadata() {
@@ -233,31 +232,31 @@ class FlagEvaluationSpecTest implements HookFixtures {
         api.setProvider(provider);
 
         EvaluationContext apiCtx = new EvaluationContext();
-        apiCtx.addStringAttribute("common", "1");
-        apiCtx.addStringAttribute("common2", "1");
-        apiCtx.addStringAttribute("api", "2");
+        apiCtx.add("common", "1");
+        apiCtx.add("common2", "1");
+        apiCtx.add("api", "2");
         api.setCtx(apiCtx);
 
         Client c = api.getClient();
         EvaluationContext clientCtx = new EvaluationContext();
-        clientCtx.addStringAttribute("common", "3");
-        clientCtx.addStringAttribute("common2", "3");
-        clientCtx.addStringAttribute("client", "4");
+        clientCtx.add("common", "3");
+        clientCtx.add("common2", "3");
+        clientCtx.add("client", "4");
         c.setEvaluationContext(clientCtx);
 
         EvaluationContext invocationCtx = new EvaluationContext();
-        clientCtx.addStringAttribute("common", "5");
-        clientCtx.addStringAttribute("invocation", "6");
+        clientCtx.add("common", "5");
+        clientCtx.add("invocation", "6");
 
         // dosomethingprovider inverts this value.
         assertTrue(c.getBooleanValue("key", false, invocationCtx));
 
         EvaluationContext merged = provider.getMergedContext();
-        assertEquals("6", merged.getStringAttribute("invocation"));
-        assertEquals("5", merged.getStringAttribute("common"), "invocation merge is incorrect");
-        assertEquals("4", merged.getStringAttribute("client"));
-        assertEquals("3", merged.getStringAttribute("common2"), "api client merge is incorrect");
-        assertEquals("2", merged.getStringAttribute("api"));
+        assertEquals("6", merged.getValue("invocation").asString());
+        assertEquals("5", merged.getValue("common").asString(), "invocation merge is incorrect");
+        assertEquals("4", merged.getValue("client").asString());
+        assertEquals("3", merged.getValue("common2").asString(), "api client merge is incorrect");
+        assertEquals("2", merged.getValue("api").asString());
 
     }
 

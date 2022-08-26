@@ -1,22 +1,23 @@
 package dev.openfeature.javasdk;
 
-import dev.openfeature.javasdk.internal.Pair;
-import lombok.*;
-
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-@ToString @EqualsAndHashCode
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.Delegate;
+
+@ToString
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class EvaluationContext {
+
     @Setter @Getter private String targetingKey;
-    private final Map<String, Pair<FlagValueType, Object>> attributes;
+    @Delegate(excludes = HideDelegateAddMethods.class) private final Structure structure = new Structure();
 
     public EvaluationContext() {
+        super();
         this.targetingKey = "";
-        this.attributes = new HashMap<>();
     }
 
     public EvaluationContext(String targetingKey) {
@@ -24,116 +25,9 @@ public class EvaluationContext {
         this.targetingKey = targetingKey;
     }
 
-    // TODO Not sure if I should have sneakythrows or checked exceptions here..
-    @SneakyThrows
-    public <T> EvaluationContext addStructureAttribute(String key, T value) {
-        attributes.put(key, new Pair<>(FlagValueType.OBJECT, value));
-        return this;
-    }
-
-    @SneakyThrows
-    public <T> T getStructureAttribute(String key) {
-        return getAttributeByType(key, FlagValueType.OBJECT);
-    }
-
-    public Map<String, String> getStructureAttributes() {
-        return getAttributesByType(FlagValueType.OBJECT);
-    }
-
-    public EvaluationContext addStringAttribute(String key, String value) {
-        attributes.put(key, new Pair<>(FlagValueType.STRING, value));
-        return this;
-    }
-
-    public String getStringAttribute(String key) {
-        return getAttributeByType(key, FlagValueType.STRING);
-    }
-
-    private <T> Map<String, T> getAttributesByType(FlagValueType type) {
-        HashMap<String, T> hm = new HashMap<>();
-        for (Map.Entry<String, Pair<FlagValueType, Object>> entry : attributes.entrySet()) {
-            String key = entry.getKey();
-            if (entry.getValue().getFirst() == type) {
-                hm.put(key, (T) entry.getValue().getSecond());
-            }
-        }
-        return hm;
-    }
-
     /**
-     * Get all attributes, regardless of type.
-     * @return all attributes on the context
-     */
-    public Map<String, Object> getAllAttributes() {
-        HashMap<String, Object> hm = new HashMap<>();
-        for (Map.Entry<String, Pair<FlagValueType, Object>> entry : attributes.entrySet()) {
-            hm.put(entry.getKey(), entry.getValue().getSecond());
-        }
-        return hm;
-    }
-
-    private <T> T getAttributeByType(String key, FlagValueType type) {
-        Pair<FlagValueType, Object> val = attributes.get(key);
-        if (val == null) {
-            return null;
-        }
-        if (val.getFirst() == type) {
-            return (T) val.getSecond();
-        }
-        return null;
-    }
-
-    public Map<String, String> getStringAttributes() {
-        return getAttributesByType(FlagValueType.STRING);
-    }
-
-    public EvaluationContext addIntegerAttribute(String key, Integer value) {
-        attributes.put(key, new Pair<>(FlagValueType.INTEGER, value));
-        return this;
-    }
-
-    public Integer getIntegerAttribute(String key) {
-        return getAttributeByType(key, FlagValueType.INTEGER);
-    }
-
-    public Map<String, Integer> getIntegerAttributes() {
-        return getAttributesByType(FlagValueType.INTEGER);
-    }
-
-    public Boolean getBooleanAttribute(String key) {
-        return getAttributeByType(key, FlagValueType.BOOLEAN);
-    }
-
-    public EvaluationContext addBooleanAttribute(String key, Boolean b) {
-        attributes.put(key, new Pair<>(FlagValueType.BOOLEAN, b));
-        return this;
-    }
-
-    public Map<String, Boolean> getBooleanAttributes() {
-        return getAttributesByType(FlagValueType.BOOLEAN);
-    }
-
-    public EvaluationContext addDatetimeAttribute(String key, ZonedDateTime value) {
-        attributes.put(key, new Pair<>(FlagValueType.STRING, value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)));
-        return this;
-    }
-
-    /**
-     * Fetch date-time relevant key.
-     * @param key feature key
-     * @return date time object.
-     * @throws java.time.format.DateTimeParseException if it's not a datetime
-     */
-    public ZonedDateTime getDatetimeAttribute(String key) {
-        String attr = getAttributeByType(key, FlagValueType.STRING);
-        if (attr == null) {
-            return null;
-        }
-        return ZonedDateTime.parse(attr, DateTimeFormatter.ISO_ZONED_DATE_TIME);
-    }
-
-    /**
-     * Merges two EvaluationContext objects with the second overriding the first in case of conflict.
+     * Merges two EvaluationContext objects with the second overriding the first in
+     * case of conflict.
      *
      * @param ctx1 base context
      * @param ctx2 overriding context
@@ -147,8 +41,8 @@ public class EvaluationContext {
             return ctx1;
         }
 
-        ec.attributes.putAll(ctx1.attributes);
-        ec.attributes.putAll(ctx2.attributes);
+        ec.structure.attributes.putAll(ctx1.structure.attributes);
+        ec.structure.attributes.putAll(ctx2.structure.attributes);
 
         if (ctx1.getTargetingKey() != null && !ctx1.getTargetingKey().trim().equals("")) {
             ec.setTargetingKey(ctx1.getTargetingKey());
@@ -159,5 +53,78 @@ public class EvaluationContext {
         }
 
         return ec;
+    }
+
+    // override @Delegate methods so that we can use "add" methods and still return EvaluationContext, not Structure
+    public EvaluationContext add(String key, Boolean value) {
+        this.structure.add(key, value);
+        return this;
+    }
+
+    public EvaluationContext add(String key, String value) {
+        this.structure.add(key, value);
+        return this;
+    }
+
+    public EvaluationContext add(String key, Integer value) {
+        this.structure.add(key, value);
+        return this;
+    }
+
+    public EvaluationContext add(String key, Double value) {
+        this.structure.add(key, value);
+        return this;
+    }
+
+    public EvaluationContext add(String key, ZonedDateTime value) {
+        this.structure.add(key, value);
+        return this;
+    }
+
+    public EvaluationContext add(String key, Structure value) {
+        this.structure.add(key, value);
+        return this;
+    }
+
+    public EvaluationContext add(String key, List<Value> value) {
+        this.structure.add(key, value);
+        return this;
+    }
+
+    /**
+     * Hidden class to tell Lombok not to copy these methods over via delegation.
+     */
+    private static class HideDelegateAddMethods {
+        public Structure add(String ignoredKey, Boolean ignoredValue) {
+            return null;
+        }
+        
+        public Structure add(String ignoredKey, Double ignoredValue) {
+            return null;
+        }
+
+        public Structure add(String ignoredKey, String ignoredValue) {
+            return null;
+        }
+
+        public Structure add(String ignoredKey, Value ignoredValue) {
+            return null;
+        }
+
+        public Structure add(String ignoredKey, Integer ignoredValue) {
+            return null;
+        }
+
+        public Structure add(String ignoredKey, List<Value> ignoredValue) {
+            return null;
+        }
+
+        public Structure add(String ignoredKey, Structure ignoredValue) {
+            return null;
+        }
+
+        public Structure add(String ignoredKey, ZonedDateTime ignoredValue) {
+            return null;
+        }
     }
 }

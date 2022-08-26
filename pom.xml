@@ -292,7 +292,8 @@
         <executions>
           <execution>
             <id>sign-artifacts</id>
-            <phase>verify</phase>
+            <!-- we only need to sign if we are deploying (publishing) -->
+            <phase>deploy</phase>
             <goals>
               <goal>sign</goal>
             </goals>
