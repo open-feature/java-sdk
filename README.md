@@ -17,9 +17,11 @@ This library is intended to be used in server-side contexts and has not been eva
 
 ## Usage
 
-While `Boolean` provides the simplest introduction, we offer a variety of flag types. 
+While `Boolean` provides the simplest introduction, we offer a variety of flag types.
 
 ```java
+import dev.openfeature.javasdk.Structure;
+
 class MyClass {
     public UI booleanExample() {
         // Should we render the redesign? Or the default webpage? 
@@ -28,23 +30,25 @@ class MyClass {
         }
         return render_normal();
     }
-    
+
     public Template stringExample() {
         // Get the template to load for the custom new homepage
-        String template = client.getStringValue("homepage_template", "default-homepage.html")
+        String template = client.getStringValue("homepage_template", "default-homepage.html");
         return render_template(template);
     }
-    
-    public List<Module> numberExample() {
+
+    public List<HomepageModule> numberExample() {
         // How many modules should we be fetching?
         Integer count = client.getIntegerValue("module-fetch-count", 4);
         return fetch_modules(count);
     }
-    
-    public Module structureExample() {
-        // This deserializes into the Module structure for you.
-        Module heroModule = client.getObjectValue("hero-module", myExampleModule);
-        return heroModule;
+
+    public HomepageModule structureExample() {
+        Structure obj = client.getObjectValue("hero-module", previouslyDefinedDefaultStructure);
+        return HomepageModule.builder()
+                .title(obj.getValue("title"))
+                .body(obj.getValue("description"))
+                .build();
     }
 }
 ```
@@ -109,7 +113,7 @@ We are also present on the `#openfeature` channel in the [CNCF slack](https://sl
 Thanks so much to our contributors.
 
 <a href="https://github.com/open-feature/java-sdk/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=open-feature/java-sdk" />
+  <img src="https://contrib.rocks/image?repo=open-feature/java-sdk" alt="Pictures of the folks who have contributed to the project"/>
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
