@@ -9,6 +9,13 @@ import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+// Note: We don't accept instances of T for EC b/c walking arbitrary objects to serialize them isn't quite a straight
+// forward for providers. They may not have access to tools like Jackson or Gson.
+
+/**
+ * {@link Structure} represents a potentially nested object type which is used to pass complex objects via
+ * {@link EvaluationContext}.
+ */
 @ToString
 @EqualsAndHashCode
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
