@@ -95,13 +95,36 @@ public class EvaluationContext {
      * Hidden class to tell Lombok not to copy these methods over via delegation.
      */
     private static class HideDelegateAddMethods {
-        public Structure add(String ignoredKey, Boolean ignoredValue) { return null; }
-        public Structure add(String ignoredKey, Double ignoredValue) { return null; }
-        public Structure add(String ignoredKey, String ignoredValue) { return null; }
-        public Structure add(String ignoredKey, Value ignoredValue) { return null; }
-        public Structure add(String ignoredKey, Integer ignoredValue) { return null; }
-        public Structure add(String ignoredKey, List<Value> ignoredValue) { return null; }
-        public Structure add(String ignoredKey, Structure ignoredValue) { return null; }
-        public Structure add(String ignoredKey, ZonedDateTime ignoredValue) { return null; }
+        public Structure add(String ignoredKey, Boolean ignoredValue) {
+            return null;
+        }
+        
+        public Structure add(String ignoredKey, Double ignoredValue) {
+            return null;
+        }
+
+        public Structure add(String ignoredKey, String ignoredValue) {
+            return null;
+        }
+
+        public Structure add(String ignoredKey, Value ignoredValue) {
+            return null;
+        }
+
+        public Structure add(String ignoredKey, Integer ignoredValue) {
+            return null;
+        }
+
+        public Structure add(String ignoredKey, List<Value> ignoredValue) {
+            return null;
+        }
+
+        public Structure add(String ignoredKey, Structure ignoredValue) {
+            return null;
+        }
+
+        public Structure add(String ignoredKey, ZonedDateTime ignoredValue) {
+            return null;
+        }
     }
 }
