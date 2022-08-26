@@ -6,6 +6,11 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+/**
+ * Values server as a return type for provider objects. Providers may deal in protobufs or JSON in the backend and
+ * have no reasonable way to convert that into a type that users care about (e.g. an instance of `T`). This
+ * intermediate representation should provide a good medium of exchange.
+ */
 @ToString
 @EqualsAndHashCode
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
@@ -170,14 +175,15 @@ public class Value {
         return null;
     }
     
-    /** 
+    /**
      * Retrieve the underlying List value, or null.
-     * 
+     *
      * @return List
      */
     public List<Value> asList() {
         if (this.isList()) {
-            return (List)this.innerObject;
+            //noinspection rawtypes,unchecked
+            return (List) this.innerObject;
         }
         return null;
     }
