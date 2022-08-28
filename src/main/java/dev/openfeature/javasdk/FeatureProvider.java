@@ -25,6 +25,6 @@ public interface FeatureProvider {
     ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx,
                                                    FlagEvaluationOptions options);
 
-    <T> ProviderEvaluation<T> getObjectEvaluation(String key, T defaultValue, EvaluationContext invocationContext,
-                                                  FlagEvaluationOptions options);
+    ProviderEvaluation<Structure> getObjectEvaluation(String key, Structure defaultValue,
+                                                    EvaluationContext invocationContext, FlagEvaluationOptions options);
 }

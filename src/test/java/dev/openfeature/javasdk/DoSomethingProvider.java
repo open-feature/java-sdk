@@ -44,9 +44,9 @@ public class DoSomethingProvider implements FeatureProvider {
     }
 
     @Override
-    public <T> ProviderEvaluation<T> getObjectEvaluation(String key, T defaultValue, EvaluationContext invocationContext, FlagEvaluationOptions options) {
+    public ProviderEvaluation<Structure> getObjectEvaluation(String key, Structure defaultValue, EvaluationContext invocationContext, FlagEvaluationOptions options) {
         savedContext = invocationContext;
-        return ProviderEvaluation.<T>builder()
+        return ProviderEvaluation.<Structure>builder()
                 .value(null)
                 .build();
     }
