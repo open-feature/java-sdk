@@ -33,7 +33,7 @@ public class AlwaysBrokenProvider implements FeatureProvider {
     }
 
     @Override
-    public <T> ProviderEvaluation<T> getObjectEvaluation(String key, T defaultValue, EvaluationContext invocationContext, FlagEvaluationOptions options) {
+    public ProviderEvaluation<Structure> getObjectEvaluation(String key, Structure defaultValue, EvaluationContext invocationContext, FlagEvaluationOptions options) {
         throw new NotImplementedException("BORK");
     }
 }

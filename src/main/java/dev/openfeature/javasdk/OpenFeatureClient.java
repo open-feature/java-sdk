@@ -123,7 +123,7 @@ public class OpenFeatureClient implements Client {
             case DOUBLE:
                 return provider.getDoubleEvaluation(key, (Double) defaultValue, invocationContext, options);
             case OBJECT:
-                return provider.getObjectEvaluation(key, defaultValue, invocationContext, options);
+                return provider.getObjectEvaluation(key, (Structure) defaultValue, invocationContext, options);
             default:
                 throw new GeneralError("Unknown flag type");
         }
