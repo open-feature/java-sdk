@@ -285,9 +285,16 @@
       <!-- end source & javadoc -->
 
       <!-- sign the jars -->
+      <!-- see https://gist.github.com/sualeh/ae78dc16123899d7942bc38baba5203c -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
+        <configuration>
+          <gpgArguments>
+            <arg>--pinentry-mode</arg>
+            <arg>loopback</arg>
+          </gpgArguments>
+        </configuration>
         <version>1.5</version>
       </plugin>
       <!-- end sign -->
