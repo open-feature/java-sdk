@@ -289,7 +289,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
         <version>1.5</version>
-        </executions>
       </plugin>
       <!-- end sign -->
 
