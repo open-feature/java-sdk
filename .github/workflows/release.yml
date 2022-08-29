@@ -45,7 +45,7 @@ jobs:
         mvn --batch-mode --update-snapshots verify gpg:sign -Dversion.modifier=''
         ls
         ls *
-        gpg --verify target/javasdk-0.1.0-SNAPSHOT-sources.jar.asc target/javasdk-0.1.0-SNAPSHOT-sources.jar
+        gpg --verify target/javasdk-0.1.0-sources.jar.asc target/javasdk-0.1.0-sources.jar
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
