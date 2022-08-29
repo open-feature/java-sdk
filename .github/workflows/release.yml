@@ -43,6 +43,8 @@ jobs:
     - name: Build with Maven
       run: |
         mvn --batch-mode --update-snapshots verify gpg:sign -Dversion.modifier=''
+        ls
+        ls *
         gpg --verify target/javasdk-0.1.0-SNAPSHOT-sources.jar.asc target/javasdk-0.1.0-SNAPSHOT-sources.jar
 
     - name: Upload coverage to Codecov
