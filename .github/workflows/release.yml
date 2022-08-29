@@ -55,8 +55,12 @@ jobs:
         name: coverage # optional
         fail_ci_if_error: true # optional (default = false)
         verbose: true # optional (default = false)
+
     - name: Deploy
       run: |
+        ls
+        ls *
+        gpg --verify target/javasdk-0.1.0-sources.jar.asc target/javasdk-0.1.0-sources.jar
         mvn -P gpg_verify \
           --no-transfer-progress \
           --batch-mode \
