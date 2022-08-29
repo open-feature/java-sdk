@@ -19,4 +19,10 @@ If something went wrong above, here's how you reset.
 1. Save the release notes you wrote.
 2. Delete the release.
 3. Delete the tag with `git push --delete  origin 0.1.0` where 0.1.0 is your tag name.
-4. 
+
+```shell
+gh release delete 0.1.0 -y
+git push --delete  origin 0.1.0
+
+gh release create 0.1.0 -F /tmp/010-release.md -t 0.1.0
+```
