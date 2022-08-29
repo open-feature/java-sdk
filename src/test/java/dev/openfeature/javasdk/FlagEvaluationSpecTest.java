@@ -225,7 +225,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     }
 
     @Specification(number="3.2.1", text="The API, Client and invocation MUST have a method for supplying evaluation context.")
-    @Specification(number="3.2.2", text="Evaluation context MUST be merged in the order: API (global) - client - invocation, with duplicate values being overwritten.")
+    @Specification(number="3.2.2", text="Evaluation context MUST be merged in the order: API (global; lowest precedence) - client - invocation - before hooks (highest precedence), with duplicate values being overwritten.")
     @Test void multi_layer_context_merges_correctly() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         DoSomethingProvider provider = new DoSomethingProvider();
@@ -265,9 +265,6 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @Specification(number="1.1.6", text="The client creation function MUST NOT throw, or otherwise abnormally terminate.")
     @Test void constructor_does_not_throw() {}
-
-    @Specification(number="1.6.1", text="The client SHOULD transform the evaluation context using the provider's context transformer function if one is defined, before passing the result of the transformation to the provider's flag resolution functions.")
-    @Test void not_doing_unless_someone_has_a_good_reason_why() {}
 
     @Specification(number="1.4.11", text="The client SHOULD provide asynchronous or non-blocking mechanisms for flag evaluation.")
     @Test void one_thread_per_request_model() {}

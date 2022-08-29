@@ -19,8 +19,8 @@ public class ProviderSpecTest {
             "flag resolution structure's value field with the resolved flag value.")
     @Specification(number="2.2", text="The feature provider interface MUST define methods to resolve " +
             "flag values, with parameters flag key (string, required), default value " +
-            "(boolean | number | string | structure, required), evaluation context (optional), and " +
-            "evaluation options (optional), which returns a flag resolution structure.")
+            "(boolean | number | string | structure, required) and evaluation context (optional), " +
+            "which returns a flag resolution structure.")
     @Specification(number="2.9.1", text="The flag resolution structure SHOULD accept a generic " +
             "argument (or use an equivalent language feature) which indicates the type of the wrapped value field.")
     @Test void flag_value_set() {

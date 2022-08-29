@@ -470,7 +470,7 @@ public class HookSpecTest implements HookFixtures {
 
     }
 
-    @Specification(number="4.3.4", text="When before hooks have finished executing, any resulting evaluation context MUST be merged with the existing evaluation context in the following order: before-hook (highest precedence), invocation, client, api (lowest precedence).")
+    @Specification(number="4.3.4", text="When before hooks have finished executing, any resulting evaluation context MUST be merged with the existing evaluation context.")
     @Test void mergeHappensCorrectly() {
         EvaluationContext hookCtx = new EvaluationContext();
         hookCtx.add("test", "works");

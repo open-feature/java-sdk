@@ -12,7 +12,7 @@ def _demarkdown(t):
 def get_spec(force_refresh=False):
     spec_path = './specification.json'
     data = ""
-    if os.path.exists(spec_path):
+    if os.path.exists(spec_path) and not force_refresh:
         with open(spec_path) as f:
             data = ''.join(f.readlines())
     else:
