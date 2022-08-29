@@ -58,13 +58,11 @@ jobs:
 
     - name: Deploy
       run: |
-        ls
-        ls *
         gpg --verify target/javasdk-0.1.0-sources.jar.asc target/javasdk-0.1.0-sources.jar
         mvn -P gpg_verify \
           --no-transfer-progress \
           --batch-mode \
-          --file pom.xml -s release/m2-settings.xml verify gpg:sign deploy -Dversion.modifier=''
+          --file pom.xml -s release/m2-settings.xml deploy -Dversion.modifier=''
       env:
         OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
