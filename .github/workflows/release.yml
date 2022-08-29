@@ -54,7 +54,7 @@ jobs:
         mvn -P gpg_verify \
           --no-transfer-progress \
           --batch-mode \
-          --file pom.xml -s release/m2-settings.xml verify sign deploy -Dversion.modifier=''
+          --file pom.xml -s release/m2-settings.xml verify gpg:sign deploy -Dversion.modifier=''
       env:
         OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
