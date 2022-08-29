@@ -41,7 +41,9 @@ jobs:
         GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
 
     - name: Build with Maven
-      run: mvn --batch-mode --update-snapshots verify gpg:sign -Dversion.modifier=''
+      run: |
+      mvn --batch-mode --update-snapshots verify gpg:sign -Dversion.modifier=''
+      gpg --verify javasdk-0.1.0-SNAPSHOT-sources.jar.asc javasdk-0.1.0-SNAPSHOT-sources.jar
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
