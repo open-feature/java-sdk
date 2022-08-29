@@ -382,7 +382,7 @@ public class HookSpecTest implements HookFixtures {
     @Test void flag_eval_hook_order() {
         Hook hook = mockBooleanHook();
         FeatureProvider provider = mock(FeatureProvider.class);
-        when(provider.getBooleanEvaluation(any(), any(), any(), any()))
+        when(provider.getBooleanEvaluation(any(), any(), any()))
                 .thenReturn(ProviderEvaluation.<Boolean>builder()
                         .value(true)
                         .build());
@@ -395,7 +395,7 @@ public class HookSpecTest implements HookFixtures {
                 FlagEvaluationOptions.builder().hook(hook).build());
 
         order.verify(hook).before(any(), any());
-        order.verify(provider).getBooleanEvaluation(any(), any(), any(), any());
+        order.verify(provider).getBooleanEvaluation(any(), any(), any());
         order.verify(hook).after(any(), any(), any());
         order.verify(hook).finallyAfter(any(), any());
     }
@@ -484,7 +484,7 @@ public class HookSpecTest implements HookFixtures {
         when(hook.before(any(), any())).thenReturn(Optional.of(hookCtx));
 
         FeatureProvider provider = mock(FeatureProvider.class);
-        when(provider.getBooleanEvaluation(any(), any(), any(), any())).thenReturn(ProviderEvaluation.<Boolean>builder()
+        when(provider.getBooleanEvaluation(any(), any(), any())).thenReturn(ProviderEvaluation.<Boolean>builder()
                 .value(true)
                 .build());
 
@@ -497,7 +497,7 @@ public class HookSpecTest implements HookFixtures {
                         .build());
 
         ArgumentCaptor<EvaluationContext> captor = ArgumentCaptor.forClass(EvaluationContext.class);
-        verify(provider).getBooleanEvaluation(any(), any(), captor.capture(), any());
+        verify(provider).getBooleanEvaluation(any(), any(), captor.capture());
         EvaluationContext ec = captor.getValue();
         assertEquals("works", ec.getValue("test").asString());
         assertEquals("exists", ec.getValue("another").asString());

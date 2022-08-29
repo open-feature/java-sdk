@@ -115,15 +115,15 @@ public class OpenFeatureClient implements Client {
     ) {
         switch (type) {
             case BOOLEAN:
-                return provider.getBooleanEvaluation(key, (Boolean) defaultValue, invocationContext, options);
+                return provider.getBooleanEvaluation(key, (Boolean) defaultValue, invocationContext);
             case STRING:
-                return provider.getStringEvaluation(key, (String) defaultValue, invocationContext, options);
+                return provider.getStringEvaluation(key, (String) defaultValue, invocationContext);
             case INTEGER:
-                return provider.getIntegerEvaluation(key, (Integer) defaultValue, invocationContext, options);
+                return provider.getIntegerEvaluation(key, (Integer) defaultValue, invocationContext);
             case DOUBLE:
-                return provider.getDoubleEvaluation(key, (Double) defaultValue, invocationContext, options);
+                return provider.getDoubleEvaluation(key, (Double) defaultValue, invocationContext);
             case OBJECT:
-                return provider.getObjectEvaluation(key, (Structure) defaultValue, invocationContext, options);
+                return provider.getObjectEvaluation(key, (Structure) defaultValue, invocationContext);
             default:
                 throw new GeneralError("Unknown flag type");
         }

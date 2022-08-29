@@ -21,8 +21,7 @@ public class NoOpProvider implements FeatureProvider {
     }
 
     @Override
-    public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx,
-                                                            FlagEvaluationOptions options) {
+    public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
         return ProviderEvaluation.<Boolean>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
@@ -31,8 +30,7 @@ public class NoOpProvider implements FeatureProvider {
     }
 
     @Override
-    public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx,
-                                                          FlagEvaluationOptions options) {
+    public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
         return ProviderEvaluation.<String>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
@@ -41,8 +39,7 @@ public class NoOpProvider implements FeatureProvider {
     }
 
     @Override
-    public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx,
-                                                            FlagEvaluationOptions options) {
+    public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
         return ProviderEvaluation.<Integer>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
@@ -51,8 +48,7 @@ public class NoOpProvider implements FeatureProvider {
     }
 
     @Override
-    public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx,
-                                                          FlagEvaluationOptions options) {
+    public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
         return ProviderEvaluation.<Double>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
@@ -62,8 +58,7 @@ public class NoOpProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<Structure> getObjectEvaluation(String key, Structure defaultValue,
-                                                         EvaluationContext invocationContext,
-                                                         FlagEvaluationOptions options) {
+                                                         EvaluationContext invocationContext) {
         return ProviderEvaluation.<Structure>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)

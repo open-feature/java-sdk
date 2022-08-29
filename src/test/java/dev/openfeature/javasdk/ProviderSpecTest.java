@@ -24,19 +24,19 @@ public class ProviderSpecTest {
     @Specification(number="2.9.1", text="The flag resolution structure SHOULD accept a generic " +
             "argument (or use an equivalent language feature) which indicates the type of the wrapped value field.")
     @Test void flag_value_set() {
-        ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new EvaluationContext());
         assertNotNull(int_result.getValue());
 
-        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new EvaluationContext());
         assertNotNull(double_result.getValue());
 
-        ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", new EvaluationContext());
         assertNotNull(string_result.getValue());
 
-        ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, new EvaluationContext());
         assertNotNull(boolean_result.getValue());
 
-        ProviderEvaluation<Structure> object_result = p.getObjectEvaluation("key", new Structure(), new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        ProviderEvaluation<Structure> object_result = p.getObjectEvaluation("key", new Structure(), new EvaluationContext());
         assertNotNull(object_result.getValue());
 
     }
@@ -44,14 +44,14 @@ public class ProviderSpecTest {
     @Specification(number="2.6", text="The provider SHOULD populate the flag resolution structure's " +
             "reason field with a string indicating the semantic reason for the returned flag value.")
     @Test void has_reason() {
-        ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new EvaluationContext());
         assertEquals(Reason.DEFAULT, result.getReason());
     }
 
     @Specification(number="2.7", text="In cases of normal execution, the provider MUST NOT populate " +
             "the flag resolution structure's error code field, or otherwise must populate it with a null or falsy value.")
     @Test void no_error_code_by_default() {
-        ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new EvaluationContext());
         assertNull(result.getErrorCode());
     }
 
@@ -63,16 +63,16 @@ public class ProviderSpecTest {
     @Specification(number="2.5", text="In cases of normal execution, the provider SHOULD populate the " +
             "flag resolution structure's variant field with a string identifier corresponding to the returned flag value.")
     @Test void variant_set() {
-        ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new EvaluationContext());
         assertNotNull(int_result.getReason());
 
-        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new EvaluationContext());
         assertNotNull(double_result.getReason());
 
-        ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", new EvaluationContext());
         assertNotNull(string_result.getReason());
 
-        ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, new EvaluationContext(), FlagEvaluationOptions.builder().build());
+        ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, new EvaluationContext());
         assertNotNull(boolean_result.getReason());
     }
 
