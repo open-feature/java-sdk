@@ -85,7 +85,7 @@ public class OpenFeatureClient implements Client {
             );
 
             ProviderEvaluation<T> providerEval = (ProviderEvaluation<T>) createProviderEvaluation(type, key,
-                    defaultValue, options, provider, mergedCtx);
+                    defaultValue, provider, mergedCtx);
 
             details = FlagEvaluationDetails.from(providerEval, key);
             hookSupport.afterHooks(type, hookCtx, details, mergedHooks, hints);
@@ -109,7 +109,6 @@ public class OpenFeatureClient implements Client {
             FlagValueType type,
             String key,
             T defaultValue,
-            FlagEvaluationOptions options,
             FeatureProvider provider,
             EvaluationContext invocationContext
     ) {
