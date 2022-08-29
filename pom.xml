@@ -289,15 +289,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
         <version>1.5</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <!-- we only need to sign if we are deploying (publishing) -->
-            <phase>deploy</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
         </executions>
       </plugin>
       <!-- end sign -->
