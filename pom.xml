@@ -292,7 +292,7 @@
         <executions>
             <execution>
                 <id>sign-artifacts</id>
-                <phase>deploy</phase>
+                <phase>package</phase>
                 <goals>
                     <goal>sign</goal>
                 </goals>
@@ -381,13 +381,11 @@
     </plugins>
   </build>
 
-
   <distributionManagement>
     <snapshotRepository>
       <id>ossrh</id>
       <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
-
 
 </project>
