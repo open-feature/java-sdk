@@ -36,33 +36,13 @@ jobs:
     - name: Configure GPG Key
       run: |
         echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
-        gpg --list-secret-keys --keyid-format LONG
       env:
         GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
 
-    - name: Build with Maven
-      run: |
-        mvn --batch-mode --update-snapshots verify gpg:sign -Dversion.modifier=''
-        ls
-        ls *
-        gpg --verify target/javasdk-0.1.0-sources.jar.asc target/javasdk-0.1.0-sources.jar
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        flags: unittests # optional
-        name: coverage # optional
-        fail_ci_if_error: true # optional (default = false)
-        verbose: true # optional (default = false)
-
     - name: Deploy
-      run: |
-        gpg --verify target/javasdk-0.1.0-sources.jar.asc target/javasdk-0.1.0-sources.jar
-        mvn -P gpg_verify \
-          --no-transfer-progress \
-          --batch-mode \
-          --file pom.xml -s release/m2-settings.xml deploy -Dversion.modifier=''
+      run: |        
+        mvn --batch-mode \
+          --settings release/m2-settings.xml clean deploy -Dversion.modifier=''
       env:
         OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
