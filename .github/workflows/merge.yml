@@ -56,12 +56,11 @@ jobs:
         name: coverage # optional
         fail_ci_if_error: true # optional (default = false)
         verbose: true # optional (default = false)
+    
     - name: Deploy
       run: |
-        mvn -P gpg_verify \
-          --no-transfer-progress \
-          --batch-mode \
-          --file pom.xml -s release/m2-settings.xml verify deploy
+        mvn --batch-mode \
+          --settings release/m2-settings.xml clean deploy
       env:
         OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
