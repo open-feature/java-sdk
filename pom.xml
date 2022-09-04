@@ -4,11 +4,9 @@
 
   <groupId>dev.openfeature</groupId>
   <artifactId>javasdk</artifactId>
-  <version>0.1.0${version.modifier}</version>
+  <version>0.1.1-SNAPSHOT</version>
 
   <properties>
-    <!-- During releases, we override this to make it empty -->
-    <version.modifier>-SNAPSHOT</version.modifier>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>

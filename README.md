@@ -65,7 +65,7 @@ class MyClass {
 <dependency>
     <groupId>dev.openfeature</groupId>
     <artifactId>javasdk</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
 </dependency>
 ```
 
@@ -87,7 +87,7 @@ If you would like snapshot builds, this is the relevant repository information:
 #### Gradle
 ```groovy
 dependencies {
-    implementation 'dev.openfeature:javasdk:0.1.0'
+    implementation 'dev.openfeature:javasdk:0.1.1'
 }
 ```
 
