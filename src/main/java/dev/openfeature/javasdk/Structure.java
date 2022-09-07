@@ -41,6 +41,11 @@ public class Structure {
     }
 
     // adders
+    public Structure add(String key, Value value) {
+        attributes.put(key, value);
+        return this;
+    }
+
     public Structure add(String key, Boolean value) {
         attributes.put(key, new Value(value));
         return this;
