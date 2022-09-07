@@ -7,9 +7,9 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * Values server as a return type for provider objects. Providers may deal in protobufs or JSON in the backend and
- * have no reasonable way to convert that into a type that users care about (e.g. an instance of `T`). This
- * intermediate representation should provide a good medium of exchange.
+ * Values serve as a return type for provider objects.
+ * Providers may deal in JSON, protobuf, XML or some other data-interchange format.
+ * This intermediate representation provides a good medium of exchange.
  */
 @ToString
 @EqualsAndHashCode
@@ -17,6 +17,10 @@ import lombok.ToString;
 public class Value {
 
     private final Object innerObject;
+
+    public Value() {
+        this.innerObject = null; 
+    }
 
     public Value(Value value) {
         this.innerObject = value.innerObject; 
@@ -31,7 +35,7 @@ public class Value {
     }
 
     public Value(Integer value) {
-        this.innerObject = value; 
+        this.innerObject = value.doubleValue(); 
     }
 
     public Value(Double value) {
@@ -48,6 +52,15 @@ public class Value {
 
     public Value(ZonedDateTime value) {
         this.innerObject = value;
+    }
+
+    /** 
+     * Check if this Value represents null.
+     * 
+     * @return boolean
+     */
+    public boolean isNull() {
+        return this.innerObject == null;
     }
 
     /** 
@@ -69,20 +82,11 @@ public class Value {
     }
 
     /** 
-     * Check if this Value represents an Integer.
+     * Check if this Value represents a numeric value.
      * 
      * @return boolean
      */
-    public boolean isInteger() {
-        return this.innerObject instanceof Integer;
-    }
-
-    /** 
-     * Check if this Value represents a Double.
-     * 
-     * @return boolean
-     */
-    public boolean isDouble() {
+    public boolean isNumber() {
         return this.innerObject instanceof Double;
     }
 
@@ -140,24 +144,25 @@ public class Value {
     }
 
     /** 
-     * Retrieve the underlying Integer value, or null.
+     * Retrieve the underlying numeric value as an Integer, or null.
+     * If the value is not an integer, it will be rounded using Math.round().
      * 
      * @return Integer
      */
     public Integer asInteger() {
-        if (this.isInteger()) {
-            return (Integer)this.innerObject;
+        if (this.isNumber()) {
+            return (int)Math.round((Double)this.innerObject);
         }
         return null;
     }
     
     /** 
-     * Retrieve the underlying Double value, or null.
+     * Retrieve the underlying numeric value as a Double, or null.
      * 
      * @return Double
      */
     public Double asDouble() {
-        if (this.isDouble()) {
+        if (this.isNumber()) {
             return (Double)this.innerObject;
         }
         return null;
