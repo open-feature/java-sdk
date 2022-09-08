@@ -78,7 +78,7 @@ public class OpenFeatureClient implements Client {
             // merge of: API.context, client.context, invocation.context
             EvaluationContext mergedCtx = EvaluationContext.merge(
                     EvaluationContext.merge(
-                            openfeatureApi.getCtx(),
+                            openfeatureApi.getEvaluationContext(),
                             this.getEvaluationContext()
                     ),
                     invocationCtx
