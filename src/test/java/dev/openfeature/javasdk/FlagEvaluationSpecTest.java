@@ -33,7 +33,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @AfterEach void reset_ctx() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setCtx(null);
+        api.setEvaluationContext(null);
     }
 
     @Specification(number="1.1.1", text="The API, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the API are present at runtime.")
@@ -235,7 +235,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         apiCtx.add("common", "1");
         apiCtx.add("common2", "1");
         apiCtx.add("api", "2");
-        api.setCtx(apiCtx);
+        api.setEvaluationContext(apiCtx);
 
         Client c = api.getClient();
         EvaluationContext clientCtx = new EvaluationContext();
