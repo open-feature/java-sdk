@@ -115,9 +115,9 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(40.0, c.getDoubleValue(key, .4, new EvaluationContext()));
         assertEquals(40.0, c.getDoubleValue(key, .4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
 
-        assertEquals(null, c.getObjectValue(key, new Structure()));
-        assertEquals(null, c.getObjectValue(key, new Structure(), new EvaluationContext()));
-        assertEquals(null, c.getObjectValue(key, new Structure(), new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(null, c.getObjectValue(key, new Value()));
+        assertEquals(null, c.getObjectValue(key, new Value(), new EvaluationContext()));
+        assertEquals(null, c.getObjectValue(key, new Value(), new EvaluationContext(), FlagEvaluationOptions.builder().build()));
     }
 
     @Specification(number="1.4.1", text="The client MUST provide methods for detailed flag value evaluation with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns an evaluation details structure.")

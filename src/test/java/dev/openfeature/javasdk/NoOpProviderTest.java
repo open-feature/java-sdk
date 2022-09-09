@@ -30,10 +30,10 @@ public class NoOpProviderTest {
         assertEquals(0.4, eval.getValue());
     }
 
-    @Test void structure() {
+    @Test void value() {
         NoOpProvider p = new NoOpProvider();
-        Structure s = new Structure();
-        ProviderEvaluation<Structure> eval = p.getObjectEvaluation("key", s, null);
+        Value s = new Value();
+        ProviderEvaluation<Value> eval = p.getObjectEvaluation("key", s, null);
         assertEquals(s, eval.getValue());
     }
 }

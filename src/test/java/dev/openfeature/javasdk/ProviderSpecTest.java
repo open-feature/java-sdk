@@ -36,7 +36,7 @@ public class ProviderSpecTest {
         ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, new EvaluationContext());
         assertNotNull(boolean_result.getValue());
 
-        ProviderEvaluation<Structure> object_result = p.getObjectEvaluation("key", new Structure(), new EvaluationContext());
+        ProviderEvaluation<Value> object_result = p.getObjectEvaluation("key", new Value(), new EvaluationContext());
         assertNotNull(object_result.getValue());
 
     }

@@ -21,5 +21,5 @@ public interface FeatureProvider {
 
     ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx);
 
-    ProviderEvaluation<Structure> getObjectEvaluation(String key, Structure defaultValue, EvaluationContext ctx);
+    ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx);
 }

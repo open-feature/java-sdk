@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * Values serve as a return type for provider objects.
+ * Values serve as a generic return type for structure data from providers.
  * Providers may deal in JSON, protobuf, XML or some other data-interchange format.
  * This intermediate representation provides a good medium of exchange.
  */

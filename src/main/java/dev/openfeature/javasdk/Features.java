@@ -57,19 +57,19 @@ public interface Features {
     FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx,
                                                    FlagEvaluationOptions options);
 
-    Structure getObjectValue(String key, Structure defaultValue);
+    Value getObjectValue(String key, Value defaultValue);
 
-    Structure getObjectValue(String key, Structure defaultValue, EvaluationContext ctx);
+    Value getObjectValue(String key, Value defaultValue, EvaluationContext ctx);
 
-    Structure getObjectValue(String key, Structure defaultValue, EvaluationContext ctx,
+    Value getObjectValue(String key, Value defaultValue, EvaluationContext ctx,
             FlagEvaluationOptions options);
 
-    FlagEvaluationDetails<Structure> getObjectDetails(String key, Structure defaultValue);
+    FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue);
 
-    FlagEvaluationDetails<Structure> getObjectDetails(String key, Structure defaultValue,
+    FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue,
             EvaluationContext ctx);
 
-    FlagEvaluationDetails<Structure> getObjectDetails(String key, Structure defaultValue,
+    FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue,
             EvaluationContext ctx,
             FlagEvaluationOptions options);
 }
