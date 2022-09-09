@@ -19,11 +19,27 @@ public class Value {
     private final Object innerObject;
 
     public Value() {
-        this.innerObject = null; 
+        this.innerObject = null;
     }
 
-    public Value(Object value) {
-        this.innerObject = value; 
+    /**
+     * Construct a new Value with an Object.
+     * @param value to be wrapped.
+     * @throws InstantiationException if value is not a valid type
+     *      (boolean, string, int, double, list, structure, instant)
+     */
+    public Value(Object value) throws InstantiationException {
+        // integer is a special case, convert those.
+        this.innerObject = value instanceof Integer ? ((Integer)value).doubleValue() : value;
+        if (!this.isNull()
+            && !this.isBoolean()
+            && !this.isString()
+            && !this.isNumber()
+            && !this.isStructure()
+            && !this.isList()
+            && !this.isInstant()) {
+            throw new InstantiationException("Invalid value type: " + value.getClass());
+        }
     }
 
     public Value(Value value) {

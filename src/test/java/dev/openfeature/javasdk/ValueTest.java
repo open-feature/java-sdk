@@ -1,7 +1,9 @@
 package dev.openfeature.javasdk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -16,9 +18,44 @@ public class ValueTest {
     }
 
     @Test public void objectArgShouldContainObject() {
-        Object innerValue = new Object();
-        Value value = new Value(innerValue);
-        assertEquals(innerValue, value.asObject());
+        try {
+            // int is a special case, see intObjectArgShouldConvertToInt()
+            List<Object> list = new ArrayList<>();
+            list.add(true);
+            list.add("val");
+            list.add(.5);
+            list.add(new Structure());
+            list.add(new ArrayList<Value>());
+            list.add(Instant.now());
+
+            int i = 0;
+            for (Object l: list) {
+                Value value = new Value(l);
+                assertEquals(list.get(i), value.asObject());
+                i++;
+            }
+        } catch (Exception e) {
+            fail("No exception expected.");
+        }
+    }
+
+    @Test public void intObjectArgShouldConvertToInt() {
+        try {
+            Object innerValue = 1;
+            Value value = new Value(innerValue);
+            assertEquals(innerValue, value.asInteger());
+        } catch (Exception e) {
+            fail("No exception expected.");
+        }
+    }
+
+    @Test public void invalidObjectArgShouldThrow() {
+
+        class Something {}
+
+        assertThrows(InstantiationException.class, () -> {
+            new Value(new Something());
+        });
     }
 
     @Test public void boolArgShouldContainBool() {
