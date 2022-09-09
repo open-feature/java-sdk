@@ -3,7 +3,7 @@ package dev.openfeature.javasdk;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,10 +50,10 @@ public class ValueTest {
     }
 
     @Test public void dateShouldContainDate() {
-        ZonedDateTime innerValue = ZonedDateTime.now();
+        Instant innerValue = Instant.now();
         Value value = new Value(innerValue);
-        assertTrue(value.isZonedDateTime());
-        assertEquals(innerValue, value.asZonedDateTime());
+        assertTrue(value.isInstant());
+        assertEquals(innerValue, value.asInstant());
     }
 
     @Test public void structureShouldContainStructure() {

@@ -1,6 +1,6 @@
 package dev.openfeature.javasdk;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import lombok.EqualsAndHashCode;
@@ -54,7 +54,7 @@ public class Value {
         this.innerObject = value; 
     }
 
-    public Value(ZonedDateTime value) {
+    public Value(Instant value) {
         this.innerObject = value;
     }
 
@@ -113,12 +113,12 @@ public class Value {
     }
 
     /** 
-     * Check if this Value represents a ZonedDateTime.
+     * Check if this Value represents an Instant.
      * 
      * @return boolean
      */
-    public boolean isZonedDateTime() {
-        return this.innerObject instanceof ZonedDateTime;
+    public boolean isInstant() {
+        return this.innerObject instanceof Instant;
     }
     
     /** 
@@ -207,13 +207,13 @@ public class Value {
     }
 
     /** 
-     * Retrieve the underlying ZonedDateTime value, or null.
+     * Retrieve the underlying Instant value, or null.
      * 
-     * @return ZonedDateTime
+     * @return Instant
      */
-    public ZonedDateTime asZonedDateTime() {
-        if (this.isZonedDateTime()) {
-            return (ZonedDateTime)this.innerObject;
+    public Instant asInstant() {
+        if (this.isInstant()) {
+            return (Instant)this.innerObject;
         }
         return null;
     }
