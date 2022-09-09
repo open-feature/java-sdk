@@ -22,6 +22,10 @@ public class Value {
         this.innerObject = null; 
     }
 
+    public Value(Object value) {
+        this.innerObject = value; 
+    }
+
     public Value(Value value) {
         this.innerObject = value.innerObject; 
     }
@@ -131,6 +135,15 @@ public class Value {
         return null;
     }
     
+    /** 
+     * Retrieve the underlying object.
+     * 
+     * @return Object
+     */
+    public Object asObject() {
+        return this.innerObject;
+    }
+
     /** 
      * Retrieve the underlying String value, or null.
      * 

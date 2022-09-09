@@ -15,6 +15,12 @@ public class ValueTest {
         assertTrue(value.isNull());
     }
 
+    @Test public void objectArgShouldContainObject() {
+        Object innerValue = new Object();
+        Value value = new Value(innerValue);
+        assertEquals(innerValue, value.asObject());
+    }
+
     @Test public void boolArgShouldContainBool() {
         boolean innerValue = true;
         Value value = new Value(innerValue);
