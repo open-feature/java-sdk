@@ -110,4 +110,28 @@ public class ValueTest {
         assertTrue(value.isList());
         assertEquals(ITEM_VALUE, value.asList().get(0).asString());
     }
+
+    @Test public void listMustBeOfValues() {
+        String item = "item";
+        List<String> list = new ArrayList<>();
+        list.add(item);
+        try {
+            new Value((Object) list);
+            fail("Should fail due to creation of list of non-values.");
+        } catch (InstantiationException e) {
+            assertEquals("Invalid value type: class java.util.ArrayList", e.getMessage());
+        }
+    }
+
+    @Test public void emptyListAllowed() {
+        List<String> list = new ArrayList<>();
+        try {
+            Value value = new Value((Object) list);
+            assertTrue(value.isList());
+            List<Value> values = value.asList();
+            assertTrue(values.isEmpty());
+        } catch (Exception e) {
+            fail("Unexpected exception occurred.", e);
+        }
+    }
 }

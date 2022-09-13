@@ -125,7 +125,9 @@ public class Value {
      * @return boolean
      */
     public boolean isList() {
-        return this.innerObject instanceof List;
+        return this.innerObject instanceof List
+            && (((List) this.innerObject).isEmpty()
+            || ((List) this.innerObject).get(0) instanceof Value);
     }
 
     /** 
