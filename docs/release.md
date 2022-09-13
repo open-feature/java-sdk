@@ -1,28 +1,11 @@
-This is a simple checklist when performing a release.
+# Releases
 
-1. Ensure we're up-to-date with the current spec via `./spec_finder.py --diff-output --refresh-spec`
-2. Update `README.md` with the current spec that we're up to
-3. Update `README.md` to keep the install instructions on the right version
-4. Update `<version>` in pom.xml
-5. Run `mvn verify` to ensure it all works.
-6. Commit the results as the new version.
+This repo uses _Release Please_ to release packages. Release Please sets up a running PR that tracks all changes in the library, and maintains the versions according to [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/), generated when [PRs are merged](https://github.com/amannn/action-semantic-pull-request), based on the PR title. The semantics of the PR title are enforced by the `lint-pr.yml` workflow. When Release Please's running PR is merged, a new release is created, and the associated artifacts are published.
 
-Then in GitHub, trigger a release.
+## Customization of changelog and release notes. 
 
-1. Go to [github releases](https://github.com/open-feature/java-sdk/releases/new)
-2. Name a tag w/ the version you want to release (e.g. `0.1.0`)
-3. Click the generate release notes button and write some text about what actually changed.
-4. Submit
-5. Validate the action which builds the result happened correctly.
+If you'd like to add custom content to a release, you can do this by editing the content in a Release Please PR's description. This content will be added to the notes for that release. If you'd like to add content to the changelog, simply push updates to the changelog in the Release Please PR.
 
-If something went wrong above, here's how you reset.
-1. Save the release notes you wrote.
-2. Delete the release.
-3. Delete the tag with `git push --delete  origin 0.1.0` where 0.1.0 is your tag name.
+## Configuration
 
-```shell
-gh release delete 0.1.0 -y
-git push --delete  origin 0.1.0
-
-gh release create 0.1.0 -F /tmp/010-release.md -t 0.1.0
-```
+The `release-please-config.json` defines the release please configuration. See schema [here](https://github.com/googleapis/release-please/blob/main/schemas/config.json) to understand all the options. We use the "simple" release strategy and annotate the POM with an element to help release please find the correct XML entity to update (the version element). Release Please stores it's understanding of the current version in the `version.txt` file.

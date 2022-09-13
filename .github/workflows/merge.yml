@@ -56,6 +56,10 @@ jobs:
         name: coverage # optional
         fail_ci_if_error: true # optional (default = false)
         verbose: true # optional (default = false)
+
+    # Add -SNAPSHOT before deploy
+    - name: Add SNAPSHOT
+      run: mvn versions:set -DnewVersion='${project.version}-SNAPSHOT'
     
     - name: Deploy
       run: |

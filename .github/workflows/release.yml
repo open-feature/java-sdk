@@ -1,51 +1,52 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-# This workflow will build a package using Gradle and then publish it to GitHub packages when a release is created
-# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#Publishing-using-gradle
-
-# maven deploy commands via via https://tech.clevertap.com/automate-releases-to-maven-central-via-github-actions/
-
-name: Release
+# This workflow creates a running release please PR, which tracks all changes
+# based on semantic PR titles. When that PR is merged, a publish occurs after
+# release please increments the version.
 
 on:
-  release:
-    types: [created]
-
+  push:
+    branches:
+      - main
+name: Run Release Please
 jobs:
-  build:
-
+  release-please:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
 
+    # Release-please creates a PR that tracks all changes
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 8
-      uses: actions/setup-java@v3
-      with:
-        java-version: '8'
-        distribution: 'temurin'
-        cache: maven
-        server-id: ossrh
-        server-username: ${{ secrets.OSSRH_USERNAME }}
-        server-password: ${{ secrets.OSSRH_PASSWORD }}
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          command: manifest
+          token: ${{secrets.GITHUB_TOKEN}}
+          default-branch: main
 
-    - name: Configure GPG Key
-      run: |
-        echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
-      env:
-        GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
-      
-    - name: Remove SNAPSHOT
-      run: mvn versions:set -DremoveSnapshot
+      # These steps are only run if this was a merged release-please PR
+      - name: checkout
+        if: ${{ steps.release.outputs.releases_created }}
+        uses: actions/checkout@v3
+      - name: Set up JDK 8
+        if: ${{ steps.release.outputs.releases_created }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: maven
+          server-id: ossrh
+          server-username: ${{ secrets.OSSRH_USERNAME }}
+          server-password: ${{ secrets.OSSRH_PASSWORD }}
 
-    - name: Deploy
-      run: |
-        mvn --batch-mode \
-          --settings release/m2-settings.xml clean deploy
-      env:
-        OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-        OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+      - name: Configure GPG Key
+        if: ${{ steps.release.outputs.releases_created }}
+        run: |
+          echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+
+      - name: Deploy
+        if: ${{ steps.release.outputs.releases_created }}
+        run: |
+          mvn --batch-mode \
+            --settings release/m2-settings.xml clean deploy
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
