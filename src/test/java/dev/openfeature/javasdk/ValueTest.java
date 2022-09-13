@@ -122,4 +122,16 @@ public class ValueTest {
             assertEquals("Invalid value type: class java.util.ArrayList", e.getMessage());
         }
     }
+
+    @Test public void emptyListAllowed() {
+        List<String> list = new ArrayList<>();
+        try {
+            Value value = new Value((Object) list);
+            assertTrue(value.isList());
+            List<Value> values = value.asList();
+            assertTrue(values.isEmpty());
+        } catch (Exception e) {
+            fail("Unexpected exception occurred.", e);
+        }
+    }
 }
