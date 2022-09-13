@@ -1,6 +1,6 @@
 package dev.openfeature.javasdk;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import lombok.Getter;
@@ -76,7 +76,7 @@ public class EvaluationContext {
         return this;
     }
 
-    public EvaluationContext add(String key, ZonedDateTime value) {
+    public EvaluationContext add(String key, Instant value) {
         this.structure.add(key, value);
         return this;
     }
@@ -123,7 +123,7 @@ public class EvaluationContext {
             return null;
         }
 
-        public Structure add(String ignoredKey, ZonedDateTime ignoredValue) {
+        public Structure add(String ignoredKey, Instant ignoredValue) {
             return null;
         }
     }

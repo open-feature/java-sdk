@@ -2,7 +2,7 @@ package dev.openfeature.javasdk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +34,9 @@ public class EvalContextTest {
         ec.add("int", 4);
         assertEquals(4, ec.getValue("int").asInteger());
 
-        ZonedDateTime dt = ZonedDateTime.now();
+        Instant dt = Instant.now();
         ec.add("dt", dt);
-        assertEquals(dt, ec.getValue("dt").asZonedDateTime());
+        assertEquals(dt, ec.getValue("dt").asInstant());
     }
 
     @Specification(number="3.1.2", text="The evaluation context MUST support the inclusion of " +
@@ -72,7 +72,7 @@ public class EvalContextTest {
         ec.add("int", 4);
         ec.add("int2", 2);
 
-        ZonedDateTime dt = ZonedDateTime.now();
+        Instant dt = Instant.now();
         ec.add("dt", dt);
 
         ec.add("obj", new Structure().add("val1", 1).add("val2", "2"));
@@ -121,14 +121,14 @@ public class EvalContextTest {
                 .add("Double", (Double)null)
                 .add("Structure", (Structure)null)
                 .add("List", (List<Value>)null)
-                .add("ZonedDateTime", (ZonedDateTime)null);
+                .add("Instant", (Instant)null);
         assertEquals(6, ec.asMap().size());
         assertEquals(null, ec.getValue("Boolean").asBoolean());
         assertEquals(null, ec.getValue("String").asString());
         assertEquals(null, ec.getValue("Double").asDouble());
         assertEquals(null, ec.getValue("Structure").asStructure());
         assertEquals(null, ec.getValue("List").asList());
-        assertEquals(null, ec.getValue("ZonedDateTime").asString());
+        assertEquals(null, ec.getValue("Instant").asString());
     }
 
     @Test void merge_targeting_key() {

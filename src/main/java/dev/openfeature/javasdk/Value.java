@@ -1,13 +1,13 @@
 package dev.openfeature.javasdk;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * Values serve as a return type for provider objects.
+ * Values serve as a generic return type for structure data from providers.
  * Providers may deal in JSON, protobuf, XML or some other data-interchange format.
  * This intermediate representation provides a good medium of exchange.
  */
@@ -19,7 +19,27 @@ public class Value {
     private final Object innerObject;
 
     public Value() {
-        this.innerObject = null; 
+        this.innerObject = null;
+    }
+
+    /**
+     * Construct a new Value with an Object.
+     * @param value to be wrapped.
+     * @throws InstantiationException if value is not a valid type
+     *      (boolean, string, int, double, list, structure, instant)
+     */
+    public Value(Object value) throws InstantiationException {
+        // integer is a special case, convert those.
+        this.innerObject = value instanceof Integer ? ((Integer)value).doubleValue() : value;
+        if (!this.isNull()
+            && !this.isBoolean()
+            && !this.isString()
+            && !this.isNumber()
+            && !this.isStructure()
+            && !this.isList()
+            && !this.isInstant()) {
+            throw new InstantiationException("Invalid value type: " + value.getClass());
+        }
     }
 
     public Value(Value value) {
@@ -50,7 +70,7 @@ public class Value {
         this.innerObject = value; 
     }
 
-    public Value(ZonedDateTime value) {
+    public Value(Instant value) {
         this.innerObject = value;
     }
 
@@ -109,12 +129,12 @@ public class Value {
     }
 
     /** 
-     * Check if this Value represents a ZonedDateTime.
+     * Check if this Value represents an Instant.
      * 
      * @return boolean
      */
-    public boolean isZonedDateTime() {
-        return this.innerObject instanceof ZonedDateTime;
+    public boolean isInstant() {
+        return this.innerObject instanceof Instant;
     }
     
     /** 
@@ -131,6 +151,15 @@ public class Value {
         return null;
     }
     
+    /** 
+     * Retrieve the underlying object.
+     * 
+     * @return Object
+     */
+    public Object asObject() {
+        return this.innerObject;
+    }
+
     /** 
      * Retrieve the underlying String value, or null.
      * 
@@ -194,13 +223,13 @@ public class Value {
     }
 
     /** 
-     * Retrieve the underlying ZonedDateTime value, or null.
+     * Retrieve the underlying Instant value, or null.
      * 
-     * @return ZonedDateTime
+     * @return Instant
      */
-    public ZonedDateTime asZonedDateTime() {
-        if (this.isZonedDateTime()) {
-            return (ZonedDateTime)this.innerObject;
+    public Instant asInstant() {
+        if (this.isInstant()) {
+            return (Instant)this.innerObject;
         }
         return null;
     }

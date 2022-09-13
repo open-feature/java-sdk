@@ -57,9 +57,9 @@ public class NoOpProvider implements FeatureProvider {
     }
 
     @Override
-    public ProviderEvaluation<Structure> getObjectEvaluation(String key, Structure defaultValue,
+    public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue,
                                                          EvaluationContext invocationContext) {
-        return ProviderEvaluation.<Structure>builder()
+        return ProviderEvaluation.<Value>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
                 .reason(Reason.DEFAULT)

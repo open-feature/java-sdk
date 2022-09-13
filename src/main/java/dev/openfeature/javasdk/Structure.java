@@ -1,6 +1,6 @@
 package dev.openfeature.javasdk;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +73,7 @@ public class Structure {
      * @param value date-time value
      * @return Structure
      */
-    public Structure add(String key, ZonedDateTime value) {
+    public Structure add(String key, Instant value) {
         attributes.put(key, new Value(value));
         return this;
     }

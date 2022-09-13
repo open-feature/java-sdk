@@ -122,7 +122,7 @@ public class OpenFeatureClient implements Client {
             case DOUBLE:
                 return provider.getDoubleEvaluation(key, (Double) defaultValue, invocationContext);
             case OBJECT:
-                return provider.getObjectEvaluation(key, (Structure) defaultValue, invocationContext);
+                return provider.getObjectEvaluation(key, (Value) defaultValue, invocationContext);
             default:
                 throw new GeneralError("Unknown flag type");
         }
@@ -257,34 +257,34 @@ public class OpenFeatureClient implements Client {
     }
 
     @Override
-    public Structure getObjectValue(String key, Structure defaultValue) {
+    public Value getObjectValue(String key, Value defaultValue) {
         return getObjectDetails(key, defaultValue).getValue();
     }
 
     @Override
-    public Structure getObjectValue(String key, Structure defaultValue, EvaluationContext ctx) {
+    public Value getObjectValue(String key, Value defaultValue, EvaluationContext ctx) {
         return getObjectDetails(key, defaultValue, ctx).getValue();
     }
 
     @Override
-    public Structure getObjectValue(String key, Structure defaultValue, EvaluationContext ctx,
+    public Value getObjectValue(String key, Value defaultValue, EvaluationContext ctx,
             FlagEvaluationOptions options) {
         return getObjectDetails(key, defaultValue, ctx, options).getValue();
     }
 
     @Override
-    public FlagEvaluationDetails<Structure> getObjectDetails(String key, Structure defaultValue) {
+    public FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue) {
         return getObjectDetails(key, defaultValue, null);
     }
 
     @Override
-    public FlagEvaluationDetails<Structure> getObjectDetails(String key, Structure defaultValue,
+    public FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue,
                                 EvaluationContext ctx) {
         return getObjectDetails(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
     }
 
     @Override
-    public FlagEvaluationDetails<Structure> getObjectDetails(String key, Structure defaultValue, EvaluationContext ctx,
+    public FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue, EvaluationContext ctx,
                                  FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.OBJECT, key, defaultValue, ctx, options);
     }

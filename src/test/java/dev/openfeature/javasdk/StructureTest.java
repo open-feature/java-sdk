@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +44,7 @@ public class StructureTest {
         String STRING_VAL = "val";
         int INT_VAL = 13;
         double DOUBLE_VAL = .5;
-        ZonedDateTime DATE_VAL = ZonedDateTime.now();
+        Instant DATE_VAL = Instant.now();
         Structure STRUCT_VAL = new Structure();
         List<Value> LIST_VAL = new ArrayList<Value>();
         Value VALUE_VAL = new Value();
@@ -63,7 +63,7 @@ public class StructureTest {
         assertEquals(STRING_VAL, structure.getValue(STRING_KEY).asString());
         assertEquals(INT_VAL, structure.getValue(INT_KEY).asInteger());
         assertEquals(DOUBLE_VAL, structure.getValue(DOUBLE_KEY).asDouble());
-        assertEquals(DATE_VAL, structure.getValue(DATE_KEY).asZonedDateTime());
+        assertEquals(DATE_VAL, structure.getValue(DATE_KEY).asInstant());
         assertEquals(STRUCT_VAL, structure.getValue(STRUCT_KEY).asStructure());
         assertEquals(LIST_VAL, structure.getValue(LIST_KEY).asList());
         assertTrue(structure.getValue(VALUE_KEY).isNull());
