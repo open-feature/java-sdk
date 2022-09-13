@@ -108,6 +108,10 @@ We hold regular meetings which you can see [here](https://github.com/open-featur
 
 We are also present on the `#openfeature` channel in the [CNCF slack](https://slack.cncf.io/).
 
+## Releasing
+
+See [releasing](./docs/release.md).
+
 ## Contributors
 
 Thanks so much to our contributors.

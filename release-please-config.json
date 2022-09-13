@@ -1,0 +1,15 @@
+{
+  "bootstrap-sha": "c701a6c4ebbe1170a25ca7636a31508b9628831c",
+  "packages": {
+    ".": {
+      "package-name": "dev.openfeature.javasdk",
+      "release-type": "simple",
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true,
+      "versioning": "default",
+      "extra-files": [
+        "pom.xml"
+      ]
+    }
+  }
+}
