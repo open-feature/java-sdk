@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/open-feature/java-sdk/compare/dev.openfeature.javasdk-v0.2.0...dev.openfeature.javasdk-v0.2.1) (2022-09-13)
+
+
+### Bug Fixes
+
+* isList check in Value checks type of list ([#70](https://github.com/open-feature/java-sdk/issues/70)) ([81ab071](https://github.com/open-feature/java-sdk/commit/81ab0710ea56af65eb65c7f95832b8f58c559a51))
+
 ## [0.2.0](https://github.com/open-feature/java-sdk/compare/dev.openfeature.javasdk-v0.1.1...dev.openfeature.javasdk-v0.2.0) (2022-09-13)
 
 
