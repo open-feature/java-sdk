@@ -61,13 +61,15 @@ class MyClass {
 ### Add it to your build
 
 #### Maven
+<!-- x-release-please-start-version -->
 ```xml
 <dependency>
     <groupId>dev.openfeature</groupId>
     <artifactId>javasdk</artifactId>
-    <version>0.1.1</version>
+    <version>0.2.1</version>
 </dependency>
 ```
+<!-- x-release-please-end-version -->
 
 If you would like snapshot builds, this is the relevant repository information:
 
@@ -85,11 +87,13 @@ If you would like snapshot builds, this is the relevant repository information:
 ```
 
 #### Gradle
+<!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-    implementation 'dev.openfeature:javasdk:0.1.1'
+    implementation 'dev.openfeature:javasdk:0.2.1'
 }
 ```
+<!-- x-release-please-end-version -->
 
 ### Configure it
 To configure it, you'll need to add a provider to the global singleton `OpenFeatureAPI`. From there, you can generate a `Client` which is usable by your code. While you'll likely want a provider for your specific backend, we've provided a `NoOpProvider`, which simply returns the default passed in.
