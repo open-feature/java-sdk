@@ -11,6 +11,8 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
     <junit.jupiter.version>5.8.1</junit.jupiter.version>
+    <!-- exclusion expression for integration tests -->
+    <testExclusions>**/integration/*.java</testExclusions>
   </properties>
 
   <name>OpenFeature Java SDK</name>
@@ -46,7 +48,6 @@
       <scope>provided</scope>
     </dependency>
 
-
     <dependency>
       <!-- used so that lombok can generate suppressions for spotbugs. It needs to find it on the relevant classpath -->
       <groupId>com.github.spotbugs</groupId>
@@ -54,7 +55,6 @@
       <version>4.7.1</version>
       <scope>compile</scope>
     </dependency>
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -68,28 +68,24 @@
       <version>4.6.1</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>uk.org.lidalia</groupId>
       <artifactId>slf4j-test</artifactId>
       <version>1.2.0</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <version>3.23.1</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <version>${junit.jupiter.version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
@@ -111,11 +107,51 @@
     <dependency>
       <groupId>org.junit.platform</groupId>
       <artifactId>junit-platform-suite</artifactId>
-      <version>1.8.1</version>
+      <version>1.9.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-java</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>cucumber-junit-platform-engine</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>31.1-jre</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>dev.openfeature.contrib.providers</groupId>
+      <artifactId>flagd</artifactId>
+      <version>0.3.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
 
+  <dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-bom</artifactId>
+            <version>7.5.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit</groupId>
+            <artifactId>junit-bom</artifactId>
+            <version>5.9.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <plugins>
@@ -137,6 +173,9 @@
             <ignoredUnusedDeclaredDependency>org.junit*</ignoredUnusedDeclaredDependency>
           </ignoredUnusedDeclaredDependencies>
           <ignoredDependencies>
+            <ignoredDependency>com.google.guava*</ignoredDependency>
+            <ignoredDependency>io.cucumber*</ignoredDependency>
+            <ignoredDependency>org.junit*</ignoredDependency>
             <ignoredDependency>com.google.code.findbugs*</ignoredDependency>
             <ignoredDependency>com.github.spotbugs*</ignoredDependency>
             <ignoredDependency>uk.org.lidalia:lidalia-slf4j-ext:*</ignoredDependency>
@@ -155,6 +194,10 @@
           <argLine>
             ${surefireArgLine}
           </argLine>
+          <excludes>
+            <!-- tests to exclude -->
+            <exclude>${testExclusions}</exclude>
+         </excludes>
         </configuration>
       </plugin>
 
@@ -371,6 +414,61 @@
 
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <!-- this profile handles running the flagd integration tests -->
+      <id>integration-test</id>
+      <properties>
+        <!-- run the integration tests by clearing the exclusions -->
+        <testExclusions></testExclusions>
+      </properties>  
+      <build>
+        <plugins>
+          <!-- pull the gherkin tests as a git submodule  -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>update-test-harness-submodule</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <!-- run: git submodule update \-\-init \-\-recursive -->
+                  <executable>git</executable>
+                  <arguments>
+                    <argument>submodule</argument>
+                    <argument>update</argument>
+                    <argument>--init</argument>
+                    <argument>--recursive</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>copy-gherkin-tests</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <!-- run: cp test-harness/features/evaluation.feature src/test/resources/features/ -->
+                  <executable>cp</executable>
+                  <arguments>
+                    <argument>test-harness/features/evaluation.feature</argument>
+                    <argument>src/test/resources/features/</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <distributionManagement>
     <snapshotRepository>
