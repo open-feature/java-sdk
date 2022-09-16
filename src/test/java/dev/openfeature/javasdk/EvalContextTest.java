@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -147,5 +148,56 @@ public class EvalContextTest {
         ctx2.setTargetingKey("  ");
         ctxMerged = EvaluationContext.merge(ctx1, ctx2);
         assertEquals(key1, ctxMerged.getTargetingKey());
+    }
+
+    @Test void asObjectMap() {
+        String key1 = "key1";
+        EvaluationContext ctx = new EvaluationContext(key1);
+        ctx.add("stringItem", "stringValue");
+        ctx.add("boolItem", false);
+        ctx.add("integerItem", 1);
+        ctx.add("doubleItem", 1.2);
+        ctx.add("instantItem",  Instant.ofEpochSecond(1663331342));
+        List<Value> listItem = new ArrayList<>();
+        listItem.add(new Value("item1"));
+        listItem.add(new Value("item2"));
+        ctx.add("listItem", listItem);
+        List<Value> listItem2 = new ArrayList<>();
+        listItem2.add(new Value(true));
+        listItem2.add(new Value(false));
+        ctx.add("listItem2", listItem2);
+        Map<String, Value> structureValue = new HashMap<>();
+        structureValue.put("structStringItem", new Value("stringValue"));
+        structureValue.put("structBoolItem", new Value(false));
+        structureValue.put("structIntegerItem", new Value(1));
+        structureValue.put("structDoubleItem", new Value(1.2));
+        structureValue.put("structInstantItem",  new Value(Instant.ofEpochSecond(1663331342)));
+        Structure structure = new Structure(structureValue);
+        ctx.add("structureItem", structure);
+
+
+        Map<String, Object> want = new HashMap<>();
+        want.put("stringItem", "stringValue");
+        want.put("boolItem", false);
+        want.put("integerItem", 1);
+        want.put("doubleItem", 1.2);
+        want.put("instantItem",  Instant.ofEpochSecond(1663331342));
+        List<String> wantListItem = new ArrayList<>();
+        wantListItem.add("item1");
+        wantListItem.add("item2");
+        want.put("listItem", wantListItem);
+        List<Boolean> wantListItem2 = new ArrayList<>();
+        wantListItem2.add(true);
+        wantListItem2.add(false);
+        want.put("listItem2", wantListItem2);
+        Map<String, Object> wantStructureValue = new HashMap<>();
+        wantStructureValue.put("structStringItem", "stringValue");
+        wantStructureValue.put("structBoolItem", false);
+        wantStructureValue.put("structIntegerItem", 1);
+        wantStructureValue.put("structDoubleItem", 1.2);
+        wantStructureValue.put("structInstantItem",  Instant.ofEpochSecond(1663331342));
+        want.put("structureItem",wantStructureValue);
+
+        assertEquals(want,ctx.asObjectMap());
     }
 }
