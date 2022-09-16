@@ -99,16 +99,16 @@ public class Structure {
     /**
      * Get all values, with primitives types.
      *
-     * @return all attributes on the structure into a Map<String,Object>
+     * @return all attributes on the structure into a Map
      */
     public Map<String, Object> asObjectMap() {
         return attributes
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> convertValue(getValue(e.getKey()))
-                ));
+            .entrySet()
+            .stream()
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> convertValue(getValue(e.getKey()))
+            ));
     }
 
     /**
@@ -116,12 +116,12 @@ public class Structure {
      * @param value - Value object to convert
      * @return an Object containing the primitive type.
      */
-    private Object convertValue(Value value){
-        if (value.isBoolean()){
+    private Object convertValue(Value value) {
+        if (value.isBoolean()) {
             return value.asBoolean();
         }
 
-        if(value.isNumber()){
+        if (value.isNumber()) {
             Double valueAsDouble = value.asDouble();
             if ((valueAsDouble == Math.floor(valueAsDouble)) && !Double.isInfinite(valueAsDouble)) {
                 return value.asInteger();
@@ -129,22 +129,22 @@ public class Structure {
             return valueAsDouble;
         }
 
-        if(value.isString()){
+        if (value.isString()) {
             return value.asString();
         }
 
-        if(value.isInstant()) {
+        if (value.isInstant()) {
             return value.asInstant();
         }
 
-        if(value.isList()){
+        if (value.isList()) {
             return value.asList()
                     .stream()
                     .map(this::convertValue)
                     .collect(Collectors.toList());
         }
 
-        if(value.isStructure()){
+        if (value.isStructure()) {
             Structure s = value.asStructure();
             return s.asMap()
                     .keySet()
@@ -152,7 +152,7 @@ public class Structure {
                     .collect(
                         Collectors.toMap(
                             key -> key,
-                            key-> convertValue(s.getValue(key))
+                            key -> convertValue(s.getValue(key))
                         )
                     );
         }
