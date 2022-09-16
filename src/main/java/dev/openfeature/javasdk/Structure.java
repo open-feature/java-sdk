@@ -123,7 +123,7 @@ public class Structure {
 
         if (value.isNumber()) {
             Double valueAsDouble = value.asDouble();
-            if ((valueAsDouble == Math.floor(valueAsDouble)) && !Double.isInfinite(valueAsDouble)) {
+            if (valueAsDouble == Math.floor(valueAsDouble) && !Double.isInfinite(valueAsDouble)) {
                 return value.asInteger();
             }
             return valueAsDouble;
