@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/open-feature/java-sdk/compare/dev.openfeature.javasdk-v0.2.1...dev.openfeature.javasdk-v0.2.2) (2022-09-20)
+
+
+### Features
+
+* Add asObjectMap to get the EvaluationContext as Map<String,Object> ([#75](https://github.com/open-feature/java-sdk/issues/75)) ([2eec1a5](https://github.com/open-feature/java-sdk/commit/2eec1a5519b9efab7d7f9dc8b1cbd84d9218368b))
+
 ## [0.2.1](https://github.com/open-feature/java-sdk/compare/dev.openfeature.javasdk-v0.2.0...dev.openfeature.javasdk-v0.2.1) (2022-09-13)
 
 
