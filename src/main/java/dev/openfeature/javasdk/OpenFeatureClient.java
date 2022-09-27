@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import dev.openfeature.javasdk.exceptions.GeneralError;
+import dev.openfeature.javasdk.exceptions.OpenFeatureError;
 import dev.openfeature.javasdk.internal.ObjectUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -94,9 +95,14 @@ public class OpenFeatureClient implements Client {
             if (details == null) {
                 details = FlagEvaluationDetails.<T>builder().build();
             }
+            if (e instanceof OpenFeatureError) {
+                details.setErrorCode(((OpenFeatureError)e).getErrorCode());
+            } else {
+                details.setErrorCode(ErrorCode.GENERAL);
+            }
+            details.setMessage(e.getMessage());
             details.setValue(defaultValue);
-            details.setReason(Reason.ERROR);
-            details.setErrorCode(e.getMessage());
+            details.setReason(Reason.ERROR.toString());
             hookSupport.errorHooks(type, hookCtx, e, mergedHooks, hints);
         } finally {
             hookSupport.afterAllHooks(type, hookCtx, mergedHooks, hints);

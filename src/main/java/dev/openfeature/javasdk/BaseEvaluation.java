@@ -21,11 +21,11 @@ public interface BaseEvaluation<T> {
      * Describes how we came to the value that we're returning.
      * @return {Reason}
      */
-    Reason getReason();
+    String getReason();
 
     /**
      * The error code, if applicable. Should only be set when the Reason is ERROR.
      * @return {ErrorCode}
      */
-    String getErrorCode();
+    ErrorCode getErrorCode();
 }

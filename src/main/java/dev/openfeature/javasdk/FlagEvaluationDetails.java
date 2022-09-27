@@ -14,8 +14,9 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
     private String flagKey;
     private T value;
     @Nullable private String variant;
-    private Reason reason;
-    @Nullable private String errorCode;
+    @Nullable private String reason;
+    private ErrorCode errorCode;
+    @Nullable private String message;
 
     /**
      * Generate detail payload from the provider response.
