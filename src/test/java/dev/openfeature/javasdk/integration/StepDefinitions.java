@@ -254,7 +254,7 @@ public class StepDefinitions {
     @Then("the reason should indicate an error and the error code should indicate a missing flag with {string}")
     public void the_reason_should_indicate_an_error_and_the_error_code_should_be_flag_not_found(String errorCode) {
         assertEquals(Reason.ERROR.toString(), notFoundDetails.getReason());
-        assertTrue(notFoundDetails.getMessage().contains(errorCode));
+        assertTrue(notFoundDetails.getErrorMessage().contains(errorCode));
         // TODO: add errorCode assertion once flagd provider is updated.
     }
 
@@ -275,7 +275,7 @@ public class StepDefinitions {
     @Then("the reason should indicate an error and the error code should indicate a type mismatch with {string}")
     public void the_reason_should_indicate_an_error_and_the_error_code_should_be_type_mismatch(String errorCode) {
         assertEquals(Reason.ERROR.toString(), typeErrorDetails.getReason());
-        assertTrue(typeErrorDetails.getMessage().contains(errorCode));
+        assertTrue(typeErrorDetails.getErrorMessage().contains(errorCode));
         // TODO: add errorCode assertion once flagd provider is updated.
     }
 

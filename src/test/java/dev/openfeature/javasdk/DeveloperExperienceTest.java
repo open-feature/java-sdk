@@ -86,7 +86,7 @@ class DeveloperExperienceTest implements HookFixtures {
         Client client = api.getClient();
         FlagEvaluationDetails<Boolean> retval = client.getBooleanDetails(flagKey, false);
         assertEquals(ErrorCode.FLAG_NOT_FOUND, retval.getErrorCode());
-        assertEquals(TestConstants.BROKEN_MESSAGE, retval.getMessage());
+        assertEquals(TestConstants.BROKEN_MESSAGE, retval.getErrorMessage());
         assertEquals(Reason.ERROR.toString(), retval.getReason());
         assertFalse(retval.getValue());
     }

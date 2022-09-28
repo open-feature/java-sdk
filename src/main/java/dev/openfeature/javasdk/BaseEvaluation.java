@@ -28,4 +28,11 @@ public interface BaseEvaluation<T> {
      * @return {ErrorCode}
      */
     ErrorCode getErrorCode();
+
+    /**
+     * The error message (usually from exception.getMessage()), if applicable.
+     * Should only be set when the Reason is ERROR.
+     * @return {String}
+     */
+    String getErrorMessage();
 }

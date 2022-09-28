@@ -192,7 +192,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertFalse(c.getBooleanValue("key", false));
         FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", false);
         assertEquals(ErrorCode.FLAG_NOT_FOUND, details.getErrorCode());
-        assertEquals(TestConstants.BROKEN_MESSAGE, details.getMessage());
+        assertEquals(TestConstants.BROKEN_MESSAGE, details.getErrorMessage());
     }
 
     @Specification(number="1.4.10", text="In the case of abnormal execution, the client SHOULD log an informative error message.")

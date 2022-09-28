@@ -100,7 +100,7 @@ public class OpenFeatureClient implements Client {
             } else {
                 details.setErrorCode(ErrorCode.GENERAL);
             }
-            details.setMessage(e.getMessage());
+            details.setErrorMessage(e.getMessage());
             details.setValue(defaultValue);
             details.setReason(Reason.ERROR.toString());
             hookSupport.errorHooks(type, hookCtx, e, mergedHooks, hints);
