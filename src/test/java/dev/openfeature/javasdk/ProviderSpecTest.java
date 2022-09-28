@@ -41,8 +41,7 @@ public class ProviderSpecTest {
 
     }
 
-    @Specification(number="2.6", text="The provider SHOULD populate the flag resolution structure's " +
-            "reason field with a string indicating the semantic reason for the returned flag value.")
+    @Specification(number="2.6", text="The `provider` SHOULD populate the `flag resolution` structure's `reason` field with `\"DEFAULT\",` `\"TARGETING_MATCH\"`, `\"SPLIT\"`, `\"DISABLED\"`, `\"UNKNOWN\"`, `\"ERROR\"` or some other string indicating the semantic reason for the returned flag value.")
     @Test void has_reason() {
         ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new EvaluationContext());
         assertEquals(Reason.DEFAULT.toString(), result.getReason());
