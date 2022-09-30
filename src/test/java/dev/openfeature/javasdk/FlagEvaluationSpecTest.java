@@ -183,14 +183,16 @@ class FlagEvaluationSpecTest implements HookFixtures {
     }
 
     @Specification(number="1.4.9", text="Methods, functions, or operations on the client MUST NOT throw exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the default value in the event of abnormal execution. Exceptions include functions or methods for the purposes for configuration or setup.")
-    @Specification(number="1.4.7", text="In cases of abnormal execution, the evaluation details structure's error code field MUST contain a string identifying an error occurred during flag evaluation and the nature of the error.")
+    @Specification(number="1.4.7", text="In cases of abnormal execution, the `evaluation details` structure's `error code` field **MUST** contain an `error code`.")
+    @Specification(number="1.4.12", text="In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
     @Test void broken_provider() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
         assertFalse(c.getBooleanValue("key", false));
         FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", false);
-        assertEquals("BORK", details.getErrorCode());
+        assertEquals(ErrorCode.FLAG_NOT_FOUND, details.getErrorCode());
+        assertEquals(TestConstants.BROKEN_MESSAGE, details.getErrorMessage());
     }
 
     @Specification(number="1.4.10", text="In the case of abnormal execution, the client SHOULD log an informative error message.")
@@ -200,8 +202,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
         api.setProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
-        assertEquals(Reason.ERROR, result.getReason());
-        assertThat(TEST_LOGGER.getLoggingEvents()).contains(LoggingEvent.error("Unable to correctly evaluate flag with key {} due to exception {}", "test", "BORK"));
+        assertEquals(Reason.ERROR.toString(), result.getReason());
+        assertThat(TEST_LOGGER.getLoggingEvents()).contains(LoggingEvent.error("Unable to correctly evaluate flag with key {} due to exception {}", "test", TestConstants.BROKEN_MESSAGE));
     }
 
     @Specification(number="1.2.2", text="The client interface MUST define a metadata member or accessor, containing an immutable name field or accessor of type string, which corresponds to the name value supplied during client creation.")
@@ -221,7 +223,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         api.setProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
-        assertEquals(Reason.ERROR, result.getReason());
+        assertEquals(Reason.ERROR.toString(), result.getReason());
     }
 
     @Specification(number="3.2.1", text="The API, Client and invocation MUST have a method for supplying evaluation context.")

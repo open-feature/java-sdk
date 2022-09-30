@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 public class ProviderEvaluation<T> implements BaseEvaluation<T> {
     T value;
     @Nullable String variant;
-    Reason reason;
-    @Nullable String errorCode;
+    @Nullable private String reason;
+    ErrorCode errorCode;
+    @Nullable private String errorMessage;
 }
