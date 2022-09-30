@@ -41,11 +41,10 @@ public class ProviderSpecTest {
 
     }
 
-    @Specification(number="2.6", text="The provider SHOULD populate the flag resolution structure's " +
-            "reason field with a string indicating the semantic reason for the returned flag value.")
+    @Specification(number="2.6", text="The `provider` SHOULD populate the `flag resolution` structure's `reason` field with `\"DEFAULT\",` `\"TARGETING_MATCH\"`, `\"SPLIT\"`, `\"DISABLED\"`, `\"UNKNOWN\"`, `\"ERROR\"` or some other string indicating the semantic reason for the returned flag value.")
     @Test void has_reason() {
         ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new EvaluationContext());
-        assertEquals(Reason.DEFAULT, result.getReason());
+        assertEquals(Reason.DEFAULT.toString(), result.getReason());
     }
 
     @Specification(number="2.7", text="In cases of normal execution, the provider MUST NOT populate " +
@@ -55,9 +54,9 @@ public class ProviderSpecTest {
         assertNull(result.getErrorCode());
     }
 
-    @Specification(number="2.8", text="In cases of abnormal execution, the provider MUST indicate an " +
-    "error using the idioms of the implementation language, with an associated error code having possible " +
-    "values PROVIDER_NOT_READY, FLAG_NOT_FOUND, PARSE_ERROR, TYPE_MISMATCH, or GENERAL.")
+    @Specification(number="2.8", text="In cases of abnormal execution, the `provider` **MUST** indicate an error using the idioms of the implementation language, with an associated `error code` and optional associated `error message`.")
+    @Specification(number="2.11", text="In cases of normal execution, the `provider` **MUST NOT** populate the `flag resolution` structure's `error message` field, or otherwise must populate it with a null or falsy value.")
+    @Specification(number="2.12", text="In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional detail about the nature of the error.")
     @Test void up_to_provider_implementation() {}
 
     @Specification(number="2.5", text="In cases of normal execution, the provider SHOULD populate the " +

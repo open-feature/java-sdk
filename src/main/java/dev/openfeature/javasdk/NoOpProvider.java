@@ -25,7 +25,7 @@ public class NoOpProvider implements FeatureProvider {
         return ProviderEvaluation.<Boolean>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
-                .reason(Reason.DEFAULT)
+                .reason(Reason.DEFAULT.toString())
                 .build();
     }
 
@@ -34,7 +34,7 @@ public class NoOpProvider implements FeatureProvider {
         return ProviderEvaluation.<String>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
-                .reason(Reason.DEFAULT)
+                .reason(Reason.DEFAULT.toString())
                 .build();
     }
 
@@ -43,7 +43,7 @@ public class NoOpProvider implements FeatureProvider {
         return ProviderEvaluation.<Integer>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
-                .reason(Reason.DEFAULT)
+                .reason(Reason.DEFAULT.toString())
                 .build();
     }
 
@@ -52,7 +52,7 @@ public class NoOpProvider implements FeatureProvider {
         return ProviderEvaluation.<Double>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
-                .reason(Reason.DEFAULT)
+                .reason(Reason.DEFAULT.toString())
                 .build();
     }
 
@@ -62,7 +62,7 @@ public class NoOpProvider implements FeatureProvider {
         return ProviderEvaluation.<Value>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
-                .reason(Reason.DEFAULT)
+                .reason(Reason.DEFAULT.toString())
                 .build();
     }
 }

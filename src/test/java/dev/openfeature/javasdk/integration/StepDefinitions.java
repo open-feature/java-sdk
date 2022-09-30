@@ -2,11 +2,9 @@ package dev.openfeature.javasdk.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import dev.openfeature.contrib.providers.flagd.FlagdProvider;
 import dev.openfeature.javasdk.Client;
-import dev.openfeature.javasdk.ErrorCode;
 import dev.openfeature.javasdk.EvaluationContext;
 import dev.openfeature.javasdk.FlagEvaluationDetails;
 import dev.openfeature.javasdk.OpenFeatureAPI;
@@ -132,7 +130,7 @@ public class StepDefinitions {
             String expectedVariant, String expectedReason) {
         assertEquals(Boolean.valueOf(expectedValue), booleanFlagDetails.getValue());
         assertEquals(expectedVariant, booleanFlagDetails.getVariant());
-        assertEquals(Reason.valueOf(expectedReason), booleanFlagDetails.getReason());
+        assertEquals(expectedReason, booleanFlagDetails.getReason());
     }
 
     // string details
@@ -147,7 +145,7 @@ public class StepDefinitions {
             String expectedVariant, String expectedReason) {
         assertEquals(expectedValue, this.stringFlagDetails.getValue());
         assertEquals(expectedVariant, this.stringFlagDetails.getVariant());
-        assertEquals(Reason.valueOf(expectedReason), this.stringFlagDetails.getReason());
+        assertEquals(expectedReason, this.stringFlagDetails.getReason());
     }
 
     // integer details
@@ -161,7 +159,7 @@ public class StepDefinitions {
             String expectedVariant, String expectedReason) {
         assertEquals(expectedValue, this.intFlagDetails.getValue());
         assertEquals(expectedVariant, this.intFlagDetails.getVariant());
-        assertEquals(Reason.valueOf(expectedReason), this.intFlagDetails.getReason());
+        assertEquals(expectedReason, this.intFlagDetails.getReason());
     }
 
     // float/double details
@@ -175,7 +173,7 @@ public class StepDefinitions {
             String expectedVariant, String expectedReason) {
         assertEquals(expectedValue, this.doubleFlagDetails.getValue());
         assertEquals(expectedVariant, this.doubleFlagDetails.getVariant());
-        assertEquals(Reason.valueOf(expectedReason), this.doubleFlagDetails.getReason());
+        assertEquals(expectedReason, this.doubleFlagDetails.getReason());
     }
 
     // object details
@@ -198,7 +196,7 @@ public class StepDefinitions {
     @Then("the variant should be {string}, and the reason should be {string}")
     public void the_variant_should_be_and_the_reason_should_be(String expectedVariant, String expectedReason) {
         assertEquals(expectedVariant, this.objectFlagDetails.getVariant());
-        assertEquals(Reason.valueOf(expectedReason), this.objectFlagDetails.getReason());
+        assertEquals(expectedReason, this.objectFlagDetails.getReason());
     }
 
     /*
@@ -255,8 +253,9 @@ public class StepDefinitions {
 
     @Then("the reason should indicate an error and the error code should indicate a missing flag with {string}")
     public void the_reason_should_indicate_an_error_and_the_error_code_should_be_flag_not_found(String errorCode) {
-        assertEquals(Reason.ERROR, notFoundDetails.getReason());
-        assertTrue(notFoundDetails.getErrorCode().contains(errorCode));
+        assertEquals(Reason.ERROR.toString(), notFoundDetails.getReason());
+        assertTrue(notFoundDetails.getErrorMessage().contains(errorCode));
+        // TODO: add errorCode assertion once flagd provider is updated.
     }
 
     // type mismatch
@@ -275,8 +274,9 @@ public class StepDefinitions {
 
     @Then("the reason should indicate an error and the error code should indicate a type mismatch with {string}")
     public void the_reason_should_indicate_an_error_and_the_error_code_should_be_type_mismatch(String errorCode) {
-        assertEquals(Reason.ERROR, typeErrorDetails.getReason());
-        assertTrue(typeErrorDetails.getErrorCode().contains(errorCode));
+        assertEquals(Reason.ERROR.toString(), typeErrorDetails.getReason());
+        assertTrue(typeErrorDetails.getErrorMessage().contains(errorCode));
+        // TODO: add errorCode assertion once flagd provider is updated.
     }
 
 }
