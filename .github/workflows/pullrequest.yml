@@ -37,7 +37,7 @@ jobs:
         run: mvn --batch-mode --update-snapshots verify # -P integration-test - add this back once we have a compatible flagd
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           flags: unittests # optional
           name: coverage # optional
