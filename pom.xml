@@ -52,7 +52,7 @@
       <!-- used so that lombok can generate suppressions for spotbugs. It needs to find it on the relevant classpath -->
       <groupId>com.github.spotbugs</groupId>
       <artifactId>spotbugs</artifactId>
-      <version>4.7.1</version>
+      <version>4.7.2</version>
       <scope>compile</scope>
     </dependency>
 
@@ -390,7 +390,7 @@
           <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs</artifactId>
-            <version>4.7.1</version>
+            <version>4.7.2</version>
           </dependency>
         </dependencies>
         <executions>
