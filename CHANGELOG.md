@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.0](https://github.com/open-feature/java-sdk/compare/dev.openfeature.javasdk-v0.2.2...dev.openfeature.javasdk-v0.3.0) (2022-10-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* errorCode as enum, reason as string (#80)
+
+### Features
+
+* errorCode as enum, reason as string ([#80](https://github.com/open-feature/java-sdk/issues/80)) ([84f220d](https://github.com/open-feature/java-sdk/commit/84f220d8139035a1222d13b2dd6f8b048932c192))
+
+
+### Bug Fixes
+
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.8.0 ([#100](https://github.com/open-feature/java-sdk/issues/100)) ([5e96d14](https://github.com/open-feature/java-sdk/commit/5e96d140c1195a1e8eb175feae3ec29db4439367))
+* **deps:** update junit5 monorepo ([#92](https://github.com/open-feature/java-sdk/issues/92)) ([8ca655a](https://github.com/open-feature/java-sdk/commit/8ca655a788273c61e5270ce7bf175064f42d605d))
+
 ## [0.2.2](https://github.com/open-feature/java-sdk/compare/dev.openfeature.javasdk-v0.2.1...dev.openfeature.javasdk-v0.2.2) (2022-09-20)
 
 
