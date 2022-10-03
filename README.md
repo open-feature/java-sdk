@@ -1,7 +1,7 @@
 # OpenFeature SDK for Java
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/dev.openfeature/javasdk/badge.svg)](https://maven-badges.herokuapp.com/maven-central/dev.openfeature/javasdk)
-[![javadoc](https://javadoc.io/badge2/dev.openfeature/javasdk/javadoc.svg)](https://javadoc.io/doc/dev.openfeature/javasdk) 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/dev.openfeature/sdk/badge.svg)](https://maven-badges.herokuapp.com/maven-central/dev.openfeature/sdk)
+[![javadoc](https://javadoc.io/badge2/dev.openfeature/sdk/javadoc.svg)](https://javadoc.io/doc/dev.openfeature/sdk) 
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![Specification](https://img.shields.io/static/v1?label=Specification&message=v0.5.0&color=yellow)](https://github.com/open-feature/spec/tree/v0.5.0)
 [![Known Vulnerabilities](https://snyk.io/test/github/open-feature/java-sdk/badge.svg)](https://snyk.io/test/github/open-feature/java-sdk)
@@ -20,7 +20,7 @@ This library is intended to be used in server-side contexts and has not been eva
 While `Boolean` provides the simplest introduction, we offer a variety of flag types.
 
 ```java
-import dev.openfeature.javasdk.Structure;
+import dev.openfeature.sdk.Structure;
 
 class MyClass {
     public UI booleanExample() {
@@ -65,7 +65,7 @@ class MyClass {
 ```xml
 <dependency>
     <groupId>dev.openfeature</groupId>
-    <artifactId>javasdk</artifactId>
+    <artifactId>sdk</artifactId>
     <version>0.2.2</version>
 </dependency>
 ```
@@ -90,7 +90,7 @@ If you would like snapshot builds, this is the relevant repository information:
 <!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-    implementation 'dev.openfeature:javasdk:0.2.2'
+    implementation 'dev.openfeature:sdk:0.2.2'
 }
 ```
 <!-- x-release-please-end-version -->
