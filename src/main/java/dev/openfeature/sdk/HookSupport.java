@@ -84,7 +84,7 @@ class HookSupport {
                 .filter(Objects::nonNull)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .map(EvaluationContext.class::cast);
+                .map(MutableContext.class::cast);
     }
 
     //for whatever reason, an error `error: incompatible types: invalid method reference` is thrown on compilation
@@ -92,6 +92,6 @@ class HookSupport {
     //when the reduce call is appended directly as stream call chain above. moving it to its own method works however...
     private EvaluationContext collectContexts(Stream<EvaluationContext> result) {
         return result
-                .reduce(new EvaluationContext(), EvaluationContext::merge, EvaluationContext::merge);
+                .reduce(new MutableContext(), EvaluationContext::merge, EvaluationContext::merge);
     }
 }

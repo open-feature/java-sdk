@@ -50,11 +50,11 @@ public class OpenFeatureClient implements Client {
     }
 
     private <T> FlagEvaluationDetails<T> evaluateFlag(FlagValueType type, String key, T defaultValue,
-                                                      EvaluationContext ctx, FlagEvaluationOptions options) {
+        EvaluationContext ctx, FlagEvaluationOptions options) {
         FlagEvaluationOptions flagOptions = ObjectUtils.defaultIfNull(options,
             () -> FlagEvaluationOptions.builder().build());
         Map<String, Object> hints = Collections.unmodifiableMap(flagOptions.getHookHints());
-        ctx = ObjectUtils.defaultIfNull(ctx, () -> new EvaluationContext());
+        ctx = ObjectUtils.defaultIfNull(ctx, () -> new MutableContext());
         FeatureProvider provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {
             log.debug("No provider configured, using no-op provider.");
             return new NoOpProvider();
@@ -78,7 +78,7 @@ public class OpenFeatureClient implements Client {
 
             // merge of: API.context, client.context, invocation.context
             EvaluationContext mergedCtx = EvaluationContext.merge(
-                    EvaluationContext.merge(
+                EvaluationContext.merge(
                             openfeatureApi.getEvaluationContext(),
                             this.getEvaluationContext()
                     ),
@@ -152,7 +152,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue) {
-        return getBooleanDetails(key, defaultValue, new EvaluationContext());
+        return getBooleanDetails(key, defaultValue, new MutableContext());
     }
 
     @Override
@@ -216,7 +216,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue) {
-        return getIntegerDetails(key, defaultValue, new EvaluationContext());
+        return getIntegerDetails(key, defaultValue, new MutableContext());
     }
 
     @Override

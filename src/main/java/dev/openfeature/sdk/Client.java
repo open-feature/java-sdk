@@ -10,7 +10,7 @@ public interface Client extends Features {
 
     /**
      * Return an optional client-level evaluation context.
-     * @return {@link EvaluationContext}
+     * @return {@link MutableContext}
      */
     EvaluationContext getEvaluationContext();
 

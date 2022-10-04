@@ -62,7 +62,7 @@ public class Value {
         this.innerObject = value; 
     }
 
-    public Value(Structure value) {
+    public Value(HashMapStructure value) {
         this.innerObject = value; 
     }
 
@@ -116,7 +116,7 @@ public class Value {
      * @return boolean
      */
     public boolean isStructure() {
-        return this.innerObject instanceof Structure;
+        return this.innerObject instanceof HashMapStructure;
     }
     
     /** 
@@ -204,9 +204,9 @@ public class Value {
      * 
      * @return Structure
      */
-    public Structure asStructure() {
+    public HashMapStructure asStructure() {
         if (this.isStructure()) {
-            return (Structure)this.innerObject;
+            return (HashMapStructure)this.innerObject;
         }
         return null;
     }
