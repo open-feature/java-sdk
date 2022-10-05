@@ -6,18 +6,18 @@
 
     <!-- I'm reasonably confident that the singleton pattern isn't exposing internal representation -->
     <And>
-        <Class name="dev.openfeature.javasdk.OpenFeatureAPI"/>
+        <Class name="dev.openfeature.sdk.OpenFeatureAPI"/>
         <Bug pattern="MS_EXPOSE_REP"/>
     </And>
     <!-- similarly, client using the singleton doesn't seem bad -->
     <And>
-        <Class name="dev.openfeature.javasdk.OpenFeatureClient"/>
+        <Class name="dev.openfeature.sdk.OpenFeatureClient"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </And>
 
     <!-- Test class that should be excluded -->
     <Match>
-        <Class name="dev.openfeature.javasdk.DoSomethingProvider"/>
+        <Class name="dev.openfeature.sdk.DoSomethingProvider"/>
     </Match>
     <!-- All bugs in test classes, except for JUnit-specific bugs -->
     <Match>
