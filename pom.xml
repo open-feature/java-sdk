@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>dev.openfeature</groupId>
-  <artifactId>javasdk</artifactId>
+  <artifactId>sdk</artifactId>
   <version>0.2.2</version> <!--x-release-please-version -->
 
   <properties>
@@ -137,15 +137,6 @@
       <version>31.1-jre</version>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>dev.openfeature.contrib.providers</groupId>
-      <artifactId>flagd</artifactId>
-      <!-- TODO: update this version -->
-      <version>0.3.2</version>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
   <dependencyManagement>
@@ -271,7 +262,7 @@
             <configuration>
               <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
               <excludes>
-                <exclude>dev/openfeature/javasdk/exceptions/**</exclude>
+                <exclude>dev/openfeature/sdk/exceptions/**</exclude>
               </excludes>
 
               <rules>
