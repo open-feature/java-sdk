@@ -137,16 +137,16 @@ public class EvalContextTest {
         EvaluationContext ctx1 = new MutableContext(key1);
         EvaluationContext ctx2 = new MutableContext();
 
-        EvaluationContext ctxMerged = EvaluationContext.merge(ctx1, ctx2);
+        EvaluationContext ctxMerged = ctx1.merge(ctx2);
         assertEquals(key1, ctxMerged.getTargetingKey());
 
         String key2 = "key2";
         ctx2.setTargetingKey(key2);
-        ctxMerged = EvaluationContext.merge(ctx1, ctx2);
+        ctxMerged = ctx1.merge(ctx2);
         assertEquals(key2, ctxMerged.getTargetingKey());
 
         ctx2.setTargetingKey("  ");
-        ctxMerged = EvaluationContext.merge(ctx1, ctx2);
+        ctxMerged = ctx1.merge(ctx2);
         assertEquals(key1, ctxMerged.getTargetingKey());
     }
 

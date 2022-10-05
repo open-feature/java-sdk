@@ -11,46 +11,44 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({ "unchecked", "rawtypes" })
 class HookSupport {
 
     public void errorHooks(FlagValueType flagValueType, HookContext hookCtx, Exception e, List<Hook> hooks,
-                           Map<String, Object> hints) {
+            Map<String, Object> hints) {
         executeHooks(flagValueType, hooks, "error", hook -> hook.error(hookCtx, e, hints));
     }
 
     public void afterAllHooks(FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks,
-                              Map<String, Object> hints) {
+            Map<String, Object> hints) {
         executeHooks(flagValueType, hooks, "finally", hook -> hook.finallyAfter(hookCtx, hints));
     }
 
     public void afterHooks(FlagValueType flagValueType, HookContext hookContext, FlagEvaluationDetails details,
-                           List<Hook> hooks, Map<String, Object> hints) {
+            List<Hook> hooks, Map<String, Object> hints) {
         executeHooksUnchecked(flagValueType, hooks, hook -> hook.after(hookContext, details, hints));
     }
 
     private <T> void executeHooks(
             FlagValueType flagValueType, List<Hook> hooks,
             String hookMethod,
-            Consumer<Hook<T>> hookCode
-    ) {
+            Consumer<Hook<T>> hookCode) {
         if (hooks != null) {
             hooks
-                .stream()
-                .filter(hook -> hook.supportsFlagValueType(flagValueType))
-                .forEach(hook -> executeChecked(hook, hookCode, hookMethod));
+                    .stream()
+                    .filter(hook -> hook.supportsFlagValueType(flagValueType))
+                    .forEach(hook -> executeChecked(hook, hookCode, hookMethod));
         }
     }
 
     private <T> void executeHooksUnchecked(
             FlagValueType flagValueType, List<Hook> hooks,
-            Consumer<Hook<T>> hookCode
-    ) {
+            Consumer<Hook<T>> hookCode) {
         if (hooks != null) {
             hooks
-                .stream()
-                .filter(hook -> hook.supportsFlagValueType(flagValueType))
-                .forEach(hookCode::accept);
+                    .stream()
+                    .filter(hook -> hook.supportsFlagValueType(flagValueType))
+                    .forEach(hookCode::accept);
         }
     }
 
@@ -63,13 +61,16 @@ class HookSupport {
     }
 
     public EvaluationContext beforeHooks(FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks,
-                                         Map<String, Object> hints) {
+            Map<String, Object> hints) {
         Stream<EvaluationContext> result = callBeforeHooks(flagValueType, hookCtx, hooks, hints);
-        return EvaluationContext.merge(hookCtx.getCtx(), collectContexts(result));
+        return hookCtx.getCtx().merge(
+                result.reduce(new MutableContext(), (EvaluationContext accumulated, EvaluationContext current) -> {
+                    return accumulated.merge(current);
+                }));
     }
 
     private Stream<EvaluationContext> callBeforeHooks(FlagValueType flagValueType, HookContext hookCtx,
-                                                      List<Hook> hooks, Map<String, Object> hints) {
+            List<Hook> hooks, Map<String, Object> hints) {
         // These traverse backwards from normal.
         List<Hook> reversedHooks = IntStream
                 .range(0, hooks.size())
@@ -85,13 +86,5 @@ class HookSupport {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(MutableContext.class::cast);
-    }
-
-    //for whatever reason, an error `error: incompatible types: invalid method reference` is thrown on compilation
-    // with javac
-    //when the reduce call is appended directly as stream call chain above. moving it to its own method works however...
-    private EvaluationContext collectContexts(Stream<EvaluationContext> result) {
-        return result
-                .reduce(new MutableContext(), EvaluationContext::merge, EvaluationContext::merge);
     }
 }
