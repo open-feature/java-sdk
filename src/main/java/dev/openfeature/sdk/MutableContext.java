@@ -80,6 +80,7 @@ public class MutableContext implements EvaluationContext {
      * @param overridingContext overriding context
      * @return resulting merged context
      */
+    @Override
     public EvaluationContext merge(EvaluationContext overridingContext) {
         if (overridingContext == null) {
             return new MutableContext(this.asMap());

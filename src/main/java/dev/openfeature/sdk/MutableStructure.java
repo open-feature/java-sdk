@@ -27,11 +27,13 @@ public class MutableStructure implements Structure {
         this.attributes = new HashMap<>(attributes);
     }
 
+    @Override
     public Set<String> keySet() {
         return this.attributes.keySet();
     }
 
     // getters
+    @Override
     public Value getValue(String key) {
         return this.attributes.get(key);
     }
@@ -89,6 +91,7 @@ public class MutableStructure implements Structure {
      *
      * @return all attributes on the structure
      */
+    @Override
     public Map<String, Value> asMap() {
         return new HashMap<>(this.attributes);
     }
@@ -98,6 +101,7 @@ public class MutableStructure implements Structure {
      *
      * @return all attributes on the structure into a Map
      */
+    @Override
     public Map<String, Object> asObjectMap() {
         return attributes
             .entrySet()
