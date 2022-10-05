@@ -20,7 +20,7 @@ public class EvalContextTest {
         assertEquals("targeting-key", ec.getTargetingKey());
     }
 
-    @Specification(number="3.1.2", text="The evaluation context MUST support the inclusion of " +
+    @Specification(number="3.1.2", text= "The evaluation context MUST support the inclusion of " +
             "custom fields, having keys of type `string`, and " +
             "values of type `boolean | string | number | datetime | structure`.")
     @Test void eval_context() {
@@ -45,13 +45,13 @@ public class EvalContextTest {
             "values of type `boolean | string | number | datetime | structure`.")
     @Test void eval_context_structure_array() {
         MutableContext ec = new MutableContext();
-        ec.add("obj", new HashMapStructure().add("val1", 1).add("val2", "2"));
+        ec.add("obj", new MutableStructure().add("val1", 1).add("val2", "2"));
         ec.add("arr", new ArrayList<Value>(){{
             add(new Value("one"));
             add(new Value("two"));
         }});
 
-        HashMapStructure str = ec.getValue("obj").asStructure();
+        Structure str = ec.getValue("obj").asStructure();
         assertEquals(1, str.getValue("val1").asInteger());
         assertEquals("2", str.getValue("val2").asString());
 
@@ -76,7 +76,7 @@ public class EvalContextTest {
         Instant dt = Instant.now();
         ec.add("dt", dt);
 
-        ec.add("obj", new HashMapStructure().add("val1", 1).add("val2", "2"));
+        ec.add("obj", new MutableStructure().add("val1", 1).add("val2", "2"));
 
         Map<String, Value> foundStr = ec.asMap();
         assertEquals(ec.getValue("str").asString(), foundStr.get("str").asString());
@@ -90,7 +90,7 @@ public class EvalContextTest {
         assertEquals(ec.getValue("int").asInteger(), foundInt.get("int").asInteger());
         assertEquals(ec.getValue("int2").asInteger(), foundInt.get("int2").asInteger());
 
-        HashMapStructure foundObj = ec.getValue("obj").asStructure();
+        Structure foundObj = ec.getValue("obj").asStructure();
         assertEquals(1, foundObj.getValue("val1").asInteger());
         assertEquals("2", foundObj.getValue("val2").asString());
     }
@@ -111,7 +111,7 @@ public class EvalContextTest {
         MutableContext out = ec.add("str", "test")
                 .add("int", 4)
                 .add("bool", false)
-                .add("str", new HashMapStructure());
+                .add("str", new MutableStructure());
         assertEquals(MutableContext.class, out.getClass());
     }
 
@@ -120,7 +120,7 @@ public class EvalContextTest {
                 .add("Boolean", (Boolean)null)
                 .add("String", (String)null)
                 .add("Double", (Double)null)
-                .add("Structure", (HashMapStructure)null)
+                .add("Structure", (MutableStructure)null)
                 .add("List", (List<Value>)null)
                 .add("Instant", (Instant)null);
         assertEquals(6, ec.asMap().size());
@@ -172,7 +172,7 @@ public class EvalContextTest {
         structureValue.put("structIntegerItem", new Value(1));
         structureValue.put("structDoubleItem", new Value(1.2));
         structureValue.put("structInstantItem",  new Value(Instant.ofEpochSecond(1663331342)));
-        HashMapStructure structure = new HashMapStructure(structureValue);
+        Structure structure = new MutableStructure(structureValue);
         ctx.add("structureItem", structure);
 
 

@@ -24,7 +24,7 @@ public class ValueTest {
             list.add(true);
             list.add("val");
             list.add(.5);
-            list.add(new HashMapStructure());
+            list.add(new MutableStructure());
             list.add(new ArrayList<Value>());
             list.add(Instant.now());
 
@@ -96,7 +96,7 @@ public class ValueTest {
     @Test public void structureShouldContainStructure() {
         String INNER_KEY = "key";
         String INNER_VALUE = "val";
-        HashMapStructure innerValue = new HashMapStructure().add(INNER_KEY, INNER_VALUE);
+        MutableStructure innerValue = new MutableStructure().add(INNER_KEY, INNER_VALUE);
         Value value = new Value(innerValue);
         assertTrue(value.isStructure());
         assertEquals(INNER_VALUE, value.asStructure().getValue(INNER_KEY).asString());

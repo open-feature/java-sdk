@@ -6,10 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 // import dev.openfeature.contrib.providers.flagd.FlagdProvider;
 import dev.openfeature.sdk.Client;
 import dev.openfeature.sdk.FlagEvaluationDetails;
-import dev.openfeature.sdk.HashMapStructure;
+import dev.openfeature.sdk.MutableStructure;
 import dev.openfeature.sdk.MutableContext;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.Reason;
+import dev.openfeature.sdk.Structure;
 import dev.openfeature.sdk.Value;
 import io.cucumber.java.BeforeAll;
 import io.cucumber.java.en.Then;
@@ -106,7 +107,7 @@ public class StepDefinitions {
     @Then("the resolved object value should be contain fields {string}, {string}, and {string}, with values {string}, {string} and {int}, respectively")
     public void the_resolved_object_value_should_be_contain_fields_and_with_values_and_respectively(String boolField,
             String stringField, String numberField, String boolValue, String stringValue, int numberValue) {
-        HashMapStructure structure = this.objectFlagValue.asStructure();
+        Structure structure = this.objectFlagValue.asStructure();
 
         assertEquals(Boolean.valueOf(boolValue), structure.asMap().get(boolField).asBoolean());
         assertEquals(stringValue, structure.asMap().get(stringField).asString());
@@ -186,7 +187,7 @@ public class StepDefinitions {
     public void the_resolved_object_value_should_be_contain_fields_and_with_values_and_respectively_again(
             String boolField,
             String stringField, String numberField, String boolValue, String stringValue, int numberValue) {
-        HashMapStructure structure = this.objectFlagDetails.getValue().asStructure();
+        Structure structure = this.objectFlagDetails.getValue().asStructure();
 
         assertEquals(Boolean.valueOf(boolValue), structure.asMap().get(boolField).asBoolean());
         assertEquals(stringValue, structure.asMap().get(stringField).asString());

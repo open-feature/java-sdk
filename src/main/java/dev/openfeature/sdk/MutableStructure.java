@@ -9,21 +9,21 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * {@link HashMapStructure} represents a potentially nested object type which is used to pass complex objects via
+ * {@link MutableStructure} represents a potentially nested object type which is used to pass complex objects via
  * {@link MutableContext}.
  */
 @ToString
 @EqualsAndHashCode
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
-public class HashMapStructure {
+public class MutableStructure implements Structure {
 
     protected final Map<String, Value> attributes;
 
-    public HashMapStructure() {
+    public MutableStructure() {
         this.attributes = new HashMap<>();
     }
 
-    public HashMapStructure(Map<String, Value> attributes) {
+    public MutableStructure(Map<String, Value> attributes) {
         this.attributes = new HashMap<>(attributes);
     }
 
@@ -37,27 +37,27 @@ public class HashMapStructure {
     }
 
     // adders
-    public HashMapStructure add(String key, Value value) {
+    public MutableStructure add(String key, Value value) {
         attributes.put(key, value);
         return this;
     }
 
-    public HashMapStructure add(String key, Boolean value) {
+    public MutableStructure add(String key, Boolean value) {
         attributes.put(key, new Value(value));
         return this;
     }
 
-    public HashMapStructure add(String key, String value) {
+    public MutableStructure add(String key, String value) {
         attributes.put(key, new Value(value));
         return this;
     }
 
-    public HashMapStructure add(String key, Integer value) {
+    public MutableStructure add(String key, Integer value) {
         attributes.put(key, new Value(value));
         return this;
     }
 
-    public HashMapStructure add(String key, Double value) {
+    public MutableStructure add(String key, Double value) {
         attributes.put(key, new Value(value));
         return this;
     }
@@ -69,17 +69,17 @@ public class HashMapStructure {
      * @param value date-time value
      * @return Structure
      */
-    public HashMapStructure add(String key, Instant value) {
+    public MutableStructure add(String key, Instant value) {
         attributes.put(key, new Value(value));
         return this;
     }
 
-    public HashMapStructure add(String key, HashMapStructure value) {
+    public MutableStructure add(String key, Structure value) {
         attributes.put(key, new Value(value));
         return this;
     }
 
-    public <T> HashMapStructure add(String key, List<Value> value) {
+    public <T> MutableStructure add(String key, List<Value> value) {
         attributes.put(key, new Value(value));
         return this;
     }
@@ -142,7 +142,7 @@ public class HashMapStructure {
         }
 
         if (value.isStructure()) {
-            HashMapStructure s = value.asStructure();
+            Structure s = value.asStructure();
             return s.asMap()
                     .keySet()
                     .stream()

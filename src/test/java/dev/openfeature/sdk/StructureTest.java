@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 public class StructureTest {
     @Test public void noArgShouldContainEmptyAttributes() {
-        HashMapStructure structure = new HashMapStructure();
+        MutableStructure structure = new MutableStructure();
         assertEquals(0, structure.asMap().keySet().size());
     }
 
@@ -25,7 +25,7 @@ public class StructureTest {
                 put(KEY, new Value(KEY));
             }
         };
-        HashMapStructure structure = new HashMapStructure(map);
+        MutableStructure structure = new MutableStructure(map);
         assertEquals(KEY, structure.asMap().get(KEY).asString());
         assertNotSame(structure.asMap(), map); // should be a copy
     }
@@ -45,11 +45,11 @@ public class StructureTest {
         int INT_VAL = 13;
         double DOUBLE_VAL = .5;
         Instant DATE_VAL = Instant.now();
-        HashMapStructure STRUCT_VAL = new HashMapStructure();
+        MutableStructure STRUCT_VAL = new MutableStructure();
         List<Value> LIST_VAL = new ArrayList<Value>();
         Value VALUE_VAL = new Value();
 
-        HashMapStructure structure = new HashMapStructure();
+        MutableStructure structure = new MutableStructure();
         structure.add(BOOL_KEY, BOOL_VAL);
         structure.add(STRING_KEY, STRING_VAL);
         structure.add(INT_KEY, INT_VAL);

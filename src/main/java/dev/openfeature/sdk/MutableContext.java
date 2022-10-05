@@ -15,10 +15,10 @@ import lombok.experimental.Delegate;
 public class MutableContext implements EvaluationContext {
 
     @Setter() @Getter private String targetingKey;
-    @Delegate(excludes = HideDelegateAddMethods.class) private final HashMapStructure structure;
+    @Delegate(excludes = HideDelegateAddMethods.class) private final MutableStructure structure;
 
     public MutableContext() {
-        this.structure = new HashMapStructure();
+        this.structure = new MutableStructure();
         this.targetingKey = "";
     }
 
@@ -28,7 +28,7 @@ public class MutableContext implements EvaluationContext {
     }
 
     public MutableContext(Map<String, Value> attributes) {
-        this.structure = new HashMapStructure(attributes);
+        this.structure = new MutableStructure(attributes);
         this.targetingKey = "";
     }
 
@@ -63,7 +63,7 @@ public class MutableContext implements EvaluationContext {
         return this;
     }
 
-    public MutableContext add(String key, HashMapStructure value) {
+    public MutableContext add(String key, Structure value) {
         this.structure.add(key, value);
         return this;
     }
@@ -106,35 +106,35 @@ public class MutableContext implements EvaluationContext {
      * Hidden class to tell Lombok not to copy these methods over via delegation.
      */
     private static class HideDelegateAddMethods {
-        public HashMapStructure add(String ignoredKey, Boolean ignoredValue) {
+        public MutableStructure add(String ignoredKey, Boolean ignoredValue) {
             return null;
         }
         
-        public HashMapStructure add(String ignoredKey, Double ignoredValue) {
+        public MutableStructure add(String ignoredKey, Double ignoredValue) {
             return null;
         }
 
-        public HashMapStructure add(String ignoredKey, String ignoredValue) {
+        public MutableStructure add(String ignoredKey, String ignoredValue) {
             return null;
         }
 
-        public HashMapStructure add(String ignoredKey, Value ignoredValue) {
+        public MutableStructure add(String ignoredKey, Value ignoredValue) {
             return null;
         }
 
-        public HashMapStructure add(String ignoredKey, Integer ignoredValue) {
+        public MutableStructure add(String ignoredKey, Integer ignoredValue) {
             return null;
         }
 
-        public HashMapStructure add(String ignoredKey, List<Value> ignoredValue) {
+        public MutableStructure add(String ignoredKey, List<Value> ignoredValue) {
             return null;
         }
 
-        public HashMapStructure add(String ignoredKey, HashMapStructure ignoredValue) {
+        public MutableStructure add(String ignoredKey, MutableStructure ignoredValue) {
             return null;
         }
 
-        public HashMapStructure add(String ignoredKey, Instant ignoredValue) {
+        public MutableStructure add(String ignoredKey, Instant ignoredValue) {
             return null;
         }
     }
