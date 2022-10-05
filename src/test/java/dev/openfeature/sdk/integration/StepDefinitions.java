@@ -3,7 +3,7 @@ package dev.openfeature.sdk.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import dev.openfeature.contrib.providers.flagd.FlagdProvider;
+// import dev.openfeature.contrib.providers.flagd.FlagdProvider;
 import dev.openfeature.sdk.Client;
 import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.FlagEvaluationDetails;
@@ -44,7 +44,7 @@ public class StepDefinitions {
 
     @BeforeAll()
     public static void setup() {
-        OpenFeatureAPI.getInstance().setProvider(new FlagdProvider());
+        // OpenFeatureAPI.getInstance().setProvider(new FlagdProvider());
         client = OpenFeatureAPI.getInstance().getClient();
     }
 

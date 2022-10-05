@@ -137,15 +137,6 @@
       <version>31.1-jre</version>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>dev.openfeature.contrib.providers</groupId>
-      <artifactId>flagd</artifactId>
-      <!-- TODO: update this version -->
-      <version>0.3.2</version>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
   <dependencyManagement>
