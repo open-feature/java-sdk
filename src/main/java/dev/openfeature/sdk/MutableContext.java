@@ -37,7 +37,7 @@ public class MutableContext implements EvaluationContext {
         this.targetingKey = targetingKey;
     }
 
-    // override @Delegate methods so that we can use "add" methods and still return EvaluationContext, not Structure
+    // override @Delegate methods so that we can use "add" methods and still return MutableContext, not Structure
     public MutableContext add(String key, Boolean value) {
         this.structure.add(key, value);
         return this;
