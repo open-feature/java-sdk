@@ -7,7 +7,7 @@ public interface EvaluationContext extends Structure {
     void setTargetingKey(String targetingKey);
 
     /**
-     * Merges this EvaluationContext objects with the second overriding the this in
+     * Merges this EvaluationContext object with the second overriding the this in
      * case of conflict.
      *
      * @param overridingContext overriding context
