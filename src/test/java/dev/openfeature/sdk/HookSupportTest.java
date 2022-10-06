@@ -21,7 +21,7 @@ class HookSupportTest implements HookFixtures {
     @Test
     @DisplayName("should merge EvaluationContexts on before hooks correctly")
     void shouldMergeEvaluationContextsOnBeforeHooksCorrectly() {
-        EvaluationContext baseContext = new EvaluationContext();
+        MutableContext baseContext = new MutableContext();
         baseContext.add("baseKey", "baseValue");
         HookContext<String> hookContext = new HookContext<>("flagKey", FlagValueType.STRING, "defaultValue", baseContext, () -> "client", () -> "provider");
         Hook<String> hook1 = mockStringHook();
@@ -43,7 +43,7 @@ class HookSupportTest implements HookFixtures {
     void shouldAlwaysCallGenericHook(FlagValueType flagValueType) {
         Hook<?> genericHook = mockGenericHook();
         HookSupport hookSupport = new HookSupport();
-        EvaluationContext baseContext = new EvaluationContext();
+        MutableContext baseContext = new MutableContext();
         IllegalStateException expectedException = new IllegalStateException("All fine, just a test");
         HookContext<Object> hookContext = new HookContext<>("flagKey", flagValueType, createDefaultValue(flagValueType), baseContext, () -> "client", () -> "provider");
 
@@ -75,8 +75,8 @@ class HookSupportTest implements HookFixtures {
         }
     }
 
-    private EvaluationContext evaluationContextWithValue(String key, String value) {
-        EvaluationContext result = new EvaluationContext();
+    private MutableContext evaluationContextWithValue(String key, String value) {
+        MutableContext result = new MutableContext();
         result.add(key, value);
         return result;
     }

@@ -15,16 +15,16 @@ public class EvalContextTest {
             text="The `evaluation context` structure **MUST** define an optional `targeting key` field of " +
                     "type string, identifying the subject of the flag evaluation.")
     @Test void requires_targeting_key() {
-        EvaluationContext ec = new EvaluationContext();
+        MutableContext ec = new MutableContext();
         ec.setTargetingKey("targeting-key");
         assertEquals("targeting-key", ec.getTargetingKey());
     }
 
-    @Specification(number="3.1.2", text="The evaluation context MUST support the inclusion of " +
+    @Specification(number="3.1.2", text= "The evaluation context MUST support the inclusion of " +
             "custom fields, having keys of type `string`, and " +
             "values of type `boolean | string | number | datetime | structure`.")
     @Test void eval_context() {
-        EvaluationContext ec = new EvaluationContext();
+        MutableContext ec = new MutableContext();
 
         ec.add("str", "test");
         assertEquals("test", ec.getValue("str").asString());
@@ -44,8 +44,8 @@ public class EvalContextTest {
             "custom fields, having keys of type `string`, and " +
             "values of type `boolean | string | number | datetime | structure`.")
     @Test void eval_context_structure_array() {
-        EvaluationContext ec = new EvaluationContext();
-        ec.add("obj", new Structure().add("val1", 1).add("val2", "2"));
+        MutableContext ec = new MutableContext();
+        ec.add("obj", new MutableStructure().add("val1", 1).add("val2", "2"));
         ec.add("arr", new ArrayList<Value>(){{
             add(new Value("one"));
             add(new Value("two"));
@@ -62,7 +62,7 @@ public class EvalContextTest {
 
     @Specification(number="3.1.3", text="The evaluation context MUST support fetching the custom fields by key and also fetching all key value pairs.")
     @Test void fetch_all() {
-        EvaluationContext ec = new EvaluationContext();
+        MutableContext ec = new MutableContext();
 
         ec.add("str", "test");
         ec.add("str2", "test2");
@@ -76,7 +76,7 @@ public class EvalContextTest {
         Instant dt = Instant.now();
         ec.add("dt", dt);
 
-        ec.add("obj", new Structure().add("val1", 1).add("val2", "2"));
+        ec.add("obj", new MutableStructure().add("val1", 1).add("val2", "2"));
 
         Map<String, Value> foundStr = ec.asMap();
         assertEquals(ec.getValue("str").asString(), foundStr.get("str").asString());
@@ -97,7 +97,7 @@ public class EvalContextTest {
 
     @Specification(number="3.1.4", text="The evaluation context fields MUST have an unique key.")
     @Test void unique_key_across_types() {
-        EvaluationContext ec = new EvaluationContext();
+        MutableContext ec = new MutableContext();
         ec.add("key", "val");
         ec.add("key", "val2");
         assertEquals("val2", ec.getValue("key").asString());
@@ -107,20 +107,20 @@ public class EvalContextTest {
     }
 
     @Test void can_chain_attribute_addition() {
-        EvaluationContext ec = new EvaluationContext();
-        EvaluationContext out = ec.add("str", "test")
+        MutableContext ec = new MutableContext();
+        MutableContext out = ec.add("str", "test")
                 .add("int", 4)
                 .add("bool", false)
-                .add("str", new Structure());
-        assertEquals(EvaluationContext.class, out.getClass());
+                .add("str", new MutableStructure());
+        assertEquals(MutableContext.class, out.getClass());
     }
 
     @Test void can_add_key_with_null() {
-        EvaluationContext ec = new EvaluationContext()
+        MutableContext ec = new MutableContext()
                 .add("Boolean", (Boolean)null)
                 .add("String", (String)null)
                 .add("Double", (Double)null)
-                .add("Structure", (Structure)null)
+                .add("Structure", (MutableStructure)null)
                 .add("List", (List<Value>)null)
                 .add("Instant", (Instant)null);
         assertEquals(6, ec.asMap().size());
@@ -134,25 +134,25 @@ public class EvalContextTest {
 
     @Test void merge_targeting_key() {
         String key1 = "key1";
-        EvaluationContext ctx1 = new EvaluationContext(key1);
-        EvaluationContext ctx2 = new EvaluationContext();
+        EvaluationContext ctx1 = new MutableContext(key1);
+        EvaluationContext ctx2 = new MutableContext();
 
-        EvaluationContext ctxMerged = EvaluationContext.merge(ctx1, ctx2);
+        EvaluationContext ctxMerged = ctx1.merge(ctx2);
         assertEquals(key1, ctxMerged.getTargetingKey());
 
         String key2 = "key2";
         ctx2.setTargetingKey(key2);
-        ctxMerged = EvaluationContext.merge(ctx1, ctx2);
+        ctxMerged = ctx1.merge(ctx2);
         assertEquals(key2, ctxMerged.getTargetingKey());
 
         ctx2.setTargetingKey("  ");
-        ctxMerged = EvaluationContext.merge(ctx1, ctx2);
+        ctxMerged = ctx1.merge(ctx2);
         assertEquals(key1, ctxMerged.getTargetingKey());
     }
 
     @Test void asObjectMap() {
         String key1 = "key1";
-        EvaluationContext ctx = new EvaluationContext(key1);
+        MutableContext ctx = new MutableContext(key1);
         ctx.add("stringItem", "stringValue");
         ctx.add("boolItem", false);
         ctx.add("integerItem", 1);
@@ -172,7 +172,7 @@ public class EvalContextTest {
         structureValue.put("structIntegerItem", new Value(1));
         structureValue.put("structDoubleItem", new Value(1.2));
         structureValue.put("structInstantItem",  new Value(Instant.ofEpochSecond(1663331342)));
-        Structure structure = new Structure(structureValue);
+        Structure structure = new MutableStructure(structureValue);
         ctx.add("structureItem", structure);
 
 

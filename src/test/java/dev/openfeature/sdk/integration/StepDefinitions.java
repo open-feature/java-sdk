@@ -5,8 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // import dev.openfeature.contrib.providers.flagd.FlagdProvider;
 import dev.openfeature.sdk.Client;
-import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.FlagEvaluationDetails;
+import dev.openfeature.sdk.MutableStructure;
+import dev.openfeature.sdk.MutableContext;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.Reason;
 import dev.openfeature.sdk.Structure;
@@ -32,7 +33,7 @@ public class StepDefinitions {
 
     private String contextAwareFlagKey;
     private String contextAwareDefaultValue;
-    private EvaluationContext context;
+    private MutableContext context;
     private String contextAwareValue;
 
     private String notFoundFlagKey;
@@ -206,7 +207,7 @@ public class StepDefinitions {
     @When("context contains keys {string}, {string}, {string}, {string} with values {string}, {string}, {int}, {string}")
     public void context_contains_keys_with_values(String field1, String field2, String field3, String field4,
             String value1, String value2, Integer value3, String value4) {
-        this.context = new EvaluationContext()
+        this.context = new MutableContext()
                 .add(field1, value1)
                 .add(field2, value2)
                 .add(field3, value3)
@@ -229,7 +230,7 @@ public class StepDefinitions {
     @Then("the resolved flag value is {string} when the context is empty")
     public void the_resolved_flag_value_is_when_the_context_is_empty(String expected) {
         String emptyContextValue = client.getStringValue(contextAwareFlagKey, contextAwareDefaultValue,
-                new EvaluationContext());
+                new MutableContext());
         assertEquals(expected, emptyContextValue);
     }
 
