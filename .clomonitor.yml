@@ -1,0 +1,12 @@
+
+# CLOMonitor metadata file
+# This file must be located at the root of the repository
+
+# Checks exemptions
+
+# Check identifiers are here https://github.com/cncf/clomonitor/blob/main/docs/checks.md#exemptions (look for "id")
+exemptions:
+  - check: signed_releases
+    reason: "Our releases are signed on Maven Central"
+  - check: artifacthub_badge
+    reason: "Java library, not a k8s thing. We use Maven Central"
