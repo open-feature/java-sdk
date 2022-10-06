@@ -10,6 +10,12 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Delegate;
 
+/**
+ * The EvaluationContext is a container for arbitrary contextual data
+ * that can be used as a basis for dynamic evaluation.
+ * The MutableContext is an EvaluationContext implementation which is not threadsafe, and whose attributes can 
+ * be modified after instantiation.
+ */
 @ToString
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class MutableContext implements EvaluationContext {

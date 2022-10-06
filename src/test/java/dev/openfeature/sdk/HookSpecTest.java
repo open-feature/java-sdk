@@ -193,7 +193,7 @@ public class HookSpecTest implements HookFixtures {
                 return Collections.singletonList(new BooleanHook() {
 
                     @Override
-                    public Optional<MutableContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
+                    public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
                         evalOrder.add("provider before");
                         return null;
                     }
@@ -218,7 +218,7 @@ public class HookSpecTest implements HookFixtures {
         });
         api.addHooks(new BooleanHook() {
             @Override
-            public Optional<MutableContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
+            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
                 evalOrder.add("api before");
                 return null;
             }
@@ -243,7 +243,7 @@ public class HookSpecTest implements HookFixtures {
         Client c = api.getClient();
         c.addHooks(new BooleanHook() {
             @Override
-            public Optional<MutableContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
+            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
                 evalOrder.add("client before");
                 return null;
             }
@@ -268,7 +268,7 @@ public class HookSpecTest implements HookFixtures {
             .builder()
             .hook(new BooleanHook() {
                 @Override
-                public Optional<MutableContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
+                public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
                     evalOrder.add("invocation before");
                     return null;
                 }
@@ -341,7 +341,7 @@ public class HookSpecTest implements HookFixtures {
         Client client = getClient(null);
         Hook<Boolean> mutatingHook = new BooleanHook() {
             @Override
-            public Optional<MutableContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
+            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
                 assertThatCode(() -> hints.put(hintKey, "changed value")).isInstanceOf(UnsupportedOperationException.class);
                 return Optional.empty();
             }

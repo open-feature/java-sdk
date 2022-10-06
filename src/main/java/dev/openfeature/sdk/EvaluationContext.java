@@ -1,5 +1,9 @@
 package dev.openfeature.sdk;
 
+/**
+ * The EvaluationContext is a container for arbitrary contextual data
+ * that can be used as a basis for dynamic evaluation.
+ */
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public interface EvaluationContext extends Structure {
     String getTargetingKey();

@@ -153,7 +153,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue) {
-        return getBooleanDetails(key, defaultValue, new MutableContext());
+        return getBooleanDetails(key, defaultValue, null);
     }
 
     @Override
@@ -217,7 +217,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue) {
-        return getIntegerDetails(key, defaultValue, new MutableContext());
+        return getIntegerDetails(key, defaultValue, null);
     }
 
     @Override

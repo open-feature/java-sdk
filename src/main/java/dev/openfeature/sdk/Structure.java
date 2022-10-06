@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * {@link Structure} represents a potentially nested object type which is used to pass complex objects via
- * {@link EvaluationContext}.
+ * {@link Structure} represents a potentially nested object type which is used to represent 
+ * structured data.
  */
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public interface Structure {

@@ -64,7 +64,7 @@ class HookSupport {
             Map<String, Object> hints) {
         Stream<EvaluationContext> result = callBeforeHooks(flagValueType, hookCtx, hooks, hints);
         return hookCtx.getCtx().merge(
-                result.reduce(new MutableContext(), (EvaluationContext accumulated, EvaluationContext current) -> {
+                result.reduce(hookCtx.getCtx(), (EvaluationContext accumulated, EvaluationContext current) -> {
                     return accumulated.merge(current);
                 }));
     }
@@ -85,6 +85,6 @@ class HookSupport {
                 .filter(Objects::nonNull)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .map(MutableContext.class::cast);
+                .map(EvaluationContext.class::cast);
     }
 }

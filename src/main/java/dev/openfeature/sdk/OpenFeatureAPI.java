@@ -19,7 +19,7 @@ public class OpenFeatureAPI {
     private FeatureProvider provider;
     @Getter
     @Setter
-    private MutableContext evaluationContext;
+    private EvaluationContext evaluationContext;
     @Getter
     private List<Hook> apiHooks;
 
