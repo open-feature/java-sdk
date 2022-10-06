@@ -122,6 +122,10 @@ The continuous integration runs a set of [gherkin integration tests](https://git
 
 See [releasing](./docs/release.md).
 
+### Software Bill of Materials (SBOM)
+
+We publish SBOMs with all of our releases as of 0.3.0. You can find them in Maven Central alongside the artifacts.
+
 ## Contributors
 
 Thanks so much to our contributors.
