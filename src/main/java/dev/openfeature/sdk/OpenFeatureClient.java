@@ -14,7 +14,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "PMD.BeanMembersShouldSerialize", "unchecked", "rawtypes"})
+@SuppressWarnings({ "PMD.DataflowAnomalyAnalysis", "PMD.BeanMembersShouldSerialize", "unchecked", "rawtypes" })
 public class OpenFeatureClient implements Client {
 
     private final OpenFeatureAPI openfeatureApi;
@@ -31,10 +31,12 @@ public class OpenFeatureClient implements Client {
     private EvaluationContext evaluationContext;
 
     /**
-     * Client for evaluating the flag. There may be multiples of these floating around.
+     * Client for evaluating the flag. There may be multiples of these floating
+     * around.
+     * 
      * @param openFeatureAPI Backing global singleton
-     * @param name Name of the client (used by observability tools).
-     * @param version Version of the client (used by observability tools).
+     * @param name           Name of the client (used by observability tools).
+     * @param version        Version of the client (used by observability tools).
      */
     public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
         this.openfeatureApi = openFeatureAPI;
@@ -50,11 +52,11 @@ public class OpenFeatureClient implements Client {
     }
 
     private <T> FlagEvaluationDetails<T> evaluateFlag(FlagValueType type, String key, T defaultValue,
-                                                      EvaluationContext ctx, FlagEvaluationOptions options) {
+            EvaluationContext ctx, FlagEvaluationOptions options) {
         FlagEvaluationOptions flagOptions = ObjectUtils.defaultIfNull(options,
-            () -> FlagEvaluationOptions.builder().build());
+                () -> FlagEvaluationOptions.builder().build());
         Map<String, Object> hints = Collections.unmodifiableMap(flagOptions.getHookHints());
-        ctx = ObjectUtils.defaultIfNull(ctx, () -> new EvaluationContext());
+        ctx = ObjectUtils.defaultIfNull(ctx, () -> new MutableContext());
         FeatureProvider provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {
             log.debug("No provider configured, using no-op provider.");
             return new NoOpProvider();
@@ -67,23 +69,23 @@ public class OpenFeatureClient implements Client {
         try {
 
             hookCtx = HookContext.from(key, type, this.getMetadata(),
-                openfeatureApi.getProvider().getMetadata(), ctx, defaultValue);
+                    openfeatureApi.getProvider().getMetadata(), ctx, defaultValue);
 
             mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
-                openfeatureApi.getApiHooks());
+                    openfeatureApi.getApiHooks());
 
             EvaluationContext ctxFromHook = hookSupport.beforeHooks(type, hookCtx, mergedHooks, hints);
 
-            EvaluationContext invocationCtx = EvaluationContext.merge(ctx, ctxFromHook);
+            EvaluationContext invocationCtx = ctx.merge(ctxFromHook);
 
             // merge of: API.context, client.context, invocation.context
-            EvaluationContext mergedCtx = EvaluationContext.merge(
-                    EvaluationContext.merge(
-                            openfeatureApi.getEvaluationContext(),
-                            this.getEvaluationContext()
-                    ),
-                    invocationCtx
-            );
+            EvaluationContext apiContext = openfeatureApi.getEvaluationContext() != null
+                    ? openfeatureApi.getEvaluationContext()
+                    : new MutableContext();
+            EvaluationContext clientContext = openfeatureApi.getEvaluationContext() != null
+                    ? this.getEvaluationContext()
+                    : new MutableContext();
+            EvaluationContext mergedCtx = apiContext.merge(clientContext.merge(invocationCtx));
 
             ProviderEvaluation<T> providerEval = (ProviderEvaluation<T>) createProviderEvaluation(type, key,
                     defaultValue, provider, mergedCtx);
@@ -96,7 +98,7 @@ public class OpenFeatureClient implements Client {
                 details = FlagEvaluationDetails.<T>builder().build();
             }
             if (e instanceof OpenFeatureError) {
-                details.setErrorCode(((OpenFeatureError)e).getErrorCode());
+                details.setErrorCode(((OpenFeatureError) e).getErrorCode());
             } else {
                 details.setErrorCode(ErrorCode.GENERAL);
             }
@@ -116,8 +118,7 @@ public class OpenFeatureClient implements Client {
             String key,
             T defaultValue,
             FeatureProvider provider,
-            EvaluationContext invocationContext
-    ) {
+            EvaluationContext invocationContext) {
         switch (type) {
             case BOOLEAN:
                 return provider.getBooleanEvaluation(key, (Boolean) defaultValue, invocationContext);
@@ -146,13 +147,13 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public Boolean getBooleanValue(String key, Boolean defaultValue, EvaluationContext ctx,
-                                   FlagEvaluationOptions options) {
+            FlagEvaluationOptions options) {
         return getBooleanDetails(key, defaultValue, ctx, options).getValue();
     }
 
     @Override
     public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue) {
-        return getBooleanDetails(key, defaultValue, new EvaluationContext());
+        return getBooleanDetails(key, defaultValue, null);
     }
 
     @Override
@@ -162,7 +163,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue, EvaluationContext ctx,
-                                                            FlagEvaluationOptions options) {
+            FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.BOOLEAN, key, defaultValue, ctx, options);
     }
 
@@ -178,7 +179,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public String getStringValue(String key, String defaultValue, EvaluationContext ctx,
-                                 FlagEvaluationOptions options) {
+            FlagEvaluationOptions options) {
         return getStringDetails(key, defaultValue, ctx, options).getValue();
     }
 
@@ -194,7 +195,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx,
-                                                          FlagEvaluationOptions options) {
+            FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.STRING, key, defaultValue, ctx, options);
     }
 
@@ -210,13 +211,13 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx,
-                                   FlagEvaluationOptions options) {
+            FlagEvaluationOptions options) {
         return getIntegerDetails(key, defaultValue, ctx, options).getValue();
     }
 
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue) {
-        return getIntegerDetails(key, defaultValue, new EvaluationContext());
+        return getIntegerDetails(key, defaultValue, null);
     }
 
     @Override
@@ -226,7 +227,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx,
-                                                            FlagEvaluationOptions options) {
+            FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, ctx, options);
     }
 
@@ -242,7 +243,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public Double getDoubleValue(String key, Double defaultValue, EvaluationContext ctx,
-                                 FlagEvaluationOptions options) {
+            FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.DOUBLE, key, defaultValue, ctx, options).getValue();
     }
 
@@ -258,7 +259,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx,
-                                FlagEvaluationOptions options) {
+            FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.DOUBLE, key, defaultValue, ctx, options);
     }
 
@@ -285,13 +286,13 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue,
-                                EvaluationContext ctx) {
+            EvaluationContext ctx) {
         return getObjectDetails(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
     }
 
     @Override
     public FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue, EvaluationContext ctx,
-                                 FlagEvaluationOptions options) {
+            FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.OBJECT, key, defaultValue, ctx, options);
     }
 

@@ -61,7 +61,7 @@ class DeveloperExperienceTest implements HookFixtures {
 
     /**
      * As an application author, you probably know special things about your users. You can communicate these to the
-     * provider via {@link EvaluationContext}
+     * provider via {@link MutableContext}
      */
     @Test void providingContext() {
 
@@ -69,7 +69,7 @@ class DeveloperExperienceTest implements HookFixtures {
         api.setProvider(new NoOpProvider());
         Client client = api.getClient();
 
-        EvaluationContext ctx = new EvaluationContext()
+        MutableContext ctx = new MutableContext()
                 .add("int-val", 3)
                 .add("double-val", 4.0)
                 .add("str-val", "works")

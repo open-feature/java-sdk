@@ -100,24 +100,24 @@ class FlagEvaluationSpecTest implements HookFixtures {
         String key = "key";
 
         assertEquals(true, c.getBooleanValue(key, false));
-        assertEquals(true, c.getBooleanValue(key, false, new EvaluationContext()));
-        assertEquals(true, c.getBooleanValue(key, false, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(true, c.getBooleanValue(key, false, new MutableContext()));
+        assertEquals(true, c.getBooleanValue(key, false, new MutableContext(), FlagEvaluationOptions.builder().build()));
 
         assertEquals("gnirts-ym", c.getStringValue(key, "my-string"));
-        assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new EvaluationContext()));
-        assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new MutableContext()));
+        assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new MutableContext(), FlagEvaluationOptions.builder().build()));
 
         assertEquals(400, c.getIntegerValue(key, 4));
-        assertEquals(400, c.getIntegerValue(key, 4, new EvaluationContext()));
-        assertEquals(400, c.getIntegerValue(key, 4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(400, c.getIntegerValue(key, 4, new MutableContext()));
+        assertEquals(400, c.getIntegerValue(key, 4, new MutableContext(), FlagEvaluationOptions.builder().build()));
 
         assertEquals(40.0, c.getDoubleValue(key, .4));
-        assertEquals(40.0, c.getDoubleValue(key, .4, new EvaluationContext()));
-        assertEquals(40.0, c.getDoubleValue(key, .4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(40.0, c.getDoubleValue(key, .4, new MutableContext()));
+        assertEquals(40.0, c.getDoubleValue(key, .4, new MutableContext(), FlagEvaluationOptions.builder().build()));
 
         assertEquals(null, c.getObjectValue(key, new Value()));
-        assertEquals(null, c.getObjectValue(key, new Value(), new EvaluationContext()));
-        assertEquals(null, c.getObjectValue(key, new Value(), new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(null, c.getObjectValue(key, new Value(), new MutableContext()));
+        assertEquals(null, c.getObjectValue(key, new Value(), new MutableContext(), FlagEvaluationOptions.builder().build()));
     }
 
     @Specification(number="1.4.1", text="The client MUST provide methods for detailed flag value evaluation with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns an evaluation details structure.")
@@ -138,8 +138,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 .variant(null)
                 .build();
         assertEquals(bd, c.getBooleanDetails(key, true));
-        assertEquals(bd, c.getBooleanDetails(key, true, new EvaluationContext()));
-        assertEquals(bd, c.getBooleanDetails(key, true, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(bd, c.getBooleanDetails(key, true, new MutableContext()));
+        assertEquals(bd, c.getBooleanDetails(key, true, new MutableContext(), FlagEvaluationOptions.builder().build()));
 
         FlagEvaluationDetails<String> sd = FlagEvaluationDetails.<String>builder()
                 .flagKey(key)
@@ -147,24 +147,24 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 .variant(null)
                 .build();
         assertEquals(sd, c.getStringDetails(key, "test"));
-        assertEquals(sd, c.getStringDetails(key, "test", new EvaluationContext()));
-        assertEquals(sd, c.getStringDetails(key, "test", new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(sd, c.getStringDetails(key, "test", new MutableContext()));
+        assertEquals(sd, c.getStringDetails(key, "test", new MutableContext(), FlagEvaluationOptions.builder().build()));
 
         FlagEvaluationDetails<Integer> id = FlagEvaluationDetails.<Integer>builder()
                 .flagKey(key)
                 .value(400)
                 .build();
         assertEquals(id, c.getIntegerDetails(key, 4));
-        assertEquals(id, c.getIntegerDetails(key, 4, new EvaluationContext()));
-        assertEquals(id, c.getIntegerDetails(key, 4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(id, c.getIntegerDetails(key, 4, new MutableContext()));
+        assertEquals(id, c.getIntegerDetails(key, 4, new MutableContext(), FlagEvaluationOptions.builder().build()));
 
         FlagEvaluationDetails<Double> dd = FlagEvaluationDetails.<Double>builder()
                 .flagKey(key)
                 .value(40.0)
                 .build();
         assertEquals(dd, c.getDoubleDetails(key, .4));
-        assertEquals(dd, c.getDoubleDetails(key, .4, new EvaluationContext()));
-        assertEquals(dd, c.getDoubleDetails(key, .4, new EvaluationContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(dd, c.getDoubleDetails(key, .4, new MutableContext()));
+        assertEquals(dd, c.getDoubleDetails(key, .4, new MutableContext(), FlagEvaluationOptions.builder().build()));
 
         // TODO: Structure detail tests.
     }
@@ -233,20 +233,20 @@ class FlagEvaluationSpecTest implements HookFixtures {
         DoSomethingProvider provider = new DoSomethingProvider();
         api.setProvider(provider);
 
-        EvaluationContext apiCtx = new EvaluationContext();
+        MutableContext apiCtx = new MutableContext();
         apiCtx.add("common", "1");
         apiCtx.add("common2", "1");
         apiCtx.add("api", "2");
         api.setEvaluationContext(apiCtx);
 
         Client c = api.getClient();
-        EvaluationContext clientCtx = new EvaluationContext();
+        MutableContext clientCtx = new MutableContext();
         clientCtx.add("common", "3");
         clientCtx.add("common2", "3");
         clientCtx.add("client", "4");
         c.setEvaluationContext(clientCtx);
 
-        EvaluationContext invocationCtx = new EvaluationContext();
+        MutableContext invocationCtx = new MutableContext();
         clientCtx.add("common", "5");
         clientCtx.add("invocation", "6");
 
