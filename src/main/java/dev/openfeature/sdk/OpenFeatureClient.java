@@ -67,32 +67,39 @@ public class OpenFeatureClient implements Client {
         FlagEvaluationDetails<T> details = null;
         List<Hook> mergedHooks = null;
         HookContext<T> hookCtx = null;
+        FeatureProvider provider = null;
 
-        try (AutoCloseableLock __ = OpenFeatureAPI.rwLock.readLockAutoCloseable();
-            AutoCloseableLock ___ = this.rwLock.readLockAutoCloseable()) {
+        try {
+            EvaluationContext apiContext;
+            EvaluationContext clientContext;
 
-            FeatureProvider provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {
-                log.debug("No provider configured, using no-op provider.");
-                return new NoOpProvider();
-            });
+            // lock while getting the provider and hooks
+            try (AutoCloseableLock __ = OpenFeatureAPI.rwLock.readLockAutoCloseable();
+                    AutoCloseableLock ___ = this.rwLock.readLockAutoCloseable()) {
+                provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {
+                    log.debug("No provider configured, using no-op provider.");
+                    return new NoOpProvider();
+                });
 
-            hookCtx = HookContext.from(key, type, this.getMetadata(),
-                    openfeatureApi.getProvider().getMetadata(), ctx, defaultValue);
+                mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
+                        openfeatureApi.getApiHooks());
 
-            mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
-                    openfeatureApi.getApiHooks());
+                hookCtx = HookContext.from(key, type, this.getMetadata(),
+                        provider.getMetadata(), ctx, defaultValue);
+
+                // merge of: API.context, client.context, invocation.context
+                apiContext = openfeatureApi.getEvaluationContext() != null
+                        ? openfeatureApi.getEvaluationContext()
+                        : new MutableContext();
+                clientContext = openfeatureApi.getEvaluationContext() != null
+                        ? this.getEvaluationContext()
+                        : new MutableContext();
+            }
 
             EvaluationContext ctxFromHook = hookSupport.beforeHooks(type, hookCtx, mergedHooks, hints);
 
             EvaluationContext invocationCtx = ctx.merge(ctxFromHook);
 
-            // merge of: API.context, client.context, invocation.context
-            EvaluationContext apiContext = openfeatureApi.getEvaluationContext() != null
-                    ? openfeatureApi.getEvaluationContext()
-                    : new MutableContext();
-            EvaluationContext clientContext = openfeatureApi.getEvaluationContext() != null
-                    ? this.getEvaluationContext()
-                    : new MutableContext();
             EvaluationContext mergedCtx = apiContext.merge(clientContext.merge(invocationCtx));
 
             ProviderEvaluation<T> providerEval = (ProviderEvaluation<T>) createProviderEvaluation(type, key,
