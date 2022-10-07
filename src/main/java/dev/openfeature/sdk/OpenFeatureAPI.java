@@ -1,21 +1,24 @@
 package dev.openfeature.sdk;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.annotation.Nullable;
+
+import dev.openfeature.sdk.internal.AutoCloseableLock;
+import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A global singleton which holds base configuration for the OpenFeature library.
  * Configuration here will be shared across all {@link Client}s.
  */
 public class OpenFeatureAPI {
-    private static OpenFeatureAPI api;
+    // package-private multi-read/single-write lock
+    static AutoCloseableReentrantReadWriteLock rwLock = new AutoCloseableReentrantReadWriteLock();
     @Getter
-    @Setter
     private FeatureProvider provider;
     @Getter
     @Setter
@@ -23,8 +26,12 @@ public class OpenFeatureAPI {
     @Getter
     private List<Hook> apiHooks;
 
-    public OpenFeatureAPI() {
+    private OpenFeatureAPI() {
         this.apiHooks = new ArrayList<>();
+    }
+
+    private static class SingletonHolder {
+        private static final OpenFeatureAPI INSTANCE = new OpenFeatureAPI();
     }
 
     /**
@@ -32,12 +39,7 @@ public class OpenFeatureAPI {
      * @return The singleton instance.
      */
     public static OpenFeatureAPI getInstance() {
-        synchronized (OpenFeatureAPI.class) {
-            if (api == null) {
-                api = new OpenFeatureAPI();
-            }
-        }
-        return api;
+        return SingletonHolder.INSTANCE;
     }
 
     public Metadata getProviderMetadata() {
@@ -56,11 +58,30 @@ public class OpenFeatureAPI {
         return new OpenFeatureClient(this, name, version);
     }
 
-    public void addHooks(Hook... hooks) {
-        this.apiHooks.addAll(Arrays.asList(hooks));
+    /**
+     * {@inheritDoc}
+     */
+    public void setProvider(FeatureProvider provider) {
+        try (AutoCloseableLock __ = rwLock.writeLockAutoCloseable()) {
+            this.provider = provider;
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void addHooks(Hook... hooks) {
+        try (AutoCloseableLock __ = rwLock.writeLockAutoCloseable()) {
+            this.apiHooks.addAll(Arrays.asList(hooks));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void clearHooks() {
-        this.apiHooks.clear();
+        try (AutoCloseableLock __ = rwLock.writeLockAutoCloseable()) {
+            this.apiHooks.clear();
+        }
     }
 }

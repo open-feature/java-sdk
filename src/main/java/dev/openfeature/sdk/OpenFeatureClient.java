@@ -8,6 +8,8 @@ import java.util.Map;
 
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import dev.openfeature.sdk.internal.AutoCloseableLock;
+import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import dev.openfeature.sdk.internal.ObjectUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +27,7 @@ public class OpenFeatureClient implements Client {
     @Getter
     private final List<Hook> clientHooks;
     private final HookSupport hookSupport;
+    private AutoCloseableReentrantReadWriteLock rwLock = new AutoCloseableReentrantReadWriteLock();
 
     @Getter
     @Setter
@@ -48,7 +51,9 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public void addHooks(Hook... hooks) {
-        this.clientHooks.addAll(Arrays.asList(hooks));
+        try (AutoCloseableLock __ = this.rwLock.writeLockAutoCloseable()) {
+            this.clientHooks.addAll(Arrays.asList(hooks));
+        }
     }
 
     private <T> FlagEvaluationDetails<T> evaluateFlag(FlagValueType type, String key, T defaultValue,
@@ -57,16 +62,19 @@ public class OpenFeatureClient implements Client {
                 () -> FlagEvaluationOptions.builder().build());
         Map<String, Object> hints = Collections.unmodifiableMap(flagOptions.getHookHints());
         ctx = ObjectUtils.defaultIfNull(ctx, () -> new MutableContext());
-        FeatureProvider provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {
-            log.debug("No provider configured, using no-op provider.");
-            return new NoOpProvider();
-        });
+
 
         FlagEvaluationDetails<T> details = null;
         List<Hook> mergedHooks = null;
         HookContext<T> hookCtx = null;
 
-        try {
+        try (AutoCloseableLock __ = OpenFeatureAPI.rwLock.readLockAutoCloseable();
+            AutoCloseableLock ___ = this.rwLock.readLockAutoCloseable()) {
+
+            FeatureProvider provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {
+                log.debug("No provider configured, using no-op provider.");
+                return new NoOpProvider();
+            });
 
             hookCtx = HookContext.from(key, type, this.getMetadata(),
                     openfeatureApi.getProvider().getMetadata(), ctx, defaultValue);
