@@ -206,6 +206,27 @@
       </plugin>
       
       <plugin>
+        <groupId>org.spdx</groupId>
+        <artifactId>spdx-maven-plugin</artifactId>
+        <!-- please check for updates on https://search.maven.org/search?q=a:spdx-maven-plugin-->
+        <version>0.6.1</version>
+        <executions>
+          <execution>
+            <id>build-spdx</id>
+            <goals>
+              <goal>createSPDX</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <excludedFilePatterns>
+            <param>*.spdx</param>
+          </excludedFilePatterns>
+          <!-- See documentation below for additional configuration -->
+        </configuration>
+      </plugin>
+
+      <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <version>3.3.0</version>
         <executions>
