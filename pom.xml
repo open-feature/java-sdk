@@ -165,6 +165,21 @@
     <plugins>
 
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.3.0</version>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <id>get-cpu-count</id>
+            <goals>
+              <goal>cpu-count</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.cyclonedx</groupId>
         <artifactId>cyclonedx-maven-plugin</artifactId>
         <version>2.7.2</version>
@@ -231,6 +246,9 @@
           <argLine>
             ${surefireArgLine}
           </argLine>
+          <!-- fork a new JVM to isolate test suites, especially important with singletons -->
+          <forkCount>${cpu.count}</forkCount>
+          <reuseForks>false</reuseForks>
           <excludes>
             <!-- tests to exclude -->
             <exclude>${testExclusions}</exclude>

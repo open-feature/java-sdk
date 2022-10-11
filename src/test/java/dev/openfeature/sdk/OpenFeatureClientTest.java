@@ -20,7 +20,7 @@ class OpenFeatureClientTest implements HookFixtures {
         TEST_LOGGER.clear();
         OpenFeatureAPI api = mock(OpenFeatureAPI.class);
         when(api.getProvider()).thenReturn(new DoSomethingProvider());
-        when(api.getApiHooks()).thenReturn(Arrays.asList(mockBooleanHook(), mockStringHook()));
+        when(api.getHooks()).thenReturn(Arrays.asList(mockBooleanHook(), mockStringHook()));
 
         OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
 
