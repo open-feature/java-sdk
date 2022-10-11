@@ -85,7 +85,7 @@ public class OpenFeatureClient implements Client {
             EvaluationContext clientContext;
 
             // lock while getting the provider and hooks
-            // the retrieval any mutable state on client/API MUST be done in this block.
+            // the retrieval of any mutable state on client/API MUST be done in this block.
             try (AutoCloseableLock __ = OpenFeatureAPI.rwLock.readLockAutoCloseable();
                     AutoCloseableLock ___ = this.rwLock.readLockAutoCloseable()) {
                 provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {
