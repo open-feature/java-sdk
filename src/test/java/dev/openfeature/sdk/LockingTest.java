@@ -45,15 +45,6 @@ class LockingTest {
         client.hooksLock = clientHooksLock;
     }
 
-    // @Test
-    // void evaluationShouldReadLockandReadUnlockClientAndApi() {
-    //     client.getBooleanValue("a-key", false);
-    //     verify(clientHooksLock.readLock()).lock();
-    //     verify(clientHooksLock.readLock()).unlock();
-    //     verify(clientContextLock.readLock()).lock();
-    //     verify(clientContextLock.readLock()).unlock();
-    // }
-
     @Test
     void addHooksShouldWriteLockAndUnlock() {
         client.addHooks(new Hook() {
