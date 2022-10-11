@@ -1,30 +1,33 @@
 package dev.openfeature.sdk;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.annotation.Nullable;
+
+import dev.openfeature.sdk.internal.AutoCloseableLock;
+import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 
 /**
  * A global singleton which holds base configuration for the OpenFeature library.
  * Configuration here will be shared across all {@link Client}s.
  */
 public class OpenFeatureAPI {
-    private static OpenFeatureAPI api;
-    @Getter
-    @Setter
+    // package-private multi-read/single-write lock
+    static AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
+    static AutoCloseableReentrantReadWriteLock providerLock = new AutoCloseableReentrantReadWriteLock();
+    static AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
     private FeatureProvider provider;
-    @Getter
-    @Setter
     private EvaluationContext evaluationContext;
-    @Getter
     private List<Hook> apiHooks;
 
-    public OpenFeatureAPI() {
+    private OpenFeatureAPI() {
         this.apiHooks = new ArrayList<>();
+    }
+
+    private static class SingletonHolder {
+        private static final OpenFeatureAPI INSTANCE = new OpenFeatureAPI();
     }
 
     /**
@@ -32,12 +35,7 @@ public class OpenFeatureAPI {
      * @return The singleton instance.
      */
     public static OpenFeatureAPI getInstance() {
-        synchronized (OpenFeatureAPI.class) {
-            if (api == null) {
-                api = new OpenFeatureAPI();
-            }
-        }
-        return api;
+        return SingletonHolder.INSTANCE;
     }
 
     public Metadata getProviderMetadata() {
@@ -56,11 +54,66 @@ public class OpenFeatureAPI {
         return new OpenFeatureClient(this, name, version);
     }
 
-    public void addHooks(Hook... hooks) {
-        this.apiHooks.addAll(Arrays.asList(hooks));
+    /**
+     * {@inheritDoc}
+     */
+    public void setEvaluationContext(EvaluationContext evaluationContext) {
+        try (AutoCloseableLock __ = contextLock.writeLockAutoCloseable()) {
+            this.evaluationContext = evaluationContext;
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public EvaluationContext getEvaluationContext() {
+        try (AutoCloseableLock __ = contextLock.readLockAutoCloseable()) {
+            return this.evaluationContext;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setProvider(FeatureProvider provider) {
+        try (AutoCloseableLock __ = providerLock.writeLockAutoCloseable()) {
+            this.provider = provider;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public FeatureProvider getProvider() {
+        try (AutoCloseableLock __ = providerLock.readLockAutoCloseable()) {
+            return this.provider;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void addHooks(Hook... hooks) {
+        try (AutoCloseableLock __ = hooksLock.writeLockAutoCloseable()) {
+            this.apiHooks.addAll(Arrays.asList(hooks));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Hook> getHooks() {
+        try (AutoCloseableLock __ = hooksLock.readLockAutoCloseable()) {
+            return this.apiHooks;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void clearHooks() {
-        this.apiHooks.clear();
+        try (AutoCloseableLock __ = hooksLock.writeLockAutoCloseable()) {
+            this.apiHooks.clear();
+        }
     }
 }
