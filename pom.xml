@@ -246,7 +246,7 @@
           <argLine>
             ${surefireArgLine}
           </argLine>
-          <!-- fork a new JVM to isolate test suites, especially import with singletons -->
+          <!-- fork a new JVM to isolate test suites, especially important with singletons -->
           <forkCount>${cpu.count}</forkCount>
           <reuseForks>false</reuseForks>
           <excludes>
