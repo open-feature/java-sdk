@@ -99,32 +99,28 @@ public class OpenFeatureClient implements Client {
         FeatureProvider provider = null;
 
         try {
-            EvaluationContext apiContext;
-            EvaluationContext clientContext;
+            final EvaluationContext apiContext;
+            final EvaluationContext clientContext;
 
-            // lock while getting the provider and hooks
-            // the retrieval of any mutable state on client/API MUST be done in this block.
-            try (AutoCloseableLock __ = this.contextLock.readLockAutoCloseable();
-                    AutoCloseableLock ___ = this.hooksLock.readLockAutoCloseable()) {
-                provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {
-                    log.debug("No provider configured, using no-op provider.");
-                    return new NoOpProvider();
-                });
+            // openfeatureApi.getProvider() must be called once to maintain a consistent reference
+            provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {
+                log.debug("No provider configured, using no-op provider.");
+                return new NoOpProvider();
+            });
 
-                mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
-                        openfeatureApi.getHooks());
+            mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
+                    openfeatureApi.getHooks());
 
-                hookCtx = HookContext.from(key, type, this.getMetadata(),
-                        provider.getMetadata(), ctx, defaultValue);
+            hookCtx = HookContext.from(key, type, this.getMetadata(),
+                    provider.getMetadata(), ctx, defaultValue);
 
-                // merge of: API.context, client.context, invocation.context
-                apiContext = openfeatureApi.getEvaluationContext() != null
-                        ? openfeatureApi.getEvaluationContext()
-                        : new MutableContext();
-                clientContext = openfeatureApi.getEvaluationContext() != null
-                        ? this.getEvaluationContext()
-                        : new MutableContext();
-            }
+            // merge of: API.context, client.context, invocation.context
+            apiContext = openfeatureApi.getEvaluationContext() != null
+                    ? openfeatureApi.getEvaluationContext()
+                    : new MutableContext();
+            clientContext = openfeatureApi.getEvaluationContext() != null
+                    ? this.getEvaluationContext()
+                    : new MutableContext();
 
             EvaluationContext ctxFromHook = hookSupport.beforeHooks(type, hookCtx, mergedHooks, hints);
 
