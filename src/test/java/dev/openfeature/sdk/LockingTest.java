@@ -17,13 +17,12 @@ class LockingTest {
 
     private static OpenFeatureAPI api;
     private OpenFeatureClient client;
-    private AutoCloseableReentrantReadWriteLock apiRwLock;
-    private AutoCloseableReentrantReadWriteLock clientRwLock;
-    private ReentrantReadWriteLock.ReadLock mockClientReadLock;
-    private ReentrantReadWriteLock.WriteLock mockClientWriteLock;
-    private ReentrantReadWriteLock.ReadLock mockApiReadLock;
-    private ReentrantReadWriteLock.WriteLock mockApiWriteLock;
-
+    private AutoCloseableReentrantReadWriteLock apiContextLock;
+    private AutoCloseableReentrantReadWriteLock apiHooksLock;
+    private AutoCloseableReentrantReadWriteLock apiProviderLock;
+    private AutoCloseableReentrantReadWriteLock clientContextLock;
+    private AutoCloseableReentrantReadWriteLock clientHooksLock;
+    
     @BeforeAll
     static void beforeAll() {
         api = OpenFeatureAPI.getInstance();
@@ -31,74 +30,77 @@ class LockingTest {
 
     @BeforeEach
     void beforeEach() {
-        client = (OpenFeatureClient)api.getClient();
+        client = (OpenFeatureClient) api.getClient();
+        
+        apiContextLock = setupLock(apiContextLock, mockInnerReadLock(), mockInnerWriteLock());
+        apiProviderLock = setupLock(apiProviderLock, mockInnerReadLock(), mockInnerWriteLock());
+        apiHooksLock = setupLock(apiHooksLock, mockInnerReadLock(), mockInnerWriteLock());
+        OpenFeatureAPI.contextLock = apiContextLock;
+        OpenFeatureAPI.providerLock = apiProviderLock;
+        OpenFeatureAPI.hooksLock = apiHooksLock;
 
-        // mock the inner read and write locks
-        mockClientReadLock = mockInnerReadLock();
-        mockClientWriteLock = mockInnerWriteLock();
-        mockApiReadLock = mockInnerReadLock();
-        mockApiWriteLock = mockInnerWriteLock();
-
-        // mock the client rwLock
-        clientRwLock = mock(AutoCloseableReentrantReadWriteLock.class);
-        when(clientRwLock.readLockAutoCloseable()).thenCallRealMethod();
-        when(clientRwLock.readLock()).thenReturn(mockClientReadLock);
-        when(clientRwLock.writeLockAutoCloseable()).thenCallRealMethod();
-        when(clientRwLock.writeLock()).thenReturn(mockClientWriteLock);
-        client.rwLock = clientRwLock;
-
-        // mock the API rwLock
-        apiRwLock = mock(AutoCloseableReentrantReadWriteLock.class);
-        when(apiRwLock.readLockAutoCloseable()).thenCallRealMethod();
-        when(apiRwLock.readLock()).thenReturn(mockApiReadLock);
-        when(apiRwLock.writeLockAutoCloseable()).thenCallRealMethod();
-        when(apiRwLock.writeLock()).thenReturn(mockApiWriteLock);
-        OpenFeatureAPI.rwLock = apiRwLock;
+        clientContextLock = setupLock(clientContextLock, mockInnerReadLock(), mockInnerWriteLock());
+        clientHooksLock = setupLock(clientHooksLock, mockInnerReadLock(), mockInnerWriteLock());
+        client.contextLock = clientContextLock;
+        client.hooksLock = clientHooksLock;
     }
 
     @Test
     void evaluationShouldReadLockandReadUnlockClientAndApi() {
         client.getBooleanValue("a-key", false);
-        verify(mockApiReadLock).lock();
-        verify(mockApiReadLock).unlock();
-        verify(mockClientReadLock).lock();
-        verify(mockClientReadLock).unlock();
+        verify(clientHooksLock.readLock()).lock();
+        verify(clientHooksLock.readLock()).unlock();
+        verify(clientContextLock.readLock()).lock();
+        verify(clientContextLock.readLock()).unlock();
     }
 
     @Test
     void addHooksShouldWriteLockAndUnlock() {
-        client.addHooks(new Hook(){});
-        verify(mockClientWriteLock).lock();
-        verify(mockClientWriteLock).unlock();
+        client.addHooks(new Hook() {
+        });
+        verify(clientHooksLock.writeLock()).lock();
+        verify(clientHooksLock.writeLock()).unlock();
 
-        api.addHooks(new Hook(){});
-        verify(mockApiWriteLock).lock();
-        verify(mockApiWriteLock).unlock();
+        api.addHooks(new Hook() {
+        });
+        verify(apiHooksLock.writeLock()).lock();
+        verify(apiHooksLock.writeLock()).unlock();
     }
 
     @Test
     void setContextShouldWriteLockAndUnlock() {
         client.setEvaluationContext(new MutableContext());
-        verify(mockClientWriteLock).lock();
-        verify(mockClientWriteLock).unlock();
+        verify(clientContextLock.writeLock()).lock();
+        verify(clientContextLock.writeLock()).unlock();
 
         api.setEvaluationContext(new MutableContext());
-        verify(mockApiWriteLock).lock();
-        verify(mockApiWriteLock).unlock();
+        verify(apiContextLock.writeLock()).lock();
+        verify(apiContextLock.writeLock()).unlock();
+    }
+
+    @Test
+    void getContextShouldReadLockAndUnlock() {
+        client.getEvaluationContext();
+        verify(clientContextLock.readLock()).lock();
+        verify(clientContextLock.readLock()).unlock();
+
+        api.getEvaluationContext();
+        verify(apiContextLock.readLock()).lock();
+        verify(apiContextLock.readLock()).unlock();
     }
 
     @Test
     void setProviderShouldWriteLockAndUnlock() {
         api.setProvider(new DoSomethingProvider());
-        verify(mockApiWriteLock).lock();
-        verify(mockApiWriteLock).unlock();
+        verify(apiProviderLock.writeLock()).lock();
+        verify(apiProviderLock.writeLock()).unlock();
     }
 
     @Test
     void clearHooksShouldWriteLockAndUnlock() {
         api.clearHooks();
-        verify(mockApiWriteLock).lock();
-        verify(mockApiWriteLock).unlock();
+        verify(apiHooksLock.writeLock()).lock();
+        verify(apiHooksLock.writeLock()).unlock();
     }
 
     private static ReentrantReadWriteLock.ReadLock mockInnerReadLock() {
@@ -113,5 +115,16 @@ class LockingTest {
         doNothing().when(writeLockMock).lock();
         doNothing().when(writeLockMock).unlock();
         return writeLockMock;
+    }
+
+    private AutoCloseableReentrantReadWriteLock setupLock(AutoCloseableReentrantReadWriteLock lock,
+            AutoCloseableReentrantReadWriteLock.ReadLock readlock,
+            AutoCloseableReentrantReadWriteLock.WriteLock writeLock) {
+        lock = mock(AutoCloseableReentrantReadWriteLock.class);
+        when(lock.readLockAutoCloseable()).thenCallRealMethod();
+        when(lock.readLock()).thenReturn(readlock);
+        when(lock.writeLockAutoCloseable()).thenCallRealMethod();
+        when(lock.writeLock()).thenReturn(writeLock);
+        return lock;
     }
 }

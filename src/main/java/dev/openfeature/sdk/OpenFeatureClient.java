@@ -23,12 +23,10 @@ public class OpenFeatureClient implements Client {
     private final String name;
     @Getter
     private final String version;
-    @Getter
     private final List<Hook> clientHooks;
     private final HookSupport hookSupport;
-    AutoCloseableReentrantReadWriteLock rwLock = new AutoCloseableReentrantReadWriteLock();
-
-    @Getter
+    AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
+    AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
     private EvaluationContext evaluationContext;
 
     /**
@@ -52,7 +50,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public void addHooks(Hook... hooks) {
-        try (AutoCloseableLock __ = this.rwLock.writeLockAutoCloseable()) {
+        try (AutoCloseableLock __ = this.hooksLock.writeLockAutoCloseable()) {
             this.clientHooks.addAll(Arrays.asList(hooks));
         }
     }
@@ -61,9 +59,29 @@ public class OpenFeatureClient implements Client {
      * {@inheritDoc}
      */
     @Override
+    public List<Hook> getHooks() {
+        try (AutoCloseableLock __ = this.hooksLock.readLockAutoCloseable()) {
+            return this.clientHooks;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void setEvaluationContext(EvaluationContext evaluationContext) {
-        try (AutoCloseableLock __ = rwLock.writeLockAutoCloseable()) {
+        try (AutoCloseableLock __ = contextLock.writeLockAutoCloseable()) {
             this.evaluationContext = evaluationContext;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public EvaluationContext getEvaluationContext() {
+        try (AutoCloseableLock __ = contextLock.readLockAutoCloseable()) {
+            return this.evaluationContext;
         }
     }
 
@@ -86,15 +104,15 @@ public class OpenFeatureClient implements Client {
 
             // lock while getting the provider and hooks
             // the retrieval of any mutable state on client/API MUST be done in this block.
-            try (AutoCloseableLock __ = OpenFeatureAPI.rwLock.readLockAutoCloseable();
-                    AutoCloseableLock ___ = this.rwLock.readLockAutoCloseable()) {
+            try (AutoCloseableLock __ = this.contextLock.readLockAutoCloseable();
+                    AutoCloseableLock ___ = this.hooksLock.readLockAutoCloseable()) {
                 provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {
                     log.debug("No provider configured, using no-op provider.");
                     return new NoOpProvider();
                 });
 
                 mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
-                        openfeatureApi.getApiHooks());
+                        openfeatureApi.getHooks());
 
                 hookCtx = HookContext.from(key, type, this.getMetadata(),
                         provider.getMetadata(), ctx, defaultValue);

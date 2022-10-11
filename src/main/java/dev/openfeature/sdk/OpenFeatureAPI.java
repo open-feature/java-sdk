@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 
 import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
-import lombok.Getter;
 
 /**
  * A global singleton which holds base configuration for the OpenFeature library.
@@ -16,12 +15,11 @@ import lombok.Getter;
  */
 public class OpenFeatureAPI {
     // package-private multi-read/single-write lock
-    static AutoCloseableReentrantReadWriteLock rwLock = new AutoCloseableReentrantReadWriteLock();
-    @Getter
+    static AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
+    static AutoCloseableReentrantReadWriteLock providerLock = new AutoCloseableReentrantReadWriteLock();
+    static AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
     private FeatureProvider provider;
-    @Getter
     private EvaluationContext evaluationContext;
-    @Getter
     private List<Hook> apiHooks;
 
     private OpenFeatureAPI() {
@@ -60,7 +58,7 @@ public class OpenFeatureAPI {
      * {@inheritDoc}
      */
     public void setEvaluationContext(EvaluationContext evaluationContext) {
-        try (AutoCloseableLock __ = rwLock.writeLockAutoCloseable()) {
+        try (AutoCloseableLock __ = contextLock.writeLockAutoCloseable()) {
             this.evaluationContext = evaluationContext;
         }
     }
@@ -68,8 +66,17 @@ public class OpenFeatureAPI {
     /**
      * {@inheritDoc}
      */
+    public EvaluationContext getEvaluationContext() {
+        try (AutoCloseableLock __ = contextLock.readLockAutoCloseable()) {
+            return this.evaluationContext;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void setProvider(FeatureProvider provider) {
-        try (AutoCloseableLock __ = rwLock.writeLockAutoCloseable()) {
+        try (AutoCloseableLock __ = providerLock.writeLockAutoCloseable()) {
             this.provider = provider;
         }
     }
@@ -77,8 +84,17 @@ public class OpenFeatureAPI {
     /**
      * {@inheritDoc}
      */
+    public FeatureProvider getProvider() {
+        try (AutoCloseableLock __ = providerLock.readLockAutoCloseable()) {
+            return this.provider;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void addHooks(Hook... hooks) {
-        try (AutoCloseableLock __ = rwLock.writeLockAutoCloseable()) {
+        try (AutoCloseableLock __ = hooksLock.writeLockAutoCloseable()) {
             this.apiHooks.addAll(Arrays.asList(hooks));
         }
     }
@@ -86,8 +102,17 @@ public class OpenFeatureAPI {
     /**
      * {@inheritDoc}
      */
+    public List<Hook> getHooks() {
+        try (AutoCloseableLock __ = hooksLock.readLockAutoCloseable()) {
+            return this.apiHooks;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void clearHooks() {
-        try (AutoCloseableLock __ = rwLock.writeLockAutoCloseable()) {
+        try (AutoCloseableLock __ = hooksLock.writeLockAutoCloseable()) {
             this.apiHooks.clear();
         }
     }

@@ -32,5 +32,5 @@ public interface Client extends Features {
      * Fetch the hooks associated to this client.
      * @return A list of {@link Hook}s.
      */
-    List<Hook> getClientHooks();
+    List<Hook> getHooks();
 }
