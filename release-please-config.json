@@ -4,6 +4,8 @@
     ".": {
       "package-name": "dev.openfeature.sdk",
       "release-type": "simple",
+      "monorepo-tags": false,
+      "include-component-in-tag": false,
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
       "versioning": "default",
