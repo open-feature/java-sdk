@@ -53,7 +53,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test void provider_metadata() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new DoSomethingProvider());
-        assertEquals("test", api.getProviderMetadata().getName());
+        assertEquals(DoSomethingProvider.name, api.getProviderMetadata().getName());
     }
 
     @Specification(number="1.1.3", text="The API MUST provide a function to add hooks which accepts one or more API-conformant hooks, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")

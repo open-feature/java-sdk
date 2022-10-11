@@ -9,11 +9,16 @@
         <Class name="dev.openfeature.sdk.OpenFeatureAPI"/>
         <Bug pattern="MS_EXPOSE_REP"/>
     </And>
-    <!-- similarly, client using the singleton doesn't seem bad -->
+    <!-- evaluation context is mutable if mutable impl is used -->
     <And>
         <Class name="dev.openfeature.sdk.OpenFeatureClient"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </And>
+    <And>
+        <Class name="dev.openfeature.sdk.OpenFeatureAPI"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </And>
+
 
     <!-- Test class that should be excluded -->
     <Match>

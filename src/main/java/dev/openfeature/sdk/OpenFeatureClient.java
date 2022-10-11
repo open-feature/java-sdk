@@ -12,7 +12,6 @@ import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import dev.openfeature.sdk.internal.ObjectUtils;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -27,10 +26,9 @@ public class OpenFeatureClient implements Client {
     @Getter
     private final List<Hook> clientHooks;
     private final HookSupport hookSupport;
-    private AutoCloseableReentrantReadWriteLock rwLock = new AutoCloseableReentrantReadWriteLock();
+    AutoCloseableReentrantReadWriteLock rwLock = new AutoCloseableReentrantReadWriteLock();
 
     @Getter
-    @Setter
     private EvaluationContext evaluationContext;
 
     /**
@@ -49,10 +47,23 @@ public class OpenFeatureClient implements Client {
         this.hookSupport = new HookSupport();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addHooks(Hook... hooks) {
         try (AutoCloseableLock __ = this.rwLock.writeLockAutoCloseable()) {
             this.clientHooks.addAll(Arrays.asList(hooks));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setEvaluationContext(EvaluationContext evaluationContext) {
+        try (AutoCloseableLock __ = rwLock.writeLockAutoCloseable()) {
+            this.evaluationContext = evaluationContext;
         }
     }
 
@@ -74,6 +85,7 @@ public class OpenFeatureClient implements Client {
             EvaluationContext clientContext;
 
             // lock while getting the provider and hooks
+            // the retrieval any mutable state on client/API MUST be done in this block.
             try (AutoCloseableLock __ = OpenFeatureAPI.rwLock.readLockAutoCloseable();
                     AutoCloseableLock ___ = this.rwLock.readLockAutoCloseable()) {
                 provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {

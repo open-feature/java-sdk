@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * A global singleton which holds base configuration for the OpenFeature library.
@@ -21,7 +20,6 @@ public class OpenFeatureAPI {
     @Getter
     private FeatureProvider provider;
     @Getter
-    @Setter
     private EvaluationContext evaluationContext;
     @Getter
     private List<Hook> apiHooks;
@@ -56,6 +54,15 @@ public class OpenFeatureAPI {
 
     public Client getClient(@Nullable String name, @Nullable String version) {
         return new OpenFeatureClient(this, name, version);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setEvaluationContext(EvaluationContext evaluationContext) {
+        try (AutoCloseableLock __ = rwLock.writeLockAutoCloseable()) {
+            this.evaluationContext = evaluationContext;
+        }
     }
 
     /**
