@@ -53,7 +53,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test void provider_metadata() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new DoSomethingProvider());
-        assertEquals("test", api.getProviderMetadata().getName());
+        assertEquals(DoSomethingProvider.name, api.getProviderMetadata().getName());
     }
 
     @Specification(number="1.1.3", text="The API MUST provide a function to add hooks which accepts one or more API-conformant hooks, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")
@@ -63,12 +63,12 @@ class FlagEvaluationSpecTest implements HookFixtures {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.addHooks(h1);
 
-        assertEquals(1, api.getApiHooks().size());
-        assertEquals(h1, api.getApiHooks().get(0));
+        assertEquals(1, api.getHooks().size());
+        assertEquals(h1, api.getHooks().get(0));
 
         api.addHooks(h2);
-        assertEquals(2, api.getApiHooks().size());
-        assertEquals(h2, api.getApiHooks().get(1));
+        assertEquals(2, api.getHooks().size());
+        assertEquals(h2, api.getHooks().get(1));
     }
 
     @Specification(number="1.1.5", text="The API MUST provide a function for creating a client which accepts the following options:  - name (optional): A logical string identifier for the client.")
@@ -85,7 +85,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         Hook m2 = mock(Hook.class);
         c.addHooks(m1);
         c.addHooks(m2);
-        List<Hook> hooks = c.getClientHooks();
+        List<Hook> hooks = c.getHooks();
         assertEquals(2, hooks.size());
         assertTrue(hooks.contains(m1));
         assertTrue(hooks.contains(m2));

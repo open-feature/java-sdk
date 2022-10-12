@@ -6,11 +6,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 
 import dev.openfeature.sdk.fixtures.HookFixtures;
-
-import java.util.Arrays;
 
 class DeveloperExperienceTest implements HookFixtures {
     transient String flagKey = "mykey";
@@ -89,5 +91,35 @@ class DeveloperExperienceTest implements HookFixtures {
         assertEquals(TestConstants.BROKEN_MESSAGE, retval.getErrorMessage());
         assertEquals(Reason.ERROR.toString(), retval.getReason());
         assertFalse(retval.getValue());
+    }
+
+    @Test
+    void providerLockedPerTransaction() throws InterruptedException {
+
+        class MutatingHook implements Hook {
+
+            @Override
+            // change the provider during a before hook - this should not impact the evaluation in progress
+            public Optional before(HookContext ctx, Map hints) {
+                OpenFeatureAPI.getInstance().setProvider(new NoOpProvider());
+                return Optional.empty();
+            }
+        }
+        
+        final String defaultValue = "string-value";
+        final OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        final Client client = api.getClient();
+        api.setProvider(new DoSomethingProvider());
+        api.addHooks(new MutatingHook());
+
+        // if provider is changed during an evaluation transaction it should proceed with the original provider
+        String doSomethingValue = client.getStringValue("val", defaultValue);
+        assertEquals(new StringBuilder(defaultValue).reverse().toString(), doSomethingValue);
+
+        api.clearHooks();
+        
+        // subsequent evaluations should now use new provider set by hook
+        String noOpValue = client.getStringValue("val", defaultValue);
+        assertEquals(noOpValue, defaultValue);
     }
 }
