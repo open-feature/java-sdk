@@ -118,7 +118,7 @@ public class OpenFeatureClient implements Client {
             apiContext = openfeatureApi.getEvaluationContext() != null
                     ? openfeatureApi.getEvaluationContext()
                     : new MutableContext();
-            clientContext = openfeatureApi.getEvaluationContext() != null
+            clientContext = this.getEvaluationContext() != null
                     ? this.getEvaluationContext()
                     : new MutableContext();
 
