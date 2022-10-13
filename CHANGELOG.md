@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/open-feature/java-sdk/compare/v0.3.0...v0.3.1) (2022-10-13)
+
+
+### Bug Fixes
+
+* merge eval context ([#149](https://github.com/open-feature/java-sdk/issues/149)) ([fad0f35](https://github.com/open-feature/java-sdk/commit/fad0f35fc8a6469672ef67820f1850f20741b66a))
+
 ## [0.3.0](https://github.com/open-feature/java-sdk/compare/v0.2.2...v0.3.0) (2022-10-13)
 
 
