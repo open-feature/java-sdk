@@ -1,0 +1,38 @@
+name: ClusterFuzzLite batch fuzzing
+on:
+  schedule:
+    #        ┌───────────── minute (0 - 59)
+    #        │ ┌───────────── hour (0 - 23)
+    #        │ │ ┌───────────── day of the month (1 - 31)
+    #        │ │ │ ┌───────────── month (1 - 12 or JAN-DEC)
+    #        │ │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
+    #        │ │ │ │ │
+    #        │ │ │ │ │
+    #        │ │ │ │ │
+    #        * * * * *
+    - cron: '0 0 * * *'  # Every 6th hour. Change this to whatever is suitable.
+permissions: read-all
+jobs:
+  BatchFuzzing:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizer:
+        - address
+        - undefined
+    steps:
+    - name: Build Fuzzers (${{ matrix.sanitizer }})
+      id: build
+      uses: google/clusterfuzzlite/actions/build_fuzzers@v1
+      with:
+        language: java
+        sanitizer: ${{ matrix.sanitizer }}
+    - name: Run Fuzzers (${{ matrix.sanitizer }})
+      id: run
+      uses: google/clusterfuzzlite/actions/run_fuzzers@v1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        fuzz-seconds: 3600
+        mode: 'batch'
+        sanitizer: ${{ matrix.sanitizer }}
