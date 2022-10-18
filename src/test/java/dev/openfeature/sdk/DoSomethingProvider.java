@@ -2,6 +2,7 @@ package dev.openfeature.sdk;
 
 public class DoSomethingProvider implements FeatureProvider {
 
+    public static final String name = "Something";
     private EvaluationContext savedContext;
 
     public EvaluationContext getMergedContext() {
@@ -10,7 +11,7 @@ public class DoSomethingProvider implements FeatureProvider {
 
     @Override
     public Metadata getMetadata() {
-        return () -> "test";
+        return () -> name;
     }
 
     @Override

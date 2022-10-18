@@ -16,22 +16,22 @@ jobs:
 
     steps:
       - name: Check out the code
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
 
       - name: Set up JDK 8
-        uses: actions/setup-java@a82e6d00200608b0b4c131bc9a89f7349786bd33
+        uses: actions/setup-java@3617c43588448d532250f5c331dffcca90e398f1
         with:
           java-version: '8'
           distribution: 'temurin'
           cache: maven
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@3d392940475e4c472e143ff2fd41aaffb1178094
+        uses: github/codeql-action/init@297ec80a468c234608046f51ee8c65da128a1e94
         with:
           languages: java
 
       - name: Cache local Maven repository
-        uses: actions/cache@a3f5edc2378b2e43203912210dc88effa160f032
+        uses: actions/cache@2b04a41915d2fed6cec2aa74821ba81689ff0816
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -39,7 +39,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots verify # -P integration-test - add this back once we have a compatible flagd
+        run: mvn --batch-mode --update-snapshots verify -P integration-test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@e0fbd592d323cb2991fb586fdd260734fcb41fcb
@@ -50,4 +50,4 @@ jobs:
           verbose: true # optional (default = false)
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@3d392940475e4c472e143ff2fd41aaffb1178094
+        uses: github/codeql-action/analyze@297ec80a468c234608046f51ee8c65da128a1e94

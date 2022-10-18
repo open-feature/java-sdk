@@ -20,7 +20,7 @@ class OpenFeatureClientTest implements HookFixtures {
         TEST_LOGGER.clear();
         OpenFeatureAPI api = mock(OpenFeatureAPI.class);
         when(api.getProvider()).thenReturn(new DoSomethingProvider());
-        when(api.getApiHooks()).thenReturn(Arrays.asList(mockBooleanHook(), mockStringHook()));
+        when(api.getHooks()).thenReturn(Arrays.asList(mockBooleanHook(), mockStringHook()));
 
         OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
 
@@ -28,5 +28,31 @@ class OpenFeatureClientTest implements HookFixtures {
 
         assertThat(actual.getValue()).isTrue();
         assertThat(TEST_LOGGER.getLoggingEvents()).filteredOn(event -> event.getLevel().equals(Level.ERROR)).isEmpty();
+    }
+
+    @Test
+    void mergeContextTest() {
+        TEST_LOGGER.clear();
+
+        String flag = "feature key";
+        boolean defaultValue = false;
+        String targetingKey = "targeting key";
+        EvaluationContext ctx = new MutableContext(targetingKey);
+
+        OpenFeatureAPI api = mock(OpenFeatureAPI.class);
+        FeatureProvider mockProvider = mock(FeatureProvider.class);
+        // this makes it so that true is returned only if the targeting key set at the client level is honored
+        when(mockProvider.getBooleanEvaluation(
+          eq(flag), eq(defaultValue), argThat(
+            context -> context.getTargetingKey().equals(targetingKey)))).thenReturn(ProviderEvaluation.<Boolean>builder()
+          .value(true).build());
+        when(api.getProvider()).thenReturn(mockProvider);
+
+        OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
+        client.setEvaluationContext(ctx);
+
+        FlagEvaluationDetails<Boolean> result = client.getBooleanDetails(flag, defaultValue);
+
+        assertThat(result.getValue()).isTrue();
     }
 }
