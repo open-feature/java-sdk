@@ -53,6 +53,8 @@ class MyClass {
 }
 ```
 
+For complete documentation, visit: https://docs.openfeature.dev/docs/category/concepts
+
 ## Requirements
 - Java 8+
 
