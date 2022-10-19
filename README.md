@@ -17,41 +17,49 @@ This library is intended to be used in server-side contexts and has not been eva
 
 ## Usage
 
-While `Boolean` provides the simplest introduction, we offer a variety of flag types.
-
 ```java
-import dev.openfeature.sdk.Structure;
+import dev.openfeature.javasdk.OpenFeatureAPI;
 
-class MyClass {
-    public UI booleanExample() {
-        // Should we render the redesign? Or the default webpage? 
-        if (client.getBooleanValue("redesign_enabled", false)) {
-            return render_redesign();
-        }
-        return render_normal();
-    }
+// configure a provider
+OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+api.setProvider(new YourProviderOfChoice());
 
-    public Template stringExample() {
-        // Get the template to load for the custom new homepage
-        String template = client.getStringValue("homepage_template", "default-homepage.html");
-        return render_template(template);
-    }
+// create a client
+Client client = api.getClient("my-app");
 
-    public List<HomepageModule> numberExample() {
-        // How many modules should we be fetching?
-        Integer count = client.getIntegerValue("module-fetch-count", 4);
-        return fetch_modules(count);
-    }
+// get a boolean value
+Boolean boolValue = client.getBooleanValue("boolFlag", false);
 
-    public HomepageModule structureExample() {
-        Structure obj = client.getObjectValue("hero-module", previouslyDefinedDefaultStructure);
-        return HomepageModule.builder()
-                .title(obj.getValue("title"))
-                .body(obj.getValue("description"))
-                .build();
-    }
-}
+// get a string value
+String stringValue = client.getStringValue("stringFlag", "default");
+
+// get an integer value
+Integer intValue = client.getIntegerValue("intFlag", 1);
+
+// get a double value
+Double doubleValue = client.getDoubleValue("doubleFlag", 0.9);
+
+// get an object value
+Value objectValue = client.getObjectValue("objectFlag", MyObjectInstance);
+
+// get details of boolean evaluation
+FlagEvaluationDetails<Boolean> boolDetails = client.getBooleanDetails("boolFlag", false);
+
+// get details of string evaluation
+FlagEvaluationDetails<String> stringDetails = client.getStringDetails("stringFlag", "default");
+
+// get details of integer evaluation
+FlagEvaluationDetails<Integer> intDetails = client.getIntegerDetails("intFlag", 1);
+
+// get details of double evaluation
+FlagEvaluationDetails<Doulbe> doubleDetails = client.getDoubleDetails("doubleFlag", .9);
+
+// get details of object evaluation
+FlagEvaluationDetails<Value> objectDetails = client.getObjectDetails<MyObject>("objectFlag", myObjectDefaultInstance);
+
 ```
+
+For complete documentation visit https://docs.openfeature.dev/docs/category/concepts.
 
 ## Requirements
 - Java 8+
