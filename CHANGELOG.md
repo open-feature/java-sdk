@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0](https://github.com/open-feature/java-sdk/compare/v0.3.1...v1.0.0) (2022-10-25)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([#163](https://github.com/open-feature/java-sdk/issues/163)) ([c9ba9c9](https://github.com/open-feature/java-sdk/commit/c9ba9c9275ad4417a206b148e830fa78d265adb6))
+
 ## [0.3.1](https://github.com/open-feature/java-sdk/compare/v0.3.0...v0.3.1) (2022-10-13)
 
 
