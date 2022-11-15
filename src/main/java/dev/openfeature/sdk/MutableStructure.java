@@ -1,7 +1,10 @@
 package dev.openfeature.sdk;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import dev.openfeature.sdk.exceptions.ValueNotConvertableError;
@@ -34,55 +37,103 @@ public class MutableStructure implements Structure {
         return this.attributes.keySet();
     }
 
-    // getters
+
     @Override
     public Value getValue(String key) {
         return this.attributes.get(key);
     }
 
-    // adders
+    /**
+     * Adds the specified value at key.  
+     *
+     * @param key String index
+     * @param value Value value
+     * @return this structure
+     */
     public MutableStructure add(String key, Value value) {
         attributes.put(key, value);
         return this;
     }
 
+    /**
+     * Adds the specified value at key.  
+     *
+     * @param key String index
+     * @param value Boolean value
+     * @return this structure
+     */
     public MutableStructure add(String key, Boolean value) {
         attributes.put(key, new Value(value));
         return this;
     }
 
+    /**
+     * Adds the specified value at key.  
+     *
+     * @param key String index
+     * @param value String value
+     * @return this structure
+     */
     public MutableStructure add(String key, String value) {
         attributes.put(key, new Value(value));
         return this;
     }
 
+    /**
+     * Adds the specified value at key.  
+     *
+     * @param key String index
+     * @param value Integer value
+     * @return this structure
+     */
     public MutableStructure add(String key, Integer value) {
         attributes.put(key, new Value(value));
         return this;
     }
 
+    /**
+     * Adds the specified value at key.  
+     *
+     * @param key String index
+     * @param value Double value
+     * @return this structure
+     */
     public MutableStructure add(String key, Double value) {
         attributes.put(key, new Value(value));
         return this;
     }
 
     /**
-     * Add date-time relevant key.
+     * Adds the specified value at key.  
      *
-     * @param key feature key
-     * @param value date-time value
-     * @return Structure
+     * @param key String index
+     * @param value Instant value
+     * @return this structure
      */
     public MutableStructure add(String key, Instant value) {
         attributes.put(key, new Value(value));
         return this;
     }
 
+    /**
+     * Adds the specified value at key.  
+     *
+     * @param key String index
+     * @param value Structure value
+     * @return this structure
+     */
     public MutableStructure add(String key, Structure value) {
         attributes.put(key, new Value(value));
         return this;
     }
 
+    /**
+     * Adds the specified value at key.  
+     *
+     * @param key String index
+     * @param value List value
+     * @return this structure
+     */
     public <T> MutableStructure add(String key, List<Value> value) {
         attributes.put(key, new Value(value));
         return this;
@@ -116,6 +167,7 @@ public class MutableStructure implements Structure {
 
     /**
      * convertValue is converting the object type Value in a primitive type.
+     *
      * @param value - Value object to convert
      * @return an Object containing the primitive type.
      */

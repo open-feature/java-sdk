@@ -1,5 +1,8 @@
 package dev.openfeature.sdk.internal;
 
+/**
+ * Interface for AutoCloseable that doesn't throw.
+ */
 public interface AutoCloseableLock extends AutoCloseable {
     
     /**

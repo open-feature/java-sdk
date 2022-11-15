@@ -5,6 +5,9 @@ import lombok.Data;
 
 import javax.annotation.Nullable;
 
+/**
+ * Representing the result of the provider's flag resolution process.
+ */
 @Data @Builder
 public class ProviderEvaluation<T> implements BaseEvaluation<T> {
     T value;

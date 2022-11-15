@@ -7,6 +7,9 @@ import java.util.Map;
 import lombok.Builder;
 import lombok.Singular;
 
+/**
+ * Options to be passed in flag evaluation.
+ */
 @lombok.Value
 @Builder
 public class FlagEvaluationOptions {

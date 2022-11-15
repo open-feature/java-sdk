@@ -18,6 +18,9 @@ public class Value {
 
     private final Object innerObject;
 
+    /**
+     * Construct a new null Value.
+     */
     public Value() {
         this.innerObject = null;
     }
@@ -42,34 +45,74 @@ public class Value {
         }
     }
 
+    /**
+     * Construct a new Value from an existing Value.
+     *
+     * @param value existing value
+     */
     public Value(Value value) {
         this.innerObject = value.innerObject; 
     }
 
+    /**
+     * Construct a new Value from a Boolean. 
+     *
+     * @param value Boolean value
+     */
     public Value(Boolean value) {
         this.innerObject = value; 
     }
 
+    /**
+     * Construct a new Value from a String. 
+     *
+     * @param value String value
+     */
     public Value(String value) {
         this.innerObject = value; 
     }
 
+    /**
+     * Construct a new Value from a Integer. 
+     *
+     * @param value Integer value
+     */
     public Value(Integer value) {
         this.innerObject = value.doubleValue(); 
     }
 
+    /**
+     * Construct a new Value from a Double. 
+     *
+     * @param value Double value
+     */
     public Value(Double value) {
         this.innerObject = value; 
     }
 
+    /**
+     * Construct a new Value from a Structure. 
+     *
+     * @param value Structure value
+     */
     public Value(Structure value) {
         this.innerObject = value; 
     }
 
+    /**
+     * Construct a new Value from a List. 
+     *
+     * @param value List value
+     */
     public Value(List<Value> value) {
         this.innerObject = value; 
     }
 
+    /**
+     * Construct a new Value from an Instant. 
+     *
+     * @param value Instant value
+     */
     public Value(Instant value) {
         this.innerObject = value;
     }
