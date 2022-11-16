@@ -19,7 +19,7 @@ jobs:
 
     # Release-please creates a PR that tracks all changes
     steps:
-      - uses: google-github-actions/release-please-action@069d7229d7b10308de85bc606a91e0033e259c8e
+      - uses: google-github-actions/release-please-action@44c30b36230f7335e5da53e297d931807ccea116
         id: release
         with:
           command: manifest
@@ -29,7 +29,7 @@ jobs:
       # These steps are only run if this was a merged release-please PR
       - name: checkout
         if: ${{ steps.release.outputs.releases_created }}
-        uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
+        uses: actions/checkout@bf085276cecdb0cc76fbbe0687a5a0e786646936
       - name: Set up JDK 8
         if: ${{ steps.release.outputs.releases_created }}
         uses: actions/setup-java@3617c43588448d532250f5c331dffcca90e398f1
