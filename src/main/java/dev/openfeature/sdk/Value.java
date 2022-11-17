@@ -13,11 +13,14 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-@SuppressWarnings("PMD.BeanMembersShouldSerialize")
+@SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
 public class Value {
 
     private final Object innerObject;
 
+    /**
+     * Construct a new null Value.
+     */
     public Value() {
         this.innerObject = null;
     }

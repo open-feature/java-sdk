@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.annotation.Nullable;
 
+@SuppressWarnings("checkstyle:MissingJavadocType")
 @Data @Builder
 public class ProviderEvaluation<T> implements BaseEvaluation<T> {
     T value;
