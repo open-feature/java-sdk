@@ -1,5 +1,8 @@
 package dev.openfeature.sdk;
 
+/**
+ * {@inheritDoc}
+ */
 public interface StringHook extends Hook<String> {
 
     @Override

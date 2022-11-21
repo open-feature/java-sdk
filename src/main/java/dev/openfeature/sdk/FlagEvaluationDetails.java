@@ -20,6 +20,7 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
 
     /**
      * Generate detail payload from the provider response.
+     *
      * @param providerEval provider response
      * @param flagKey key for the flag being evaluated
      * @param <T> type of flag being returned

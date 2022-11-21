@@ -1,5 +1,8 @@
 package dev.openfeature.sdk;
 
+/**
+ * {@inheritDoc}
+ */
 public interface IntegerHook extends Hook<Integer> {
 
     @Override

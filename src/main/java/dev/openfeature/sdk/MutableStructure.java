@@ -1,7 +1,10 @@
 package dev.openfeature.sdk;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import dev.openfeature.sdk.exceptions.ValueNotConvertableError;
@@ -16,7 +19,7 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-@SuppressWarnings("PMD.BeanMembersShouldSerialize")
+@SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
 public class MutableStructure implements Structure {
 
     protected final Map<String, Value> attributes;
@@ -66,13 +69,6 @@ public class MutableStructure implements Structure {
         return this;
     }
 
-    /**
-     * Add date-time relevant key.
-     *
-     * @param key feature key
-     * @param value date-time value
-     * @return Structure
-     */
     public MutableStructure add(String key, Instant value) {
         attributes.put(key, new Value(value));
         return this;
@@ -116,6 +112,7 @@ public class MutableStructure implements Structure {
 
     /**
      * convertValue is converting the object type Value in a primitive type.
+     *
      * @param value - Value object to convert
      * @return an Object containing the primitive type.
      */

@@ -1,5 +1,8 @@
 package dev.openfeature.sdk;
 
+/**
+ * {@inheritDoc}
+ */
 public interface DoubleHook extends Hook<Double> {
 
     @Override

@@ -34,6 +34,7 @@
         <property name="optional" value="true"/>
     </module>
 
+
     <!-- Checks for whitespace                               -->
     <!-- See http://checkstyle.org/config_whitespace.html -->
     <module name="FileTabCharacter">
@@ -46,7 +47,23 @@
         <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
     </module>
 
+    <module name="SuppressWarningsFilter" />
+
     <module name="TreeWalker">
+        <!-- needed for SuppressWarningsFilter -->
+        <module name="SuppressWarningsHolder" />
+        
+        <module name="SuppressWarnings">
+            <property name="id" value="checkstyle:suppresswarnings"/>
+        </module>
+
+        <!-- https://checkstyle.org/config_filters.html#SuppressionXpathFilter -->
+        <module name="SuppressionXpathFilter">
+            <property name="file" value="${org.checkstyle.google.suppressionxpathfilter.config}"
+                        default="checkstyle-xpath-suppressions.xml" />
+            <property name="optional" value="true"/>
+        </module>
+    
         <module name="OuterTypeFilename"/>
         <module name="IllegalTokenText">
             <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
@@ -223,7 +240,7 @@
             <property name="arrayInitIndent" value="4"/>
         </module>
         <module name="AbbreviationAsWordInName">
-            <property name="ignoreFinal" value="false"/>
+            <property name="ignoreFinal" value="true"/>
             <property name="allowedAbbreviations" value="API" />
             <property name="allowedAbbreviationLength" value="1"/>
             <property name="tokens"
@@ -292,6 +309,12 @@
             <property name="allowedAnnotations" value="Override, Test"/>
             <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF"/>
         </module>
+        <module name="MissingJavadocType">
+            <property name="scope" value="protected"/>
+            <property name="tokens" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
+                      RECORD_DEF, ANNOTATION_DEF"/>
+            <property name="excludeScope" value="nothing"/>
+        </module>
         <module name="MethodName">
             <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9_]*$"/>
             <message key="name.invalidPattern"
@@ -306,12 +329,5 @@
         <module name="CommentsIndentation">
             <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN"/>
         </module>
-        <!-- https://checkstyle.org/config_filters.html#SuppressionXpathFilter -->
-        <module name="SuppressionXpathFilter">
-            <property name="file" value="${org.checkstyle.google.suppressionxpathfilter.config}"
-                      default="checkstyle-xpath-suppressions.xml" />
-            <property name="optional" value="true"/>
-        </module>
     </module>
 </module>
-

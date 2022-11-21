@@ -14,6 +14,9 @@ import dev.openfeature.sdk.internal.ObjectUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * {@inheritDoc}
+ */
 @Slf4j
 @SuppressWarnings({ "PMD.DataflowAnomalyAnalysis", "PMD.BeanMembersShouldSerialize", "unchecked", "rawtypes" })
 public class OpenFeatureClient implements Client {
