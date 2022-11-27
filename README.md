@@ -56,7 +56,7 @@ class MyClass {
 For complete documentation, visit: https://docs.openfeature.dev/docs/category/concepts
 
 ## Requirements
-- Java 8+
+- Java 8+ (compiler target is 1.8)
 
 ## Installation
 
