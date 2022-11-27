@@ -7,6 +7,7 @@ import java.util.Map;
 import lombok.Builder;
 import lombok.Singular;
 
+@SuppressWarnings("checkstyle:MissingJavadocType")
 @lombok.Value
 @Builder
 public class FlagEvaluationOptions {

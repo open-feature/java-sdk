@@ -27,9 +27,6 @@
         <Bug pattern="EI_EXPOSE_REP2"/>
     </And>
 
-
-
-
     <!-- Test class that should be excluded -->
     <Match>
         <Class name="dev.openfeature.sdk.DoSomethingProvider"/>
