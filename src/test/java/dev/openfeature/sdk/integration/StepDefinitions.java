@@ -45,7 +45,9 @@ public class StepDefinitions {
 
     @BeforeAll()
     public static void setup() {
-        OpenFeatureAPI.getInstance().setProvider(new FlagdProvider());
+        FlagdProvider provider = new FlagdProvider();
+        provider.setDeadline(3000); // set a generous deadline, to prevent timeouts in actions
+        OpenFeatureAPI.getInstance().setProvider(provider);
         client = OpenFeatureAPI.getInstance().getClient();
     }
 
