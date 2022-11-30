@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/open-feature/java-sdk/compare/v1.0.0...v1.0.1) (2022-11-30)
+
+
+### Bug Fixes
+
+* **deps:** Spot bug scope change ([#173](https://github.com/open-feature/java-sdk/issues/173)) ([113b5e5](https://github.com/open-feature/java-sdk/commit/113b5e5f2ed8b72e5c23dedbf8d13d0fd4d4f878))
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.9.0 ([#172](https://github.com/open-feature/java-sdk/issues/172)) ([fcc8972](https://github.com/open-feature/java-sdk/commit/fcc8972022dd78fcdf5311373a8b8ad238368baa))
+
 ## [1.0.0](https://github.com/open-feature/java-sdk/compare/v0.3.1...v1.0.0) (2022-10-25)
 
 
