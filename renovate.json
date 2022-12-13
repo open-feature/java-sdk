@@ -10,6 +10,7 @@
       "automerge": true
     },
     {
+      "matchUpdateTypes": ["digest"],
       "fileMatch": [
         "^(workflow-templates|\\.github\\/workflows)\\/[^/]+\\.ya?ml$",
         "(^|\\/)action\\.ya?ml$"
