@@ -37,8 +37,7 @@ class OpenFeatureClientTest implements HookFixtures {
         String flag = "feature key";
         boolean defaultValue = false;
         String targetingKey = "targeting key";
-        EvaluationContext ctx = new MutableContext(targetingKey);
-
+        EvaluationContext ctx = new ImmutableContext(targetingKey, new HashMap<>());
         OpenFeatureAPI api = mock(OpenFeatureAPI.class);
         FeatureProvider mockProvider = mock(FeatureProvider.class);
         // this makes it so that true is returned only if the targeting key set at the client level is honored

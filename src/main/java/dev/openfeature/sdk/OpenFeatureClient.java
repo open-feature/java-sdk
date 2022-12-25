@@ -93,7 +93,7 @@ public class OpenFeatureClient implements Client {
         FlagEvaluationOptions flagOptions = ObjectUtils.defaultIfNull(options,
                 () -> FlagEvaluationOptions.builder().build());
         Map<String, Object> hints = Collections.unmodifiableMap(flagOptions.getHookHints());
-        ctx = ObjectUtils.defaultIfNull(ctx, () -> new MutableContext());
+        ctx = ObjectUtils.defaultIfNull(ctx, () -> new ImmutableContext());
 
 
         FlagEvaluationDetails<T> details = null;
@@ -120,10 +120,10 @@ public class OpenFeatureClient implements Client {
             // merge of: API.context, client.context, invocation.context
             apiContext = openfeatureApi.getEvaluationContext() != null
                     ? openfeatureApi.getEvaluationContext()
-                    : new MutableContext();
+                    : new ImmutableContext();
             clientContext = this.getEvaluationContext() != null
                     ? this.getEvaluationContext()
-                    : new MutableContext();
+                    : new ImmutableContext();
 
             EvaluationContext ctxFromHook = hookSupport.beforeHooks(type, hookCtx, mergedHooks, hints);
 
