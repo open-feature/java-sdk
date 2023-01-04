@@ -11,8 +11,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import io.cucumber.java.hu.Ha;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -100,24 +103,24 @@ class FlagEvaluationSpecTest implements HookFixtures {
         String key = "key";
 
         assertEquals(true, c.getBooleanValue(key, false));
-        assertEquals(true, c.getBooleanValue(key, false, new MutableContext()));
-        assertEquals(true, c.getBooleanValue(key, false, new MutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(true, c.getBooleanValue(key, false, new ImmutableContext()));
+        assertEquals(true, c.getBooleanValue(key, false, new ImmutableContext(), FlagEvaluationOptions.builder().build()));
 
         assertEquals("gnirts-ym", c.getStringValue(key, "my-string"));
-        assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new MutableContext()));
-        assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new MutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new ImmutableContext()));
+        assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new ImmutableContext(), FlagEvaluationOptions.builder().build()));
 
         assertEquals(400, c.getIntegerValue(key, 4));
-        assertEquals(400, c.getIntegerValue(key, 4, new MutableContext()));
-        assertEquals(400, c.getIntegerValue(key, 4, new MutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(400, c.getIntegerValue(key, 4, new ImmutableContext()));
+        assertEquals(400, c.getIntegerValue(key, 4, new ImmutableContext(), FlagEvaluationOptions.builder().build()));
 
         assertEquals(40.0, c.getDoubleValue(key, .4));
-        assertEquals(40.0, c.getDoubleValue(key, .4, new MutableContext()));
-        assertEquals(40.0, c.getDoubleValue(key, .4, new MutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(40.0, c.getDoubleValue(key, .4, new ImmutableContext()));
+        assertEquals(40.0, c.getDoubleValue(key, .4, new ImmutableContext(), FlagEvaluationOptions.builder().build()));
 
         assertEquals(null, c.getObjectValue(key, new Value()));
-        assertEquals(null, c.getObjectValue(key, new Value(), new MutableContext()));
-        assertEquals(null, c.getObjectValue(key, new Value(), new MutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(null, c.getObjectValue(key, new Value(), new ImmutableContext()));
+        assertEquals(null, c.getObjectValue(key, new Value(), new ImmutableContext(), FlagEvaluationOptions.builder().build()));
     }
 
     @Specification(number="1.4.1", text="The client MUST provide methods for detailed flag value evaluation with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns an evaluation details structure.")
@@ -138,8 +141,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 .variant(null)
                 .build();
         assertEquals(bd, c.getBooleanDetails(key, true));
-        assertEquals(bd, c.getBooleanDetails(key, true, new MutableContext()));
-        assertEquals(bd, c.getBooleanDetails(key, true, new MutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(bd, c.getBooleanDetails(key, true, new ImmutableContext()));
+        assertEquals(bd, c.getBooleanDetails(key, true, new ImmutableContext(), FlagEvaluationOptions.builder().build()));
 
         FlagEvaluationDetails<String> sd = FlagEvaluationDetails.<String>builder()
                 .flagKey(key)
@@ -147,24 +150,24 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 .variant(null)
                 .build();
         assertEquals(sd, c.getStringDetails(key, "test"));
-        assertEquals(sd, c.getStringDetails(key, "test", new MutableContext()));
-        assertEquals(sd, c.getStringDetails(key, "test", new MutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(sd, c.getStringDetails(key, "test", new ImmutableContext()));
+        assertEquals(sd, c.getStringDetails(key, "test", new ImmutableContext(), FlagEvaluationOptions.builder().build()));
 
         FlagEvaluationDetails<Integer> id = FlagEvaluationDetails.<Integer>builder()
                 .flagKey(key)
                 .value(400)
                 .build();
         assertEquals(id, c.getIntegerDetails(key, 4));
-        assertEquals(id, c.getIntegerDetails(key, 4, new MutableContext()));
-        assertEquals(id, c.getIntegerDetails(key, 4, new MutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(id, c.getIntegerDetails(key, 4, new ImmutableContext()));
+        assertEquals(id, c.getIntegerDetails(key, 4, new ImmutableContext(), FlagEvaluationOptions.builder().build()));
 
         FlagEvaluationDetails<Double> dd = FlagEvaluationDetails.<Double>builder()
                 .flagKey(key)
                 .value(40.0)
                 .build();
         assertEquals(dd, c.getDoubleDetails(key, .4));
-        assertEquals(dd, c.getDoubleDetails(key, .4, new MutableContext()));
-        assertEquals(dd, c.getDoubleDetails(key, .4, new MutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(dd, c.getDoubleDetails(key, .4, new ImmutableContext()));
+        assertEquals(dd, c.getDoubleDetails(key, .4, new ImmutableContext(), FlagEvaluationOptions.builder().build()));
 
         // TODO: Structure detail tests.
     }
@@ -233,22 +236,25 @@ class FlagEvaluationSpecTest implements HookFixtures {
         DoSomethingProvider provider = new DoSomethingProvider();
         api.setProvider(provider);
 
-        MutableContext apiCtx = new MutableContext();
-        apiCtx.add("common", "1");
-        apiCtx.add("common2", "1");
-        apiCtx.add("api", "2");
+        Map<String, Value> attributes = new HashMap<>();
+        attributes.put("common", new Value("1"));
+        attributes.put("common2", new Value("1"));
+        attributes.put("api", new Value("2"));
+        EvaluationContext apiCtx = new ImmutableContext(attributes);
+
         api.setEvaluationContext(apiCtx);
 
         Client c = api.getClient();
-        MutableContext clientCtx = new MutableContext();
-        clientCtx.add("common", "3");
-        clientCtx.add("common2", "3");
-        clientCtx.add("client", "4");
+        Map<String, Value> attributes1 = new HashMap<>();
+        attributes.put("common", new Value("3"));
+        attributes.put("common2", new Value("3"));
+        attributes.put("client", new Value("4"));
+        attributes.put("common", new Value("5"));
+        attributes.put("invocation", new Value("6"));
+        EvaluationContext clientCtx = new ImmutableContext(attributes);
         c.setEvaluationContext(clientCtx);
 
-        MutableContext invocationCtx = new MutableContext();
-        clientCtx.add("common", "5");
-        clientCtx.add("invocation", "6");
+        EvaluationContext invocationCtx = new ImmutableContext();
 
         // dosomethingprovider inverts this value.
         assertTrue(c.getBooleanValue("key", false, invocationCtx));

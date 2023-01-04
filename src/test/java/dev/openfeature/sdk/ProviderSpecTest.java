@@ -22,19 +22,19 @@ public class ProviderSpecTest {
     @Specification(number = "2.2.8.1", text = "The `resolution details` structure SHOULD accept a generic argument (or use an equivalent language feature) which indicates the type of the wrapped `value` field.")
     @Test
     void flag_value_set() {
-        ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new MutableContext());
+        ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new ImmutableContext());
         assertNotNull(int_result.getValue());
 
-        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new MutableContext());
+        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new ImmutableContext());
         assertNotNull(double_result.getValue());
 
-        ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", new MutableContext());
+        ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", new ImmutableContext());
         assertNotNull(string_result.getValue());
 
-        ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, new MutableContext());
+        ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, new ImmutableContext());
         assertNotNull(boolean_result.getValue());
 
-        ProviderEvaluation<Value> object_result = p.getObjectEvaluation("key", new Value(), new MutableContext());
+        ProviderEvaluation<Value> object_result = p.getObjectEvaluation("key", new Value(), new ImmutableContext());
         assertNotNull(object_result.getValue());
 
     }
@@ -42,14 +42,14 @@ public class ProviderSpecTest {
     @Specification(number = "2.2.5", text = "The `provider` SHOULD populate the `resolution details` structure's `reason` field with `\"STATIC\"`, `\"DEFAULT\",` `\"TARGETING_MATCH\"`, `\"SPLIT\"`, `\"CACHED\"`, `\"DISABLED\"`, `\"UNKNOWN\"`, `\"ERROR\"` or some other string indicating the semantic reason for the returned flag value.")
     @Test
     void has_reason() {
-        ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new MutableContext());
+        ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new ImmutableContext());
         assertEquals(Reason.DEFAULT.toString(), result.getReason());
     }
 
     @Specification(number = "2.2.6", text = "In cases of normal execution, the `provider` MUST NOT populate the `resolution details` structure's `error code` field, or otherwise must populate it with a null or falsy value.")
     @Test
     void no_error_code_by_default() {
-        ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new MutableContext());
+        ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new ImmutableContext());
         assertNull(result.getErrorCode());
     }
 
@@ -63,16 +63,16 @@ public class ProviderSpecTest {
     @Specification(number = "2.2.4", text = "In cases of normal execution, the `provider` SHOULD populate the `resolution details` structure's `variant` field with a string identifier corresponding to the returned flag value.")
     @Test
     void variant_set() {
-        ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new MutableContext());
+        ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new ImmutableContext());
         assertNotNull(int_result.getReason());
 
-        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new MutableContext());
+        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new ImmutableContext());
         assertNotNull(double_result.getReason());
 
-        ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", new MutableContext());
+        ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", new ImmutableContext());
         assertNotNull(string_result.getReason());
 
-        ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, new MutableContext());
+        ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, new ImmutableContext());
         assertNotNull(boolean_result.getReason());
     }
 

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.cucumber.java.hu.Ha;
 import org.junit.jupiter.api.Test;
 
 public class EvalContextTest {
@@ -15,8 +16,7 @@ public class EvalContextTest {
             text="The `evaluation context` structure **MUST** define an optional `targeting key` field of " +
                     "type string, identifying the subject of the flag evaluation.")
     @Test void requires_targeting_key() {
-        MutableContext ec = new MutableContext();
-        ec.setTargetingKey("targeting-key");
+        EvaluationContext ec = new ImmutableContext("targeting-key", new HashMap<>());
         assertEquals("targeting-key", ec.getTargetingKey());
     }
 
@@ -24,19 +24,20 @@ public class EvalContextTest {
             "custom fields, having keys of type `string`, and " +
             "values of type `boolean | string | number | datetime | structure`.")
     @Test void eval_context() {
-        MutableContext ec = new MutableContext();
+        Map<String, Value> attributes = new HashMap<>();
+        Instant dt = Instant.now();
+        attributes.put("str", new Value("test"));
+        attributes.put("bool", new Value(true));
+        attributes.put("int", new Value(4));
+        attributes.put("dt", new Value(dt));
+        EvaluationContext ec = new ImmutableContext(attributes);
 
-        ec.add("str", "test");
         assertEquals("test", ec.getValue("str").asString());
 
-        ec.add("bool", true);
         assertEquals(true, ec.getValue("bool").asBoolean());
 
-        ec.add("int", 4);
         assertEquals(4, ec.getValue("int").asInteger());
 
-        Instant dt = Instant.now();
-        ec.add("dt", dt);
         assertEquals(dt, ec.getValue("dt").asInstant());
     }
 
@@ -44,12 +45,14 @@ public class EvalContextTest {
             "custom fields, having keys of type `string`, and " +
             "values of type `boolean | string | number | datetime | structure`.")
     @Test void eval_context_structure_array() {
-        MutableContext ec = new MutableContext();
-        ec.add("obj", new MutableStructure().add("val1", 1).add("val2", "2"));
-        ec.add("arr", new ArrayList<Value>(){{
+        Map<String, Value> attributes = new HashMap<>();
+        attributes.put("obj", new Value(new MutableStructure().add("val1", 1).add("val2", "2")));
+        List<Value> values =  new ArrayList<Value>(){{
             add(new Value("one"));
             add(new Value("two"));
-        }});
+        }};
+        attributes.put("arr", new Value(values));
+        EvaluationContext ec = new ImmutableContext(attributes);
 
         Structure str = ec.getValue("obj").asStructure();
         assertEquals(1, str.getValue("val1").asInteger());
@@ -62,21 +65,18 @@ public class EvalContextTest {
 
     @Specification(number="3.1.3", text="The evaluation context MUST support fetching the custom fields by key and also fetching all key value pairs.")
     @Test void fetch_all() {
-        MutableContext ec = new MutableContext();
-
-        ec.add("str", "test");
-        ec.add("str2", "test2");
-
-        ec.add("bool", true);
-        ec.add("bool2", false);
-
-        ec.add("int", 4);
-        ec.add("int2", 2);
-
+        Map<String, Value> attributes  = new HashMap<>();
         Instant dt = Instant.now();
-        ec.add("dt", dt);
-
-        ec.add("obj", new MutableStructure().add("val1", 1).add("val2", "2"));
+        MutableStructure mutableStructure = new MutableStructure().add("val1", 1).add("val2", "2");
+        attributes.put("str", new Value("test"));
+        attributes.put("str2", new Value("test2"));
+        attributes.put("bool", new Value(true));
+        attributes.put("bool2", new Value(false));
+        attributes.put("int", new Value(4));
+        attributes.put("int2", new Value(2));
+        attributes.put("dt", new Value(dt));
+        attributes.put("obj", new Value(mutableStructure));
+        EvaluationContext ec = new ImmutableContext(attributes);
 
         Map<String, Value> foundStr = ec.asMap();
         assertEquals(ec.getValue("str").asString(), foundStr.get("str").asString());
@@ -106,6 +106,16 @@ public class EvalContextTest {
         assertEquals(3, ec.getValue("key").asInteger());
     }
 
+    @Test void unique_key_across_types_immutableContext() {
+        HashMap<String, Value>  attributes = new HashMap<>();
+        attributes.put("key", new Value("val"));
+        attributes.put("key", new Value("val2"));
+        attributes.put("key", new Value(3));
+        EvaluationContext ec = new ImmutableContext(attributes);
+        assertEquals(null, ec.getValue("key").asString());
+        assertEquals(3, ec.getValue("key").asInteger());
+    }
+
     @Test void can_chain_attribute_addition() {
         MutableContext ec = new MutableContext();
         MutableContext out = ec.add("str", "test")
@@ -130,6 +140,24 @@ public class EvalContextTest {
         assertEquals(null, ec.getValue("Structure").asStructure());
         assertEquals(null, ec.getValue("List").asList());
         assertEquals(null, ec.getValue("Instant").asString());
+    }
+
+    @Test void Immutable_context_merge_targeting_key() {
+        String key1 = "key1";
+        EvaluationContext ctx1 = new ImmutableContext(key1, new HashMap<>());
+        EvaluationContext ctx2 = new ImmutableContext(new HashMap<>());
+
+        EvaluationContext ctxMerged = ctx1.merge(ctx2);
+        assertEquals(key1, ctxMerged.getTargetingKey());
+
+        String key2 = "key2";
+        ctx2 = new ImmutableContext(key2, new HashMap<>());
+        ctxMerged = ctx1.merge(ctx2);
+        assertEquals(key2, ctxMerged.getTargetingKey());
+
+        ctx2 = new ImmutableContext(" ",new HashMap<>());
+        ctxMerged = ctx1.merge(ctx2);
+        assertEquals(key1, ctxMerged.getTargetingKey());
     }
 
     @Test void merge_targeting_key() {

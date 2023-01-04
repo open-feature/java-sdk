@@ -30,12 +30,23 @@ public class ImmutableContext implements EvaluationContext {
         this.targetingKey = "";
     }
 
+    /**
+     * create an immutable context with an attributes provided.
+     *
+     * @param attributes evaluation context attributes
+     */
     public ImmutableContext(Map<String, Value> attributes) {
         HashMap<String, Value> copy = new HashMap<>(attributes);
         this.structure = new MutableStructure(copy);
         this.targetingKey = "";
     }
 
+    /**
+     * create an immutable context with given targetingKey and attributes provided.
+     *
+     * @param targetingKey targeting key
+     * @param attributes evaluation context attributes
+     */
     public ImmutableContext(String targetingKey, Map<String, Value> attributes) {
         this(attributes);
         this.targetingKey = targetingKey;

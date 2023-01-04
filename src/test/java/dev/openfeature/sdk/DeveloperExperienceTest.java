@@ -7,6 +7,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -70,14 +72,14 @@ class DeveloperExperienceTest implements HookFixtures {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());
         Client client = api.getClient();
-
-        MutableContext ctx = new MutableContext()
-                .add("int-val", 3)
-                .add("double-val", 4.0)
-                .add("str-val", "works")
-                .add("bool-val", false)
-                .add("value-val", Arrays.asList(new Value(2), new Value(4)));
-
+        Map<String, Value> attributes = new HashMap<>();
+        List<Value> values = Arrays.asList(new Value(2), new Value(4));
+        attributes.put("int-val", new Value(3));
+        attributes.put("double-val", new Value(4.0));
+        attributes.put("str-val", new Value("works"));
+        attributes.put("bool-val", new Value(false));
+        attributes.put("value-val", new Value(values));
+        EvaluationContext ctx = new ImmutableContext(attributes);
         Boolean retval = client.getBooleanValue(flagKey, false, ctx);
         assertFalse(retval);
     }

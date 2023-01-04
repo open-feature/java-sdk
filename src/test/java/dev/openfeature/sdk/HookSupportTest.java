@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -21,8 +23,9 @@ class HookSupportTest implements HookFixtures {
     @Test
     @DisplayName("should merge EvaluationContexts on before hooks correctly")
     void shouldMergeEvaluationContextsOnBeforeHooksCorrectly() {
-        MutableContext baseContext = new MutableContext();
-        baseContext.add("baseKey", "baseValue");
+        Map<String, Value> attributes = new HashMap<>();
+        attributes.put("baseKey", new Value("baseValue"));
+        EvaluationContext baseContext = new ImmutableContext(attributes);
         HookContext<String> hookContext = new HookContext<>("flagKey", FlagValueType.STRING, "defaultValue", baseContext, () -> "client", () -> "provider");
         Hook<String> hook1 = mockStringHook();
         Hook<String> hook2 = mockStringHook();
@@ -43,7 +46,7 @@ class HookSupportTest implements HookFixtures {
     void shouldAlwaysCallGenericHook(FlagValueType flagValueType) {
         Hook<?> genericHook = mockGenericHook();
         HookSupport hookSupport = new HookSupport();
-        MutableContext baseContext = new MutableContext();
+        EvaluationContext baseContext = new ImmutableContext();
         IllegalStateException expectedException = new IllegalStateException("All fine, just a test");
         HookContext<Object> hookContext = new HookContext<>("flagKey", flagValueType, createDefaultValue(flagValueType), baseContext, () -> "client", () -> "provider");
 
@@ -75,10 +78,11 @@ class HookSupportTest implements HookFixtures {
         }
     }
 
-    private MutableContext evaluationContextWithValue(String key, String value) {
-        MutableContext result = new MutableContext();
-        result.add(key, value);
-        return result;
+    private EvaluationContext evaluationContextWithValue(String key, String value) {
+        Map<String, Value> attributes = new HashMap<>();
+        attributes.put(key, new Value(value));
+        EvaluationContext baseContext = new ImmutableContext(attributes);
+        return baseContext;
     }
 
 }

@@ -15,7 +15,7 @@ class HookContextTest {
                 FlagValueType.BOOLEAN,
                 meta,
                 meta,
-                new MutableContext(),
+                new ImmutableContext(),
                 false
         );
 
