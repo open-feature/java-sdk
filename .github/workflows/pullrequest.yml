@@ -31,7 +31,7 @@ jobs:
           languages: java
 
       - name: Cache local Maven repository
-        uses: actions/cache@6fd2d4538ca777f67fccddb233cf1a8ff1339012
+        uses: actions/cache@58c146cc91c5b9e778e71775dfe9bf1442ad9a12
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
