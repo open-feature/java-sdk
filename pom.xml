@@ -519,6 +519,7 @@
                   <goal>exec</goal>
                 </goals>
                 <configuration>
+                  <!-- copy the feature spec we want to test into resources so them can be easily loaded -->
                   <!-- run: cp test-harness/features/evaluation.feature src/test/resources/features/ -->
                   <executable>cp</executable>
                   <arguments>
