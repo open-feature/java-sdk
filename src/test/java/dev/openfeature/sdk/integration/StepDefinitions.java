@@ -46,6 +46,7 @@ public class StepDefinitions {
     @BeforeAll()
     @Given("an openfeature client is registered with cache disabled")
     public static void setup() {
+        // TODO: when the FlagdProvider is updated to support caching, we might need to disable it here for this test to work as expected.
         FlagdProvider provider = new FlagdProvider();
         provider.setDeadline(3000); // set a generous deadline, to prevent timeouts in actions
         OpenFeatureAPI.getInstance().setProvider(provider);
