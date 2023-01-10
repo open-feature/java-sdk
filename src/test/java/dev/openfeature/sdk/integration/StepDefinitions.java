@@ -6,13 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import dev.openfeature.contrib.providers.flagd.FlagdProvider;
 import dev.openfeature.sdk.Client;
 import dev.openfeature.sdk.FlagEvaluationDetails;
-import dev.openfeature.sdk.MutableStructure;
 import dev.openfeature.sdk.MutableContext;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.Reason;
 import dev.openfeature.sdk.Structure;
 import dev.openfeature.sdk.Value;
 import io.cucumber.java.BeforeAll;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
@@ -44,7 +44,9 @@ public class StepDefinitions {
     private FlagEvaluationDetails<Integer> typeErrorDetails;
 
     @BeforeAll()
+    @Given("an openfeature client is registered with cache disabled")
     public static void setup() {
+        // TODO: when the FlagdProvider is updated to support caching, we might need to disable it here for this test to work as expected.
         FlagdProvider provider = new FlagdProvider();
         provider.setDeadline(3000); // set a generous deadline, to prevent timeouts in actions
         OpenFeatureAPI.getInstance().setProvider(provider);
@@ -249,7 +251,7 @@ public class StepDefinitions {
         notFoundDetails = client.getStringDetails(notFoundFlagKey, notFoundDefaultValue);
     }
 
-    @Then("then the default string value should be returned")
+    @Then("the default string value should be returned")
     public void then_the_default_string_value_should_be_returned() {
         assertEquals(notFoundDefaultValue, notFoundDetails.getValue());
     }
@@ -270,7 +272,7 @@ public class StepDefinitions {
         typeErrorDetails = client.getIntegerDetails(typeErrorFlagKey, typeErrorDefaultValue);
     }
 
-    @Then("then the default integer value should be returned")
+    @Then("the default integer value should be returned")
     public void then_the_default_integer_value_should_be_returned() {
         assertEquals(typeErrorDefaultValue, typeErrorDetails.getValue());
     }
