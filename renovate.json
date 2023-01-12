@@ -14,5 +14,13 @@
       "matchManagers": ["github-actions"],
       "automerge": true
     }
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": ["^README.md$", "^.github/workflows/pullrequest.yml$"],
+      "matchStrings": ["ghcr\\.io\\/open-feature\\/flagd-testbed:(?<currentValue>.*?)\\n"],
+      "depNameTemplate": "open-feature/test-harness",
+      "datasourceTemplate": "github-releases"
+    }
   ]
 }
