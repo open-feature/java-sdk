@@ -1,15 +1,14 @@
 package dev.openfeature.sdk;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import dev.openfeature.sdk.exceptions.ValueNotConvertableError;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
  * {@link MutableStructure} represents a potentially nested object type which is used to represent 
@@ -108,54 +107,5 @@ public class MutableStructure implements Structure {
                 Map.Entry::getKey,
                 e -> convertValue(getValue(e.getKey()))
             ));
-    }
-
-    /**
-     * convertValue is converting the object type Value in a primitive type.
-     *
-     * @param value - Value object to convert
-     * @return an Object containing the primitive type.
-     */
-    private Object convertValue(Value value) {
-        if (value.isBoolean()) {
-            return value.asBoolean();
-        }
-
-        if (value.isNumber()) {
-            Double valueAsDouble = value.asDouble();
-            if (valueAsDouble == Math.floor(valueAsDouble) && !Double.isInfinite(valueAsDouble)) {
-                return value.asInteger();
-            }
-            return valueAsDouble;
-        }
-
-        if (value.isString()) {
-            return value.asString();
-        }
-
-        if (value.isInstant()) {
-            return value.asInstant();
-        }
-
-        if (value.isList()) {
-            return value.asList()
-                    .stream()
-                    .map(this::convertValue)
-                    .collect(Collectors.toList());
-        }
-
-        if (value.isStructure()) {
-            Structure s = value.asStructure();
-            return s.asMap()
-                    .keySet()
-                    .stream()
-                    .collect(
-                        Collectors.toMap(
-                            key -> key,
-                            key -> convertValue(s.getValue(key))
-                        )
-                    );
-        }
-        throw new ValueNotConvertableError();
     }
 }

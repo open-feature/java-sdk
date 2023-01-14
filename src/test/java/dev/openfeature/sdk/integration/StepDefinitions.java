@@ -1,12 +1,10 @@
 package dev.openfeature.sdk.integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import dev.openfeature.contrib.providers.flagd.FlagdProvider;
 import dev.openfeature.sdk.Client;
+import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.FlagEvaluationDetails;
-import dev.openfeature.sdk.MutableContext;
+import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.Reason;
 import dev.openfeature.sdk.Structure;
@@ -15,6 +13,12 @@ import io.cucumber.java.BeforeAll;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StepDefinitions {
 
@@ -33,7 +37,7 @@ public class StepDefinitions {
 
     private String contextAwareFlagKey;
     private String contextAwareDefaultValue;
-    private MutableContext context;
+    private EvaluationContext context;
     private String contextAwareValue;
 
     private String notFoundFlagKey;
@@ -211,11 +215,12 @@ public class StepDefinitions {
     @When("context contains keys {string}, {string}, {string}, {string} with values {string}, {string}, {int}, {string}")
     public void context_contains_keys_with_values(String field1, String field2, String field3, String field4,
             String value1, String value2, Integer value3, String value4) {
-        this.context = new MutableContext()
-                .add(field1, value1)
-                .add(field2, value2)
-                .add(field3, value3)
-                .add(field4, Boolean.valueOf(value4));
+        Map<String, Value> attributes = new HashMap<>();
+        attributes.put(field1, new Value(value1));
+        attributes.put(field2, new Value(value2));
+        attributes.put(field3, new Value(value3));
+        attributes.put(field4, new Value(Boolean.valueOf(value4)));
+        this.context = new ImmutableContext(attributes);
     }
 
     @When("a flag with key {string} is evaluated with default value {string}")
@@ -234,7 +239,7 @@ public class StepDefinitions {
     @Then("the resolved flag value is {string} when the context is empty")
     public void the_resolved_flag_value_is_when_the_context_is_empty(String expected) {
         String emptyContextValue = client.getStringValue(contextAwareFlagKey, contextAwareDefaultValue,
-                new MutableContext());
+                new ImmutableContext());
         assertEquals(expected, emptyContextValue);
     }
 
