@@ -64,8 +64,7 @@ public final class ImmutableContext implements EvaluationContext {
     }
 
     /**
-     * Merges this EvaluationContext object with the passed EvaluationContext, with the passed EvaluationContext overriding in
-     * case of conflict.
+     * Merges this EvaluationContext object with the passed EvaluationContext, overriding in case of conflict.
      *
      * @param overridingContext overriding context
      * @return resulting merged context
