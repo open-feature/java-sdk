@@ -23,14 +23,23 @@ public final class ImmutableContext implements EvaluationContext {
     private final Structure structure;
 
     /**
-     * create an immutable context with an empty targeting_key and attributes provided.
+     * Create an immutable context with an empty targeting_key and attributes provided.
      */
     public ImmutableContext() {
         this("", new HashMap<>());
     }
 
     /**
-     * create an immutable context with an attributes provided.
+     * Create an immutable context with given targeting_key provided.
+     *
+     * @param targetingKey targeting key
+     */
+    public ImmutableContext(String targetingKey) {
+        this(targetingKey, new HashMap<>());
+    }
+
+    /**
+     * Create an immutable context with an attributes provided.
      *
      * @param attributes evaluation context attributes
      */
@@ -39,7 +48,7 @@ public final class ImmutableContext implements EvaluationContext {
     }
 
     /**
-     * create an immutable context with given targetingKey and attributes provided.
+     * Create an immutable context with given targetingKey and attributes provided.
      *
      * @param targetingKey targeting key
      * @param attributes   evaluation context attributes
@@ -55,7 +64,7 @@ public final class ImmutableContext implements EvaluationContext {
     }
 
     /**
-     * Merges this EvaluationContext objects with the second overriding the this in
+     * Merges this EvaluationContext object with the passed EvaluationContext, with the passed EvaluationContext overriding in
      * case of conflict.
      *
      * @param overridingContext overriding context
@@ -64,7 +73,7 @@ public final class ImmutableContext implements EvaluationContext {
     @Override
     public EvaluationContext merge(EvaluationContext overridingContext) {
         if (overridingContext == null) {
-            return new ImmutableContext(this.asMap());
+            return new ImmutableContext(this.targetingKey, this.asMap());
         }
         String targetingKey = "";
         if (this.getTargetingKey() != null && !this.getTargetingKey().trim().equals("")) {
