@@ -144,6 +144,19 @@
       <version>0.5.6</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20220924</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.14.1</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>
@@ -521,9 +534,15 @@
                 <configuration>
                   <!-- copy the feature spec we want to test into resources so them can be easily loaded -->
                   <!-- run: cp test-harness/features/evaluation.feature src/test/resources/features/ -->
+                  <!-- run: cp test-harness/features/caching.feature src/test/resources/features/ -->
                   <executable>cp</executable>
                   <arguments>
                     <argument>test-harness/features/evaluation.feature</argument>
+                    <argument>src/test/resources/features/</argument>
+                  </arguments>
+                  <executable>cp</executable>
+                  <arguments>
+                    <argument>test-harness/features/caching.feature</argument>
                     <argument>src/test/resources/features/</argument>
                   </arguments>
                 </configuration>
