@@ -320,6 +320,15 @@ public class StepDefinitions {
         provider.setDeadline(3000); // set a generous deadline, to prevent timeouts in actions
         OpenFeatureAPI.getInstance().setProvider(provider);
         client = OpenFeatureAPI.getInstance().getClient();
+
+        Object eventStreamAliveSync = provider.getEventStreamAliveSync();
+        synchronized (eventStreamAliveSync) {
+            try {
+                eventStreamAliveSync.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Then("the resolved boolean details reason should be {string}")
