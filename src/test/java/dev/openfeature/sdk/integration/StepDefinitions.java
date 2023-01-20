@@ -19,6 +19,7 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import lombok.extern.slf4j.Slf4j;
 import io.cucumber.java.en.And;
 
 import java.io.File;
@@ -28,6 +29,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Slf4j
 public class StepDefinitions {
 
     private static JsonNode flagConfig;
@@ -62,7 +64,7 @@ public class StepDefinitions {
         try {
             flagConfig = mapper.readTree(new File(testingFlagsPath));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("read testing flags", e);
         }
     }
 
@@ -73,7 +75,7 @@ public class StepDefinitions {
             file.write(flagConfig.toString());
             file.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("write to testing flags file", e);
         }
     }
 
@@ -326,7 +328,7 @@ public class StepDefinitions {
             try {
                 eventStreamAliveSync.wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error("wait for event stream alive", e);
             }
         }
     }
@@ -373,7 +375,7 @@ public class StepDefinitions {
             file.write(copy.toString());
             file.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("write to testing flags file", e);
         }
     }
 
@@ -382,7 +384,7 @@ public class StepDefinitions {
         try {
             Thread.sleep(milliseconds);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("sleep_for_milliseconds", e);
         }
     }
 
