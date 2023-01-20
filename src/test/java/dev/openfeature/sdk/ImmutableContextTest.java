@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ImmutableContextTest {
+class ImmutableContextTest {
 
     @Test
     @DisplayName("Mutating targeting key is not allowed on Immutable Context")
@@ -26,7 +26,7 @@ public class ImmutableContextTest {
         attributes.put("key2", new Value("val2"));
         EvaluationContext ctx = new ImmutableContext("targeting key", attributes);
         attributes.put("key3", new Value("val3"));
-        assertArrayEquals(ctx.keySet().toArray(), new Object[]{"key1", "key2"});
+        assertArrayEquals(new Object[]{"key1", "key2"}, ctx.keySet().toArray());
     }
 
     @DisplayName("targeting key should be changed from the overriding context")
@@ -62,6 +62,6 @@ public class ImmutableContextTest {
         EvaluationContext ctx = new ImmutableContext("targeting_key", attributes);
         EvaluationContext merge = ctx.merge(null);
         assertEquals("targeting_key", merge.getTargetingKey());
-        assertArrayEquals(merge.keySet().toArray(), new Object[]{"key1", "key2"});
+        assertArrayEquals(new Object[]{"key1", "key2"}, merge.keySet().toArray());
     }
 }

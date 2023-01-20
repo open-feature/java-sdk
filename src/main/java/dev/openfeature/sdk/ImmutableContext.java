@@ -74,18 +74,18 @@ public final class ImmutableContext implements EvaluationContext {
         if (overridingContext == null) {
             return new ImmutableContext(this.targetingKey, this.asMap());
         }
-        String targetingKey = "";
+        String newTargetingKey = "";
         if (this.getTargetingKey() != null && !this.getTargetingKey().trim().equals("")) {
-            targetingKey = this.getTargetingKey();
+            newTargetingKey = this.getTargetingKey();
         }
 
         if (overridingContext.getTargetingKey() != null && !overridingContext.getTargetingKey().trim().equals("")) {
-            targetingKey = overridingContext.getTargetingKey();
+            newTargetingKey = overridingContext.getTargetingKey();
         }
         Map<String, Value> merged = new HashMap<>();
 
         merged.putAll(this.asMap());
         merged.putAll(overridingContext.asMap());
-        return new ImmutableContext(targetingKey, merged);
+        return new ImmutableContext(newTargetingKey, merged);
     }
 }
