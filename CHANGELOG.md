@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.0](https://github.com/open-feature/java-sdk/compare/v1.0.1...v1.1.0) (2023-01-24)
+
+
+### Features
+
+* add STATIC, CACHED reasons ([#240](https://github.com/open-feature/java-sdk/issues/240)) ([d069a8f](https://github.com/open-feature/java-sdk/commit/d069a8fa9d7c1795f6713f4b331657119e6f7d8f))
+* add STATIC, CACHED reasons. ([d069a8f](https://github.com/open-feature/java-sdk/commit/d069a8fa9d7c1795f6713f4b331657119e6f7d8f))
+
+
+### Bug Fixes
+
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.10.0 ([#195](https://github.com/open-feature/java-sdk/issues/195)) ([0544597](https://github.com/open-feature/java-sdk/commit/0544597511471a2c10fbe2a3296de5629730ea7c))
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.11.0 ([#208](https://github.com/open-feature/java-sdk/issues/208)) ([6103dd2](https://github.com/open-feature/java-sdk/commit/6103dd2d39adceaaeeb0f63de6fb10437be3a743))
+* **deps:** update junit5 monorepo ([#230](https://github.com/open-feature/java-sdk/issues/230)) ([67b15c6](https://github.com/open-feature/java-sdk/commit/67b15c6e104fe7539f7a197810be28d69634cbfc))
+
 ## [1.0.1](https://github.com/open-feature/java-sdk/compare/v1.0.0...v1.0.1) (2022-11-30)
 
 
