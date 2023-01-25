@@ -39,7 +39,7 @@ public final class ImmutableStructure implements Structure {
     public ImmutableStructure(Map<String, Value> attributes) {
         Map<String, Value> copy = attributes.entrySet()
                 .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> copy(e.getValue())));
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().clone()));
         this.attributes = new HashMap<>(copy);
     }
 
@@ -52,7 +52,7 @@ public final class ImmutableStructure implements Structure {
     @Override
     public Value getValue(String key) {
         Value value = this.attributes.get(key);
-        return copy(value);
+        return value.clone();
     }
 
     /**
@@ -85,31 +85,5 @@ public final class ImmutableStructure implements Structure {
                         Map.Entry::getKey,
                         e -> convertValue(getValue(e.getKey()))
                 ));
-    }
-
-    /**
-     * Perform deep copy of value object.
-     *
-     * @param value value object
-     * @return new copy of the given value object
-     */
-    @SneakyThrows
-    private Value copy(Value value) {
-        if (value.isList()) {
-            List<Value> copy = value.asList().stream().map(Value::new).collect(Collectors.toList());
-            return new Value(copy);
-        }
-        if (value.isStructure()) {
-            Map<String, Value> copy = value.asStructure().asMap().entrySet().stream().collect(Collectors.toMap(
-                    Map.Entry::getKey,
-                    e -> copy(e.getValue())
-            ));
-            return new Value(new ImmutableStructure(copy));
-        }
-        if (value.isInstant()) {
-            Instant copy = Instant.ofEpochMilli(value.asInstant().toEpochMilli());
-            return new Value(copy);
-        }
-        return new Value(value.asObject());
     }
 }
