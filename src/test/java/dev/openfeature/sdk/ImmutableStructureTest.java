@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -92,5 +93,19 @@ class ImmutableStructureTest {
         structure.getValue(KEY).asStructure().asMap().get("list").asList().add(new Value("dummy_list_3"));
         assertEquals(1, structure.getValue(KEY).asStructure().asMap().get("list").asList().size());
         assertEquals("dummy_list_1", structure.getValue(KEY).asStructure().asMap().get("list").asList().get(0).asString());
+    }
+
+    @Test
+    void ModifyingTheValuesReturnByTheKeySetMethodShouldNotModifyTheUnderlyingImmutableStructure() {
+        Map<String, Value> map = new HashMap<String, Value>() {
+            {
+                put("key", new Value(10));
+                put("key1", new Value(20));
+            }
+        };
+        ImmutableStructure structure = new ImmutableStructure(map);
+        Set<String> keys = structure.keySet();
+        keys.remove("key1");
+        assertEquals(2, structure.keySet().size());
     }
 }

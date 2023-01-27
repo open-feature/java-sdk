@@ -17,7 +17,7 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
-public class Value implements Cloneable{
+public class Value implements Cloneable {
 
     private final Object innerObject;
 

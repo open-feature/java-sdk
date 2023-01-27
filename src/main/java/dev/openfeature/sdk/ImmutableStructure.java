@@ -1,12 +1,10 @@
 package dev.openfeature.sdk;
 
 import lombok.EqualsAndHashCode;
-import lombok.SneakyThrows;
 import lombok.ToString;
 
-import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,7 +43,7 @@ public final class ImmutableStructure implements Structure {
 
     @Override
     public Set<String> keySet() {
-        return this.attributes.keySet();
+        return new HashSet<>(this.attributes.keySet());
     }
 
     // getters
