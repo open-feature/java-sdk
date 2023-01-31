@@ -8,6 +8,10 @@ package dev.openfeature.sdk;
 public interface EvaluationContext extends Structure {
     String getTargetingKey();
     
+    /**
+     * Mutating targeting key is not supported in all implementations and will be removed.
+     */
+    @Deprecated
     void setTargetingKey(String targetingKey);
 
     /**

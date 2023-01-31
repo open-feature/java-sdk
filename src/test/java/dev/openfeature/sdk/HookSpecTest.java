@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import io.cucumber.java.hu.Ha;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -103,7 +104,7 @@ public class HookSpecTest implements HookFixtures {
             HookContext.<Integer>builder()
                     .flagKey("key")
                     .type(FlagValueType.INTEGER)
-                    .ctx(new MutableContext())
+                    .ctx(new ImmutableContext())
                     .build();
             fail("Missing default value shouldn't be valid");
         } catch (NullPointerException e) {
@@ -115,7 +116,7 @@ public class HookSpecTest implements HookFixtures {
             HookContext.<Integer>builder()
                     .flagKey("key")
                     .type(FlagValueType.INTEGER)
-                    .ctx(new MutableContext())
+                    .ctx(new ImmutableContext())
                     .defaultValue(1)
                     .build();
         } catch (NullPointerException e) {
@@ -130,7 +131,7 @@ public class HookSpecTest implements HookFixtures {
         HookContext.<Integer>builder()
                 .flagKey("key")
                 .type(FlagValueType.INTEGER)
-                .ctx(new MutableContext())
+                .ctx(new ImmutableContext())
                 .defaultValue(1)
                 .build();
 
@@ -138,7 +139,7 @@ public class HookSpecTest implements HookFixtures {
         HookContext.<Integer>builder()
                 .flagKey("key")
                 .type(FlagValueType.INTEGER)
-                .ctx(new MutableContext())
+                .ctx(new ImmutableContext())
                 .providerMetadata(new NoOpProvider().getMetadata())
                 .defaultValue(1)
                 .build();
@@ -147,7 +148,7 @@ public class HookSpecTest implements HookFixtures {
         HookContext.<Integer>builder()
                 .flagKey("key")
                 .type(FlagValueType.INTEGER)
-                .ctx(new MutableContext())
+                .ctx(new ImmutableContext())
                 .defaultValue(1)
                 .clientMetadata(OpenFeatureAPI.getInstance().getClient().getMetadata())
                 .build();
@@ -160,7 +161,7 @@ public class HookSpecTest implements HookFixtures {
         Client client = api.getClient();
         Hook<Boolean> evalHook = mockBooleanHook();
 
-        client.getBooleanValue("key", false, new MutableContext(),
+        client.getBooleanValue("key", false, new ImmutableContext(),
                 FlagEvaluationOptions.builder().hook(evalHook).build());
 
         verify(evalHook, times(1)).before(any(), any());
@@ -366,7 +367,7 @@ public class HookSpecTest implements HookFixtures {
         hh.put(hintKey, "My hint value");
         hh = Collections.unmodifiableMap(hh);
 
-        client.getBooleanValue("key", false, new MutableContext(), FlagEvaluationOptions.builder()
+        client.getBooleanValue("key", false, new ImmutableContext(), FlagEvaluationOptions.builder()
                 .hook(mutatingHook)
                 .hookHints(hh)
                 .build());
@@ -391,7 +392,7 @@ public class HookSpecTest implements HookFixtures {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(provider);
         Client client = api.getClient();
-        client.getBooleanValue("key", false, new MutableContext(),
+        client.getBooleanValue("key", false, new ImmutableContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
 
         order.verify(hook).before(any(), any());
@@ -406,7 +407,7 @@ public class HookSpecTest implements HookFixtures {
         Hook hook = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).before(any(), any());
         Client client = getClient(null);
-        Boolean value = client.getBooleanValue("key", false, new MutableContext(),
+        Boolean value = client.getBooleanValue("key", false, new ImmutableContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
         verify(hook, times(1)).before(any(), any());
         verify(hook, times(1)).error(any(), any(), any());
@@ -418,7 +419,7 @@ public class HookSpecTest implements HookFixtures {
         Hook hook = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).after(any(), any(), any());
         Client client = getClient(null);
-        client.getBooleanValue("key", false, new MutableContext(),
+        client.getBooleanValue("key", false, new ImmutableContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
         verify(hook, times(1)).after(any(), any(), any());
         verify(hook, times(1)).error(any(), any(), any());
@@ -431,7 +432,7 @@ public class HookSpecTest implements HookFixtures {
 
         Client client = getClient(null);
 
-        client.getBooleanValue("key", false, new MutableContext(),
+        client.getBooleanValue("key", false, new ImmutableContext(),
                 FlagEvaluationOptions.builder()
                         .hook(hook2)
                         .hook(hook)
@@ -447,7 +448,7 @@ public class HookSpecTest implements HookFixtures {
     @Specification(number = "4.1.4", text = "The evaluation context MUST be mutable only within the before hook.")
     @Specification(number = "4.3.3", text = "Any evaluation context returned from a before hook MUST be passed to subsequent before hooks (via HookContext).")
     @Test void beforeContextUpdated() {
-        MutableContext ctx = new MutableContext();
+        EvaluationContext ctx = new ImmutableContext();
         Hook hook = mockBooleanHook();
         when(hook.before(any(), any())).thenReturn(Optional.of(ctx));
         Hook hook2 = mockBooleanHook();
@@ -472,13 +473,16 @@ public class HookSpecTest implements HookFixtures {
 
     @Specification(number="4.3.4", text="When before hooks have finished executing, any resulting evaluation context MUST be merged with the existing evaluation context.")
     @Test void mergeHappensCorrectly() {
-        MutableContext hookCtx = new MutableContext();
-        hookCtx.add("test", "works");
-        hookCtx.add("another", "exists");
+        Map<String, Value>  attributes= new HashMap<>();
+        attributes.put("test", new Value("works"));
+        attributes.put("another", new Value("exists"));
+        EvaluationContext hookCtx = new ImmutableContext(attributes);
 
-        MutableContext invocationCtx = new MutableContext();
-        invocationCtx.add("something", "here");
-        invocationCtx.add("test", "broken");
+
+        Map<String, Value>  attributes1= new HashMap<>();
+        attributes1.put("something", new Value("here"));
+        attributes1.put("test", new Value("broken"));
+        EvaluationContext invocationCtx = new ImmutableContext(attributes1);
 
         Hook<Boolean> hook = mockBooleanHook();
         when(hook.before(any(), any())).thenReturn(Optional.of(hookCtx));
@@ -498,7 +502,7 @@ public class HookSpecTest implements HookFixtures {
 
         ArgumentCaptor<MutableContext> captor = ArgumentCaptor.forClass(MutableContext.class);
         verify(provider).getBooleanEvaluation(any(), any(), captor.capture());
-        MutableContext ec = captor.getValue();
+        EvaluationContext ec = captor.getValue();
         assertEquals("works", ec.getValue("test").asString());
         assertEquals("exists", ec.getValue("another").asString());
         assertEquals("here", ec.getValue("something").asString());
@@ -513,7 +517,7 @@ public class HookSpecTest implements HookFixtures {
         InOrder order = inOrder(hook, hook2);
 
         Client client = getClient(null);
-        client.getBooleanValue("key", false, new MutableContext(),
+        client.getBooleanValue("key", false, new ImmutableContext(),
                 FlagEvaluationOptions.builder()
                         .hook(hook2)
                         .hook(hook)
@@ -533,7 +537,7 @@ public class HookSpecTest implements HookFixtures {
         InOrder order = inOrder(hook, hook2);
 
         Client client = getClient(null);
-        client.getBooleanValue("key", false, new MutableContext(),
+        client.getBooleanValue("key", false, new ImmutableContext(),
                 FlagEvaluationOptions.builder()
                         .hook(hook2)
                         .hook(hook)

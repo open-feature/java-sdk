@@ -71,11 +71,11 @@ class LockingTest {
 
     @Test
     void setContextShouldWriteLockAndUnlock() {
-        client.setEvaluationContext(new MutableContext());
+        client.setEvaluationContext(new ImmutableContext());
         verify(clientContextLock.writeLock()).lock();
         verify(clientContextLock.writeLock()).unlock();
 
-        api.setEvaluationContext(new MutableContext());
+        api.setEvaluationContext(new ImmutableContext());
         verify(apiContextLock.writeLock()).lock();
         verify(apiContextLock.writeLock()).unlock();
     }

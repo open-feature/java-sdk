@@ -2,8 +2,11 @@ package dev.openfeature.sdk;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import lombok.EqualsAndHashCode;
+import lombok.SneakyThrows;
 import lombok.ToString;
 
 /**
@@ -14,7 +17,7 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
-public class Value {
+public class Value implements Cloneable {
 
     private final Object innerObject;
 
@@ -237,5 +240,32 @@ public class Value {
             return (Instant)this.innerObject;
         }
         return null;
+    }
+
+    /**
+     * Perform deep clone of value object.
+     *
+     * @return Value
+     */
+
+    @SneakyThrows
+    @Override
+    protected Value clone() {
+        if (this.isList()) {
+            List<Value> copy = this.asList().stream().map(Value::new).collect(Collectors.toList());
+            return new Value(copy);
+        }
+        if (this.isStructure()) {
+            Map<String, Value> copy = this.asStructure().asMap().entrySet().stream().collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    e -> e.getValue().clone()
+            ));
+            return new Value(new ImmutableStructure(copy));
+        }
+        if (this.isInstant()) {
+            Instant copy = Instant.ofEpochMilli(this.asInstant().toEpochMilli());
+            return new Value(copy);
+        }
+        return new Value(this.asObject());
     }
 }
