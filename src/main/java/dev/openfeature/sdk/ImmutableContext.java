@@ -1,11 +1,11 @@
 package dev.openfeature.sdk;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Delegate;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * The EvaluationContext is a container for arbitrary contextual data
@@ -58,7 +58,11 @@ public final class ImmutableContext implements EvaluationContext {
         this.targetingKey = targetingKey;
     }
 
+    /**
+     * Mutating targeting key is not supported in ImmutableContext and will be removed.
+     */
     @Override
+    @Deprecated
     public void setTargetingKey(String targetingKey) {
         throw new UnsupportedOperationException("changing of targeting key is not allowed");
     }
