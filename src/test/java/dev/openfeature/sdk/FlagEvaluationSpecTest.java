@@ -1,6 +1,7 @@
 package dev.openfeature.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -15,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
+import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 import io.cucumber.java.hu.Ha;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -206,7 +209,14 @@ class FlagEvaluationSpecTest implements HookFixtures {
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
         assertEquals(Reason.ERROR.toString(), result.getReason());
-        assertThat(TEST_LOGGER.getLoggingEvents()).contains(LoggingEvent.error("Unable to correctly evaluate flag with key {} due to exception {}", "test", TestConstants.BROKEN_MESSAGE));
+
+        ImmutableList<LoggingEvent> loggingEvents = TEST_LOGGER.getLoggingEvents();
+        assertThat(loggingEvents.size()).isGreaterThan(0);
+
+        LoggingEvent event = loggingEvents.get(0);
+        assertThat(event.getMessage()).isEqualTo("Unable to correctly evaluate flag with key '{}'");
+        assertThat(event.getThrowable().isPresent()).isTrue();
+        assertThat(event.getThrowable().get()).isInstanceOf(FlagNotFoundError.class);
     }
 
     @Specification(number="1.2.2", text="The client interface MUST define a metadata member or accessor, containing an immutable name field or accessor of type string, which corresponds to the name value supplied during client creation.")
