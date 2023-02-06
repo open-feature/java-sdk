@@ -92,21 +92,51 @@ public class MutableContext implements EvaluationContext {
             return new MutableContext(this.asMap());
         }
 
-        Map<String, Value> merged = new HashMap<String, Value>();
+        Map<String, Value> merged = this.merge(this.asMap(), overridingContext.asMap());
 
-        merged.putAll(this.asMap());
-        merged.putAll(overridingContext.asMap());
-        EvaluationContext ec = new MutableContext(merged);
+        String newTargetingKey = "";
 
         if (this.getTargetingKey() != null && !this.getTargetingKey().trim().equals("")) {
-            ec.setTargetingKey(this.getTargetingKey());
+            newTargetingKey = this.getTargetingKey();
         }
 
         if (overridingContext.getTargetingKey() != null && !overridingContext.getTargetingKey().trim().equals("")) {
-            ec.setTargetingKey(overridingContext.getTargetingKey());
+            newTargetingKey = overridingContext.getTargetingKey();
+        }
+        
+        EvaluationContext ec = null;
+        if (newTargetingKey != null && !newTargetingKey.trim().equals("")) {
+            ec = new MutableContext(newTargetingKey, merged);
+        } else {
+            ec = new MutableContext(merged);
         }
 
         return ec;
+    }
+    
+
+    /**
+     * Recursively merges the base map from this EvaluationContext with the passed EvaluationContext.
+     * 
+     * @param base base map to merge
+     * @param overriding overriding map to merge
+     * @return resulting merged map
+     */
+    private Map<String, Value> merge(Map<String, Value> base, Map<String, Value> overriding) {
+        Map<String, Value> merged = new HashMap<>();
+
+        merged.putAll(base);
+        for (String key : overriding.keySet()) {
+            if (overriding.get(key).isStructure() && merged.containsKey(key) && merged.get(key).isStructure()) {
+                Structure mergedValue = merged.get(key).asStructure();
+                Structure overridingValue = overriding.get(key).asStructure();
+                Map<String, Value> newMap = this.merge(mergedValue.asMap(), overridingValue.asMap());
+                merged.put(key, new Value(new MutableContext(newMap)));
+            } else {
+                merged.put(key, overriding.get(key));
+            }
+        }
+        return merged;
     }
 
     /**

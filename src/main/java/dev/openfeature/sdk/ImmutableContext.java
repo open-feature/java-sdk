@@ -2,7 +2,6 @@ package dev.openfeature.sdk;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Delegate;
@@ -86,10 +85,33 @@ public final class ImmutableContext implements EvaluationContext {
         if (overridingContext.getTargetingKey() != null && !overridingContext.getTargetingKey().trim().equals("")) {
             newTargetingKey = overridingContext.getTargetingKey();
         }
+
+        Map<String, Value> merged = this.merge(this.asMap(), overridingContext.asMap());
+
+        return new ImmutableContext(newTargetingKey, merged);
+    }
+
+    /**
+     * Recursively merges the base map from this EvaluationContext with the passed EvaluationContext.
+     * 
+     * @param base base map to merge
+     * @param overriding overriding map to merge
+     * @return resulting merged map
+     */
+    private Map<String, Value> merge(Map<String, Value> base, Map<String, Value> overriding) {
         Map<String, Value> merged = new HashMap<>();
 
-        merged.putAll(this.asMap());
-        merged.putAll(overridingContext.asMap());
-        return new ImmutableContext(newTargetingKey, merged);
+        merged.putAll(base);
+        for (String key : overriding.keySet()) {
+            if (overriding.get(key).isStructure() && merged.containsKey(key) && merged.get(key).isStructure()) {
+                Structure mergedValue = merged.get(key).asStructure();
+                Structure overridingValue = overriding.get(key).asStructure();
+                Map<String, Value> newMap = this.merge(mergedValue.asMap(), overridingValue.asMap());
+                merged.put(key, new Value(new ImmutableContext(newMap)));
+            } else {
+                merged.put(key, overriding.get(key));
+            }
+        }
+        return merged;
     }
 }

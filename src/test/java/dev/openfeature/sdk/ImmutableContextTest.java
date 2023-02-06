@@ -8,6 +8,7 @@ import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ImmutableContextTest {
 
@@ -63,5 +64,28 @@ class ImmutableContextTest {
         EvaluationContext merge = ctx.merge(null);
         assertEquals("targeting_key", merge.getTargetingKey());
         assertArrayEquals(new Object[]{"key1", "key2"}, merge.keySet().toArray());
+    }
+
+    @DisplayName("Merge should retain subkeys from the existing context when the overriding context has the same targeting key")
+    @Test
+    void mergeShouldRetainItsSubkeysWhenOverridingContextHasTheSameKey() {
+        HashMap<String, Value> attributes = new HashMap<>();
+        HashMap<String, Value> overridingAttributes = new HashMap<>();
+        HashMap<String, Value> key1Attributes = new HashMap<>();
+        HashMap<String, Value> ovKey1Attributes = new HashMap<>();
+        key1Attributes.put("key1_1", new Value("val1_1"));
+        attributes.put("key1", new Value(new ImmutableContext(key1Attributes)));
+        attributes.put("key2", new Value("val2"));
+        ovKey1Attributes.put("overriding_key1_1", new Value("overriding_val_1_1"));
+        overridingAttributes.put("key1", new Value(new ImmutableContext(ovKey1Attributes)));
+        EvaluationContext ctx = new ImmutableContext("targeting_key", attributes);
+        EvaluationContext overriding = new ImmutableContext("targeting_key", overridingAttributes);
+        EvaluationContext merge = ctx.merge(overriding);
+        assertEquals("targeting_key", merge.getTargetingKey());
+        assertArrayEquals(new Object[]{"key1", "key2"}, merge.keySet().toArray());
+        Value key1 = merge.getValue("key1");
+        assertTrue(key1.isStructure());
+        Structure value = key1.asStructure();
+        assertArrayEquals(new Object[]{"key1_1","overriding_key1_1"}, value.keySet().toArray());
     }
 }
