@@ -103,6 +103,7 @@ public final class ImmutableContext implements EvaluationContext {
     private Map<String, Value> merge(Map<String, Value> base, Map<String, Value> overriding) {
         Map<String, Value> merged = new HashMap<>();
 
+        merged.putAll(base);
         for (Entry<String, Value> overridingEntry : overriding.entrySet()) {
             String key = overridingEntry.getKey();
             if (overridingEntry.getValue().isStructure() && merged.containsKey(key) && merged.get(key).isStructure()) {
