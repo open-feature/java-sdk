@@ -2,6 +2,8 @@ package dev.openfeature.sdk;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Delegate;
@@ -101,15 +103,15 @@ public final class ImmutableContext implements EvaluationContext {
     private Map<String, Value> merge(Map<String, Value> base, Map<String, Value> overriding) {
         Map<String, Value> merged = new HashMap<>();
 
-        merged.putAll(base);
-        for (String key : overriding.keySet()) {
-            if (overriding.get(key).isStructure() && merged.containsKey(key) && merged.get(key).isStructure()) {
+        for (Entry<String, Value> overridingEntry : overriding.entrySet()) {
+            String key = overridingEntry.getKey();
+            if (overridingEntry.getValue().isStructure() && merged.containsKey(key) && merged.get(key).isStructure()) {
                 Structure mergedValue = merged.get(key).asStructure();
-                Structure overridingValue = overriding.get(key).asStructure();
+                Structure overridingValue = overridingEntry.getValue().asStructure();
                 Map<String, Value> newMap = this.merge(mergedValue.asMap(), overridingValue.asMap());
                 merged.put(key, new Value(new ImmutableContext(newMap)));
             } else {
-                merged.put(key, overriding.get(key));
+                merged.put(key, overridingEntry.getValue());
             }
         }
         return merged;
