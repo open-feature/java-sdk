@@ -95,7 +95,7 @@ public interface Structure {
     }
 
     /**
-     * Recursively merges the base map from this EvaluationContext with the passed EvaluationContext.
+     * Recursively merges the base map with the overriding map.
      * 
      * @param <T> Structure type
      * @param newStructure function to create the right structure
