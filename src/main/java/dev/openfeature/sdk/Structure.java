@@ -2,8 +2,11 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.exceptions.ValueNotConvertableError;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -89,5 +92,34 @@ public interface Structure {
                     );
         }
         throw new ValueNotConvertableError();
+    }
+
+    /**
+     * Recursively merges the base map from this EvaluationContext with the passed EvaluationContext.
+     * 
+     * @param <T> Structure type
+     * @param newStructure function to create the right structure
+     * @param base base map to merge
+     * @param overriding overriding map to merge
+     * @return resulting merged map
+     */
+    default <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure,
+                                                           Map<String, Value> base,
+                                                           Map<String, Value> overriding) {
+        Map<String, Value> merged = new HashMap<>();
+
+        merged.putAll(base);
+        for (Entry<String, Value> overridingEntry : overriding.entrySet()) {
+            String key = overridingEntry.getKey();
+            if (overridingEntry.getValue().isStructure() && merged.containsKey(key) && merged.get(key).isStructure()) {
+                Structure mergedValue = merged.get(key).asStructure();
+                Structure overridingValue = overridingEntry.getValue().asStructure();
+                Map<String, Value> newMap = this.merge(newStructure, mergedValue.asMap(), overridingValue.asMap());
+                merged.put(key, new Value(newStructure.apply(newMap)));
+            } else {
+                merged.put(key, overridingEntry.getValue());
+            }
+        }
+        return merged;
     }
 }

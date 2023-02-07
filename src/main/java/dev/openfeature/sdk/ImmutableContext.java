@@ -88,33 +88,10 @@ public final class ImmutableContext implements EvaluationContext {
             newTargetingKey = overridingContext.getTargetingKey();
         }
 
-        Map<String, Value> merged = this.merge(this.asMap(), overridingContext.asMap());
+        Map<String, Value> merged = this.merge(m -> new ImmutableStructure(m),
+                                               this.asMap(),
+                                               overridingContext.asMap());
 
         return new ImmutableContext(newTargetingKey, merged);
-    }
-
-    /**
-     * Recursively merges the base map from this EvaluationContext with the passed EvaluationContext.
-     * 
-     * @param base base map to merge
-     * @param overriding overriding map to merge
-     * @return resulting merged map
-     */
-    private Map<String, Value> merge(Map<String, Value> base, Map<String, Value> overriding) {
-        Map<String, Value> merged = new HashMap<>();
-
-        merged.putAll(base);
-        for (Entry<String, Value> overridingEntry : overriding.entrySet()) {
-            String key = overridingEntry.getKey();
-            if (overridingEntry.getValue().isStructure() && merged.containsKey(key) && merged.get(key).isStructure()) {
-                Structure mergedValue = merged.get(key).asStructure();
-                Structure overridingValue = overridingEntry.getValue().asStructure();
-                Map<String, Value> newMap = this.merge(mergedValue.asMap(), overridingValue.asMap());
-                merged.put(key, new Value(new ImmutableContext(newMap)));
-            } else {
-                merged.put(key, overridingEntry.getValue());
-            }
-        }
-        return merged;
     }
 }
