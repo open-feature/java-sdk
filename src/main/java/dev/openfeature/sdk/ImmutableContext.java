@@ -2,7 +2,6 @@ package dev.openfeature.sdk;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import lombok.Getter;
 import lombok.ToString;
