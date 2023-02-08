@@ -71,13 +71,6 @@
     </dependency>
 
     <dependency>
-      <groupId>uk.org.lidalia</groupId>
-      <artifactId>slf4j-test</artifactId>
-      <version>1.2.0</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <version>3.24.2</version>
@@ -129,6 +122,13 @@
         <groupId>io.cucumber</groupId>
         <artifactId>cucumber-junit-platform-engine</artifactId>
         <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.simplify4u</groupId>
+      <artifactId>slf4j2-mock</artifactId>
+      <version>2.3.0</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
