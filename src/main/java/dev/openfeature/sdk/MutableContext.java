@@ -1,7 +1,6 @@
 package dev.openfeature.sdk;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -92,18 +91,25 @@ public class MutableContext implements EvaluationContext {
             return new MutableContext(this.asMap());
         }
 
-        Map<String, Value> merged = new HashMap<String, Value>();
+        Map<String, Value> merged = this.merge(map -> new MutableStructure(map),
+                                               this.asMap(),
+                                               overridingContext.asMap());
 
-        merged.putAll(this.asMap());
-        merged.putAll(overridingContext.asMap());
-        EvaluationContext ec = new MutableContext(merged);
+        String newTargetingKey = "";
 
         if (this.getTargetingKey() != null && !this.getTargetingKey().trim().equals("")) {
-            ec.setTargetingKey(this.getTargetingKey());
+            newTargetingKey = this.getTargetingKey();
         }
 
         if (overridingContext.getTargetingKey() != null && !overridingContext.getTargetingKey().trim().equals("")) {
-            ec.setTargetingKey(overridingContext.getTargetingKey());
+            newTargetingKey = overridingContext.getTargetingKey();
+        }
+        
+        EvaluationContext ec = null;
+        if (newTargetingKey != null && !newTargetingKey.trim().equals("")) {
+            ec = new MutableContext(newTargetingKey, merged);
+        } else {
+            ec = new MutableContext(merged);
         }
 
         return ec;
