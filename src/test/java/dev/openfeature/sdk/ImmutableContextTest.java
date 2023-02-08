@@ -104,7 +104,7 @@ class ImmutableContextTest {
         attributes.put("key2", new Value("val2"));
         
         EvaluationContext ctx = new ImmutableContext(attributes);
-        EvaluationContext overriding = new ImmutableContext("");
+        EvaluationContext overriding = new ImmutableContext();
         EvaluationContext merge = ctx.merge(overriding);
         assertArrayEquals(new Object[]{"key1", "key2"}, merge.keySet().toArray());
         
