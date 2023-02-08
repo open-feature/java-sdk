@@ -103,7 +103,7 @@ class ImmutableContextTest {
         attributes.put("key1", new Value(new ImmutableStructure(key1Attributes)));
         attributes.put("key2", new Value("val2"));
         
-        EvaluationContext ctx = new ImmutableContext("targeting_key", attributes);
+        EvaluationContext ctx = new ImmutableContext(attributes);
         EvaluationContext overriding = new ImmutableContext("");
         EvaluationContext merge = ctx.merge(overriding);
         assertEquals("targeting_key", merge.getTargetingKey());
