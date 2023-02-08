@@ -4,20 +4,29 @@ import java.util.*;
 
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import org.junit.jupiter.api.*;
-import uk.org.lidalia.slf4jext.Level;
-import uk.org.lidalia.slf4jtest.*;
+import org.mockito.Mockito;
+import org.simplify4u.slf4jmock.LoggerMock;
+import org.slf4j.Logger;
 
+import static org.assertj.core.api.Assertions.anyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class OpenFeatureClientTest implements HookFixtures {
 
-    private static final TestLogger TEST_LOGGER = TestLoggerFactory.getTestLogger(OpenFeatureClient.class);
+    private Logger logger;
 
+    @BeforeEach void set_logger() {
+        logger = Mockito.mock(Logger.class);
+        LoggerMock.setMock(OpenFeatureClient.class, logger);
+    }
+
+    @AfterEach void reset_logs() {
+        LoggerMock.setMock(OpenFeatureClient.class, logger);
+    }
     @Test
     @DisplayName("should not throw exception if hook has different type argument than hookContext")
     void shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext() {
-        TEST_LOGGER.clear();
         OpenFeatureAPI api = mock(OpenFeatureAPI.class);
         when(api.getProvider()).thenReturn(new DoSomethingProvider());
         when(api.getHooks()).thenReturn(Arrays.asList(mockBooleanHook(), mockStringHook()));
@@ -27,13 +36,16 @@ class OpenFeatureClientTest implements HookFixtures {
         FlagEvaluationDetails<Boolean> actual = client.getBooleanDetails("feature key", Boolean.FALSE);
 
         assertThat(actual.getValue()).isTrue();
-        assertThat(TEST_LOGGER.getLoggingEvents()).filteredOn(event -> event.getLevel().equals(Level.ERROR)).isEmpty();
+        // I dislike this, but given the mocking tools available, there's no way that I know of to say "no errors were logged"
+        Mockito.verify(logger, never()).error(any());
+        Mockito.verify(logger, never()).error(anyString(), any(Throwable.class));
+        Mockito.verify(logger, never()).error(anyString(), any(Object.class));
+        Mockito.verify(logger, never()).error(anyString(), any(), any());
+        Mockito.verify(logger, never()).error(anyString(), any(), any());
     }
 
     @Test
     void mergeContextTest() {
-        TEST_LOGGER.clear();
-
         String flag = "feature key";
         boolean defaultValue = false;
         String targetingKey = "targeting key";

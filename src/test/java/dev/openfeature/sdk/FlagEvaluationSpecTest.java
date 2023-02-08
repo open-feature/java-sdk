@@ -21,6 +21,7 @@ import java.util.Map;
 
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import dev.openfeature.sdk.fixtures.HookFixtures;
@@ -31,6 +32,8 @@ import org.slf4j.Logger;
 
 class FlagEvaluationSpecTest implements HookFixtures {
 
+    private Logger logger;
+
     private Client _client() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());
@@ -40,6 +43,15 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @AfterEach void reset_ctx() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setEvaluationContext(null);
+    }
+
+    @BeforeEach void set_logger() {
+        logger = Mockito.mock(Logger.class);
+        LoggerMock.setMock(OpenFeatureClient.class, logger);
+    }
+
+    @AfterEach void reset_logs() {
+        LoggerMock.setMock(OpenFeatureClient.class, logger);
     }
 
     @Specification(number="1.1.1", text="The API, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the API are present at runtime.")
@@ -203,17 +215,12 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @Specification(number="1.4.10", text="In the case of abnormal execution, the client SHOULD log an informative error message.")
     @Test void log_on_error() throws NotImplementedException {
-        // setup logging
-        Logger logger = Mockito.mock(Logger.class);
-        LoggerMock.setMock(OpenFeatureClient.class, logger);
-
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
-        assertEquals(Reason.ERROR.toString(), result.getReason());
 
-        //assert logging
+        assertEquals(Reason.ERROR.toString(), result.getReason());
         Mockito.verify(logger).error(
                 ArgumentMatchers.contains("Unable to correctly evaluate flag with key"),
                 any(),
