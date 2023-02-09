@@ -228,6 +228,7 @@
           <ignoredUnusedDeclaredDependencies>
             <ignoredUnusedDeclaredDependency>com.github.spotbugs:*</ignoredUnusedDeclaredDependency>
             <ignoredUnusedDeclaredDependency>org.junit*</ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>org.simplify4u:slf4j2-mock*</ignoredUnusedDeclaredDependency>
           </ignoredUnusedDeclaredDependencies>
           <ignoredDependencies>
             <ignoredDependency>com.google.guava*</ignoredDependency>
@@ -235,7 +236,7 @@
             <ignoredDependency>org.junit*</ignoredDependency>
             <ignoredDependency>com.google.code.findbugs*</ignoredDependency>
             <ignoredDependency>com.github.spotbugs*</ignoredDependency>
-            <ignoredDependency>uk.org.lidalia:lidalia-slf4j-ext:*</ignoredDependency>
+            <ignoredDependency> org.simplify4u:slf4j-mock-common:*</ignoredDependency>
           </ignoredDependencies>
         </configuration>
       </plugin>
