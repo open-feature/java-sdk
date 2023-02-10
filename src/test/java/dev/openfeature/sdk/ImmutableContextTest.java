@@ -12,13 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ImmutableContextTest {
 
-    @Test
-    @DisplayName("Mutating targeting key is not allowed on Immutable Context")
-    void shouldThrowUnsupportedExceptionWhenMutatingTargetingKey() {
-        EvaluationContext ctx = new ImmutableContext("targeting key", new HashMap<>());
-        assertThrows(UnsupportedOperationException.class, () -> ctx.setTargetingKey(""));
-    }
-
     @DisplayName("attributes mutation should not affect the immutable context")
     @Test
     void shouldCreateCopyOfAttributesForImmutableContext() {

@@ -7,12 +7,6 @@ package dev.openfeature.sdk;
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public interface EvaluationContext extends Structure {
     String getTargetingKey();
-    
-    /**
-     * Mutating targeting key is not supported in all implementations and will be removed.
-     */
-    @Deprecated
-    void setTargetingKey(String targetingKey);
 
     /**
      * Merges this EvaluationContext object with the second overriding the this in
