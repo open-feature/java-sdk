@@ -59,15 +59,6 @@ public final class ImmutableContext implements EvaluationContext {
     }
 
     /**
-     * Mutating targeting key is not supported in ImmutableContext and will be removed.
-     */
-    @Override
-    @Deprecated
-    public void setTargetingKey(String targetingKey) {
-        throw new UnsupportedOperationException("changing of targeting key is not allowed");
-    }
-
-    /**
      * Merges this EvaluationContext object with the passed EvaluationContext, overriding in case of conflict.
      *
      * @param overridingContext overriding context

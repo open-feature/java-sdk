@@ -164,8 +164,8 @@ public class EvalContextTest {
 
     @Test void merge_targeting_key() {
         String key1 = "key1";
-        EvaluationContext ctx1 = new MutableContext(key1);
-        EvaluationContext ctx2 = new MutableContext();
+        MutableContext ctx1 = new MutableContext(key1);
+        MutableContext ctx2 = new MutableContext();
 
         EvaluationContext ctxMerged = ctx1.merge(ctx2);
         assertEquals(key1, ctxMerged.getTargetingKey());
