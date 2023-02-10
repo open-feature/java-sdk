@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/open-feature/java-sdk/compare/v1.1.0...v1.2.0) (2023-02-10)
+
+
+### Features
+
+* added implementation of immutable evaluation context ([#210](https://github.com/open-feature/java-sdk/issues/210)) ([6c14d87](https://github.com/open-feature/java-sdk/commit/6c14d87c2e54c953eff351fa1ccdd914fa08b6ed))
+
+
+### Bug Fixes
+
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.11.1 ([#271](https://github.com/open-feature/java-sdk/issues/271)) ([8845242](https://github.com/open-feature/java-sdk/commit/88452423303f8c1feada733f1c9d4db845d64a5b))
+* **deps:** update dependency org.projectlombok:lombok to v1.18.26 ([#277](https://github.com/open-feature/java-sdk/issues/277)) ([aad036a](https://github.com/open-feature/java-sdk/commit/aad036a0113e2d248e493d0d87e52320a66df7a2))
+* improve error logs for evaluation failure ([#276](https://github.com/open-feature/java-sdk/issues/276)) ([9349997](https://github.com/open-feature/java-sdk/commit/93499975d0b9ae30aa34db999d8aa3d7c955da70))
+* MutableContext and ImmutableContext merge are made recursive ([#280](https://github.com/open-feature/java-sdk/issues/280)) ([bd4e12e](https://github.com/open-feature/java-sdk/commit/bd4e12e16f3c4af5cdcad490977ccc0842e1ded6))
+
 ## [1.1.0](https://github.com/open-feature/java-sdk/compare/v1.0.1...v1.1.0) (2023-01-24)
 
 
