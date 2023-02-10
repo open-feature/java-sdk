@@ -3,6 +3,8 @@ package dev.openfeature.sdk;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +27,7 @@ public class EvalContextTest {
             "values of type `boolean | string | number | datetime | structure`.")
     @Test void eval_context() {
         Map<String, Value> attributes = new HashMap<>();
-        Instant dt = Instant.now();
+        Instant dt = Instant.now().truncatedTo(ChronoUnit.MILLIS);
         attributes.put("str", new Value("test"));
         attributes.put("bool", new Value(true));
         attributes.put("int", new Value(4));
@@ -38,7 +40,7 @@ public class EvalContextTest {
 
         assertEquals(4, ec.getValue("int").asInteger());
 
-        assertEquals(dt, ec.getValue("dt").asInstant());
+        assertEquals(dt, ec.getValue("dt").asInstant().truncatedTo(ChronoUnit.MILLIS));
     }
 
     @Specification(number="3.1.2", text="The evaluation context MUST support the inclusion of " +

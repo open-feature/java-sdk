@@ -53,7 +53,7 @@ class ImmutableStructureTest {
 
     @Test void MutatingGetInstantValueShouldNotChangeOriginalValue() {
         String KEY = "key";
-        Instant now = Instant.now();
+        Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
         Map<String, Value> map = new HashMap<String, Value>() {
             {
                 put(KEY, new Value(now));

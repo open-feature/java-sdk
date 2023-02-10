@@ -12,24 +12,27 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableList;
+
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
-import io.cucumber.java.hu.Ha;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import dev.openfeature.sdk.fixtures.HookFixtures;
-import uk.org.lidalia.slf4jtest.LoggingEvent;
-import uk.org.lidalia.slf4jtest.TestLogger;
-import uk.org.lidalia.slf4jtest.TestLoggerFactory;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+import org.simplify4u.slf4jmock.LoggerMock;
+import org.slf4j.Logger;
 
 class FlagEvaluationSpecTest implements HookFixtures {
 
-    private static final TestLogger TEST_LOGGER = TestLoggerFactory.getTestLogger(OpenFeatureClient.class);
+    private Logger logger;
 
     private Client _client() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
@@ -40,6 +43,15 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @AfterEach void reset_ctx() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setEvaluationContext(null);
+    }
+
+    @BeforeEach void set_logger() {
+        logger = Mockito.mock(Logger.class);
+        LoggerMock.setMock(OpenFeatureClient.class, logger);
+    }
+
+    @AfterEach void reset_logs() {
+        LoggerMock.setMock(OpenFeatureClient.class, logger);
     }
 
     @Specification(number="1.1.1", text="The API, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the API are present at runtime.")
@@ -203,20 +215,16 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @Specification(number="1.4.10", text="In the case of abnormal execution, the client SHOULD log an informative error message.")
     @Test void log_on_error() throws NotImplementedException {
-        TEST_LOGGER.clear();
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
+
         assertEquals(Reason.ERROR.toString(), result.getReason());
-
-        ImmutableList<LoggingEvent> loggingEvents = TEST_LOGGER.getLoggingEvents();
-        assertThat(loggingEvents.size()).isGreaterThan(0);
-
-        LoggingEvent event = loggingEvents.get(0);
-        assertThat(event.getMessage()).isEqualTo("Unable to correctly evaluate flag with key '{}'");
-        assertThat(event.getThrowable().isPresent()).isTrue();
-        assertThat(event.getThrowable().get()).isInstanceOf(FlagNotFoundError.class);
+        Mockito.verify(logger).error(
+                ArgumentMatchers.contains("Unable to correctly evaluate flag with key"),
+                any(),
+                ArgumentMatchers.isA(FlagNotFoundError.class));
     }
 
     @Specification(number="1.2.2", text="The client interface MUST define a metadata member or accessor, containing an immutable name field or accessor of type string, which corresponds to the name value supplied during client creation.")
