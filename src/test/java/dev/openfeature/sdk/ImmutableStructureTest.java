@@ -10,11 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ImmutableStructureTest {
     @Test void noArgShouldContainEmptyAttributes() {
@@ -107,5 +103,12 @@ class ImmutableStructureTest {
         Set<String> keys = structure.keySet();
         keys.remove("key1");
         assertEquals(2, structure.keySet().size());
+    }
+
+    @Test
+    void GettingAMissingValueShouldReturnNull() {
+        ImmutableStructure structure = new ImmutableStructure();
+        Object value = structure.getValue("missing");
+        assertNull(value);
     }
 }

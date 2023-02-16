@@ -50,7 +50,7 @@ public final class ImmutableStructure implements Structure {
     @Override
     public Value getValue(String key) {
         Value value = this.attributes.get(key);
-        return value.clone();
+        return value != null ? value.clone() : null;
     }
 
     /**
