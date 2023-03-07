@@ -56,12 +56,13 @@ public interface Structure {
             return value.asBoolean();
         }
 
-        if (value.isNumber()) {
-            Double valueAsDouble = value.asDouble();
-            if (valueAsDouble == Math.floor(valueAsDouble) && !Double.isInfinite(valueAsDouble)) {
-                return value.asInteger();
+        if (value.isNumber() && !value.isNull()) {
+            Number numberValue = (Number) value.asObject();
+            if (numberValue instanceof Double) {
+                return numberValue.doubleValue();
+            } else if (numberValue instanceof Integer) {
+                return numberValue.intValue();
             }
-            return valueAsDouble;
         }
 
         if (value.isString()) {

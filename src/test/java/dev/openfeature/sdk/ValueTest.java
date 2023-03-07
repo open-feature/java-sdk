@@ -66,11 +66,11 @@ public class ValueTest {
     }
 
     @Test public void numericArgShouldReturnDoubleOrInt() {
-        double innerDoubleValue = .75;
+        double innerDoubleValue = 1.75;
         Value doubleValue = new Value(innerDoubleValue);
         assertTrue(doubleValue.isNumber());
-        assertEquals(1, doubleValue.asInteger());     // should be rounded
-        assertEquals(.75, doubleValue.asDouble());
+        assertEquals(1, doubleValue.asInteger());     // the double value represented by this object converted to type int
+        assertEquals(1.75, doubleValue.asDouble());
 
         int innerIntValue = 100;
         Value intValue = new Value(innerIntValue);
