@@ -35,8 +35,7 @@ public class Value implements Cloneable {
      *      (boolean, string, int, double, list, structure, instant)
      */
     public Value(Object value) throws InstantiationException {
-        // integer is a special case, convert those.
-        this.innerObject = value instanceof Integer ? ((Integer)value).doubleValue() : value;
+        this.innerObject = value;
         if (!this.isNull()
             && !this.isBoolean()
             && !this.isString()
@@ -61,7 +60,7 @@ public class Value implements Cloneable {
     }
 
     public Value(Integer value) {
-        this.innerObject = value.doubleValue(); 
+        this.innerObject = value;
     }
 
     public Value(Double value) {
@@ -113,7 +112,7 @@ public class Value implements Cloneable {
      * @return boolean
      */
     public boolean isNumber() {
-        return this.innerObject instanceof Double;
+        return this.innerObject instanceof Number;
     }
 
     /** 
@@ -187,8 +186,8 @@ public class Value implements Cloneable {
      * @return Integer
      */
     public Integer asInteger() {
-        if (this.isNumber()) {
-            return (int)Math.round((Double)this.innerObject);
+        if (this.isNumber() && !this.isNull()) {
+            return ((Number)this.innerObject).intValue();
         }
         return null;
     }
@@ -199,8 +198,8 @@ public class Value implements Cloneable {
      * @return Double
      */
     public Double asDouble() {
-        if (this.isNumber()) {
-            return (Double)this.innerObject;
+        if (this.isNumber() && !isNull()) {
+            return ((Number)this.innerObject).doubleValue();
         }
         return null;
     }
