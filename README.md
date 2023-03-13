@@ -68,7 +68,7 @@ For complete documentation, visit: https://docs.openfeature.dev/docs/category/co
 <dependency>
     <groupId>dev.openfeature</groupId>
     <artifactId>sdk</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 <!-- x-release-please-end-version -->
@@ -92,7 +92,7 @@ If you would like snapshot builds, this is the relevant repository information:
 <!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-    implementation 'dev.openfeature:sdk:1.2.0'
+    implementation 'dev.openfeature:sdk:1.3.0'
 }
 ```
 <!-- x-release-please-end-version -->
