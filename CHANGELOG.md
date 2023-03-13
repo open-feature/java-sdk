@@ -3,7 +3,7 @@
 ## [1.3.0](https://github.com/open-feature/java-sdk/compare/v1.2.0...v1.3.0) (2023-03-12)
 
 
-### ✨ New Features
+### 💥 Breaking Changes
 
 * remove the deprecated setTargetingKey method in EvaluationContext. ([#290](https://github.com/open-feature/java-sdk/issues/290)) ([d78c99c](https://github.com/open-feature/java-sdk/commit/d78c99ce16be906452bf7961cd43972b72855dd3))
 
