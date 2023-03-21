@@ -32,7 +32,7 @@ jobs:
         server-password: ${{ secrets.OSSRH_PASSWORD }}
 
     - name: Cache local Maven repository
-      uses: actions/cache@ea0503788c59256f4da17725d04df850ca027df5
+      uses: actions/cache@04f198bf0b2a39f7230a4304bf07747a0bddf146
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
