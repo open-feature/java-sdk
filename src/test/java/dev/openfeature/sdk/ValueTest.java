@@ -134,4 +134,12 @@ public class ValueTest {
             fail("Unexpected exception occurred.", e);
         }
     }
+
+    @Test public void valueConstructorValidateListInternals() {
+        List<Object> list = new ArrayList<>();
+        list.add(new Value("item"));
+        list.add("item");
+
+        assertThrows(InstantiationException.class, ()-> new Value(list));
+    }
 }

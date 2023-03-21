@@ -125,14 +125,27 @@ public class Value implements Cloneable {
     }
     
     /** 
-     * Check if this Value represents a List.
+     * Check if this Value represents a List of Values.
      * 
      * @return boolean
      */
     public boolean isList() {
-        return this.innerObject instanceof List
-            && (((List) this.innerObject).isEmpty()
-            || ((List) this.innerObject).get(0) instanceof Value);
+        if (!(this.innerObject instanceof List)) {
+            return false;
+        }
+
+        List<?> list = (List<?>) this.innerObject;
+        if (list.isEmpty()) {
+            return true;
+        }
+
+        for (Object obj : list) {
+            if (!(obj instanceof Value)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /** 
