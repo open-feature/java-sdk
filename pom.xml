@@ -13,6 +13,7 @@
     <junit.jupiter.version>5.9.2</junit.jupiter.version>
     <!-- exclusion expression for integration tests -->
     <testExclusions>**/integration/*.java</testExclusions>
+    <module-name>${groupId}.${artifactId}</module-name>
   </properties>
 
   <name>OpenFeature Java SDK</name>
@@ -356,7 +357,7 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Automatic-Module-Name>dev.openfeature.sdk</Automatic-Module-Name>
+              <Automatic-Module-Name>${module-name}</Automatic-Module-Name>
             </manifestEntries>
           </archive>
         </configuration>
