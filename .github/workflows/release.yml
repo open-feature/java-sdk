@@ -19,7 +19,7 @@ jobs:
 
     # Release-please creates a PR that tracks all changes
     steps:
-      - uses: google-github-actions/release-please-action@9997fc940dddf620986d5e88532ffb2cc6e22c1c
+      - uses: google-github-actions/release-please-action@ee9822ec2c397e8a364d634464339ac43a06e042
         id: release
         with:
           command: manifest
