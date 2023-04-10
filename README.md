@@ -212,7 +212,7 @@ Interested in contributing? Great, we'd love your help! To get started, take a l
 ### Thanks to everyone that has already contributed
 
 <a href="https://github.com/open-feature/java-sdk/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=open-feature/java-sdk" />
+  <img src="https://contrib.rocks/image?repo=open-feature/java-sdk" alt="Pictures of the folks who have contributed to the project" />
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
