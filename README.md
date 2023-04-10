@@ -1,68 +1,43 @@
-# OpenFeature SDK for Java
+<!-- markdownlint-disable MD033 -->
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/white/openfeature-horizontal-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/black/openfeature-horizontal-black.svg">
+    <img align="center" alt="OpenFeature Logo">
+  </picture>
+</p>
 
+<h2 align="center">OpenFeature Java SDK</h2>
+
+[![Specification](https://img.shields.io/static/v1?label=Specification&message=v0.5.2&color=yellow)](https://github.com/open-feature/spec/tree/v0.5.2)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/dev.openfeature/sdk/badge.svg)](https://maven-badges.herokuapp.com/maven-central/dev.openfeature/sdk)
 [![javadoc](https://javadoc.io/badge2/dev.openfeature/sdk/javadoc.svg)](https://javadoc.io/doc/dev.openfeature/sdk) 
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![Specification](https://img.shields.io/static/v1?label=Specification&message=v0.5.2&color=yellow)](https://github.com/open-feature/spec/tree/v0.5.2)
 [![Known Vulnerabilities](https://snyk.io/test/github/open-feature/java-sdk/badge.svg)](https://snyk.io/test/github/open-feature/java-sdk)
 [![on-merge](https://github.com/open-feature/java-sdk/actions/workflows/merge.yml/badge.svg)](https://github.com/open-feature/java-sdk/actions/workflows/merge.yml)
 [![codecov](https://codecov.io/gh/open-feature/java-sdk/branch/main/graph/badge.svg?token=XMS9L7PBY1)](https://codecov.io/gh/open-feature/java-sdk)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6241/badge)](https://bestpractices.coreinfrastructure.org/projects/6241)
 
-This is the Java implementation of [OpenFeature](https://openfeature.dev), a vendor-agnostic abstraction library for evaluating feature flags.
+## 👋 Hey there! Thanks for checking out the OpenFeature Java SDK
 
-We support multiple data types for flags (numbers, strings, booleans, objects) as well as  hooks, which can alter the lifecycle of a flag evaluation.
+### What is OpenFeature?
 
-This library is intended to be used in server-side contexts and has not been evaluated for use in mobile devices.
+[OpenFeature][openfeature-website] is an open standard that provides a vendor-agnostic, community-driven API for feature flagging that works with your favorite feature flag management tool.
 
-## Usage
+### Why standardize feature flags?
 
-While `Boolean` provides the simplest introduction, we offer a variety of flag types.
+Standardizing feature flags unifies tools and vendors behind a common interface which avoids vendor lock-in at the code level. Additionally, it offers a framework for building extensions and integrations and allows providers to focus on their unique value proposition.
 
-```java
-import dev.openfeature.sdk.Structure;
+## 🔍 Requirements:
 
-class MyClass {
-    public UI booleanExample() {
-        // Should we render the redesign? Or the default webpage? 
-        if (client.getBooleanValue("redesign_enabled", false)) {
-            return render_redesign();
-        }
-        return render_normal();
-    }
-
-    public Template stringExample() {
-        // Get the template to load for the custom new homepage
-        String template = client.getStringValue("homepage_template", "default-homepage.html");
-        return render_template(template);
-    }
-
-    public List<HomepageModule> numberExample() {
-        // How many modules should we be fetching?
-        Integer count = client.getIntegerValue("module-fetch-count", 4);
-        return fetch_modules(count);
-    }
-
-    public HomepageModule structureExample() {
-        Structure obj = client.getObjectValue("hero-module", previouslyDefinedDefaultStructure);
-        return HomepageModule.builder()
-                .title(obj.getValue("title"))
-                .body(obj.getValue("description"))
-                .build();
-    }
-}
-```
-
-For complete documentation, visit: https://docs.openfeature.dev/docs/category/concepts
-
-## Requirements
 - Java 8+ (compiler target is 1.8)
 
-## Installation
+Note that this library is intended to be used in server-side contexts and has not been evaluated for use in mobile devices.
 
-### Add it to your build
+## 📦 Installation:
 
-#### Maven
+### Maven
+
 <!-- x-release-please-start-version -->
 ```xml
 <dependency>
@@ -88,7 +63,7 @@ If you would like snapshot builds, this is the relevant repository information:
 </repositories>
 ```
 
-#### Gradle
+### Gradle
 <!-- x-release-please-start-version -->
 ```groovy
 dependencies {
@@ -97,51 +72,149 @@ dependencies {
 ```
 <!-- x-release-please-end-version -->
 
-### Configure it
-To configure it, you'll need to add a provider to the global singleton `OpenFeatureAPI`. From there, you can generate a `Client` which is usable by your code. While you'll likely want a provider for your specific backend, we've provided a `NoOpProvider`, which simply returns the default passed in.
-```java
-class MyApp {
-    public void example(){
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider());
-        Client client = api.getClient();
-        // Now use your `client` instance to evaluate some feature flags!
-    }
-}
-```
-## Contacting us
-We hold regular meetings which you can see [here](https://github.com/open-feature/community/#meetings-and-events).
-
-We are also present on the `#openfeature` channel in the [CNCF slack](https://slack.cncf.io/).
-
-## Developing
-
-### Integration tests
-
-The continuous integration runs a set of [gherkin integration tests](https://github.com/open-feature/test-harness/blob/main/features/evaluation.feature) using [`flagd`](https://github.com/open-feature/flagd). These tests do not run with the default maven profile. If you'd like to run them locally, you can start the flagd testbed with
-
-```
-docker run -p 8013:8013 ghcr.io/open-feature/flagd-testbed:latest
-```
-and then run 
-```
-mvn test -P integration-test
-```
-
-## Releasing
-
-See [releasing](./docs/release.md).
-
 ### Software Bill of Materials (SBOM)
 
 We publish SBOMs with all of our releases as of 0.3.0. You can find them in Maven Central alongside the artifacts.
 
-## Contributors
+## 🌟 Features:
 
-Thanks so much to our contributors.
+- support for various backend [providers](https://docs.openfeature.dev/docs/reference/concepts/provider)
+- easy integration and extension via [hooks](https://docs.openfeature.dev/docs/reference/concepts/hooks)
+- bool, string, numeric and object flag types
+- [context-aware](https://docs.openfeature.dev/docs/reference/concepts/evaluation-context) evaluation
+
+## 🚀 Usage:
+
+### Basics:
+
+```java
+public void example(){
+
+    // configure a provider
+    OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+    api.setProvider(new MyProviderOfChoice());
+
+    // create a client
+    Client client = api.getClient();
+
+    // get a bool flag value
+    boolean flagValue = client.getBooleanValue("boolFlag", false);
+}
+```
+
+### Context-aware evaluation:
+
+Sometimes the value of a flag must take into account some dynamic criteria about the application or user, such as the user location, IP, email address, or the location of the server.
+In OpenFeature, we refer to this as [`targeting`](https://docs.openfeature.dev/specification/glossary#targeting).
+If the flag system you're using supports targeting, you can provide the input data using the `EvaluationContext`.
+
+```java
+// global context for static data
+OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+Map<String, Value> attributes = new HashMap<>();
+attributes.put("appVersion", new Value(System.getEnv("APP_VERSION")));
+EvaluationContext apiCtx = new ImmutableContext(attributes);
+api.setEvaluationContext(apiCtx);
+
+// request context
+Map<String, Value> attributes = new HashMap<>();
+attributes.put("email", new Value(session.getAttribute("email")));
+attributes.put("product", new Value(productId));
+String targetingKey = session.getId();
+EvaluationContext reqCtx = new ImmutableContext(targetingKey, attributes);
+
+// use merged contextual data to determine a flag value
+boolean flagValue = client.getBooleanValue("some-flag", false, reqCtx);
+```
+
+### Providers:
+
+To develop a provider, you need to create a new project and include the OpenFeature SDK as a dependency. This can be a new repository or included in an existing contrib repository available under the OpenFeature organization. Finally, you’ll then need to write the provider itself. In most languages, this can be accomplished by implementing the provider interface exported by the OpenFeature SDK.
+
+```java
+public class MyProvider implements FeatureProvider {
+@Override
+    public Metadata getMetadata() {
+        return () -> "My Provider";
+    }
+
+    @Override
+    public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
+        // resolve a boolean flag value
+    }
+
+    @Override
+    public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
+        // resolve a string flag value
+    }
+
+    @Override
+    public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
+        // resolve an int flag value
+    }
+
+    @Override
+    public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
+        // resolve a double flag value
+    }
+
+    @Override
+    public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
+        // resolve an object flag value
+    }
+}
+```
+
+See [here](https://docs.openfeature.dev/docs/reference/technologies/server/java) for a catalog of available providers.
+
+### Hooks:
+
+Hooks are a mechanism that allow for the addition of arbitrary behavior at well-defined points of the flag evaluation life-cycle. Use cases include validation of the resolved flag value, modifying or adding data to the evaluation context, logging, telemetry, and tracking.
+
+```java
+public class MyHook implements Hook {
+    /**
+     *
+     * @param ctx     Information about the particular flag evaluation
+     * @param details Information about how the flag was resolved, including any resolved values.
+     * @param hints   An immutable mapping of data for users to communicate to the hooks.
+     */
+    @Override
+    public void after(HookContext ctx, FlagEvaluationDetails details, Map hints) {
+        System.out.println("After evaluation!");
+    }
+}
+```
+
+See [here](https://docs.openfeature.dev/docs/reference/technologies/server/java) for a catalog of available hooks.
+
+### Logging:
+
+The Java SDK uses SLF4J. See the [SLF4J manual](https://slf4j.org/manual.html) for complete documentation.
+
+## ⭐️ Support the project
+
+- Give this repo a ⭐️!
+- Follow us social media:
+  - Twitter: [@openfeature](https://twitter.com/openfeature)
+  - LinkedIn: [OpenFeature](https://www.linkedin.com/company/openfeature/)
+- Join us on [Slack](https://cloud-native.slack.com/archives/C0344AANLA1)
+- For more check out our [community page](https://docs.openfeature.dev/community/)
+
+## 🤝 Contributing
+
+Interested in contributing? Great, we'd love your help! To get started, take a look at the [CONTRIBUTING](CONTRIBUTING.md) guide.
+
+### Thanks to everyone that has already contributed
 
 <a href="https://github.com/open-feature/java-sdk/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=open-feature/java-sdk" alt="Pictures of the folks who have contributed to the project"/>
+  <img src="https://contrib.rocks/image?repo=open-feature/java-sdk" />
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
+
+## 📜 License
+
+[Apache License 2.0](LICENSE)
+
+[openfeature-website]: https://openfeature.dev
