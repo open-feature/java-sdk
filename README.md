@@ -192,6 +192,10 @@ See [here](https://docs.openfeature.dev/docs/reference/technologies/server/java)
 
 The Java SDK uses SLF4J. See the [SLF4J manual](https://slf4j.org/manual.html) for complete documentation.
 
+### Complete API documentation:
+
+See [here](https://www.javadoc.io/doc/dev.openfeature/sdk/latest/index.html) for the complete API documentation.
+
 ## ⭐️ Support the project
 
 - Give this repo a ⭐️!
