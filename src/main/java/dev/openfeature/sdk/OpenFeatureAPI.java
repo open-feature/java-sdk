@@ -3,6 +3,8 @@ package dev.openfeature.sdk;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
@@ -18,9 +20,10 @@ public class OpenFeatureAPI {
     static AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
     static AutoCloseableReentrantReadWriteLock providerLock = new AutoCloseableReentrantReadWriteLock();
     static AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
-    private FeatureProvider provider;
     private EvaluationContext evaluationContext;
     private List<Hook> apiHooks;
+    private Map<String, FeatureProvider> providers = new ConcurrentHashMap<>();
+    private static String DEFAULT_PROVIDER_KEY = "very-secret-string-which-you-shouldnt-use";
 
     private OpenFeatureAPI() {
         this.apiHooks = new ArrayList<>();
@@ -39,8 +42,13 @@ public class OpenFeatureAPI {
     }
 
     public Metadata getProviderMetadata() {
-        return provider.getMetadata();
+        return providers.get(DEFAULT_PROVIDER_KEY).getMetadata();
     }
+
+    public Metadata getProviderMetadata(String clientName) {
+        return providers.get(clientName).getMetadata();
+    }
+
 
     public Client getClient() {
         return getClient(null, null);
@@ -76,8 +84,12 @@ public class OpenFeatureAPI {
      * {@inheritDoc}
      */
     public void setProvider(FeatureProvider provider) {
+        setProvider(DEFAULT_PROVIDER_KEY, provider);
+    }
+
+    public void setProvider(String clientName, FeatureProvider provider) {
         try (AutoCloseableLock __ = providerLock.writeLockAutoCloseable()) {
-            this.provider = provider;
+            this.providers.put(clientName, provider);
         }
     }
 
@@ -85,10 +97,19 @@ public class OpenFeatureAPI {
      * {@inheritDoc}
      */
     public FeatureProvider getProvider() {
-        try (AutoCloseableLock __ = providerLock.readLockAutoCloseable()) {
-            return this.provider;
+        return this.providers.get(DEFAULT_PROVIDER_KEY);
+    }
+
+    public FeatureProvider getProviderForClientOrDefault(String name) {
+        try (AutoCloseableLock __ = providerLock.writeLockAutoCloseable()) {
+            FeatureProvider val = this.providers.get(name);
+            if (val != null) {
+                return val;
+            }
+            return this.providers.get(DEFAULT_PROVIDER_KEY);
         }
     }
+
 
     /**
      * {@inheritDoc}
