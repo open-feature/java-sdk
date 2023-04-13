@@ -87,6 +87,11 @@ public class OpenFeatureAPI {
         setProvider(DEFAULT_PROVIDER_KEY, provider);
     }
 
+    /**
+     * Add a provider for a named client.
+     * @param clientName The name of the client.
+     * @param provider The provider to set.
+     */
     public void setProvider(String clientName, FeatureProvider provider) {
         try (AutoCloseableLock __ = providerLock.writeLockAutoCloseable()) {
             this.providers.put(clientName, provider);
@@ -100,6 +105,11 @@ public class OpenFeatureAPI {
         return this.providers.get(DEFAULT_PROVIDER_KEY);
     }
 
+    /**
+     * Fetch a provider for a named client. If not found, return the default.
+     * @param name The client name to look for.
+     * @return A named {@link FeatureProvider}
+     */
     public FeatureProvider getProviderForClientOrDefault(String name) {
         try (AutoCloseableLock __ = providerLock.writeLockAutoCloseable()) {
             FeatureProvider val = this.providers.get(name);
