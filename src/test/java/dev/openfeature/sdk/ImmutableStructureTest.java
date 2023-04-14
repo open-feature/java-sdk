@@ -111,4 +111,11 @@ class ImmutableStructureTest {
         Object value = structure.getValue("missing");
         assertNull(value);
     }
+
+    @Test void objectMapTest() {
+        Map<String, Value> attrs = new HashMap<>();
+        attrs.put("test", new Value(45));
+        ImmutableStructure structure = new ImmutableStructure(attrs);
+        assertEquals(attrs, structure.asObjectMap());
+    }
 }
