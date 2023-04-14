@@ -78,10 +78,10 @@ We publish SBOMs with all of our releases as of 0.3.0. You can find them in Mave
 
 ## 🌟 Features:
 
-- support for various backend [providers](https://docs.openfeature.dev/docs/reference/concepts/provider)
-- easy integration and extension via [hooks](https://docs.openfeature.dev/docs/reference/concepts/hooks)
+- support for various backend [providers](https://openfeature.dev/docs/reference/concepts/provider)
+- easy integration and extension via [hooks](https://openfeature.dev/docs/reference/concepts/hooks)
 - bool, string, numeric and object flag types
-- [context-aware](https://docs.openfeature.dev/docs/reference/concepts/evaluation-context) evaluation
+- [context-aware](https://openfeature.dev/docs/reference/concepts/evaluation-context) evaluation
 
 ## 🚀 Usage:
 
@@ -105,7 +105,7 @@ public void example(){
 ### Context-aware evaluation:
 
 Sometimes the value of a flag must take into account some dynamic criteria about the application or user, such as the user location, IP, email address, or the location of the server.
-In OpenFeature, we refer to this as [`targeting`](https://docs.openfeature.dev/specification/glossary#targeting).
+In OpenFeature, we refer to this as [`targeting`](https://openfeature.dev/specification/glossary#targeting).
 If the flag system you're using supports targeting, you can provide the input data using the `EvaluationContext`.
 
 ```java
@@ -165,7 +165,7 @@ public class MyProvider implements FeatureProvider {
 }
 ```
 
-See [here](https://docs.openfeature.dev/docs/reference/technologies/server/java) for a catalog of available providers.
+See [here](https://openfeature.dev/docs/reference/technologies/server/java) for a catalog of available providers.
 
 ### Hooks:
 
@@ -186,7 +186,7 @@ public class MyHook implements Hook {
 }
 ```
 
-See [here](https://docs.openfeature.dev/docs/reference/technologies/server/java) for a catalog of available hooks.
+See [here](https://openfeature.dev/docs/reference/technologies/server/java) for a catalog of available hooks.
 
 ### Logging:
 
@@ -203,7 +203,7 @@ See [here](https://www.javadoc.io/doc/dev.openfeature/sdk/latest/index.html) for
   - Twitter: [@openfeature](https://twitter.com/openfeature)
   - LinkedIn: [OpenFeature](https://www.linkedin.com/company/openfeature/)
 - Join us on [Slack](https://cloud-native.slack.com/archives/C0344AANLA1)
-- For more check out our [community page](https://docs.openfeature.dev/community/)
+- For more check out our [community page](https://openfeature.dev/community/)
 
 ## 🤝 Contributing
 
