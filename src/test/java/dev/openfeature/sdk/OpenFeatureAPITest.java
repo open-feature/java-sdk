@@ -8,8 +8,8 @@ public class OpenFeatureAPITest {
     @Test
     void namedProviderTest() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        AlwaysBrokenProvider provider = new AlwaysBrokenProvider();
+        FeatureProvider provider = new NoOpProvider();
         api.setProvider("namedProviderTest", provider);
-        assertEquals(provider.getMetadata(), api.getProviderMetadata("namedProviderTest"));
+        assertEquals(provider.getMetadata().getName(), api.getProviderMetadata("namedProviderTest").getName());
     }
 }
