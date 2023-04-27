@@ -116,6 +116,10 @@ class ImmutableStructureTest {
         Map<String, Value> attrs = new HashMap<>();
         attrs.put("test", new Value(45));
         ImmutableStructure structure = new ImmutableStructure(attrs);
-        assertEquals(attrs, structure.asObjectMap());
+
+        Map<String, Integer> expected = new HashMap<>();
+        expected.put("test", 45);
+
+        assertEquals(expected, structure.asObjectMap());
     }
 }
