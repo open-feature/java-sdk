@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -16,6 +17,7 @@ import lombok.experimental.Delegate;
  * be modified after instantiation.
  */
 @ToString
+@EqualsAndHashCode
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class MutableContext implements EvaluationContext {
 
