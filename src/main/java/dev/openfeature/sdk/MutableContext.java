@@ -90,7 +90,7 @@ public class MutableContext implements EvaluationContext {
     @Override
     public EvaluationContext merge(EvaluationContext overridingContext) {
         if (overridingContext == null) {
-            return new MutableContext(this.asMap());
+            return new MutableContext(this.targetingKey, this.asMap());
         }
 
         Map<String, Value> merged = this.merge(map -> new MutableStructure(map),
