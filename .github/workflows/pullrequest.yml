@@ -38,8 +38,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots verify -P integration-test
+      - name: Verify with Maven
+        run: mvn --batch-mode --update-snapshots verify -P e2e-test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@5bf250470ea3e4bf9456e73127015eb78ce4c280

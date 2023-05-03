@@ -1,4 +1,4 @@
-package dev.openfeature.sdk.integration;
+package dev.openfeature.sdk.e2e;
 
 import dev.openfeature.contrib.providers.flagd.FlagdProvider;
 import dev.openfeature.sdk.Client;

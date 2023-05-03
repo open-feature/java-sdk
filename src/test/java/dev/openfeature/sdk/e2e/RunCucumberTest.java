@@ -1,4 +1,4 @@
-package dev.openfeature.sdk.integration;
+package dev.openfeature.sdk.e2e;
 
 import org.junit.platform.suite.api.ConfigurationParameter;
 import org.junit.platform.suite.api.IncludeEngines;
