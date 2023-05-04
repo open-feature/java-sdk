@@ -27,7 +27,7 @@ class OpenFeatureClientTest implements HookFixtures {
     @DisplayName("should not throw exception if hook has different type argument than hookContext")
     void shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext() {
         OpenFeatureAPI api = mock(OpenFeatureAPI.class);
-        when(api.getProviderForClientOrDefault(any())).thenReturn(new DoSomethingProvider());
+        when(api.getProvider(any())).thenReturn(new DoSomethingProvider());
         when(api.getHooks()).thenReturn(Arrays.asList(mockBooleanHook(), mockStringHook()));
 
         OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
@@ -57,7 +57,7 @@ class OpenFeatureClientTest implements HookFixtures {
             context -> context.getTargetingKey().equals(targetingKey)))).thenReturn(ProviderEvaluation.<Boolean>builder()
           .value(true).build());
         when(api.getProvider()).thenReturn(mockProvider);
-        when(api.getProviderForClientOrDefault(any())).thenReturn(mockProvider);
+        when(api.getProvider(any())).thenReturn(mockProvider);
 
 
         OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");

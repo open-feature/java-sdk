@@ -106,7 +106,7 @@ public class OpenFeatureClient implements Client {
             final EvaluationContext clientContext;
 
             // openfeatureApi.getProvider() must be called once to maintain a consistent reference
-            provider = ObjectUtils.defaultIfNull(openfeatureApi.getProviderForClientOrDefault(this.name), () -> {
+            provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(this.name), () -> {
                 log.debug("No provider configured, using no-op provider.");
                 return new NoOpProvider();
             });

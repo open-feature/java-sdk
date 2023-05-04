@@ -114,8 +114,8 @@ public class OpenFeatureAPI {
      * @param name The client name to look for.
      * @return A named {@link FeatureProvider}
      */
-    public FeatureProvider getProviderForClientOrDefault(String name) {
-        try (AutoCloseableLock __ = providerLock.writeLockAutoCloseable()) {
+    public FeatureProvider getProvider(String name) {
+        try (AutoCloseableLock __ = providerLock.readLockAutoCloseable()) {
             if (name != null) { // this happens when a client name isn't set.
                 FeatureProvider val = this.providers.get(name);
                 if (val != null) {
