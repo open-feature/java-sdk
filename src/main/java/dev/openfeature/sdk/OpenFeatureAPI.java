@@ -1,9 +1,6 @@
 package dev.openfeature.sdk;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
@@ -18,12 +15,11 @@ import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 public class OpenFeatureAPI {
     // package-private multi-read/single-write lock
     static AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
-    static AutoCloseableReentrantReadWriteLock providerLock = new AutoCloseableReentrantReadWriteLock();
     static AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
     private EvaluationContext evaluationContext;
-    private List<Hook> apiHooks;
-    private Map<String, FeatureProvider> providers = new ConcurrentHashMap<>();
-    private static String DEFAULT_PROVIDER_KEY = "very-secret-string-which-you-shouldnt-use";
+    private final List<Hook> apiHooks;
+    private FeatureProvider defaultProvider = new NoOpProvider();
+    private final Map<String, FeatureProvider> providers = new ConcurrentHashMap<>();
 
     private OpenFeatureAPI() {
         this.apiHooks = new ArrayList<>();
@@ -42,13 +38,12 @@ public class OpenFeatureAPI {
     }
 
     public Metadata getProviderMetadata() {
-        return providers.get(DEFAULT_PROVIDER_KEY).getMetadata();
+        return defaultProvider.getMetadata();
     }
 
     public Metadata getProviderMetadata(String clientName) {
-        return providers.get(clientName).getMetadata();
+        return getProvider(clientName).getMetadata();
     }
-
 
     public Client getClient() {
         return getClient(null, null);
@@ -81,14 +76,13 @@ public class OpenFeatureAPI {
     }
 
     /**
-     * {@inheritDoc}
+     * Set the default provider.
      */
     public void setProvider(FeatureProvider provider) {
         if (provider == null) {
-            this.providers.remove(DEFAULT_PROVIDER_KEY);
-        } else {
-            setProvider(DEFAULT_PROVIDER_KEY, provider);
+            throw new IllegalArgumentException("Provider cannot be null");
         }
+        defaultProvider = provider;
     }
 
     /**
@@ -97,16 +91,17 @@ public class OpenFeatureAPI {
      * @param provider The provider to set.
      */
     public void setProvider(String clientName, FeatureProvider provider) {
-        try (AutoCloseableLock __ = providerLock.writeLockAutoCloseable()) {
-            this.providers.put(clientName, provider);
+        if (provider == null) {
+            throw new IllegalArgumentException("Provider cannot be null");
         }
+        this.providers.put(clientName, provider);
     }
 
     /**
-     * {@inheritDoc}
+     * Return the default provider.
      */
     public FeatureProvider getProvider() {
-        return this.providers.get(DEFAULT_PROVIDER_KEY);
+        return defaultProvider;
     }
 
     /**
@@ -115,13 +110,7 @@ public class OpenFeatureAPI {
      * @return A named {@link FeatureProvider}
      */
     public FeatureProvider getProvider(String name) {
-        try (AutoCloseableLock __ = providerLock.readLockAutoCloseable()) {
-            if (name == null) {
-                return this.providers.get(DEFAULT_PROVIDER_KEY);
-            }
-            return this.providers.getOrDefault(name, this.providers.get(DEFAULT_PROVIDER_KEY));
-        }
-        }
+        return Optional.ofNullable(name).map(this.providers::get).orElse(defaultProvider);
     }
 
 

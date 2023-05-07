@@ -19,7 +19,6 @@ class LockingTest {
     private OpenFeatureClient client;
     private AutoCloseableReentrantReadWriteLock apiContextLock;
     private AutoCloseableReentrantReadWriteLock apiHooksLock;
-    private AutoCloseableReentrantReadWriteLock apiProviderLock;
     private AutoCloseableReentrantReadWriteLock clientContextLock;
     private AutoCloseableReentrantReadWriteLock clientHooksLock;
     
@@ -33,10 +32,8 @@ class LockingTest {
         client = (OpenFeatureClient) api.getClient();
         
         apiContextLock = setupLock(apiContextLock, mockInnerReadLock(), mockInnerWriteLock());
-        apiProviderLock = setupLock(apiProviderLock, mockInnerReadLock(), mockInnerWriteLock());
         apiHooksLock = setupLock(apiHooksLock, mockInnerReadLock(), mockInnerWriteLock());
         OpenFeatureAPI.contextLock = apiContextLock;
-        OpenFeatureAPI.providerLock = apiProviderLock;
         OpenFeatureAPI.hooksLock = apiHooksLock;
 
         clientContextLock = setupLock(clientContextLock, mockInnerReadLock(), mockInnerWriteLock());
@@ -91,12 +88,6 @@ class LockingTest {
         verify(apiContextLock.readLock()).unlock();
     }
 
-    @Test
-    void setProviderShouldWriteLockAndUnlock() {
-        api.setProvider(new DoSomethingProvider());
-        verify(apiProviderLock.writeLock()).lock();
-        verify(apiProviderLock.writeLock()).unlock();
-    }
 
     @Test
     void clearHooksShouldWriteLockAndUnlock() {

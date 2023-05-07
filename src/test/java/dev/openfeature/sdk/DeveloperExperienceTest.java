@@ -19,15 +19,6 @@ import dev.openfeature.sdk.fixtures.HookFixtures;
 class DeveloperExperienceTest implements HookFixtures {
     transient String flagKey = "mykey";
 
-    @Test void noProviderSet() {
-        final String noOp = "no-op";
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(null);
-        Client client = api.getClient();
-        String retval = client.getStringValue(flagKey, noOp);
-        assertEquals(noOp, retval);
-    }
-
     @Test void simpleBooleanFlag() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider());
