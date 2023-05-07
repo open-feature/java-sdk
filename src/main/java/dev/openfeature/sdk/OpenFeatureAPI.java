@@ -116,13 +116,11 @@ public class OpenFeatureAPI {
      */
     public FeatureProvider getProvider(String name) {
         try (AutoCloseableLock __ = providerLock.readLockAutoCloseable()) {
-            if (name != null) { // this happens when a client name isn't set.
-                FeatureProvider val = this.providers.get(name);
-                if (val != null) {
-                    return val;
-                }
+            if (name == null) {
+                return this.providers.get(DEFAULT_PROVIDER_KEY);
             }
-            return this.providers.get(DEFAULT_PROVIDER_KEY);
+            return this.providers.getOrDefault(name, this.providers.get(DEFAULT_PROVIDER_KEY));
+        }
         }
     }
 
