@@ -26,7 +26,7 @@ jobs:
           cache: maven
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@deb312c60b474a4b2a0f60399ae8fad9fa46e2bc
+        uses: github/codeql-action/init@6cfb483131f3f74950a251876da81c79a6fcbdec
         with:
           languages: java
 
@@ -42,7 +42,7 @@ jobs:
         run: mvn --batch-mode --update-snapshots verify -P e2e-test
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@b4dfea724ff5d8e51bb4dffdc668c0d964df6103
+        uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
           flags: unittests # optional
@@ -51,4 +51,4 @@ jobs:
           verbose: true # optional (default = false)
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@deb312c60b474a4b2a0f60399ae8fad9fa46e2bc
+        uses: github/codeql-action/analyze@6cfb483131f3f74950a251876da81c79a6fcbdec
