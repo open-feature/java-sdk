@@ -99,17 +99,14 @@ public class OpenFeatureClient implements Client {
         FlagEvaluationDetails<T> details = null;
         List<Hook> mergedHooks = null;
         HookContext<T> hookCtx = null;
-        FeatureProvider provider = null;
+        FeatureProvider provider;
 
         try {
             final EvaluationContext apiContext;
             final EvaluationContext clientContext;
 
             // openfeatureApi.getProvider() must be called once to maintain a consistent reference
-            provider = ObjectUtils.defaultIfNull(openfeatureApi.getProvider(), () -> {
-                log.debug("No provider configured, using no-op provider.");
-                return new NoOpProvider();
-            });
+            provider = openfeatureApi.getProvider(this.name);
 
             mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
                     openfeatureApi.getHooks());

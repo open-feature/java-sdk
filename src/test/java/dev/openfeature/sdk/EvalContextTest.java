@@ -162,6 +162,13 @@ public class EvalContextTest {
         assertEquals(key1, ctxMerged.getTargetingKey());
     }
 
+    @Test void merge_null_returns_value() {
+        MutableContext ctx1 = new MutableContext("key");
+        ctx1.add("mything", "value");
+        EvaluationContext result = ctx1.merge(null);
+        assertEquals(ctx1, result);
+    }
+
     @Test void merge_targeting_key() {
         String key1 = "key1";
         MutableContext ctx1 = new MutableContext(key1);

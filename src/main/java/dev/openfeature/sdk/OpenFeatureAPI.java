@@ -1,8 +1,7 @@
 package dev.openfeature.sdk;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
@@ -16,11 +15,11 @@ import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 public class OpenFeatureAPI {
     // package-private multi-read/single-write lock
     static AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
-    static AutoCloseableReentrantReadWriteLock providerLock = new AutoCloseableReentrantReadWriteLock();
     static AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
-    private FeatureProvider provider;
     private EvaluationContext evaluationContext;
-    private List<Hook> apiHooks;
+    private final List<Hook> apiHooks;
+    private FeatureProvider defaultProvider = new NoOpProvider();
+    private final Map<String, FeatureProvider> providers = new ConcurrentHashMap<>();
 
     private OpenFeatureAPI() {
         this.apiHooks = new ArrayList<>();
@@ -39,7 +38,11 @@ public class OpenFeatureAPI {
     }
 
     public Metadata getProviderMetadata() {
-        return provider.getMetadata();
+        return defaultProvider.getMetadata();
+    }
+
+    public Metadata getProviderMetadata(String clientName) {
+        return getProvider(clientName).getMetadata();
     }
 
     public Client getClient() {
@@ -73,22 +76,43 @@ public class OpenFeatureAPI {
     }
 
     /**
-     * {@inheritDoc}
+     * Set the default provider.
      */
     public void setProvider(FeatureProvider provider) {
-        try (AutoCloseableLock __ = providerLock.writeLockAutoCloseable()) {
-            this.provider = provider;
+        if (provider == null) {
+            throw new IllegalArgumentException("Provider cannot be null");
         }
+        defaultProvider = provider;
     }
 
     /**
-     * {@inheritDoc}
+     * Add a provider for a named client.
+     * @param clientName The name of the client.
+     * @param provider The provider to set.
+     */
+    public void setProvider(String clientName, FeatureProvider provider) {
+        if (provider == null) {
+            throw new IllegalArgumentException("Provider cannot be null");
+        }
+        this.providers.put(clientName, provider);
+    }
+
+    /**
+     * Return the default provider.
      */
     public FeatureProvider getProvider() {
-        try (AutoCloseableLock __ = providerLock.readLockAutoCloseable()) {
-            return this.provider;
-        }
+        return defaultProvider;
     }
+
+    /**
+     * Fetch a provider for a named client. If not found, return the default.
+     * @param name The client name to look for.
+     * @return A named {@link FeatureProvider}
+     */
+    public FeatureProvider getProvider(String name) {
+        return Optional.ofNullable(name).map(this.providers::get).orElse(defaultProvider);
+    }
+
 
     /**
      * {@inheritDoc}
