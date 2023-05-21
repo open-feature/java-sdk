@@ -142,7 +142,7 @@
     <dependency>
       <groupId>dev.openfeature.contrib.providers</groupId>
       <artifactId>flagd</artifactId>
-      <version>0.5.9</version>
+      <version>0.5.10</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
