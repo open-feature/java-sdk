@@ -215,7 +215,7 @@
      
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.6.0</version>
         <executions>
           <execution>
             <phase>verify</phase>
