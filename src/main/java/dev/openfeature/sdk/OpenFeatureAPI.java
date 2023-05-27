@@ -1,25 +1,33 @@
 package dev.openfeature.sdk;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import dev.openfeature.sdk.internal.AutoCloseableLock;
-import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
+import dev.openfeature.sdk.internal.*;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A global singleton which holds base configuration for the OpenFeature library.
  * Configuration here will be shared across all {@link Client}s.
  */
+@Slf4j
 public class OpenFeatureAPI {
     // package-private multi-read/single-write lock
     static AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
     static AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
-    private EvaluationContext evaluationContext;
+
     private final List<Hook> apiHooks;
-    private FeatureProvider defaultProvider = new NoOpProvider();
     private final Map<String, FeatureProvider> providers = new ConcurrentHashMap<>();
+    private final ExecutorService initializationExecutor = Executors.newCachedThreadPool();
+    private final AtomicReference<FeatureProvider> initializingDefaultProvider = new AtomicReference<>();
+    private final Map<String, FeatureProvider> initializingNamedProviders = new ConcurrentHashMap<>();
+
+    private FeatureProvider defaultProvider = new NoOpProvider();
+    private EvaluationContext evaluationContext;
 
     private OpenFeatureAPI() {
         this.apiHooks = new ArrayList<>();
@@ -31,6 +39,7 @@ public class OpenFeatureAPI {
 
     /**
      * Provisions the {@link OpenFeatureAPI} singleton (if needed) and returns it.
+     *
      * @return The singleton instance.
      */
     public static OpenFeatureAPI getInstance() {
@@ -82,7 +91,12 @@ public class OpenFeatureAPI {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
-        defaultProvider = provider;
+        initializingDefaultProvider.set(provider);
+        initializeProvider(provider,
+            newProvider -> Optional
+                .ofNullable(initializingDefaultProvider.get())
+                .filter(initializingProvider -> initializingProvider == newProvider)
+                .ifPresent(initializedProvider -> defaultProvider = initializedProvider));
     }
 
     /**
@@ -94,7 +108,22 @@ public class OpenFeatureAPI {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
-        this.providers.put(clientName, provider);
+        initializingNamedProviders.put(clientName, provider);
+        initializeProvider(provider, newProvider -> Optional
+            .ofNullable(initializingNamedProviders.get(clientName))
+            .filter(initializingProvider -> initializingProvider == newProvider)
+            .ifPresent(initializedProvider -> this.providers.put(clientName, initializedProvider)));
+    }
+
+    private void initializeProvider(FeatureProvider provider, Consumer<FeatureProvider> afterInitialization) {
+        initializationExecutor.execute(() -> {
+            try {
+                provider.initialize();
+                afterInitialization.accept(provider);
+            } catch (Exception e) {
+                log.error("Exception when initializing feature provider {}", provider.getClass().getName(), e);
+            }
+        });
     }
 
     /**

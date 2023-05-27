@@ -1,7 +1,6 @@
 package dev.openfeature.sdk;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.optional;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -12,14 +11,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,15 +30,19 @@ import org.slf4j.Logger;
 class FlagEvaluationSpecTest implements HookFixtures {
 
     private Logger logger;
+    private OpenFeatureAPI api;
 
     private Client _client() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider());
+        FeatureProviderTestUtils.setFeatureProvider(new NoOpProvider());
         return api.getClient();
     }
 
+    @BeforeEach
+    void getApiInstance() {
+        api = OpenFeatureAPI.getInstance();
+    }
+
     @AfterEach void reset_ctx() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setEvaluationContext(null);
     }
 
@@ -61,24 +62,21 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @Specification(number="1.1.2", text="The API MUST provide a function to set the global provider singleton, which accepts an API-conformant provider implementation.")
     @Test void provider() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         FeatureProvider mockProvider = mock(FeatureProvider.class);
-        api.setProvider(mockProvider);
-        assertEquals(mockProvider, api.getProvider());
+        FeatureProviderTestUtils.setFeatureProvider(mockProvider);
+        assertThat(api.getProvider()).isEqualTo(mockProvider);
     }
 
     @Specification(number="1.1.4", text="The API MUST provide a function for retrieving the metadata field of the configured provider.")
     @Test void provider_metadata() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new DoSomethingProvider());
-        assertEquals(DoSomethingProvider.name, api.getProviderMetadata().getName());
+        FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
+        assertThat(api.getProviderMetadata().getName()).isEqualTo(DoSomethingProvider.name);
     }
 
     @Specification(number="1.1.3", text="The API MUST provide a function to add hooks which accepts one or more API-conformant hooks, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")
     @Test void hook_addition() {
         Hook h1 = mock(Hook.class);
         Hook h2 = mock(Hook.class);
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.addHooks(h1);
 
         assertEquals(1, api.getHooks().size());
@@ -91,8 +89,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @Specification(number="1.1.5", text="The API MUST provide a function for creating a client which accepts the following options:  - name (optional): A logical string identifier for the client.")
     @Test void namedClient() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        Client c = api.getClient("Sir Calls-a-lot");
+        assertThatCode(() -> api.getClient("Sir Calls-a-lot")).doesNotThrowAnyException();
         // TODO: Doesn't say that you can *get* the client name.. which seems useful?
     }
 
@@ -112,8 +109,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Specification(number="1.3.1", text="The client MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure, with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns the flag value.")
     @Specification(number="1.3.2.1", text="The client SHOULD provide functions for floating-point numbers and integers, consistent with language idioms.")
     @Test void value_flags() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new DoSomethingProvider());
+        FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
+
         Client c = api.getClient();
         String key = "key";
 
@@ -145,8 +142,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Specification(number="1.4.5", text="In cases of normal execution, the evaluation details structure's variant field MUST contain the value of the variant field in the flag resolution structure returned by the configured provider, if the field is set.")
     @Specification(number="1.4.6", text="In cases of normal execution, the evaluation details structure's reason field MUST contain the value of the reason field in the flag resolution structure returned by the configured provider, if the field is set.")
     @Test void detail_flags() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new DoSomethingProvider());
+        FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
         Client c = api.getClient();
         String key = "key";
 
@@ -204,8 +200,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Specification(number="1.4.7", text="In cases of abnormal execution, the `evaluation details` structure's `error code` field **MUST** contain an `error code`.")
     @Specification(number="1.4.12", text="In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
     @Test void broken_provider() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new AlwaysBrokenProvider());
+        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
         assertFalse(c.getBooleanValue("key", false));
         FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", false);
@@ -215,8 +210,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @Specification(number="1.4.10", text="In the case of abnormal execution, the client SHOULD log an informative error message.")
     @Test void log_on_error() throws NotImplementedException {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new AlwaysBrokenProvider());
+        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
 
@@ -232,16 +226,14 @@ class FlagEvaluationSpecTest implements HookFixtures {
         Client c = _client();
         assertNull(c.getMetadata().getName());
 
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new AlwaysBrokenProvider());
+        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c2 = api.getClient("test");
         assertEquals("test", c2.getMetadata().getName());
     }
 
     @Specification(number="1.4.8", text="In cases of abnormal execution (network failure, unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")
     @Test void reason_is_error_when_there_are_errors() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new AlwaysBrokenProvider());
+        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
         assertEquals(Reason.ERROR.toString(), result.getReason());
@@ -250,9 +242,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Specification(number="3.2.1", text="The API, Client and invocation MUST have a method for supplying evaluation context.")
     @Specification(number="3.2.2", text="Evaluation context MUST be merged in the order: API (global; lowest precedence) - client - invocation - before hooks (highest precedence), with duplicate values being overwritten.")
     @Test void multi_layer_context_merges_correctly() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         DoSomethingProvider provider = new DoSomethingProvider();
-        api.setProvider(provider);
+        FeatureProviderTestUtils.setFeatureProvider(provider);
 
         Map<String, Value> attributes = new HashMap<>();
         attributes.put("common", new Value("1"));
