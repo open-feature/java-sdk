@@ -92,7 +92,8 @@ class OpenFeatureAPITest {
                 CountDownLatch testBlockingLatch = new CountDownLatch(1);
                 FeatureProvider blockedProvider = blockedProvider(latch, () -> {
                     System.out.println("and down it goes...");
-                    testBlockingLatch.countDown();});
+                    testBlockingLatch.countDown();
+                });
                 FeatureProvider fastProvider = unblockProvider(latch);
 
                 api.setProvider(blockedProvider);
@@ -158,7 +159,8 @@ class OpenFeatureAPITest {
                 CountDownLatch testBlockingLatch = new CountDownLatch(1);
                 FeatureProvider blockedProvider = blockedProvider(latch, () -> {
                     System.out.println("and down it goes...");
-                    testBlockingLatch.countDown();});
+                    testBlockingLatch.countDown();
+                });
                 FeatureProvider fastProvider = unblockProvider(latch);
 
                 api.setProvider(clientName, blockedProvider);
@@ -173,6 +175,94 @@ class OpenFeatureAPITest {
 
                 verify(blockedProvider, timeout(100)).initialize();
                 verify(fastProvider, timeout(100)).initialize();
+            }
+        }
+    }
+
+    @Nested
+    class ShutdownBehavior {
+
+        @Nested
+        class DefaultProvider {
+
+            @Test
+            @DisplayName("should immediately return when calling the provider mutator")
+            void shouldImmediatelyReturnWhenCallingTheProviderMutator() {
+                FeatureProvider featureProvider = mock(FeatureProvider.class);
+                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).shutdown();
+                FeatureProviderTestUtils.setFeatureProvider(featureProvider);
+
+                await()
+                    .alias("wait for provider mutator to return")
+                    .atMost(Duration.ofSeconds(1))
+                    .until(() -> {
+                        api.setProvider(new NoOpProvider());
+                        verify(featureProvider, timeout(100)).shutdown();
+                        return true;
+                    });
+
+                verify(featureProvider).shutdown();
+            }
+
+            @Test
+            @DisplayName("should set new provider even if shutdown method of replaced one has not yet been finished executing")
+            void shouldSetNewProviderEvenIfShutdownMethodOfReplacedOneHasNotYetBeenFinishedExecuting() {
+                CountDownLatch latch = new CountDownLatch(1);
+                FeatureProvider blockingProvider = mock(FeatureProvider.class);
+                doBlock(latch).when(blockingProvider).shutdown();
+                NoOpProvider newProvider = new NoOpProvider();
+
+                FeatureProviderTestUtils.setFeatureProvider(blockingProvider);
+                FeatureProviderTestUtils.setFeatureProvider(newProvider);
+                latch.countDown();
+
+                await()
+                    .atMost(Duration.ofSeconds(1))
+                    .untilAsserted(() -> assertThat(api.getProvider()).isEqualTo(newProvider));
+                verify(blockingProvider, timeout(100)).shutdown();
+            }
+        }
+
+        @Nested
+        class ProviderForNamedClient {
+
+            @Test
+            @DisplayName("should immediately return when calling the provider mutator")
+            void shouldImmediatelyReturnWhenCallingTheProviderMutator() {
+                String clientName = "clientName";
+                FeatureProvider featureProvider = mock(FeatureProvider.class);
+                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).shutdown();
+                FeatureProviderTestUtils.setFeatureProvider(clientName, featureProvider);
+
+                await()
+                    .alias("wait for provider mutator to return")
+                    .atMost(Duration.ofSeconds(1))
+                    .until(() -> {
+                        api.setProvider(clientName, new NoOpProvider());
+                        verify(featureProvider, timeout(100)).shutdown();
+                        return true;
+                    });
+
+                verify(featureProvider).shutdown();
+            }
+
+            @Test
+            @DisplayName("should set new provider even if shutdown method of replaced one has not yet been finished executing")
+            void shouldSetNewProviderEvenIfShutdownMethodOfReplacedOneHasNotYetBeenFinishedExecuting() {
+                String clientName = "clientName";
+                CountDownLatch latch = new CountDownLatch(1);
+                FeatureProvider blockingProvider = mock(FeatureProvider.class);
+                doBlock(latch).when(blockingProvider).shutdown();
+                NoOpProvider newProvider = new NoOpProvider();
+
+                FeatureProviderTestUtils.setFeatureProvider(clientName, blockingProvider);
+                FeatureProviderTestUtils.setFeatureProvider(clientName, newProvider);
+                latch.countDown();
+
+                await()
+                    .atMost(Duration.ofSeconds(1))
+                    .untilAsserted(() -> assertThat(api.getProvider(clientName)).isEqualTo(newProvider));
+                verify(blockingProvider, timeout(100)).shutdown();
             }
         }
     }

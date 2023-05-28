@@ -22,7 +22,7 @@ public class OpenFeatureAPI {
 
     private final List<Hook> apiHooks;
     private final Map<String, FeatureProvider> providers = new ConcurrentHashMap<>();
-    private final ExecutorService initializationExecutor = Executors.newCachedThreadPool();
+    private final ExecutorService taskExecutor = Executors.newCachedThreadPool();
     private final AtomicReference<FeatureProvider> initializingDefaultProvider = new AtomicReference<>();
     private final Map<String, FeatureProvider> initializingNamedProviders = new ConcurrentHashMap<>();
 
@@ -91,12 +91,8 @@ public class OpenFeatureAPI {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
-        initializingDefaultProvider.set(provider);
-        initializeProvider(provider,
-            newProvider -> Optional
-                .ofNullable(initializingDefaultProvider.get())
-                .filter(initializingProvider -> initializingProvider == newProvider)
-                .ifPresent(initializedProvider -> defaultProvider = initializedProvider));
+        shutdownProvider(this.defaultProvider);
+        initializeProvider(provider);
     }
 
     /**
@@ -108,6 +104,37 @@ public class OpenFeatureAPI {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
+        shutdownProvider(clientName);
+        initializeProvider(clientName, provider);
+    }
+
+    private void shutdownProvider(FeatureProvider provider) {
+        if (provider == null) {
+            return;
+        }
+        taskExecutor.submit(() -> {
+            try {
+                provider.shutdown();
+            } catch (Exception e) {
+                log.error("Exception when shutting down feature provider {}", provider.getClass().getName(), e);
+            }
+        });
+    }
+
+    private void shutdownProvider(String clientName) {
+        shutdownProvider(providers.get(clientName));
+    }
+
+    private void initializeProvider(FeatureProvider provider) {
+        initializingDefaultProvider.set(provider);
+        initializeProvider(provider,
+            newProvider -> Optional
+                .ofNullable(initializingDefaultProvider.get())
+                .filter(initializingProvider -> initializingProvider == newProvider)
+                .ifPresent(initializedProvider -> defaultProvider = initializedProvider));
+    }
+
+    private void initializeProvider(String clientName, FeatureProvider provider) {
         initializingNamedProviders.put(clientName, provider);
         initializeProvider(provider, newProvider -> Optional
             .ofNullable(initializingNamedProviders.get(clientName))
@@ -116,7 +143,7 @@ public class OpenFeatureAPI {
     }
 
     private void initializeProvider(FeatureProvider provider, Consumer<FeatureProvider> afterInitialization) {
-        initializationExecutor.execute(() -> {
+        taskExecutor.submit(() -> {
             try {
                 provider.initialize();
                 afterInitialization.accept(provider);
@@ -141,7 +168,6 @@ public class OpenFeatureAPI {
     public FeatureProvider getProvider(String name) {
         return Optional.ofNullable(name).map(this.providers::get).orElse(defaultProvider);
     }
-
 
     /**
      * {@inheritDoc}
