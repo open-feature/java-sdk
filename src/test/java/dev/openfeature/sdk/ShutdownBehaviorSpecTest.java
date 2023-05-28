@@ -1,7 +1,5 @@
 package dev.openfeature.sdk;
 
-import java.util.concurrent.locks.*;
-
 import dev.openfeature.sdk.testutils.exception.TestException;
 import org.junit.jupiter.api.*;
 
@@ -10,17 +8,9 @@ import static org.mockito.Mockito.*;
 
 class ShutdownBehaviorSpecTest {
 
-    private final Lock testLock = new ReentrantLock();
-
     @BeforeEach
     void resetFeatureProvider() {
-        testLock.lock();
         setFeatureProvider(new NoOpProvider());
-    }
-
-    @AfterEach
-    void cleanup() {
-        testLock.unlock();
     }
 
     @Nested
@@ -66,7 +56,6 @@ class ShutdownBehaviorSpecTest {
             FeatureProvider featureProvider = mock(FeatureProvider.class);
 
             setFeatureProvider(clientName, featureProvider);
-            System.out.format("%s current vs. %s new%n", OpenFeatureAPI.getInstance().getProvider(clientName), featureProvider);
             setFeatureProvider(clientName, new NoOpProvider());
 
             verify(featureProvider, timeout(1000)).shutdown();
