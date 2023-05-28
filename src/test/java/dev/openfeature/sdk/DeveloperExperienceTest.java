@@ -95,7 +95,7 @@ class DeveloperExperienceTest implements HookFixtures {
             @Override
             // change the provider during a before hook - this should not impact the evaluation in progress
             public Optional before(HookContext ctx, Map hints) {
-                OpenFeatureAPI.getInstance().setProvider(new NoOpProvider());
+                FeatureProviderTestUtils.setFeatureProvider(new NoOpProvider());
                 return Optional.empty();
             }
         }
