@@ -35,8 +35,8 @@ public interface FeatureProvider {
     }
 
     /**
-     * This method is called when a new provider is about to be used to evaluate flags. Providers can overwrite this method,
-     * if they have special shutdown actions needed.
+     * This method is called when a new provider is about to be used to evaluate flags.
+     * Providers can overwrite this method, if they have special shutdown actions needed.
      * <p></p>
      * It is ok, if the method is expensive as it is executed in the background. All runtime exceptions will be
      * caught and logged.
