@@ -127,6 +127,29 @@ public class OpenFeatureAPI {
         initializeProvider(provider, this::updateDefaultProviderAfterInitialization);
     }
 
+    private void initializeProvider(String clientName, FeatureProvider provider) {
+        initializingNamedProviders.put(clientName, provider);
+        initializeProvider(provider, newProvider -> updateProviderAfterInitialization(clientName, newProvider));
+    }
+
+    private void updateProviderAfterInitialization(String clientName, FeatureProvider newProvider) {
+        Optional
+                .ofNullable(initializingNamedProviders.get(clientName))
+                .filter(initializingProvider -> initializingProvider == newProvider)
+                .ifPresent(provider -> updateNamedProviderAfterInitialization(clientName, provider));
+    }
+
+    private void initializeProvider(FeatureProvider provider, Consumer<FeatureProvider> afterInitialization) {
+        taskExecutor.submit(() -> {
+            try {
+                provider.initialize();
+                afterInitialization.accept(provider);
+            } catch (Exception e) {
+                log.error("Exception when initializing feature provider {}", provider.getClass().getName(), e);
+            }
+        });
+    }
+
     private void updateDefaultProviderAfterInitialization(FeatureProvider initializedProvider) {
         Optional
                 .ofNullable(initializingDefaultProvider.get())
@@ -137,14 +160,6 @@ public class OpenFeatureAPI {
                 });
     }
 
-    private void initializeProvider(String clientName, FeatureProvider provider) {
-        initializingNamedProviders.put(clientName, provider);
-        initializeProvider(provider, newProvider -> Optional
-                .ofNullable(initializingNamedProviders.get(clientName))
-                .filter(initializingProvider -> initializingProvider == newProvider)
-                .ifPresent(initializedProvider -> this.updateNamedProviderAfterInitialization(clientName, initializedProvider)));
-    }
-
     private void updateNamedProviderAfterInitialization(String clientName, FeatureProvider initializedProvider) {
         Optional
                 .ofNullable(initializingNamedProviders.get(clientName))
@@ -153,16 +168,6 @@ public class OpenFeatureAPI {
                     FeatureProvider oldProvider = this.providers.put(clientName, provider);
                     shutdownProvider(oldProvider);
                 });
-    }
-    private void initializeProvider(FeatureProvider provider, Consumer<FeatureProvider> afterInitialization) {
-        taskExecutor.submit(() -> {
-            try {
-                provider.initialize();
-                afterInitialization.accept(provider);
-            } catch (Exception e) {
-                log.error("Exception when initializing feature provider {}", provider.getClass().getName(), e);
-            }
-        });
     }
 
     /**
