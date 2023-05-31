@@ -1,19 +1,33 @@
 package dev.openfeature.sdk;
 
-import java.time.Duration;
-import java.util.concurrent.*;
-
 import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
-import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.*;
-import static org.assertj.core.api.Assertions.*;
+import java.time.Duration;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doBlock;
+import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doDelayResponse;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.*;
 
 class OpenFeatureAPITest {
+
+    private static final String FEATURE_KEY = "some key";
+    private static final String CLIENT_NAME = "clientName";
+
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     private OpenFeatureAPI api;
 
@@ -27,7 +41,8 @@ class OpenFeatureAPITest {
         FeatureProvider provider = new NoOpProvider();
         FeatureProviderTestUtils.setFeatureProvider("namedProviderTest", provider);
 
-        assertThat(provider.getMetadata().getName()).isEqualTo(api.getProviderMetadata("namedProviderTest").getName());
+        assertThat(provider.getMetadata().getName())
+                .isEqualTo(api.getProviderMetadata("namedProviderTest").getName());
     }
 
     @Test
@@ -37,7 +52,7 @@ class OpenFeatureAPITest {
 
     @Test
     void settingNamedClientProviderToNullErrors() {
-        assertThatCode(() -> api.setProvider("client-name", null)).isInstanceOf(IllegalArgumentException.class);
+        assertThatCode(() -> api.setProvider(CLIENT_NAME, null)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Nested
@@ -53,19 +68,19 @@ class OpenFeatureAPITest {
                 doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize();
 
                 await()
-                    .alias("wait for provider mutator to return")
-                    .atMost(Duration.ofSeconds(1))
-                    .until(() -> {
-                        api.setProvider(featureProvider);
-                        verify(featureProvider, timeout(100)).initialize();
-                        return true;
-                    });
+                        .alias("wait for provider mutator to return")
+                        .atMost(Duration.ofSeconds(1))
+                        .until(() -> {
+                            api.setProvider(featureProvider);
+                            verify(featureProvider, timeout(100)).initialize();
+                            return true;
+                        });
 
                 verify(featureProvider).initialize();
             }
 
             @Test
-            @DisplayName("should not return set provider if it's initialize method has not yet been finished executing")
+            @DisplayName("should not return set provider if initialize has not yet been finished executing")
             void shouldNotReturnSetProviderIfItsInitializeMethodHasNotYetBeenFinishedExecuting() {
                 CountDownLatch latch = new CountDownLatch(1);
                 FeatureProvider newProvider = mock(FeatureProvider.class);
@@ -79,8 +94,8 @@ class OpenFeatureAPITest {
 
                 assertThat(providerWhileInitialization).isEqualTo(oldProvider);
                 await()
-                    .atMost(Duration.ofSeconds(1))
-                    .untilAsserted(() -> assertThat(api.getProvider()).isEqualTo(newProvider));
+                        .atMost(Duration.ofSeconds(1))
+                        .untilAsserted(() -> assertThat(api.getProvider()).isEqualTo(newProvider));
                 verify(newProvider, timeout(100)).initialize();
             }
 
@@ -94,17 +109,19 @@ class OpenFeatureAPITest {
                     System.out.println("and down it goes...");
                     testBlockingLatch.countDown();
                 });
-                FeatureProvider fastProvider = unblockProvider(latch);
+                FeatureProvider fastProvider = unblockingProvider(latch);
 
                 api.setProvider(blockedProvider);
                 api.setProvider(fastProvider);
 
-                assertThat(testBlockingLatch.await(2, TimeUnit.SECONDS)).as("blocking provider initialization not completed within 2 seconds").isTrue();
+                assertThat(testBlockingLatch.await(2, SECONDS))
+                        .as("blocking provider initialization not completed within 2 seconds")
+                        .isTrue();
 
                 await()
-                    .pollDelay(Duration.ofMillis(1))
-                    .atMost(Duration.ofSeconds(1))
-                    .untilAsserted(() -> assertThat(api.getProvider()).isEqualTo(fastProvider));
+                        .pollDelay(Duration.ofMillis(1))
+                        .atMost(Duration.ofSeconds(1))
+                        .untilAsserted(() -> assertThat(api.getProvider()).isEqualTo(fastProvider));
 
                 verify(blockedProvider, timeout(100)).initialize();
                 verify(fastProvider, timeout(100)).initialize();
@@ -121,32 +138,32 @@ class OpenFeatureAPITest {
                 doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize();
 
                 await()
-                    .alias("wait for provider mutator to return")
-                    .atMost(Duration.ofSeconds(1))
-                    .until(() -> {
-                        OpenFeatureAPI.getInstance().setProvider("named client", featureProvider);
-                        verify(featureProvider, timeout(1000)).initialize();
-                        return true;
-                    });
+                        .alias("wait for provider mutator to return")
+                        .atMost(Duration.ofSeconds(1))
+                        .until(() -> {
+                            OpenFeatureAPI.getInstance().setProvider("named client", featureProvider);
+                            verify(featureProvider, timeout(1000)).initialize();
+                            return true;
+                        });
             }
 
             @Test
-            @DisplayName("should not return set provider if it's initialize method has not yet been finished executing")
+            @DisplayName("should not return set provider if it's initialization has not yet been finished executing")
             void shouldNotReturnSetProviderIfItsInitializeMethodHasNotYetBeenFinishedExecuting() {
                 CountDownLatch latch = new CountDownLatch(1);
                 FeatureProvider newProvider = mock(FeatureProvider.class);
                 doBlock(latch).when(newProvider).initialize();
-                String client = "test client";
-                FeatureProvider oldProvider = OpenFeatureAPI.getInstance().getProvider();
+                FeatureProvider oldProvider = mock(FeatureProvider.class);
+                FeatureProviderTestUtils.setFeatureProvider(CLIENT_NAME, oldProvider);
 
-                OpenFeatureAPI.getInstance().setProvider(client, newProvider);
-                FeatureProvider providerWhileInitialization = OpenFeatureAPI.getInstance().getProvider(client);
+                OpenFeatureAPI.getInstance().setProvider(CLIENT_NAME, newProvider);
+                FeatureProvider providerWhileInitialization = getNamedProvider();
                 latch.countDown();
 
                 assertThat(providerWhileInitialization).isEqualTo(oldProvider);
                 await()
-                    .atMost(Duration.ofSeconds(1))
-                    .untilAsserted(() -> assertThat(OpenFeatureAPI.getInstance().getProvider(client)).isEqualTo(newProvider));
+                        .atMost(Duration.ofSeconds(1))
+                        .untilAsserted(() -> assertThat(getNamedProvider()).isEqualTo(newProvider));
                 verify(newProvider, timeout(100)).initialize();
             }
 
@@ -161,20 +178,22 @@ class OpenFeatureAPITest {
                     System.out.println("and down it goes...");
                     testBlockingLatch.countDown();
                 });
-                FeatureProvider fastProvider = unblockProvider(latch);
+                FeatureProvider unblockingProvider = unblockingProvider(latch);
 
                 api.setProvider(clientName, blockedProvider);
-                api.setProvider(clientName, fastProvider);
+                api.setProvider(clientName, unblockingProvider);
 
-                assertThat(testBlockingLatch.await(2, TimeUnit.SECONDS)).as("blocking provider initialization not completed within 2 seconds").isTrue();
+                assertThat(testBlockingLatch.await(2, SECONDS))
+                        .as("blocking provider initialization not completed within 2 seconds")
+                        .isTrue();
 
                 await()
-                    .pollDelay(Duration.ofMillis(1))
-                    .atMost(Duration.ofSeconds(1))
-                    .untilAsserted(() -> assertThat(api.getProvider(clientName)).isEqualTo(fastProvider));
+                        .pollDelay(Duration.ofMillis(1))
+                        .atMost(Duration.ofSeconds(1))
+                        .untilAsserted(() -> assertThat(api.getProvider(clientName)).isEqualTo(unblockingProvider));
 
                 verify(blockedProvider, timeout(100)).initialize();
-                verify(fastProvider, timeout(100)).initialize();
+                verify(unblockingProvider, timeout(100)).initialize();
             }
         }
     }
@@ -193,33 +212,36 @@ class OpenFeatureAPITest {
                 FeatureProviderTestUtils.setFeatureProvider(featureProvider);
 
                 await()
-                    .alias("wait for provider mutator to return")
-                    .atMost(Duration.ofSeconds(1))
-                    .until(() -> {
-                        api.setProvider(new NoOpProvider());
-                        verify(featureProvider, timeout(100)).shutdown();
-                        return true;
-                    });
+                        .alias("wait for provider mutator to return")
+                        .atMost(Duration.ofSeconds(1))
+                        .until(() -> {
+                            api.setProvider(new NoOpProvider());
+                            verify(featureProvider, timeout(100)).shutdown();
+                            return true;
+                        });
 
                 verify(featureProvider).shutdown();
             }
 
             @Test
-            @DisplayName("should set new provider even if shutdown method of replaced one has not yet been finished executing")
-            void shouldSetNewProviderEvenIfShutdownMethodOfReplacedOneHasNotYetBeenFinishedExecuting() {
+            @DisplayName("should use old provider if replacing one has not yet been finished initializing")
+            void shouldUseOldProviderIfReplacingOneHasNotYetBeenFinishedInitializing() {
                 CountDownLatch latch = new CountDownLatch(1);
-                FeatureProvider blockingProvider = mock(FeatureProvider.class);
-                doBlock(latch).when(blockingProvider).shutdown();
-                NoOpProvider newProvider = new NoOpProvider();
+                FeatureProvider newProvider = mock(FeatureProvider.class);
+                doBlock(latch).when(newProvider).initialize();
+                FeatureProvider oldProvider = mock(FeatureProvider.class);
 
-                FeatureProviderTestUtils.setFeatureProvider(blockingProvider);
-                FeatureProviderTestUtils.setFeatureProvider(newProvider);
+                FeatureProviderTestUtils.setFeatureProvider(oldProvider);
+                OpenFeatureAPI.getInstance().setProvider(newProvider);
+
+                OpenFeatureAPI.getInstance().getClient().getBooleanValue("some key", true);
                 latch.countDown();
 
                 await()
-                    .atMost(Duration.ofSeconds(1))
-                    .untilAsserted(() -> assertThat(api.getProvider()).isEqualTo(newProvider));
-                verify(blockingProvider, timeout(100)).shutdown();
+                        .atMost(Duration.ofSeconds(1))
+                        .untilAsserted(() -> assertThat(OpenFeatureAPITest.getProvider()).isEqualTo(newProvider));
+                verify(oldProvider, timeout(100)).getBooleanEvaluation(any(), any(), any());
+                verify(newProvider, never()).getBooleanEvaluation(any(), any(), any());
             }
         }
 
@@ -229,42 +251,46 @@ class OpenFeatureAPITest {
             @Test
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() {
-                String clientName = "clientName";
-                FeatureProvider featureProvider = mock(FeatureProvider.class);
-                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).shutdown();
-                FeatureProviderTestUtils.setFeatureProvider(clientName, featureProvider);
+                FeatureProvider newProvider = mock(FeatureProvider.class);
+                doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize();
+
+                Future<?> providerMutation = executorService.submit(() -> api.setProvider(CLIENT_NAME, newProvider));
 
                 await()
-                    .alias("wait for provider mutator to return")
-                    .atMost(Duration.ofSeconds(1))
-                    .until(() -> {
-                        api.setProvider(clientName, new NoOpProvider());
-                        verify(featureProvider, timeout(100)).shutdown();
-                        return true;
-                    });
-
-                verify(featureProvider).shutdown();
+                        .alias("wait for provider mutator to return")
+                        .atMost(Duration.ofSeconds(1))
+                        .until(providerMutation::isDone);
             }
 
             @Test
-            @DisplayName("should set new provider even if shutdown method of replaced one has not yet been finished executing")
-            void shouldSetNewProviderEvenIfShutdownMethodOfReplacedOneHasNotYetBeenFinishedExecuting() {
-                String clientName = "clientName";
+            @DisplayName("should use old provider if replacement one has not yet been finished initializing")
+            void shouldUseOldProviderIfReplacementHasNotYetBeenFinishedInitializing() {
                 CountDownLatch latch = new CountDownLatch(1);
-                FeatureProvider blockingProvider = mock(FeatureProvider.class);
-                doBlock(latch).when(blockingProvider).shutdown();
-                NoOpProvider newProvider = new NoOpProvider();
+                FeatureProvider newProvider = mock(FeatureProvider.class);
+                doBlock(latch).when(newProvider).initialize();
+                FeatureProvider oldProvider = mock(FeatureProvider.class);
 
-                FeatureProviderTestUtils.setFeatureProvider(clientName, blockingProvider);
-                FeatureProviderTestUtils.setFeatureProvider(clientName, newProvider);
+                FeatureProviderTestUtils.setFeatureProvider(CLIENT_NAME, oldProvider);
+                OpenFeatureAPI.getInstance().setProvider(CLIENT_NAME, newProvider);
+
+                OpenFeatureAPI.getInstance().getClient(CLIENT_NAME).getBooleanValue(FEATURE_KEY, true);
                 latch.countDown();
 
                 await()
-                    .atMost(Duration.ofSeconds(1))
-                    .untilAsserted(() -> assertThat(api.getProvider(clientName)).isEqualTo(newProvider));
-                verify(blockingProvider, timeout(100)).shutdown();
+                        .atMost(Duration.ofSeconds(1))
+                        .untilAsserted(() -> assertThat(getNamedProvider()).isEqualTo(newProvider));
+                verify(oldProvider, timeout(100)).getBooleanEvaluation(eq(FEATURE_KEY), any(), any());
+                verify(newProvider, never()).getBooleanEvaluation(any(), any(), any());
             }
         }
+    }
+
+    private static FeatureProvider getProvider() {
+        return OpenFeatureAPI.getInstance().getProvider();
+    }
+
+    private static FeatureProvider getNamedProvider() {
+        return OpenFeatureAPI.getInstance().getProvider(OpenFeatureAPITest.CLIENT_NAME);
     }
 
     private FeatureProvider blockedProvider(CountDownLatch latch, Runnable onAnswer) {
@@ -281,13 +307,13 @@ class OpenFeatureAPITest {
         };
     }
 
-    private FeatureProvider unblockProvider(CountDownLatch latch) {
+    private FeatureProvider unblockingProvider(CountDownLatch latch) {
         FeatureProvider provider = mock(FeatureProvider.class);
         doAnswer(invocation -> {
             latch.countDown();
             return null;
         }).when(provider).initialize();
-        doReturn("fastProvider").when(provider).toString();
+        doReturn("unblockingProvider").when(provider).toString();
         return provider;
     }
 }
