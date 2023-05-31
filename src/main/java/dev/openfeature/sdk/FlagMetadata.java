@@ -39,7 +39,7 @@ public class FlagMetadata {
     }
 
     /**
-     * Retrieve an {@link Float} value for the given key. If a value is not found, {@link GeneralError} will be thrown.
+     * Retrieve a {@link Float} value for the given key. If a value is not found, {@link GeneralError} will be thrown.
      * If value exist but of another type, {@link ParseError} will be thrown.
      *
      * @param key flag metadata key to retrieve
@@ -49,7 +49,7 @@ public class FlagMetadata {
     }
 
     /**
-     * Retrieve an {@link Double} value for the given key.
+     * Retrieve a {@link Double} value for the given key.
      * If a value is not found, {@link GeneralError} will be thrown.
      * If value exist but of another type, {@link ParseError} will be thrown.
      *
@@ -60,7 +60,7 @@ public class FlagMetadata {
     }
 
     /**
-     * Retrieve an {@link Boolean} value for the given key.
+     * Retrieve a {@link Boolean} value for the given key.
      * If a value is not found, {@link GeneralError} will be thrown.
      * If value exist but of another type, {@link ParseError} will be thrown.
      *
