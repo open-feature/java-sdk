@@ -13,4 +13,6 @@ public class ProviderEvaluation<T> implements BaseEvaluation<T> {
     @Nullable private String reason;
     ErrorCode errorCode;
     @Nullable private String errorMessage;
+    @Builder.Default
+    private FlagMetadata flagMetadata = FlagMetadata.builder().build();
 }

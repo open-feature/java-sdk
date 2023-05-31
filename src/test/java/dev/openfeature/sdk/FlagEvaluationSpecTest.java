@@ -1,6 +1,8 @@
 package dev.openfeature.sdk;
 
-import static org.assertj.core.api.Assertions.*;
+import static dev.openfeature.sdk.DoSomethingProvider.flagMetadata;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -15,17 +17,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import dev.openfeature.sdk.exceptions.FlagNotFoundError;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import dev.openfeature.sdk.fixtures.HookFixtures;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.simplify4u.slf4jmock.LoggerMock;
 import org.slf4j.Logger;
+
+import dev.openfeature.sdk.exceptions.FlagNotFoundError;
+import dev.openfeature.sdk.fixtures.HookFixtures;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 
 class FlagEvaluationSpecTest implements HookFixtures {
 
@@ -150,6 +152,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 .flagKey(key)
                 .value(false)
                 .variant(null)
+                .flagMetadata(flagMetadata)
                 .build();
         assertEquals(bd, c.getBooleanDetails(key, true));
         assertEquals(bd, c.getBooleanDetails(key, true, new ImmutableContext()));
@@ -159,6 +162,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 .flagKey(key)
                 .value("tset")
                 .variant(null)
+                .flagMetadata(flagMetadata)
                 .build();
         assertEquals(sd, c.getStringDetails(key, "test"));
         assertEquals(sd, c.getStringDetails(key, "test", new ImmutableContext()));
@@ -167,6 +171,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         FlagEvaluationDetails<Integer> id = FlagEvaluationDetails.<Integer>builder()
                 .flagKey(key)
                 .value(400)
+                .flagMetadata(flagMetadata)
                 .build();
         assertEquals(id, c.getIntegerDetails(key, 4));
         assertEquals(id, c.getIntegerDetails(key, 4, new ImmutableContext()));
@@ -175,6 +180,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         FlagEvaluationDetails<Double> dd = FlagEvaluationDetails.<Double>builder()
                 .flagKey(key)
                 .value(40.0)
+                .flagMetadata(flagMetadata)
                 .build();
         assertEquals(dd, c.getDoubleDetails(key, .4));
         assertEquals(dd, c.getDoubleDetails(key, .4, new ImmutableContext()));
