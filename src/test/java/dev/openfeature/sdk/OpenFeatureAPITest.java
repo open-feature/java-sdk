@@ -25,7 +25,8 @@ import static org.mockito.Mockito.*;
 class OpenFeatureAPITest {
 
     private static final String FEATURE_KEY = "some key";
-    private static final String CLIENT_NAME = "clientName";
+    private static final String CLIENT_NAME = "client name";
+    private static final String ANOTHER_CLIENT_NAME = "another client name";
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -64,7 +65,7 @@ class OpenFeatureAPITest {
             @Test
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() {
-                FeatureProvider featureProvider = mock(FeatureProvider.class);
+                FeatureProvider featureProvider = createMockedProvider();
                 doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize();
 
                 await()
@@ -83,7 +84,7 @@ class OpenFeatureAPITest {
             @DisplayName("should not return set provider if initialize has not yet been finished executing")
             void shouldNotReturnSetProviderIfItsInitializeMethodHasNotYetBeenFinishedExecuting() {
                 CountDownLatch latch = new CountDownLatch(1);
-                FeatureProvider newProvider = mock(FeatureProvider.class);
+                FeatureProvider newProvider = createMockedProvider();
                 doBlock(latch).when(newProvider).initialize();
                 FeatureProvider oldProvider = api.getProvider();
 
@@ -129,12 +130,12 @@ class OpenFeatureAPITest {
         }
 
         @Nested
-        class ProviderForNamedClient {
+        class NamedProvider {
 
             @Test
             @DisplayName("should immediately return when calling the named client provider mutator")
             void shouldImmediatelyReturnWhenCallingTheNamedClientProviderMutator() {
-                FeatureProvider featureProvider = mock(FeatureProvider.class);
+                FeatureProvider featureProvider = createMockedProvider();
                 doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize();
 
                 await()
@@ -151,9 +152,9 @@ class OpenFeatureAPITest {
             @DisplayName("should not return set provider if it's initialization has not yet been finished executing")
             void shouldNotReturnSetProviderIfItsInitializeMethodHasNotYetBeenFinishedExecuting() {
                 CountDownLatch latch = new CountDownLatch(1);
-                FeatureProvider newProvider = mock(FeatureProvider.class);
+                FeatureProvider newProvider = createMockedProvider();
                 doBlock(latch).when(newProvider).initialize();
-                FeatureProvider oldProvider = mock(FeatureProvider.class);
+                FeatureProvider oldProvider = createMockedProvider();
                 FeatureProviderTestUtils.setFeatureProvider(CLIENT_NAME, oldProvider);
 
                 OpenFeatureAPI.getInstance().setProvider(CLIENT_NAME, newProvider);
@@ -207,7 +208,7 @@ class OpenFeatureAPITest {
             @Test
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() {
-                FeatureProvider featureProvider = mock(FeatureProvider.class);
+                FeatureProvider featureProvider = createMockedProvider();
                 doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).shutdown();
                 FeatureProviderTestUtils.setFeatureProvider(featureProvider);
 
@@ -227,9 +228,9 @@ class OpenFeatureAPITest {
             @DisplayName("should use old provider if replacing one has not yet been finished initializing")
             void shouldUseOldProviderIfReplacingOneHasNotYetBeenFinishedInitializing() {
                 CountDownLatch latch = new CountDownLatch(1);
-                FeatureProvider newProvider = mock(FeatureProvider.class);
+                FeatureProvider newProvider = createMockedProvider();
                 doBlock(latch).when(newProvider).initialize();
-                FeatureProvider oldProvider = mock(FeatureProvider.class);
+                FeatureProvider oldProvider = createMockedProvider();
 
                 FeatureProviderTestUtils.setFeatureProvider(oldProvider);
                 OpenFeatureAPI.getInstance().setProvider(newProvider);
@@ -243,15 +244,28 @@ class OpenFeatureAPITest {
                 verify(oldProvider, timeout(100)).getBooleanEvaluation(any(), any(), any());
                 verify(newProvider, never()).getBooleanEvaluation(any(), any(), any());
             }
+
+            @Test
+            @DisplayName("should not call shutdown if replaced default provider is bound as named provider")
+            void shouldNotCallShutdownIfReplacedDefaultProviderIsBoundAsNamedProvider() {
+                FeatureProvider oldProvider = createMockedProvider();
+                FeatureProvider newProvider = createMockedProvider();
+                FeatureProviderTestUtils.setFeatureProvider(oldProvider);
+                FeatureProviderTestUtils.setFeatureProvider(CLIENT_NAME, oldProvider);
+
+                FeatureProviderTestUtils.setFeatureProvider(newProvider);
+
+                verify(oldProvider, never()).shutdown();
+            }
         }
 
         @Nested
-        class ProviderForNamedClient {
+        class NamedProvider {
 
             @Test
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() {
-                FeatureProvider newProvider = mock(FeatureProvider.class);
+                FeatureProvider newProvider = createMockedProvider();
                 doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize();
 
                 Future<?> providerMutation = executorService.submit(() -> api.setProvider(CLIENT_NAME, newProvider));
@@ -266,9 +280,9 @@ class OpenFeatureAPITest {
             @DisplayName("should use old provider if replacement one has not yet been finished initializing")
             void shouldUseOldProviderIfReplacementHasNotYetBeenFinishedInitializing() {
                 CountDownLatch latch = new CountDownLatch(1);
-                FeatureProvider newProvider = mock(FeatureProvider.class);
+                FeatureProvider newProvider = createMockedProvider();
                 doBlock(latch).when(newProvider).initialize();
-                FeatureProvider oldProvider = mock(FeatureProvider.class);
+                FeatureProvider oldProvider = createMockedProvider();
 
                 FeatureProviderTestUtils.setFeatureProvider(CLIENT_NAME, oldProvider);
                 OpenFeatureAPI.getInstance().setProvider(CLIENT_NAME, newProvider);
@@ -282,7 +296,37 @@ class OpenFeatureAPITest {
                 verify(oldProvider, timeout(100)).getBooleanEvaluation(eq(FEATURE_KEY), any(), any());
                 verify(newProvider, never()).getBooleanEvaluation(any(), any(), any());
             }
+
+            @Test
+            @DisplayName("should not call shutdown if replaced provider is bound to multiple names")
+            void shouldNotCallShutdownIfReplacedProviderIsBoundToMultipleNames() {
+                FeatureProvider oldProvider = createMockedProvider();
+                FeatureProvider newProvider = createMockedProvider();
+                FeatureProviderTestUtils.setFeatureProvider(CLIENT_NAME, oldProvider);
+                FeatureProviderTestUtils.setFeatureProvider(ANOTHER_CLIENT_NAME, oldProvider);
+
+                FeatureProviderTestUtils.setFeatureProvider(CLIENT_NAME, newProvider);
+
+                verify(oldProvider, never()).shutdown();
+            }
+
+            @Test
+            @DisplayName("should not call shutdown if replaced provider is bound as default provider")
+            void shouldNotCallShutdownIfReplacedProviderIsBoundAsDefaultProvider() {
+                FeatureProvider oldProvider = createMockedProvider();
+                FeatureProvider newProvider = createMockedProvider();
+                FeatureProviderTestUtils.setFeatureProvider(oldProvider);
+                FeatureProviderTestUtils.setFeatureProvider(CLIENT_NAME, oldProvider);
+
+                FeatureProviderTestUtils.setFeatureProvider(CLIENT_NAME, newProvider);
+
+                verify(oldProvider, never()).shutdown();
+            }
         }
+    }
+
+    private static FeatureProvider createMockedProvider() {
+        return mock(FeatureProvider.class);
     }
 
     private static FeatureProvider getProvider() {
@@ -294,7 +338,7 @@ class OpenFeatureAPITest {
     }
 
     private FeatureProvider blockedProvider(CountDownLatch latch, Runnable onAnswer) {
-        FeatureProvider provider = mock(FeatureProvider.class);
+        FeatureProvider provider = createMockedProvider();
         doBlock(latch, createAnswerExecutingCode(onAnswer)).when(provider).initialize();
         doReturn("blockedProvider").when(provider).toString();
         return provider;
@@ -308,7 +352,7 @@ class OpenFeatureAPITest {
     }
 
     private FeatureProvider unblockingProvider(CountDownLatch latch) {
-        FeatureProvider provider = mock(FeatureProvider.class);
+        FeatureProvider provider = createMockedProvider();
         doAnswer(invocation -> {
             latch.countDown();
             return null;

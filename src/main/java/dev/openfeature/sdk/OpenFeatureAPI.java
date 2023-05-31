@@ -132,13 +132,6 @@ public class OpenFeatureAPI {
         initializeProvider(provider, newProvider -> updateProviderAfterInitialization(clientName, newProvider));
     }
 
-    private void updateProviderAfterInitialization(String clientName, FeatureProvider newProvider) {
-        Optional
-                .ofNullable(initializingNamedProviders.get(clientName))
-                .filter(initializingProvider -> initializingProvider == newProvider)
-                .ifPresent(provider -> updateNamedProviderAfterInitialization(clientName, provider));
-    }
-
     private void initializeProvider(FeatureProvider provider, Consumer<FeatureProvider> afterInitialization) {
         taskExecutor.submit(() -> {
             try {
@@ -150,24 +143,47 @@ public class OpenFeatureAPI {
         });
     }
 
+    private void updateProviderAfterInitialization(String clientName, FeatureProvider newProvider) {
+        Optional
+                .ofNullable(initializingNamedProviders.get(clientName))
+                .filter(initializingProvider -> initializingProvider.equals(newProvider))
+                .ifPresent(provider -> updateNamedProviderAfterInitialization(clientName, provider));
+    }
+
     private void updateDefaultProviderAfterInitialization(FeatureProvider initializedProvider) {
         Optional
-                .ofNullable(initializingDefaultProvider.get())
-                .filter(initializingProvider -> initializingProvider == initializedProvider)
-                .ifPresent(provider -> {
-                    FeatureProvider oldProvider = this.defaultProvider.getAndSet(provider);
-                    shutdownProvider(oldProvider);
-                });
+                .ofNullable(this.initializingDefaultProvider.get())
+                .filter(initializingProvider -> initializingProvider.equals(initializedProvider))
+                .ifPresent(this::replaceDefaultProvider);
+    }
+
+    private void replaceDefaultProvider(FeatureProvider provider) {
+        FeatureProvider oldProvider = this.defaultProvider.getAndSet(provider);
+        if (isOldProviderNotBoundByName(oldProvider)) {
+            shutdownProvider(oldProvider);
+        }
+    }
+
+    private boolean isOldProviderNotBoundByName(FeatureProvider oldProvider) {
+        return !this.providers.containsValue(oldProvider);
     }
 
     private void updateNamedProviderAfterInitialization(String clientName, FeatureProvider initializedProvider) {
         Optional
-                .ofNullable(initializingNamedProviders.get(clientName))
-                .filter(initializingProvider -> initializingProvider == initializedProvider)
-                .ifPresent(provider -> {
-                    FeatureProvider oldProvider = this.providers.put(clientName, provider);
-                    shutdownProvider(oldProvider);
-                });
+                .ofNullable(this.initializingNamedProviders.get(clientName))
+                .filter(initializingProvider -> initializingProvider.equals(initializedProvider))
+                .ifPresent(provider -> replaceNamedProviderAndShutdownOldOne(clientName, provider));
+    }
+
+    private void replaceNamedProviderAndShutdownOldOne(String clientName, FeatureProvider provider) {
+        FeatureProvider oldProvider = this.providers.put(clientName, provider);
+        if (isOldProviderNotBoundMultipleTimes(oldProvider)) {
+            shutdownProvider(oldProvider);
+        }
+    }
+
+    private boolean isOldProviderNotBoundMultipleTimes(FeatureProvider oldProvider) {
+        return !(this.providers.containsValue(oldProvider) || this.defaultProvider.get().equals(oldProvider));
     }
 
     /**
@@ -184,7 +200,7 @@ public class OpenFeatureAPI {
      * @return A named {@link FeatureProvider}
      */
     public FeatureProvider getProvider(String name) {
-        return Optional.ofNullable(name).map(this.providers::get).orElse(defaultProvider.get());
+        return Optional.ofNullable(name).map(this.providers::get).orElse(this.defaultProvider.get());
     }
 
     /**
