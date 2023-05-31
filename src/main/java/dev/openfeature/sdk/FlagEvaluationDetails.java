@@ -10,7 +10,9 @@ import javax.annotation.Nullable;
  *
  * @param <T> the type of the flag being evaluated.
  */
-@Data @Builder public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
+@Data
+@Builder
+public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
 
     private String flagKey;
     private T value;
