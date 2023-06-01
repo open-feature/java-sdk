@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.testutils.exception.TestException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +19,7 @@ import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doBlock;
 import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doDelayResponse;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -45,6 +47,12 @@ class ProviderRepositoryTest {
         class DefaultProvider {
 
             @Test
+            @DisplayName("should reject null as default provider")
+            void shouldRejectNullAsDefaultProvider() {
+                assertThatCode(() -> providerRepository.setProvider(null)).isInstanceOf(IllegalArgumentException.class);
+            }
+
+            @Test
             @DisplayName("should have NoOpProvider set as default on initialization")
             void shouldHaveNoOpProviderSetAsDefaultOnInitialization() {
                 assertThat(providerRepository.getProvider()).isInstanceOf(NoOpProvider.class);
@@ -58,6 +66,7 @@ class ProviderRepositoryTest {
 
                 await()
                         .alias("wait for provider mutator to return")
+                        .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .until(() -> {
                             providerRepository.setProvider(featureProvider);
@@ -83,6 +92,7 @@ class ProviderRepositoryTest {
 
                 assertThat(providerWhileInitialization).isEqualTo(oldProvider);
                 await()
+                        .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .untilAsserted(() -> assertThat(providerRepository.getProvider()).isEqualTo(newProvider));
                 verify(newProvider, timeout(100)).initialize();
@@ -121,6 +131,19 @@ class ProviderRepositoryTest {
         class NamedProvider {
 
             @Test
+            @DisplayName("should reject null as named provider")
+            void shouldRejectNullAsNamedProvider() {
+                assertThatCode(() -> providerRepository.setProvider(CLIENT_NAME, null)).isInstanceOf(IllegalArgumentException.class);
+            }
+
+            @Test
+            @DisplayName("should reject null as client name")
+            void shouldRejectNullAsDefaultProvider() {
+                NoOpProvider provider = new NoOpProvider();
+                assertThatCode(() -> providerRepository.setProvider(null, provider)).isInstanceOf(IllegalArgumentException.class);
+            }
+
+            @Test
             @DisplayName("should immediately return when calling the named client provider mutator")
             void shouldImmediatelyReturnWhenCallingTheNamedClientProviderMutator() {
                 FeatureProvider featureProvider = createMockedProvider();
@@ -128,6 +151,7 @@ class ProviderRepositoryTest {
 
                 await()
                         .alias("wait for provider mutator to return")
+                        .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .until(() -> {
                             providerRepository.setProvider("named client", featureProvider);
@@ -151,6 +175,7 @@ class ProviderRepositoryTest {
 
                 assertThat(providerWhileInitialization).isEqualTo(oldProvider);
                 await()
+                        .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .untilAsserted(() -> assertThat(getNamedProvider()).isEqualTo(newProvider));
                 verify(newProvider, timeout(100)).initialize();
@@ -202,6 +227,7 @@ class ProviderRepositoryTest {
 
                 await()
                         .alias("wait for provider mutator to return")
+                        .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .until(() -> {
                             providerRepository.setProvider(newProvider);
@@ -228,6 +254,7 @@ class ProviderRepositoryTest {
 
                 await()
                         .atMost(Duration.ofSeconds(1))
+                        .pollDelay(Duration.ofMillis(1))
                         .untilAsserted(() -> assertThat(getProvider()).isEqualTo(newProvider));
                 verify(oldProvider, timeout(100)).getBooleanEvaluation(any(), any(), any());
                 verify(newProvider, never()).getBooleanEvaluation(any(), any(), any());
@@ -261,6 +288,7 @@ class ProviderRepositoryTest {
 
                 await()
                         .alias("wait for provider mutator to return")
+                        .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .until(providerMutation::isDone);
             }
@@ -280,6 +308,7 @@ class ProviderRepositoryTest {
                 latch.countDown();
 
                 await()
+                        .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .untilAsserted(() -> assertThat(getNamedProvider()).isEqualTo(newProvider));
                 verify(oldProvider, timeout(100)).getBooleanEvaluation(eq(FEATURE_KEY), any(), any());
@@ -311,6 +340,18 @@ class ProviderRepositoryTest {
 
                 verify(oldProvider, never()).shutdown();
             }
+
+            @Test
+            @DisplayName("should not throw exception if provider throws one on shutdown")
+            void shouldNotThrowExceptionIfProviderThrowsOneOnShutdown() {
+                FeatureProvider provider = createMockedProvider();
+                doThrow(TestException.class).when(provider).shutdown();
+                setFeatureProvider(provider);
+
+                assertThatCode(() -> setFeatureProvider(new NoOpProvider())).doesNotThrowAnyException();
+
+                verify(provider).shutdown();
+            }
         }
     }
 
@@ -327,6 +368,7 @@ class ProviderRepositoryTest {
         providerRepository.shutdown();
 
         await()
+                .pollDelay(Duration.ofMillis(1))
                 .atMost(Duration.ofSeconds(1))
                 .until(() -> {
                     verify(featureProvider1).shutdown();

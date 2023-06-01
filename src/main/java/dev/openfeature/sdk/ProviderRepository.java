@@ -66,6 +66,9 @@ class ProviderRepository {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
+        if (clientName == null) {
+            throw new IllegalArgumentException("clientName cannot be null");
+        }
         initializeProvider(clientName, provider);
     }
 
@@ -145,9 +148,6 @@ class ProviderRepository {
     }
 
     private void shutdownProvider(FeatureProvider provider) {
-        if (provider == null) {
-            return;
-        }
         taskExecutor.submit(() -> {
             try {
                 provider.shutdown();
@@ -160,7 +160,7 @@ class ProviderRepository {
     private void executeLocked(Lock lock, Class<? extends FeatureProvider> providerClass, Runnable code) {
         try {
             if (lock.tryLock(LOCK_TIMEOUT.getSeconds(), TimeUnit.SECONDS)) {
-                executeAndUnlock(lock, providerClass, code);
+                executeAndUnlock(lock, code);
             }
         } catch (InterruptedException e) {
             log.error("Exception when setting feature provider {}", providerClass.getName(), e);
@@ -168,11 +168,9 @@ class ProviderRepository {
         }
     }
 
-    private static void executeAndUnlock(Lock lock, Class<? extends FeatureProvider> providerClass, Runnable code) {
+    private static void executeAndUnlock(Lock lock, Runnable code) {
         try {
             code.run();
-        } catch (Exception e) {
-            log.error("Exception when setting feature provider {}", providerClass.getName(), e);
         } finally {
             lock.unlock();
         }
