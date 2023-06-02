@@ -370,11 +370,13 @@ class ProviderRepositoryTest {
         await()
                 .pollDelay(Duration.ofMillis(1))
                 .atMost(Duration.ofSeconds(1))
-                .until(() -> {
-                    verify(featureProvider1).shutdown();
-                    verify(featureProvider2).shutdown();
-                    return true;
+                .untilAsserted(() -> {
+                    assertThat(providerRepository.getProvider()).isInstanceOf(NoOpProvider.class);
+                    assertThat(providerRepository.getProvider(CLIENT_NAME)).isInstanceOf(NoOpProvider.class);
+                    assertThat(providerRepository.getProvider(ANOTHER_CLIENT_NAME)).isInstanceOf(NoOpProvider.class);
                 });
+        verify(featureProvider1).shutdown();
+        verify(featureProvider2).shutdown();
     }
 
     private FeatureProvider getProvider() {

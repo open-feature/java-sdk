@@ -2,31 +2,22 @@ package dev.openfeature.sdk;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @Slf4j
 class ProviderRepository {
 
-    private static final Duration LOCK_TIMEOUT = Duration.ofSeconds(1);
-
     private final Map<String, FeatureProvider> providers = new ConcurrentHashMap<>();
     private final ExecutorService taskExecutor = Executors.newCachedThreadPool();
     private final Map<String, FeatureProvider> initializingNamedProviders = new ConcurrentHashMap<>();
     private final AtomicReference<FeatureProvider> defaultProvider = new AtomicReference<>(new NoOpProvider());
-    private final Lock initializingDefaultProviderLock = new ReentrantLock();
-    private final Lock initializingNamedProviderLock = new ReentrantLock();
-
     private FeatureProvider initializingDefaultProvider;
 
     /**
@@ -73,23 +64,13 @@ class ProviderRepository {
     }
 
     private void initializeProvider(FeatureProvider provider) {
-        executeLocked(
-                initializingDefaultProviderLock,
-                provider.getClass(),
-                () -> {
-                    initializingDefaultProvider = provider;
-                    initializeProvider(provider, this::updateDefaultProviderAfterInitialization);
-                });
+        initializingDefaultProvider = provider;
+        initializeProvider(provider, this::updateDefaultProviderAfterInitialization);
     }
 
     private void initializeProvider(String clientName, FeatureProvider provider) {
-        executeLocked(
-                initializingNamedProviderLock,
-                provider.getClass(),
-                () -> {
-                    initializingNamedProviders.put(clientName, provider);
-                    initializeProvider(provider, newProvider -> updateProviderAfterInit(clientName, newProvider));
-                });
+        initializingNamedProviders.put(clientName, provider);
+        initializeProvider(provider, newProvider -> updateProviderAfterInit(clientName, newProvider));
     }
 
     private void initializeProvider(FeatureProvider provider, Consumer<FeatureProvider> afterInitialization) {
@@ -157,25 +138,6 @@ class ProviderRepository {
         });
     }
 
-    private void executeLocked(Lock lock, Class<? extends FeatureProvider> providerClass, Runnable code) {
-        try {
-            if (lock.tryLock(LOCK_TIMEOUT.getSeconds(), TimeUnit.SECONDS)) {
-                executeAndUnlock(lock, code);
-            }
-        } catch (InterruptedException e) {
-            log.error("Exception when setting feature provider {}", providerClass.getName(), e);
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    private static void executeAndUnlock(Lock lock, Runnable code) {
-        try {
-            code.run();
-        } finally {
-            lock.unlock();
-        }
-    }
-
     /**
      * Shutdowns this repository which includes shutting down all FeatureProviders that are registered,
      * including the default feature provider.
@@ -185,6 +147,8 @@ class ProviderRepository {
                 .concat(Stream.of(this.defaultProvider.get()), this.providers.values().stream())
                 .distinct()
                 .forEach(this::shutdownProvider);
+        setProvider(new NoOpProvider());
+        this.providers.clear();
         taskExecutor.shutdown();
     }
 }
