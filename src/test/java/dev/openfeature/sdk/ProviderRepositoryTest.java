@@ -104,10 +104,7 @@ class ProviderRepositoryTest {
             void shouldDiscardProviderStillInitializingIfANewerHasFinishedBefore() {
                 CountDownLatch latch = new CountDownLatch(1);
                 CountDownLatch testBlockingLatch = new CountDownLatch(1);
-                FeatureProvider blockedProvider = createBlockedProvider(latch, () -> {
-                    System.out.println("and down it goes...");
-                    testBlockingLatch.countDown();
-                });
+                FeatureProvider blockedProvider = createBlockedProvider(latch, testBlockingLatch::countDown);
                 FeatureProvider fastProvider = createUnblockingProvider(latch);
 
                 providerRepository.setProvider(blockedProvider);
@@ -124,6 +121,17 @@ class ProviderRepositoryTest {
 
                 verify(blockedProvider, timeout(100)).initialize();
                 verify(fastProvider, timeout(100)).initialize();
+            }
+
+            @Test
+            @DisplayName("should avoid additional initialization call if provider has been initialized already")
+            void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(CLIENT_NAME, provider);
+
+                setFeatureProvider(provider);
+
+                verify(provider).initialize();
             }
         }
 
@@ -188,10 +196,7 @@ class ProviderRepositoryTest {
                 String clientName = "clientName";
                 CountDownLatch latch = new CountDownLatch(1);
                 CountDownLatch testBlockingLatch = new CountDownLatch(1);
-                FeatureProvider blockedProvider = createBlockedProvider(latch, () -> {
-                    System.out.println("and down it goes...");
-                    testBlockingLatch.countDown();
-                });
+                FeatureProvider blockedProvider = createBlockedProvider(latch, testBlockingLatch::countDown);
                 FeatureProvider unblockingProvider = createUnblockingProvider(latch);
 
                 providerRepository.setProvider(clientName, blockedProvider);
@@ -209,6 +214,17 @@ class ProviderRepositoryTest {
 
                 verify(blockedProvider, timeout(100)).initialize();
                 verify(unblockingProvider, timeout(100)).initialize();
+            }
+
+            @Test
+            @DisplayName("should avoid additional initialization call if provider has been initialized already")
+            void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                setFeatureProvider(CLIENT_NAME, provider);
+
+                verify(provider).initialize();
             }
         }
     }
@@ -389,15 +405,15 @@ class ProviderRepositoryTest {
 
     private void setFeatureProvider(FeatureProvider provider) {
         providerRepository.setProvider(provider);
-        waitForProviderInitializationComplete(ProviderRepository::getProvider, provider);
+        waitForSettingProviderHasBeenCompleted(ProviderRepository::getProvider, provider);
     }
 
     private void setFeatureProvider(String namedProvider, FeatureProvider provider) {
         providerRepository.setProvider(namedProvider, provider);
-        waitForProviderInitializationComplete(repository -> repository.getProvider(namedProvider), provider);
+        waitForSettingProviderHasBeenCompleted(repository -> repository.getProvider(namedProvider), provider);
     }
 
-    private void waitForProviderInitializationComplete(
+    private void waitForSettingProviderHasBeenCompleted(
             Function<ProviderRepository, FeatureProvider> extractor,
             FeatureProvider provider) {
         await()

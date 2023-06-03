@@ -76,7 +76,9 @@ class ProviderRepository {
     private void initializeProvider(FeatureProvider provider, Consumer<FeatureProvider> afterInitialization) {
         taskExecutor.submit(() -> {
             try {
-                provider.initialize();
+                if (isProviderNotBoundMultipleTimes(provider)) {
+                    provider.initialize();
+                }
                 afterInitialization.accept(provider);
             } catch (Exception e) {
                 log.error("Exception when initializing feature provider {}", provider.getClass().getName(), e);
@@ -119,12 +121,12 @@ class ProviderRepository {
     private void replaceNamedProviderAndShutdownOldOne(String clientName, FeatureProvider provider) {
         FeatureProvider oldProvider = this.providers.put(clientName, provider);
         this.initializingNamedProviders.remove(clientName, provider);
-        if (isOldProviderNotBoundMultipleTimes(oldProvider)) {
+        if (isProviderNotBoundMultipleTimes(oldProvider)) {
             shutdownProvider(oldProvider);
         }
     }
 
-    private boolean isOldProviderNotBoundMultipleTimes(FeatureProvider oldProvider) {
+    private boolean isProviderNotBoundMultipleTimes(FeatureProvider oldProvider) {
         return !(this.providers.containsValue(oldProvider) || this.defaultProvider.get().equals(oldProvider));
     }
 
