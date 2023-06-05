@@ -14,6 +14,7 @@ class FlagMetadataTest {
         FlagMetadata flagMetadata = FlagMetadata.builder()
                 .addString("string", "string")
                 .addInteger("integer", 1)
+                .addLong("long", 1L)
                 .addFloat("float", 1.5f)
                 .addDouble("double", Double.MAX_VALUE)
                 .addBoolean("boolean", Boolean.FALSE)
@@ -22,6 +23,7 @@ class FlagMetadataTest {
         // then
         assertThat(flagMetadata.getString("string")).isEqualTo("string");
         assertThat(flagMetadata.getInteger("integer")).isEqualTo(1);
+        assertThat(flagMetadata.getLong("long")).isEqualTo(1L);
         assertThat(flagMetadata.getFloat("float")).isEqualTo(1.5f);
         assertThat(flagMetadata.getDouble("double")).isEqualTo(Double.MAX_VALUE);
         assertThat(flagMetadata.getBoolean("boolean")).isEqualTo(Boolean.FALSE);

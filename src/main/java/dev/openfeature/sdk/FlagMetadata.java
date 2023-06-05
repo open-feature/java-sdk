@@ -38,6 +38,16 @@ public class FlagMetadata {
     }
 
     /**
+     * Retrieve a {@link Long} value for the given key. A {@code null} value is returned if the key does not exist
+     * or if the value is of a different type.
+     *
+     * @param key flag metadata key to retrieve
+     */
+    public Long getLong(final String key) {
+        return getValue(key, Long.class);
+    }
+
+    /**
      * Retrieve a {@link Float} value for the given key. A {@code null} value is returned if the key does not exist
      * or if the value is of a different type.
      *
@@ -119,6 +129,17 @@ public class FlagMetadata {
          * @param value flag metadata value to add
          */
         public FlagMetadataBuilder addInteger(final String key, final Integer value) {
+            metadata.put(key, value);
+            return this;
+        }
+
+        /**
+         * Add Long value to the metadata.
+         *
+         * @param key   flag metadata key to add
+         * @param value flag metadata value to add
+         */
+        public FlagMetadataBuilder addLong(final String key, final Long value) {
             metadata.put(key, value);
             return this;
         }
