@@ -1,7 +1,6 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.exceptions.GeneralError;
-import dev.openfeature.sdk.exceptions.ParseError;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +9,7 @@ import java.util.Map;
  * Immutable Flag Metadata representation. Implementation is backed by a {@link Map} and immutability is provided
  * through builder and accessors.
  */
+@Slf4j
 public class FlagMetadata {
     private final Map<String, Object> metadata;
 
@@ -18,8 +18,8 @@ public class FlagMetadata {
     }
 
     /**
-     * Retrieve a {@link String} value for the given key. If a value is not found, {@link GeneralError} will be thrown.
-     * If value exist but of another type, {@link ParseError} will be thrown.
+     * Retrieve a {@link String} value for the given key. A {@code null} value is returned if the key does not exist
+     * or if the value is of a different type.
      *
      * @param key flag metadata key to retrieve
      */
@@ -28,9 +28,8 @@ public class FlagMetadata {
     }
 
     /**
-     * Retrieve an {@link Integer} value for the given key.
-     * If a value is not found, {@link GeneralError} will be thrown.
-     * If value exist but of another type, {@link ParseError} will be thrown.
+     * Retrieve a {@link Integer} value for the given key. A {@code null} value is returned if the key does not exist
+     * or if the value is of a different type.
      *
      * @param key flag metadata key to retrieve
      */
@@ -39,8 +38,8 @@ public class FlagMetadata {
     }
 
     /**
-     * Retrieve a {@link Float} value for the given key. If a value is not found, {@link GeneralError} will be thrown.
-     * If value exist but of another type, {@link ParseError} will be thrown.
+     * Retrieve a {@link Float} value for the given key. A {@code null} value is returned if the key does not exist
+     * or if the value is of a different type.
      *
      * @param key flag metadata key to retrieve
      */
@@ -49,9 +48,8 @@ public class FlagMetadata {
     }
 
     /**
-     * Retrieve a {@link Double} value for the given key.
-     * If a value is not found, {@link GeneralError} will be thrown.
-     * If value exist but of another type, {@link ParseError} will be thrown.
+     * Retrieve a {@link Double} value for the given key. A {@code null} value is returned if the key does not exist
+     * or if the value is of a different type.
      *
      * @param key flag metadata key to retrieve
      */
@@ -60,9 +58,8 @@ public class FlagMetadata {
     }
 
     /**
-     * Retrieve a {@link Boolean} value for the given key.
-     * If a value is not found, {@link GeneralError} will be thrown.
-     * If value exist but of another type, {@link ParseError} will be thrown.
+     * Retrieve a {@link Boolean} value for the given key. A {@code null} value is returned if the key does not exist
+     * or if the value is of a different type.
      *
      * @param key flag metadata key to retrieve
      */
@@ -74,15 +71,15 @@ public class FlagMetadata {
         final Object o = metadata.get(key);
 
         if (o == null) {
-            throw new GeneralError("key " + key + " does not exist in metadata");
+            log.debug("Metadata key "+ key+ "does not exist");
+            return null;
         }
 
         try {
             return type.cast(o);
         } catch (ClassCastException e) {
-            throw new ParseError(
-                    "wrong type for key " + key
-                            + ". Expected" + type.getSimpleName() + "but got " + o.getClass().getSimpleName(), e);
+            log.debug("Error retrieving value for key "+ key, e);
+            return null;
         }
     }
 

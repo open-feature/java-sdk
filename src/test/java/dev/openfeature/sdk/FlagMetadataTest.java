@@ -1,15 +1,14 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.exceptions.GeneralError;
-import dev.openfeature.sdk.exceptions.ParseError;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class FlagMetadataTest {
 
     @Test
+    @DisplayName("Test metadata payload construction and retrieval")
     public void builder_validation() {
         // given
         FlagMetadata flagMetadata = FlagMetadata.builder()
@@ -29,22 +28,24 @@ class FlagMetadataTest {
     }
 
     @Test
-    public void parse_error_validation() {
+    @DisplayName("Value type mismatch returns a null")
+    public void value_type_validation() {
         // given
         FlagMetadata flagMetadata = FlagMetadata.builder()
                 .addString("string", "string")
                 .build();
 
         // then
-        assertThatThrownBy(() -> flagMetadata.getBoolean("string")).isInstanceOf(ParseError.class);
+       assertThat(flagMetadata.getBoolean("string")).isNull();
     }
 
     @Test
+    @DisplayName("A null is returned if key does not exist")
     public void notfound_error_validation() {
         // given
         FlagMetadata flagMetadata = FlagMetadata.builder().build();
 
         // then
-        assertThatThrownBy(() -> flagMetadata.getBoolean("string")).isInstanceOf(GeneralError.class);
+        assertThat(flagMetadata.getBoolean("string")).isNull();
     }
 }
