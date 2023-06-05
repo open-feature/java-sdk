@@ -71,14 +71,14 @@ public class FlagMetadata {
         final Object o = metadata.get(key);
 
         if (o == null) {
-            log.debug("Metadata key "+ key+ "does not exist");
+            log.debug("Metadata key " + key + "does not exist");
             return null;
         }
 
         try {
             return type.cast(o);
         } catch (ClassCastException e) {
-            log.debug("Error retrieving value for key "+ key, e);
+            log.debug("Error retrieving value for key " + key, e);
             return null;
         }
     }
