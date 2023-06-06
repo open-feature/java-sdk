@@ -19,12 +19,12 @@ public class OpenFeatureAPI {
     static AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
     static AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
 
-    private final ProviderRepository providerRepository = new ProviderRepository();
     private final List<Hook> apiHooks;
 
+    private ProviderRepository providerRepository = new ProviderRepository();
     private EvaluationContext evaluationContext;
 
-    private OpenFeatureAPI() {
+    protected OpenFeatureAPI() {
         this.apiHooks = new ArrayList<>();
     }
 
@@ -138,5 +138,16 @@ public class OpenFeatureAPI {
         try (AutoCloseableLock __ = hooksLock.writeLockAutoCloseable()) {
             this.apiHooks.clear();
         }
+    }
+
+    public void shutdown() {
+        providerRepository.shutdown();
+    }
+
+    /**
+     * This method is only here for testing as otherwise all tests after the API shutdown test would fail.
+     */
+    final void resetProviderRepository() {
+        providerRepository = new ProviderRepository();
     }
 }

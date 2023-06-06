@@ -76,7 +76,7 @@ class ProviderRepository {
     private void initializeProvider(FeatureProvider provider, Consumer<FeatureProvider> afterInitialization) {
         taskExecutor.submit(() -> {
             try {
-                if (isProviderNotBoundMultipleTimes(provider)) {
+                if (!isProviderRegistered(provider)) {
                     provider.initialize();
                 }
                 afterInitialization.accept(provider);
@@ -121,13 +121,13 @@ class ProviderRepository {
     private void replaceNamedProviderAndShutdownOldOne(String clientName, FeatureProvider provider) {
         FeatureProvider oldProvider = this.providers.put(clientName, provider);
         this.initializingNamedProviders.remove(clientName, provider);
-        if (isProviderNotBoundMultipleTimes(oldProvider)) {
+        if (!isProviderRegistered(oldProvider)) {
             shutdownProvider(oldProvider);
         }
     }
 
-    private boolean isProviderNotBoundMultipleTimes(FeatureProvider oldProvider) {
-        return !(this.providers.containsValue(oldProvider) || this.defaultProvider.get().equals(oldProvider));
+    private boolean isProviderRegistered(FeatureProvider oldProvider) {
+        return this.providers.containsValue(oldProvider) || this.defaultProvider.get().equals(oldProvider);
     }
 
     private void shutdownProvider(FeatureProvider provider) {
