@@ -1,26 +1,39 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
-public class OpenFeatureAPITest {
+class OpenFeatureAPITest {
+
+    private static final String CLIENT_NAME = "client name";
+
+    private OpenFeatureAPI api;
+
+    @BeforeEach
+    void setupTest() {
+        api = OpenFeatureAPI.getInstance();
+    }
+
     @Test
     void namedProviderTest() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         FeatureProvider provider = new NoOpProvider();
-        api.setProvider("namedProviderTest", provider);
-        assertEquals(provider.getMetadata().getName(), api.getProviderMetadata("namedProviderTest").getName());
+        FeatureProviderTestUtils.setFeatureProvider("namedProviderTest", provider);
+
+        assertThat(provider.getMetadata().getName())
+                .isEqualTo(api.getProviderMetadata("namedProviderTest").getName());
     }
 
-    @Test void settingDefaultProviderToNullErrors() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        assertThrows(IllegalArgumentException.class, () -> api.setProvider(null));
+    @Test
+    void settingDefaultProviderToNullErrors() {
+        assertThatCode(() -> api.setProvider(null)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test void settingNamedClientProviderToNullErrors() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        assertThrows(IllegalArgumentException.class, () -> api.setProvider("client-name", null));
+    @Test
+    void settingNamedClientProviderToNullErrors() {
+        assertThatCode(() -> api.setProvider(CLIENT_NAME, null)).isInstanceOf(IllegalArgumentException.class);
     }
 }

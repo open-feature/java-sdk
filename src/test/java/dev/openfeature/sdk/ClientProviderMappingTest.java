@@ -1,18 +1,18 @@
 package dev.openfeature.sdk;
 
-import io.cucumber.java.eo.Do;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ClientProviderMappingTest {
+class ClientProviderMappingTest {
+
     @Test
     void clientProviderTest() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
 
-        api.setProvider("client1", new DoSomethingProvider());
-        api.setProvider("client2", new NoOpProvider());
+        FeatureProviderTestUtils.setFeatureProvider("client1", new DoSomethingProvider());
+        FeatureProviderTestUtils.setFeatureProvider("client2", new NoOpProvider());
 
         Client c1 = api.getClient("client1");
         Client c2 = api.getClient("client2");

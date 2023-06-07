@@ -1,27 +1,30 @@
 package dev.openfeature.sdk;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.annotation.Nullable;
-
 import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
+import lombok.extern.slf4j.Slf4j;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A global singleton which holds base configuration for the OpenFeature library.
  * Configuration here will be shared across all {@link Client}s.
  */
+@Slf4j
 public class OpenFeatureAPI {
     // package-private multi-read/single-write lock
     static AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
     static AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
-    private EvaluationContext evaluationContext;
-    private final List<Hook> apiHooks;
-    private FeatureProvider defaultProvider = new NoOpProvider();
-    private final Map<String, FeatureProvider> providers = new ConcurrentHashMap<>();
 
-    private OpenFeatureAPI() {
+    private final List<Hook> apiHooks;
+
+    private ProviderRepository providerRepository = new ProviderRepository();
+    private EvaluationContext evaluationContext;
+
+    protected OpenFeatureAPI() {
         this.apiHooks = new ArrayList<>();
     }
 
@@ -31,6 +34,7 @@ public class OpenFeatureAPI {
 
     /**
      * Provisions the {@link OpenFeatureAPI} singleton (if needed) and returns it.
+     *
      * @return The singleton instance.
      */
     public static OpenFeatureAPI getInstance() {
@@ -38,7 +42,7 @@ public class OpenFeatureAPI {
     }
 
     public Metadata getProviderMetadata() {
-        return defaultProvider.getMetadata();
+        return getProvider().getMetadata();
     }
 
     public Metadata getProviderMetadata(String clientName) {
@@ -79,40 +83,35 @@ public class OpenFeatureAPI {
      * Set the default provider.
      */
     public void setProvider(FeatureProvider provider) {
-        if (provider == null) {
-            throw new IllegalArgumentException("Provider cannot be null");
-        }
-        defaultProvider = provider;
+        providerRepository.setProvider(provider);
     }
 
     /**
      * Add a provider for a named client.
+     *
      * @param clientName The name of the client.
-     * @param provider The provider to set.
+     * @param provider   The provider to set.
      */
     public void setProvider(String clientName, FeatureProvider provider) {
-        if (provider == null) {
-            throw new IllegalArgumentException("Provider cannot be null");
-        }
-        this.providers.put(clientName, provider);
+        providerRepository.setProvider(clientName, provider);
     }
 
     /**
      * Return the default provider.
      */
     public FeatureProvider getProvider() {
-        return defaultProvider;
+        return providerRepository.getProvider();
     }
 
     /**
      * Fetch a provider for a named client. If not found, return the default.
+     *
      * @param name The client name to look for.
      * @return A named {@link FeatureProvider}
      */
     public FeatureProvider getProvider(String name) {
-        return Optional.ofNullable(name).map(this.providers::get).orElse(defaultProvider);
+        return providerRepository.getProvider(name);
     }
-
 
     /**
      * {@inheritDoc}
@@ -139,5 +138,16 @@ public class OpenFeatureAPI {
         try (AutoCloseableLock __ = hooksLock.writeLockAutoCloseable()) {
             this.apiHooks.clear();
         }
+    }
+
+    public void shutdown() {
+        providerRepository.shutdown();
+    }
+
+    /**
+     * This method is only here for testing as otherwise all tests after the API shutdown test would fail.
+     */
+    final void resetProviderRepository() {
+        providerRepository = new ProviderRepository();
     }
 }

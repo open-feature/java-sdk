@@ -22,4 +22,29 @@ public interface FeatureProvider {
     ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx);
 
     ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx);
+
+    /**
+     * This method is called before a provider is used to evaluate flags. Providers can overwrite this method,
+     * if they have special initialization needed prior being called for flag evaluation.
+     * <p>
+     * It is ok, if the method is expensive as it is executed in the background. All runtime exceptions will be
+     * caught and logged.
+     * </p>
+     */
+    default void initialize() {
+        // Intentionally left blank
+    }
+
+    /**
+     * This method is called when a new provider is about to be used to evaluate flags, or the SDK is shut down.
+     * Providers can overwrite this method, if they have special shutdown actions needed.
+     * <p>
+     * It is ok, if the method is expensive as it is executed in the background. All runtime exceptions will be
+     * caught and logged.
+     * </p>
+     */
+    default void shutdown() {
+        // Intentionally left blank
+    }
+
 }

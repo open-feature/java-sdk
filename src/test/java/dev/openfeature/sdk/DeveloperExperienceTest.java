@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import org.junit.jupiter.api.Test;
 
 import dev.openfeature.sdk.fixtures.HookFixtures;
@@ -77,7 +78,7 @@ class DeveloperExperienceTest implements HookFixtures {
 
     @Test void brokenProvider() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new AlwaysBrokenProvider());
+        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client client = api.getClient();
         FlagEvaluationDetails<Boolean> retval = client.getBooleanDetails(flagKey, false);
         assertEquals(ErrorCode.FLAG_NOT_FOUND, retval.getErrorCode());
@@ -87,14 +88,14 @@ class DeveloperExperienceTest implements HookFixtures {
     }
 
     @Test
-    void providerLockedPerTransaction() throws InterruptedException {
+    void providerLockedPerTransaction() {
 
         class MutatingHook implements Hook {
 
             @Override
             // change the provider during a before hook - this should not impact the evaluation in progress
             public Optional before(HookContext ctx, Map hints) {
-                OpenFeatureAPI.getInstance().setProvider(new NoOpProvider());
+                FeatureProviderTestUtils.setFeatureProvider(new NoOpProvider());
                 return Optional.empty();
             }
         }
@@ -102,7 +103,7 @@ class DeveloperExperienceTest implements HookFixtures {
         final String defaultValue = "string-value";
         final OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         final Client client = api.getClient();
-        api.setProvider(new DoSomethingProvider());
+        FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
         api.addHooks(new MutatingHook());
 
         // if provider is changed during an evaluation transaction it should proceed with the original provider

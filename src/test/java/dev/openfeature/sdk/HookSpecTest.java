@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import io.cucumber.java.hu.Ha;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -30,7 +30,7 @@ import org.mockito.InOrder;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import lombok.SneakyThrows;
 
-public class HookSpecTest implements HookFixtures {
+class HookSpecTest implements HookFixtures {
     @AfterEach
     void emptyApiHooks() {
         // it's a singleton. Don't pollute each test.
@@ -390,7 +390,7 @@ public class HookSpecTest implements HookFixtures {
         InOrder order = inOrder(hook, provider);
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(provider);
+        FeatureProviderTestUtils.setFeatureProvider(provider);
         Client client = api.getClient();
         client.getBooleanValue("key", false, new ImmutableContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
@@ -493,7 +493,7 @@ public class HookSpecTest implements HookFixtures {
                 .build());
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(provider);
+        FeatureProviderTestUtils.setFeatureProvider(provider);
         Client client = api.getClient();
         client.getBooleanValue("key", false, invocationCtx,
                 FlagEvaluationOptions.builder()
@@ -551,12 +551,11 @@ public class HookSpecTest implements HookFixtures {
     private Client getClient(FeatureProvider provider) {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         if (provider == null) {
-            api.setProvider(new NoOpProvider());
+            FeatureProviderTestUtils.setFeatureProvider(new NoOpProvider());
         } else {
-            api.setProvider(provider);
+            FeatureProviderTestUtils.setFeatureProvider(provider);
         }
-        Client client = api.getClient();
-        return client;
+        return api.getClient();
     }
 
     @Specification(number="4.3.1", text="Hooks MUST specify at least one stage.")
@@ -565,14 +564,12 @@ public class HookSpecTest implements HookFixtures {
     @Specification(number="4.3.8.1", text="Instead of finally, finallyAfter SHOULD be used.")
     @SneakyThrows
     @Test void doesnt_use_finally() {
-        try {
-            Hook.class.getMethod("finally", HookContext.class, Map.class);
-            fail("Not possible. Finally is a reserved word.");
-        } catch (NoSuchMethodException e) {
-            // expected
-        }
+        assertThatCode(() -> Hook.class.getMethod("finally", HookContext.class, Map.class))
+            .as("Not possible. Finally is a reserved word.")
+            .isInstanceOf(NoSuchMethodException.class);
 
-        Hook.class.getMethod("finallyAfter", HookContext.class, Map.class);
+        assertThatCode(() -> Hook.class.getMethod("finallyAfter", HookContext.class, Map.class))
+            .doesNotThrowAnyException();
     }
 
 }
