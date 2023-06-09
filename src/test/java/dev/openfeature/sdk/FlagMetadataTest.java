@@ -22,11 +22,22 @@ class FlagMetadataTest {
 
         // then
         assertThat(flagMetadata.getString("string")).isEqualTo("string");
+        assertThat(flagMetadata.getValue("string", String.class)).isEqualTo("string");
+
         assertThat(flagMetadata.getInteger("integer")).isEqualTo(1);
+        assertThat(flagMetadata.getValue("integer", Integer.class)).isEqualTo(1);
+
         assertThat(flagMetadata.getLong("long")).isEqualTo(1L);
+        assertThat(flagMetadata.getValue("long", Long.class)).isEqualTo(1L);
+
         assertThat(flagMetadata.getFloat("float")).isEqualTo(1.5f);
+        assertThat(flagMetadata.getValue("float", Float.class)).isEqualTo(1.5f);
+
         assertThat(flagMetadata.getDouble("double")).isEqualTo(Double.MAX_VALUE);
+        assertThat(flagMetadata.getValue("double", Double.class)).isEqualTo(Double.MAX_VALUE);
+
         assertThat(flagMetadata.getBoolean("boolean")).isEqualTo(Boolean.FALSE);
+        assertThat(flagMetadata.getValue("boolean", Boolean.class)).isEqualTo(Boolean.FALSE);
     }
 
     @Test
@@ -38,7 +49,7 @@ class FlagMetadataTest {
                 .build();
 
         // then
-       assertThat(flagMetadata.getBoolean("string")).isNull();
+        assertThat(flagMetadata.getBoolean("string")).isNull();
     }
 
     @Test

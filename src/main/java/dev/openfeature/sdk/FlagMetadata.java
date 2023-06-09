@@ -77,7 +77,10 @@ public class FlagMetadata {
         return getValue(key, Boolean.class);
     }
 
-    private <T> T getValue(final String key, final Class<T> type) {
+    /**
+     * Generic value retrieval for the given key.
+     */
+    public <T> T getValue(final String key, final Class<T> type) {
         final Object o = metadata.get(key);
 
         if (o == null) {
