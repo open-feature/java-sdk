@@ -178,7 +178,6 @@
 
   <build>
     <plugins>
-
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -343,20 +342,6 @@
         </executions>
       </plugin>
 
-      <!-- Begin publish to maven central -->
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.13</version>
-        <extensions>true</extensions>
-        <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>true</autoReleaseAfterClose>
-        </configuration>
-      </plugin>
-      <!-- End publish to maven central -->
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -369,56 +354,6 @@
           </archive>
         </configuration>
       </plugin>
-      <!-- Begin source & javadocs being generated -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>3.3.0</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.5.0</version>
-        <configuration>
-          <failOnWarnings>true</failOnWarnings>
-          <doclint>all,-missing</doclint>  <!-- ignore missing javadoc, these are enforced with more customizability in the checkstyle plugin -->
-        </configuration>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <!-- end source & javadoc -->
-
-      <!-- sign the jars -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-            <execution>
-                <id>sign-artifacts</id>
-                <phase>install</phase>
-                <goals>
-                    <goal>sign</goal>
-                </goals>
-            </execution>
-        </executions>
-      </plugin>
-      <!-- end sign -->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -496,11 +431,88 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
 
+  <!-- Deploy related plugins are isolated so that local development can ignore them -->
   <profiles>
+    <profile>
+      <id>deploy</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+
+        <plugins>
+          <!-- Begin publish to maven central -->
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>1.6.13</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+            </configuration>
+          </plugin>
+          <!-- End publish to maven central -->
+
+          <!-- Begin source & javadocs being generated -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.3.0</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.5.0</version>
+            <configuration>
+              <failOnWarnings>true</failOnWarnings>
+              <doclint>all,-missing</doclint>  <!-- ignore missing javadoc, these are enforced with more customizability in the checkstyle plugin -->
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- end source & javadoc -->
+
+          <!-- sign the jars -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>install</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- end sign -->
+
+        </plugins>
+      </build>
+    </profile>
+
     <profile>
       <!-- this profile handles running the flagd e2e tests -->
       <id>e2e-test</id>
