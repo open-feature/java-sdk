@@ -10,6 +10,12 @@ public class NoOpProvider implements FeatureProvider {
     @Getter
     private final String name = "No-op Provider";
 
+    // The Noop provider is ALWAYS NOT_READY, otherwise READY handlers would run immediately when attached.
+    @Override
+    public ProviderState getState() {
+        return ProviderState.NOT_READY;
+    }
+
     @Override
     public Metadata getMetadata() {
         return new Metadata() {

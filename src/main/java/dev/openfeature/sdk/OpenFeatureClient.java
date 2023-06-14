@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
@@ -28,20 +30,39 @@ public class OpenFeatureClient implements Client {
     private final String version;
     private final List<Hook> clientHooks;
     private final HookSupport hookSupport;
+    // private final EventEmitter emitter = new EventEmitter();
     AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
     AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
     private EvaluationContext evaluationContext;
+    private Supplier<ProviderState> providerState;
 
     /**
-     * Client for evaluating the flag. There may be multiples of these floating
-     * around.
+     * Deprecated constructor. Use OpenFeature.API.getClient() instead.
      * 
      * @param openFeatureAPI Backing global singleton
      * @param name           Name of the client (used by observability tools).
      * @param version        Version of the client (used by observability tools).
+     * @deprecated Do not use this constructor it wil be removed.
+     *             Clients created using it will not run event handlers.
+     *             Use the OpenFeatureAPI's getClient factory method instead.
      */
+    @Deprecated()
     public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
         this.openfeatureApi = openFeatureAPI;
+        this.name = name;
+        this.version = version;
+        this.clientHooks = new ArrayList<>();
+        this.hookSupport = new HookSupport();
+        log.warn(
+                "You've directly constructed a OpenFeatureClient. Use OpenFeature.API.getClient() instead.");
+    }
+
+    OpenFeatureClient(OpenFeatureAPI openFeatureAPI,
+            final Supplier<ProviderState> providerState,
+            String name,
+            String version) {
+        this.openfeatureApi = openFeatureAPI;
+        this.providerState = providerState;
         this.name = name;
         this.version = version;
         this.clientHooks = new ArrayList<>();
@@ -94,7 +115,6 @@ public class OpenFeatureClient implements Client {
                 () -> FlagEvaluationOptions.builder().build());
         Map<String, Object> hints = Collections.unmodifiableMap(flagOptions.getHookHints());
         ctx = ObjectUtils.defaultIfNull(ctx, () -> new ImmutableContext());
-
 
         FlagEvaluationDetails<T> details = null;
         List<Hook> mergedHooks = null;
@@ -340,5 +360,55 @@ public class OpenFeatureClient implements Client {
     @Override
     public Metadata getMetadata() {
         return () -> name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Client onProviderReady(Consumer<EventDetails> handler) {
+        return on(ProviderEvent.PROVIDER_READY, handler);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Client onProviderConfigurationChanged(Consumer<EventDetails> handler) {
+        return on(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, handler);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Client onProviderError(Consumer<EventDetails> handler) {
+        return on(ProviderEvent.PROVIDER_ERROR, handler);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Client onProviderStale(Consumer<EventDetails> handler) {
+        return on(ProviderEvent.PROVIDER_STALE, handler);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Client on(ProviderEvent event, Consumer<EventDetails> handler) {
+        OpenFeatureAPI.getInstance().addHandler(name, event, handler);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Client removeHandler(ProviderEvent event, Consumer<EventDetails> handler) {
+        OpenFeatureAPI.getInstance().removeHandler(name, event, handler);
+        return this;
     }
 }

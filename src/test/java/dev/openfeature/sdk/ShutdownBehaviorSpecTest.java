@@ -89,7 +89,7 @@ class ShutdownBehaviorSpecTest {
     @Nested
     class General {
 
-        @Specification(number = "1.6.1", text = "The API MUST define a shutdown function which, when called, must call the respective shutdown function on the active provider.")
+        @Specification(number = "1.6.1", text = "The API MUST define a mechanism to propagate a shutdown request to active providers.")
         @Test
         @DisplayName("must shutdown all providers on shutting down api")
         void mustShutdownAllProvidersOnShuttingDownApi() {
