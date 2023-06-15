@@ -11,7 +11,7 @@ class FlagMetadataTest {
     @DisplayName("Test metadata payload construction and retrieval")
     public void builder_validation() {
         // given
-        FlagMetadata flagMetadata = FlagMetadata.builder()
+        ImmutableMetadata flagMetadata = ImmutableMetadata.builder()
                 .addString("string", "string")
                 .addInteger("integer", 1)
                 .addLong("long", 1L)
@@ -44,7 +44,7 @@ class FlagMetadataTest {
     @DisplayName("Value type mismatch returns a null")
     public void value_type_validation() {
         // given
-        FlagMetadata flagMetadata = FlagMetadata.builder()
+        ImmutableMetadata flagMetadata = ImmutableMetadata.builder()
                 .addString("string", "string")
                 .build();
 
@@ -56,7 +56,7 @@ class FlagMetadataTest {
     @DisplayName("A null is returned if key does not exist")
     public void notfound_error_validation() {
         // given
-        FlagMetadata flagMetadata = FlagMetadata.builder().build();
+        ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
 
         // then
         assertThat(flagMetadata.getBoolean("string")).isNull();
