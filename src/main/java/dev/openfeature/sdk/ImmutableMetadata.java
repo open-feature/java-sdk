@@ -10,10 +10,10 @@ import java.util.Map;
  * through builder and accessors.
  */
 @Slf4j
-public class FlagMetadata {
+public class ImmutableMetadata {
     private final Map<String, Object> metadata;
 
-    private FlagMetadata(Map<String, Object> metadata) {
+    private ImmutableMetadata(Map<String, Object> metadata) {
         this.metadata = metadata;
     }
 
@@ -98,19 +98,19 @@ public class FlagMetadata {
 
 
     /**
-     * Obtain a builder for {@link FlagMetadata}.
+     * Obtain a builder for {@link ImmutableMetadata}.
      */
-    public static FlagMetadataBuilder builder() {
-        return new FlagMetadataBuilder();
+    public static ImmutableMetadataBuilder builder() {
+        return new ImmutableMetadataBuilder();
     }
 
     /**
-     * Immutable builder for {@link FlagMetadata}.
+     * Immutable builder for {@link ImmutableMetadata}.
      */
-    public static class FlagMetadataBuilder {
+    public static class ImmutableMetadataBuilder {
         private final Map<String, Object> metadata;
 
-        private FlagMetadataBuilder() {
+        private ImmutableMetadataBuilder() {
             metadata = new HashMap<>();
         }
 
@@ -120,7 +120,7 @@ public class FlagMetadata {
          * @param key   flag metadata key to add
          * @param value flag metadata value to add
          */
-        public FlagMetadataBuilder addString(final String key, final String value) {
+        public ImmutableMetadataBuilder addString(final String key, final String value) {
             metadata.put(key, value);
             return this;
         }
@@ -131,7 +131,7 @@ public class FlagMetadata {
          * @param key   flag metadata key to add
          * @param value flag metadata value to add
          */
-        public FlagMetadataBuilder addInteger(final String key, final Integer value) {
+        public ImmutableMetadataBuilder addInteger(final String key, final Integer value) {
             metadata.put(key, value);
             return this;
         }
@@ -142,7 +142,7 @@ public class FlagMetadata {
          * @param key   flag metadata key to add
          * @param value flag metadata value to add
          */
-        public FlagMetadataBuilder addLong(final String key, final Long value) {
+        public ImmutableMetadataBuilder addLong(final String key, final Long value) {
             metadata.put(key, value);
             return this;
         }
@@ -153,7 +153,7 @@ public class FlagMetadata {
          * @param key   flag metadata key to add
          * @param value flag metadata value to add
          */
-        public FlagMetadataBuilder addFloat(final String key, final Float value) {
+        public ImmutableMetadataBuilder addFloat(final String key, final Float value) {
             metadata.put(key, value);
             return this;
         }
@@ -164,7 +164,7 @@ public class FlagMetadata {
          * @param key   flag metadata key to add
          * @param value flag metadata value to add
          */
-        public FlagMetadataBuilder addDouble(final String key, final Double value) {
+        public ImmutableMetadataBuilder addDouble(final String key, final Double value) {
             metadata.put(key, value);
             return this;
         }
@@ -175,16 +175,16 @@ public class FlagMetadata {
          * @param key   flag metadata key to add
          * @param value flag metadata value to add
          */
-        public FlagMetadataBuilder addBoolean(final String key, final Boolean value) {
+        public ImmutableMetadataBuilder addBoolean(final String key, final Boolean value) {
             metadata.put(key, value);
             return this;
         }
 
         /**
-         * Retrieve {@link FlagMetadata} with provided key,value pairs.
+         * Retrieve {@link ImmutableMetadata} with provided key,value pairs.
          */
-        public FlagMetadata build() {
-            return new FlagMetadata(this.metadata);
+        public ImmutableMetadata build() {
+            return new ImmutableMetadata(this.metadata);
         }
 
     }

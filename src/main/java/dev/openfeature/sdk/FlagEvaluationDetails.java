@@ -20,7 +20,7 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
     @Nullable private String reason;
     private ErrorCode errorCode;
     @Nullable private String errorMessage;
-    @Builder.Default private FlagMetadata flagMetadata = FlagMetadata.builder().build();
+    @Builder.Default private ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
 
     /**
      * Generate detail payload from the provider response.

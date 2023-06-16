@@ -14,5 +14,5 @@ public class ProviderEvaluation<T> implements BaseEvaluation<T> {
     ErrorCode errorCode;
     @Nullable private String errorMessage;
     @Builder.Default
-    private FlagMetadata flagMetadata = FlagMetadata.builder().build();
+    private ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
 }

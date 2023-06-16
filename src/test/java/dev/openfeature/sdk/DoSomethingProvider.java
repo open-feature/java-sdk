@@ -4,7 +4,7 @@ class DoSomethingProvider implements FeatureProvider {
 
     static final String name = "Something";
     // Flag evaluation metadata
-    static final FlagMetadata flagMetadata = FlagMetadata.builder().build();
+    static final ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
 
     private EvaluationContext savedContext;
 
