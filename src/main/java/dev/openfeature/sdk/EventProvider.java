@@ -1,6 +1,6 @@
 package dev.openfeature.sdk;
 
-import org.apache.logging.log4j.util.TriConsumer;
+import dev.openfeature.sdk.internal.TriConsumer;
 
 /**
  * Abstract EventProvider. Providers must extend this class to support events.

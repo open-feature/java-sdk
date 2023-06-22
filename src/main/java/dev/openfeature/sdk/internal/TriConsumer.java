@@ -8,7 +8,7 @@ import java.util.Objects;
  * @see java.util.function.BiConsumer
  */
 @FunctionalInterface
-interface TriConsumer<T, U, V> {
+public interface TriConsumer<T, U, V> {
 
     /**
      * Performs this operation on the given arguments.
@@ -19,6 +19,14 @@ interface TriConsumer<T, U, V> {
      */
     void accept(T t, U u, V v);
 
+    /**
+     * Returns a composed {@code TriConsumer} that performs an additional operation.
+     *
+     * @param after the operation to perform after this operation
+     * @return a composed {@code TriConsumer} that performs in sequence this
+     *         operation followed by the {@code after} operation
+     * @throws NullPointerException if {@code after} is null
+     */
     default TriConsumer<T, U, V> andThen(TriConsumer<T, U, V> after) {
         Objects.requireNonNull(after);
 

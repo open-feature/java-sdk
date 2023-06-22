@@ -23,7 +23,7 @@ import io.cucumber.java.AfterAll;
 
 class EventsTest {
 
-    private static final int TIMEOUT = 1000;
+    private static final int TIMEOUT = 100;
 
     @AfterAll
     public static void resetDefaultProvider() {
@@ -67,7 +67,7 @@ class EventsTest {
                     OpenFeatureAPI.getInstance().onProviderError(handler);
                     OpenFeatureAPI.getInstance().setProvider(name, provider);
                     verify(handler, timeout(TIMEOUT)).accept(argThat(details -> {
-                        return details.getMessage().equals(errMessage);
+                        return errMessage.equals(details.getMessage());
                     }));
                 }
             }
@@ -599,6 +599,8 @@ class EventsTest {
 
         @Override
         public void initialize(EvaluationContext evaluationContext) throws Exception {
+            // wait half the TIMEOUT, otherwise some init/errors can be fired before we add handlers
+            Thread.sleep(TIMEOUT / 2);
             if (this.initError) {
                 this.state = ProviderState.ERROR;
                 throw new Exception(initErrorMessage);
