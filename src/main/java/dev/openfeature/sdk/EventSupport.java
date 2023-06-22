@@ -89,7 +89,7 @@ class EventSupport {
         });
     }
 
-    class HandlerStore {
+    static class HandlerStore {
 
         private final Map<ProviderEvent, List<Consumer<EventDetails>>> handlerMap;
 
