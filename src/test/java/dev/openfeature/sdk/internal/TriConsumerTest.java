@@ -1,14 +1,11 @@
 package dev.openfeature.sdk.internal;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.junit.jupiter.api.*;
-
-import static dev.openfeature.sdk.internal.ObjectUtils.defaultIfNull;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class TriConsumerTest {
 
