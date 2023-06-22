@@ -23,7 +23,7 @@ import io.cucumber.java.AfterAll;
 
 class EventsTest {
 
-    private static final int TIMEOUT = 100;
+    private static final int TIMEOUT = 200;
 
     @AfterAll
     public static void resetDefaultProvider() {

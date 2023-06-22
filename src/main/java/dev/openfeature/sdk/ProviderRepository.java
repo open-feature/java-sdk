@@ -107,7 +107,7 @@ class ProviderRepository {
                 if (ProviderState.NOT_READY.equals(newProvider.getState())) {
                     newProvider.initialize(OpenFeatureAPI.getInstance().getEvaluationContext());
                 }
-                emitReadyAndShutdownOld(clientName, newProvider, oldProvider, afterInit, afterShutdown);
+                emitReadyAndShutdownOld(newProvider, oldProvider, afterInit, afterShutdown);
             } catch (Exception e) {
                 log.error("Exception when initializing feature provider {}", newProvider.getClass().getName(), e);
                 afterError.accept(newProvider, e.getMessage());
@@ -115,7 +115,7 @@ class ProviderRepository {
         });
     }
 
-    private void emitReadyAndShutdownOld(@Nullable String clientName, FeatureProvider newProvider,
+    private void emitReadyAndShutdownOld(FeatureProvider newProvider,
             FeatureProvider oldProvider, Consumer<FeatureProvider> afterInit,
             Consumer<FeatureProvider> afterShutdown) {
         afterInit.accept(newProvider);
