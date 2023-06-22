@@ -1,5 +1,7 @@
 package dev.openfeature.sdk;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -13,8 +15,15 @@ import java.util.Map;
 public class ImmutableMetadata {
     private final Map<String, Object> metadata;
 
-    private ImmutableMetadata(Map<String, Object> metadata) {
+    private ImmutableMetadata(@JsonProperty("metadata") Map<String, Object> metadata) {
         this.metadata = metadata;
+    }
+
+    // This is required for serialization support
+    @SuppressWarnings({"PMD.UnusedPrivateMethod"})
+    @JsonGetter("metadata")
+    private Map<String, Object> getMetadata() {
+        return this.metadata;
     }
 
     /**
