@@ -19,11 +19,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 
+import dev.openfeature.sdk.testutils.TestEventsProvider;
 import io.cucumber.java.AfterAll;
 
 class EventsTest {
 
     private static final int TIMEOUT = 200;
+    private static final int INIT_DELAY = TIMEOUT / 2;
 
     @AfterAll
     public static void resetDefaultProvider() {
@@ -34,9 +36,11 @@ class EventsTest {
     class ApiEvents {
 
         @Nested
+        @DisplayName("named provider")
         class NamedProvider {
 
             @Nested
+            @DisplayName("initialization")
             class Initialization {
 
                 @Test
@@ -47,10 +51,10 @@ class EventsTest {
                     final Consumer<EventDetails> handler = mock(Consumer.class);
                     final String name = "apiInitReady";
 
-                    TestEventsProvider provider = new TestEventsProvider();
+                    TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                     OpenFeatureAPI.getInstance().onProviderReady(handler);
                     OpenFeatureAPI.getInstance().setProvider(name, provider);
-                    verify(handler, timeout(TIMEOUT))
+                    verify(handler, timeout(TIMEOUT).atLeastOnce())
                             .accept(any());
                 }
 
@@ -73,6 +77,7 @@ class EventsTest {
             }
 
             @Nested
+            @DisplayName("provider events")
             class ProviderEvents {
 
                 @Test
@@ -84,7 +89,7 @@ class EventsTest {
                     final Consumer<EventDetails> handler = mock(Consumer.class);
                     final String name = "apiShouldPropagateEvents";
 
-                    TestEventsProvider provider = new TestEventsProvider();
+                    TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                     OpenFeatureAPI.getInstance().setProvider(name, provider);
                     OpenFeatureAPI.getInstance().onProviderConfigurationChanged(handler);
 
@@ -107,7 +112,7 @@ class EventsTest {
                     final Consumer<EventDetails> handler3 = mock(Consumer.class);
                     final Consumer<EventDetails> handler4 = mock(Consumer.class);
 
-                    TestEventsProvider provider = new TestEventsProvider();
+                    TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                     OpenFeatureAPI.getInstance().setProvider(name, provider);
 
                     OpenFeatureAPI.getInstance().onProviderReady(handler1);
@@ -129,12 +134,15 @@ class EventsTest {
     }
 
     @Nested
+    @DisplayName("client events")
     class ClientEvents {
 
         @Nested
+        @DisplayName("default provider")
         class DefaultProvider {
 
             @Nested
+            @DisplayName("provider events")
             class ProviderEvents {
 
                 @Test
@@ -143,7 +151,7 @@ class EventsTest {
                 void shouldPropagateDefaultAndAnon() {
                     final Consumer<EventDetails> handler = mock(Consumer.class);
 
-                    TestEventsProvider provider = new TestEventsProvider();
+                    TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                     // set provider before getting a client
                     OpenFeatureAPI.getInstance().setProvider(provider);
                     Client client = OpenFeatureAPI.getInstance().getClient();
@@ -160,7 +168,7 @@ class EventsTest {
                     final Consumer<EventDetails> handler = mock(Consumer.class);
                     final String name = "shouldPropagateDefaultAndNamed";
 
-                    TestEventsProvider provider = new TestEventsProvider();
+                    TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                     // set provider before getting a client
                     OpenFeatureAPI.getInstance().setProvider(provider);
                     Client client = OpenFeatureAPI.getInstance().getClient(name);
@@ -174,9 +182,11 @@ class EventsTest {
     }
 
     @Nested
+    @DisplayName("named provider")
     class NamedProvider {
 
         @Nested
+        @DisplayName("initialization")
         class Initialization {
             @Test
             @DisplayName("should fire initial READY event when provider init succeeds after client retrieved")
@@ -185,7 +195,7 @@ class EventsTest {
                 final Consumer<EventDetails> handler = mock(Consumer.class);
                 final String name = "initReadyProviderBefore";
 
-                TestEventsProvider provider = new TestEventsProvider();
+                TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
                 client.onProviderReady(handler);
                 // set provider after getting a client
@@ -201,7 +211,7 @@ class EventsTest {
                 final Consumer<EventDetails> handler = mock(Consumer.class);
                 final String name = "initReadyProviderAfter";
 
-                TestEventsProvider provider = new TestEventsProvider();
+                TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                 // set provider before getting a client
                 OpenFeatureAPI.getInstance().setProvider(name, provider);
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
@@ -250,6 +260,7 @@ class EventsTest {
         }
 
         @Nested
+        @DisplayName("provider events")
         class ProviderEvents {
 
             @Test
@@ -259,7 +270,7 @@ class EventsTest {
                 final Consumer<EventDetails> handler = mock(Consumer.class);
                 final String name = "shouldPropagateBefore";
 
-                TestEventsProvider provider = new TestEventsProvider();
+                TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                 // set provider before getting a client
                 OpenFeatureAPI.getInstance().setProvider(name, provider);
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
@@ -277,7 +288,7 @@ class EventsTest {
                 final Consumer<EventDetails> handler = mock(Consumer.class);
                 final String name = "shouldPropagateAfter";
 
-                TestEventsProvider provider = new TestEventsProvider();
+                TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
                 client.onProviderConfigurationChanged(handler);
                 // set provider after getting a client
@@ -302,7 +313,7 @@ class EventsTest {
                 final Consumer<EventDetails> handler3 = mock(Consumer.class);
                 final Consumer<EventDetails> handler4 = mock(Consumer.class);
 
-                TestEventsProvider provider = new TestEventsProvider();
+                TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                 OpenFeatureAPI.getInstance().setProvider(name, provider);
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
 
@@ -331,8 +342,8 @@ class EventsTest {
         final Consumer<EventDetails> handler2 = mock(Consumer.class);
         final String name = "shouldNotRunHandlers";
 
-        TestEventsProvider provider1 = new TestEventsProvider();
-        TestEventsProvider provider2 = new TestEventsProvider();
+        TestEventsProvider provider1 = new TestEventsProvider(INIT_DELAY);
+        TestEventsProvider provider2 = new TestEventsProvider(INIT_DELAY);
         OpenFeatureAPI.getInstance().setProvider(name, provider1);
         Client client = OpenFeatureAPI.getInstance().getClient(name);
 
@@ -364,8 +375,8 @@ class EventsTest {
         final Consumer<EventDetails> handlerToRun = mock(Consumer.class);
         final Consumer<EventDetails> handlerNotToRun = mock(Consumer.class);
 
-        TestEventsProvider provider1 = new TestEventsProvider();
-        TestEventsProvider provider2 = new TestEventsProvider();
+        TestEventsProvider provider1 = new TestEventsProvider(INIT_DELAY);
+        TestEventsProvider provider2 = new TestEventsProvider(INIT_DELAY);
         OpenFeatureAPI.getInstance().setProvider(name1, provider1);
         OpenFeatureAPI.getInstance().setProvider(name2, provider2);
 
@@ -389,8 +400,8 @@ class EventsTest {
         final String name = "boundShouldNotRunWithDefault";
         final Consumer<EventDetails> handlerNotToRun = mock(Consumer.class);
 
-        TestEventsProvider namedProvider = new TestEventsProvider();
-        TestEventsProvider defaultProvider = new TestEventsProvider();
+        TestEventsProvider namedProvider = new TestEventsProvider(INIT_DELAY);
+        TestEventsProvider defaultProvider = new TestEventsProvider(INIT_DELAY);
         OpenFeatureAPI.getInstance().setProvider(defaultProvider);
 
         Client client = OpenFeatureAPI.getInstance().getClient(name);
@@ -415,7 +426,7 @@ class EventsTest {
         final String name = "unboundShouldRunWithDefault";
         final Consumer<EventDetails> handlerToRun = mock(Consumer.class);
 
-        TestEventsProvider defaultProvider = new TestEventsProvider();
+        TestEventsProvider defaultProvider = new TestEventsProvider(INIT_DELAY);
         OpenFeatureAPI.getInstance().setProvider(defaultProvider);
 
         Client client = OpenFeatureAPI.getInstance().getClient(name);
@@ -441,7 +452,7 @@ class EventsTest {
         final Consumer<EventDetails> nextHandler = mock(Consumer.class);
         final Consumer<EventDetails> lastHandler = mock(Consumer.class);
 
-        TestEventsProvider provider = new TestEventsProvider();
+        TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
         OpenFeatureAPI.getInstance().setProvider(name, provider);
 
         Client client1 = OpenFeatureAPI.getInstance().getClient(name);
@@ -465,7 +476,7 @@ class EventsTest {
         final Consumer<EventDetails> handler2 = mock(Consumer.class);
         final String name = "shouldHaveAllProperties";
 
-        TestEventsProvider provider = new TestEventsProvider();
+        TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
         OpenFeatureAPI.getInstance().setProvider(name, provider);
         Client client = OpenFeatureAPI.getInstance().getClient(name);
 
@@ -502,14 +513,31 @@ class EventsTest {
     }
 
     @Test
+    @DisplayName("if the provider is ready handlers must run immediately")
+    @Specification(number = "5.3.3", text = "PROVIDER_READY handlers attached after the provider is already in a ready state MUST run immediately.")
+    void readyMustRunImmediately() throws Exception {
+        final String name = "readyMustRunImmediately";
+        final Consumer<EventDetails> handler = mock(Consumer.class);
+
+        // provider which is already ready
+        TestEventsProvider provider = new TestEventsProvider(ProviderState.READY);
+        OpenFeatureAPI.getInstance().setProvider(name, provider);
+
+        // should run even thought handler was added after ready
+        Client client = OpenFeatureAPI.getInstance().getClient(name);
+        client.onProviderReady(handler);
+        verify(handler, timeout(TIMEOUT)).accept(any());
+    }
+
+    @Test
     @DisplayName("must persist across changes")
     @Specification(number = "5.2.6", text = "Event handlers MUST persist across provider changes.")
     void mustPersistAcrossChanges() throws Exception {
         final String name = "mustPersistAcrossChanges";
         final Consumer<EventDetails> handler = mock(Consumer.class);
 
-        TestEventsProvider provider1 = new TestEventsProvider();
-        TestEventsProvider provider2 = new TestEventsProvider();
+        TestEventsProvider provider1 = new TestEventsProvider(INIT_DELAY);
+        TestEventsProvider provider2 = new TestEventsProvider(INIT_DELAY);
 
         OpenFeatureAPI.getInstance().setProvider(name, provider1);
         Client client = OpenFeatureAPI.getInstance().getClient(name);
@@ -539,7 +567,7 @@ class EventsTest {
             final Consumer<EventDetails> handler1 = mock(Consumer.class);
             final Consumer<EventDetails> handler2 = mock(Consumer.class);
 
-            TestEventsProvider provider = new TestEventsProvider();
+            TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
             OpenFeatureAPI.getInstance().setProvider(name, provider);
             Client client = OpenFeatureAPI.getInstance().getClient(name);
 
@@ -563,84 +591,4 @@ class EventsTest {
     @Test
     void thisIsAProviderRequirement() {
     }
-
-    class TestEventsProvider extends EventProvider implements FeatureProvider {
-
-        private boolean initError = false;
-        private String initErrorMessage;
-        private ProviderState state = ProviderState.NOT_READY;
-        private boolean shutDown = false;
-
-        @Override
-        public ProviderState getState() {
-            return this.state;
-        }
-
-        TestEventsProvider() {
-        }
-
-        TestEventsProvider(boolean initError, String initErrorMessage) {
-            this.initError = initError;
-            this.initErrorMessage = initErrorMessage;
-        }
-
-        public void mockEvent(ProviderEvent event, ProviderEventDetails details) {
-            emit(event, details);
-        }
-
-        public boolean isShutDown() {
-            return this.shutDown;
-        }
-
-        @Override
-        public void shutdown() {
-            this.shutDown = true;
-        }
-
-        @Override
-        public void initialize(EvaluationContext evaluationContext) throws Exception {
-            // wait half the TIMEOUT, otherwise some init/errors can be fired before we add handlers
-            Thread.sleep(TIMEOUT / 2);
-            if (this.initError) {
-                this.state = ProviderState.ERROR;
-                throw new Exception(initErrorMessage);
-            }
-            this.state = ProviderState.READY;
-        }
-
-        @Override
-        public Metadata getMetadata() {
-            throw new UnsupportedOperationException("Unimplemented method 'getMetadata'");
-        }
-
-        @Override
-        public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue,
-                EvaluationContext ctx) {
-            throw new UnsupportedOperationException("Unimplemented method 'getBooleanEvaluation'");
-        }
-
-        @Override
-        public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue,
-                EvaluationContext ctx) {
-            throw new UnsupportedOperationException("Unimplemented method 'getStringEvaluation'");
-        }
-
-        @Override
-        public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue,
-                EvaluationContext ctx) {
-            throw new UnsupportedOperationException("Unimplemented method 'getIntegerEvaluation'");
-        }
-
-        @Override
-        public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue,
-                EvaluationContext ctx) {
-            throw new UnsupportedOperationException("Unimplemented method 'getDoubleEvaluation'");
-        }
-
-        @Override
-        public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue,
-                EvaluationContext ctx) {
-            throw new UnsupportedOperationException("Unimplemented method 'getObjectEvaluation'");
-        }
-    };
 }

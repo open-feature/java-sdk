@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
@@ -34,35 +33,20 @@ public class OpenFeatureClient implements Client {
     AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
     AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
     private EvaluationContext evaluationContext;
-    private Supplier<ProviderState> providerState;
 
     /**
-     * Deprecated constructor. Use OpenFeature.API.getClient() instead.
+     * Deprecated public constructor. Use OpenFeature.API.getClient() instead.
      * 
      * @param openFeatureAPI Backing global singleton
      * @param name           Name of the client (used by observability tools).
      * @param version        Version of the client (used by observability tools).
-     * @deprecated Do not use this constructor it wil be removed.
+     * @deprecated Do not use this constructor. It's for internal use only.
      *             Clients created using it will not run event handlers.
      *             Use the OpenFeatureAPI's getClient factory method instead.
      */
-    @Deprecated()
+    @Deprecated() // TODO: eventually we will make this non-public
     public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
         this.openfeatureApi = openFeatureAPI;
-        this.name = name;
-        this.version = version;
-        this.clientHooks = new ArrayList<>();
-        this.hookSupport = new HookSupport();
-        log.warn(
-                "You've directly constructed a OpenFeatureClient. Use OpenFeature.API.getClient() instead.");
-    }
-
-    OpenFeatureClient(OpenFeatureAPI openFeatureAPI,
-            final Supplier<ProviderState> providerState,
-            String name,
-            String version) {
-        this.openfeatureApi = openFeatureAPI;
-        this.providerState = providerState;
         this.name = name;
         this.version = version;
         this.clientHooks = new ArrayList<>();

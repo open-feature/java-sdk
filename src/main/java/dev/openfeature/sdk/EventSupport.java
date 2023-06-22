@@ -79,7 +79,7 @@ class EventSupport {
         return this.handlerStores.keySet();
     }
 
-    private void runHandler(Consumer<EventDetails> handler, EventDetails eventDetails) {
+    public void runHandler(Consumer<EventDetails> handler, EventDetails eventDetails) {
         taskExecutor.submit(() -> {
             try {
                 handler.accept(eventDetails);

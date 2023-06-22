@@ -70,7 +70,6 @@ public class OpenFeatureAPI implements EventHandling<OpenFeatureAPI> {
      */
     public Client getClient(@Nullable String name, @Nullable String version) {
         return new OpenFeatureClient(this,
-                () -> this.providerRepository.getProvider(name).getState(),
                 name,
                 version);
     }
@@ -256,6 +255,11 @@ public class OpenFeatureAPI implements EventHandling<OpenFeatureAPI> {
 
     void addHandler(String clientName, ProviderEvent event, Consumer<EventDetails> handler) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+            // if the provider is READY, run immediately
+            if (event.equals(ProviderEvent.PROVIDER_READY)
+                    && ProviderState.READY.equals(this.providerRepository.getProvider(clientName).getState())) {
+                eventSupport.runHandler(handler, EventDetails.builder().clientName(clientName).build());
+            }
             eventSupport.addClientHandler(clientName, event, handler);
         }
     }
