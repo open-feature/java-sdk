@@ -26,7 +26,8 @@ public class TestEventsProvider extends EventProvider {
         this.initTimeout = initTimeout;
     }
 
-    public TestEventsProvider(boolean initError, String initErrorMessage) {
+    public TestEventsProvider(int initTimeout, boolean initError, String initErrorMessage) {
+        this.initTimeout = initTimeout;
         this.initError = initError;
         this.initErrorMessage = initErrorMessage;
     }

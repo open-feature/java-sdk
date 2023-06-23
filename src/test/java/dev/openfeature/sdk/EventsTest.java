@@ -67,7 +67,7 @@ class EventsTest {
                     final String name = "apiInitError";
                     final String errMessage = "oh no!";
 
-                    TestEventsProvider provider = new TestEventsProvider(true, errMessage);
+                    TestEventsProvider provider = new TestEventsProvider(INIT_DELAY, true, errMessage);
                     OpenFeatureAPI.getInstance().onProviderError(handler);
                     OpenFeatureAPI.getInstance().setProvider(name, provider);
                     verify(handler, timeout(TIMEOUT)).accept(argThat(details -> {
@@ -228,7 +228,7 @@ class EventsTest {
                 final String name = "initErrorProviderAfter";
                 final String errMessage = "oh no!";
 
-                TestEventsProvider provider = new TestEventsProvider(true, errMessage);
+                TestEventsProvider provider = new TestEventsProvider(INIT_DELAY, true, errMessage);
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
                 client.onProviderError(handler);
                 // set provider after getting a client
@@ -247,7 +247,7 @@ class EventsTest {
                 final String name = "initErrorProviderBefore";
                 final String errMessage = "oh no!";
 
-                TestEventsProvider provider = new TestEventsProvider(true, errMessage);
+                TestEventsProvider provider = new TestEventsProvider(INIT_DELAY, true, errMessage);
                 // set provider after getting a client
                 OpenFeatureAPI.getInstance().setProvider(name, provider);
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
