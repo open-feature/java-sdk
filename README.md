@@ -80,7 +80,7 @@ We publish SBOMs with all of our releases as of 0.3.0. You can find them in Mave
 
 - support for various backend [providers](https://openfeature.dev/docs/reference/concepts/provider)
 - easy integration and extension via [hooks](https://openfeature.dev/docs/reference/concepts/hooks)
-- bool, string, numeric and object flag types
+- bool, string, numeric, and object flag types
 - [context-aware](https://openfeature.dev/docs/reference/concepts/evaluation-context) evaluation
 
 ## 🚀 Usage:
@@ -165,11 +165,11 @@ public class MyProvider implements FeatureProvider {
 }
 ```
 
-See [here](https://openfeature.dev/docs/reference/technologies/server/java) for a catalog of available providers.
+See [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Provider&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=Java) for a catalog of available providers.
 
 ### Hooks:
 
-Hooks are a mechanism that allow for the addition of arbitrary behavior at well-defined points of the flag evaluation life-cycle. Use cases include validation of the resolved flag value, modifying or adding data to the evaluation context, logging, telemetry, and tracking.
+A hook is a mechanism that allows for adding arbitrary behavior at well-defined points of the flag evaluation life-cycle. Use cases include validating the resolved flag value, modifying or adding data to the evaluation context, logging, telemetry, and tracking.
 
 ```java
 public class MyHook implements Hook {
@@ -186,7 +186,7 @@ public class MyHook implements Hook {
 }
 ```
 
-See [here](https://openfeature.dev/docs/reference/technologies/server/java) for a catalog of available hooks.
+See [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Hook&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=Java) for a catalog of available hooks.
 
 ### Logging:
 
@@ -199,11 +199,11 @@ See [here](https://www.javadoc.io/doc/dev.openfeature/sdk/latest/index.html) for
 ## ⭐️ Support the project
 
 - Give this repo a ⭐️!
-- Follow us social media:
+- Follow us on social media:
   - Twitter: [@openfeature](https://twitter.com/openfeature)
   - LinkedIn: [OpenFeature](https://www.linkedin.com/company/openfeature/)
 - Join us on [Slack](https://cloud-native.slack.com/archives/C0344AANLA1)
-- For more check out our [community page](https://openfeature.dev/community/)
+- For more, check out our [community page](https://openfeature.dev/community/)
 
 ## 🤝 Contributing
 
