@@ -169,7 +169,7 @@ See [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%
 
 ### Hooks:
 
-Hooks are a mechanism that allows for adding arbitrary behavior at well-defined points of the flag evaluation life-cycle. Use cases include validating the resolved flag value, modifying or adding data to the evaluation context, logging, telemetry, and tracking.
+A hook is a mechanism that allows for adding arbitrary behavior at well-defined points of the flag evaluation life-cycle. Use cases include validating the resolved flag value, modifying or adding data to the evaluation context, logging, telemetry, and tracking.
 
 ```java
 public class MyHook implements Hook {
