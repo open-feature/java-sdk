@@ -20,15 +20,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class EventSupport {
 
+    // we use a v4 uuid as a "placeholder" for anonymous clients, since
+    // ConcurrentHashMap doesn't support nulls
     private static final String defaultClientUuid = UUID.randomUUID().toString();
     private static final ExecutorService taskExecutor = Executors.newCachedThreadPool();
     private final Map<String, HandlerStore> handlerStores = new ConcurrentHashMap<>();
-    private final HandlerStore globalHanderStore = new HandlerStore();
+    private final HandlerStore globalHandlerStore = new HandlerStore();
 
     public void runClientHandlers(@Nullable String clientName, ProviderEvent event, EventDetails eventDetails) {
         clientName = Optional.ofNullable(clientName)
                 .orElse(defaultClientUuid);
 
+        // run handlers if they exist
         Optional.ofNullable(handlerStores.get(clientName))
                 .filter(store -> Optional.of(store).isPresent())
                 .map(store -> store.handlerMap.get(event))
@@ -37,7 +40,7 @@ class EventSupport {
     }
 
     public void runGlobalHandlers(ProviderEvent event, EventDetails eventDetails) {
-        globalHanderStore.handlerMap.get(event)
+        globalHandlerStore.handlerMap.get(event)
                 .forEach(handler -> {
                     runHandler(handler, eventDetails);
                 });
@@ -47,17 +50,13 @@ class EventSupport {
         final String name = Optional.ofNullable(clientName)
                 .orElse(defaultClientUuid);
 
+        // lazily create and cache a HandlerStore if it doesn't exist
         HandlerStore store = Optional.ofNullable(this.handlerStores.get(name))
                 .orElseGet(() -> {
                     HandlerStore newStore = new HandlerStore();
                     this.handlerStores.put(name, newStore);
                     return newStore;
                 });
-        if (this.handlerStores.get(name) == null) {
-            // TODO: test for not adding tons of handler stores
-            // Note we create spaces for client handlers lazily, not with every named client.
-            this.handlerStores.put(name, new HandlerStore());
-        }
         store.addHandler(event, handler);
     }
 
@@ -68,11 +67,11 @@ class EventSupport {
     }
 
     public void addGlobalHandler(ProviderEvent event, Consumer<EventDetails> handler) {
-        this.globalHanderStore.addHandler(event, handler);
+        this.globalHandlerStore.addHandler(event, handler);
     }
 
     public void removeGlobalHandler(ProviderEvent event, Consumer<EventDetails> handler) {
-        this.globalHanderStore.removeHandler(event, handler);
+        this.globalHandlerStore.removeHandler(event, handler);
     }
 
     public Set<String> getAllClientNames() {
