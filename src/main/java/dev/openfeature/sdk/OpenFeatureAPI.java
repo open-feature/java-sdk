@@ -256,7 +256,7 @@ public class OpenFeatureAPI implements EventHandling<OpenFeatureAPI> {
     void addHandler(String clientName, ProviderEvent event, Consumer<EventDetails> handler) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             // if the provider is READY, run immediately
-            if (event.equals(ProviderEvent.PROVIDER_READY)
+            if (ProviderEvent.PROVIDER_READY.equals(event)
                     && ProviderState.READY.equals(this.providerRepository.getProvider(clientName).getState())) {
                 eventSupport.runHandler(handler, EventDetails.builder().clientName(clientName).build());
             }
