@@ -1,17 +1,21 @@
 package dev.openfeature.sdk;
 
-import lombok.Builder;
-import lombok.Data;
-
 import javax.annotation.Nullable;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
- * Contains information about how the evaluation happened, including any resolved values.
+ * Contains information about how the provider resolved a flag, including the resolved value.
  *
  * @param <T> the type of the flag being evaluated.
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
 
     private String flagKey;
