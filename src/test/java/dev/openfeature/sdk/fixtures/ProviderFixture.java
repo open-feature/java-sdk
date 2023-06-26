@@ -1,15 +1,21 @@
 package dev.openfeature.sdk.fixtures;
 
+import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doBlock;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+
+import java.io.FileNotFoundException;
+import java.util.concurrent.CountDownLatch;
+
+import org.mockito.stubbing.Answer;
+
 import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.ProviderState;
 import lombok.experimental.UtilityClass;
-import org.mockito.stubbing.Answer;
-
-import java.util.concurrent.CountDownLatch;
-
-import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doBlock;
-import static org.mockito.Mockito.*;
 
 @UtilityClass
 public class ProviderFixture {
@@ -17,6 +23,19 @@ public class ProviderFixture {
     public static FeatureProvider createMockedProvider() {
         FeatureProvider provider = mock(FeatureProvider.class);
         doReturn(ProviderState.NOT_READY).when(provider).getState();
+        return provider;
+    }
+
+    public static FeatureProvider createMockedReadyProvider() {
+        FeatureProvider provider = mock(FeatureProvider.class);
+        doReturn(ProviderState.READY).when(provider).getState();
+        return provider;
+    }
+
+    public static FeatureProvider createMockedErrorProvider() throws Exception {
+        FeatureProvider provider = mock(FeatureProvider.class);
+        doReturn(ProviderState.NOT_READY).when(provider).getState();
+        doThrow(FileNotFoundException.class).when(provider).initialize(any());
         return provider;
     }
 

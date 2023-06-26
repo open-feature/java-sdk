@@ -1,13 +1,16 @@
 package dev.openfeature.sdk;
 
+import static dev.openfeature.sdk.fixtures.ProviderFixture.createMockedErrorProvider;
 import static dev.openfeature.sdk.fixtures.ProviderFixture.createMockedProvider;
+import static dev.openfeature.sdk.fixtures.ProviderFixture.createMockedReadyProvider;
 import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doDelayResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -31,7 +34,6 @@ class ProviderRepositoryTest {
 
     private static final String CLIENT_NAME = "client name";
     private static final String ANOTHER_CLIENT_NAME = "another client name";
-    private static final String FEATURE_KEY = "some key";
     private static final int TIMEOUT = 5000;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
@@ -85,14 +87,10 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should avoid additional initialization call if provider has been initialized already")
             void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() throws Exception {
-                FeatureProvider provider = createMockedProvider();
-                setFeatureProvider(CLIENT_NAME, provider);
-
-                doReturn(ProviderState.READY).when(provider).getState();
-
+                FeatureProvider provider = createMockedReadyProvider();
                 setFeatureProvider(provider);
-
-                verify(provider).initialize(any());
+                
+                verify(provider, never()).initialize(any());
             }
         }
 
@@ -137,14 +135,10 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should avoid additional initialization call if provider has been initialized already")
             void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() throws Exception {
-                FeatureProvider provider = createMockedProvider();
-                setFeatureProvider(provider);
-
-                doReturn(ProviderState.READY).when(provider).getState();
-
+                FeatureProvider provider = createMockedReadyProvider();
                 setFeatureProvider(CLIENT_NAME, provider);
 
-                verify(provider).initialize(any());
+                verify(provider, never()).initialize(any());
             }
         }
     }
@@ -248,6 +242,47 @@ class ProviderRepositoryTest {
                 verify(provider).shutdown();
             }
         }
+
+        @Nested
+        class LifecyleLambdas {
+            @Test
+            @DisplayName("should run afterSet, afterInit, afterShutdown on successful set/init")
+            @SuppressWarnings("unchecked")
+            void shouldRunLambdasOnSuccessful() {
+                Consumer<FeatureProvider> afterSet = mock(Consumer.class);
+                Consumer<FeatureProvider> afterInit = mock(Consumer.class);
+                Consumer<FeatureProvider> afterShutdown = mock(Consumer.class);
+                BiConsumer<FeatureProvider, String> afterError = mock(BiConsumer.class);
+        
+                FeatureProvider oldProvider = providerRepository.getProvider();
+                FeatureProvider featureProvider1 = createMockedProvider();
+                FeatureProvider featureProvider2 = createMockedProvider();
+        
+                setFeatureProvider(featureProvider1, afterSet, afterInit, afterShutdown, afterError);
+                setFeatureProvider(featureProvider2);
+                verify(afterSet).accept(featureProvider1);
+                verify(afterInit).accept(featureProvider1);
+                verify(afterShutdown).accept(oldProvider);
+                verify(afterError, never()).accept(any(), any());
+            }
+
+            @Test
+            @DisplayName("should run afterSet, afterError on unsuccessful set/init")
+            @SuppressWarnings("unchecked")
+            void shouldRunLambdasOnError() throws Exception {
+                Consumer<FeatureProvider> afterSet = mock(Consumer.class);
+                Consumer<FeatureProvider> afterInit = mock(Consumer.class);
+                Consumer<FeatureProvider> afterShutdown = mock(Consumer.class);
+                BiConsumer<FeatureProvider, String> afterError = mock(BiConsumer.class);
+        
+                FeatureProvider errorFeatureProvider = createMockedErrorProvider();
+        
+                setFeatureProvider(errorFeatureProvider, afterSet, afterInit, afterShutdown, afterError);
+                verify(afterSet).accept(errorFeatureProvider);
+                verify(afterInit, never()).accept(any());;
+                verify(afterError, timeout(TIMEOUT)).accept(eq(errorFeatureProvider), any());
+            }
+        }
     }
 
     @Test
@@ -277,6 +312,15 @@ class ProviderRepositoryTest {
     private void setFeatureProvider(FeatureProvider provider) {
         providerRepository.setProvider(provider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(),
                 mockAfterError());
+        waitForSettingProviderHasBeenCompleted(ProviderRepository::getProvider, provider);
+    }
+
+
+    private void setFeatureProvider(FeatureProvider provider, Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit, Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, String> afterError) {
+        providerRepository.setProvider(provider, afterSet, afterInit, afterShutdown,
+                afterError);
         waitForSettingProviderHasBeenCompleted(ProviderRepository::getProvider, provider);
     }
 
