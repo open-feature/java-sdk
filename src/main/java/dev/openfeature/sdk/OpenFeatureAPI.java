@@ -116,10 +116,10 @@ public class OpenFeatureAPI implements EventHandling<OpenFeatureAPI> {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             providerRepository.setProvider(clientName,
                     provider,
-                    (p) -> attachEventProvider(p),
-                    (p) -> emitReady(p),
-                    (p) -> detachEventProvider(p),
-                    (p, message) -> emitError(p, message));
+                    this::attachEventProvider,
+                    this::emitReady,
+                    this::detachEventProvider,
+                    this::emitError)
         }
     }
 
