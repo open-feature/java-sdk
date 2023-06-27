@@ -110,7 +110,7 @@ class ShutdownBehaviorSpecTest {
                             verify(namedProvider).shutdown();
                         });
 
-                api.resetProviderRepository();
+                api.reset();
             }
         }
     }

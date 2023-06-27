@@ -24,7 +24,7 @@ public class OpenFeatureAPI implements EventHandling<OpenFeatureAPI> {
     private EvaluationContext evaluationContext;
     private final List<Hook> apiHooks;
     private ProviderRepository providerRepository = new ProviderRepository();
-    private final EventSupport eventSupport = new EventSupport();
+    private EventSupport eventSupport = new EventSupport();
 
     protected OpenFeatureAPI() {
         apiHooks = new ArrayList<>();
@@ -119,7 +119,7 @@ public class OpenFeatureAPI implements EventHandling<OpenFeatureAPI> {
                     this::attachEventProvider,
                     this::emitReady,
                     this::detachEventProvider,
-                    this::emitError)
+                    this::emitError);
         }
     }
 
@@ -192,7 +192,7 @@ public class OpenFeatureAPI implements EventHandling<OpenFeatureAPI> {
 
     public void shutdown() {
         providerRepository.shutdown();
-        // TODO: shutdown events
+        eventSupport.shutdown();
     }
 
     /**
@@ -268,8 +268,9 @@ public class OpenFeatureAPI implements EventHandling<OpenFeatureAPI> {
      * This method is only here for testing as otherwise all tests after the API
      * shutdown test would fail.
      */
-    final void resetProviderRepository() {
+    final void reset() {
         providerRepository = new ProviderRepository();
+        eventSupport = new EventSupport();
     }
 
     /**

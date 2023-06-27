@@ -88,6 +88,10 @@ class EventSupport {
         });
     }
 
+    public void shutdown() {
+        taskExecutor.shutdown();
+    }
+
     static class HandlerStore {
 
         private final Map<ProviderEvent, List<Consumer<EventDetails>>> handlerMap;

@@ -29,7 +29,7 @@ public abstract class EventProvider implements FeatureProvider {
     }
 
     /**
-     * Emit the specified {@link dev.openfeature.sdk.ProviderEvent}.
+     * Emit the specified {@link ProviderEvent}.
      * 
      * @param event   The event type
      * @param details The details of the event
@@ -41,7 +41,7 @@ public abstract class EventProvider implements FeatureProvider {
     }
 
     /**
-     * Emit a {@link dev.openfeature.sdk.ProviderEvent#PROVIDER_READY} event.
+     * Emit a {@link ProviderEvent#PROVIDER_READY} event.
      * Shorthand for {@link #emit(ProviderEvent, ProviderEventDetails)}
      * 
      * @param details The details of the event
@@ -52,7 +52,7 @@ public abstract class EventProvider implements FeatureProvider {
 
     /**
      * Emit a
-     * {@link dev.openfeature.sdk.ProviderEvent#PROVIDER_CONFIGURATION_CHANGED}
+     * {@link ProviderEvent#PROVIDER_CONFIGURATION_CHANGED}
      * event. Shorthand for {@link #emit(ProviderEvent, ProviderEventDetails)}
      * 
      * @param details The details of the event
@@ -62,7 +62,7 @@ public abstract class EventProvider implements FeatureProvider {
     }
 
     /**
-     * Emit a {@link dev.openfeature.sdk.ProviderEvent#PROVIDER_STALE} event.
+     * Emit a {@link ProviderEvent#PROVIDER_STALE} event.
      * Shorthand for {@link #emit(ProviderEvent, ProviderEventDetails)}
      * 
      * @param details The details of the event
@@ -72,7 +72,7 @@ public abstract class EventProvider implements FeatureProvider {
     }
 
     /**
-     * Emit a {@link dev.openfeature.sdk.ProviderEvent#PROVIDER_ERROR} event.
+     * Emit a {@link ProviderEvent#PROVIDER_ERROR} event.
      * Shorthand for {@link #emit(ProviderEvent, ProviderEventDetails)}
      * 
      * @param details The details of the event
