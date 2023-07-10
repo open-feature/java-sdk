@@ -305,8 +305,8 @@ class ProviderRepositoryTest {
                     assertThat(providerRepository.getProvider(CLIENT_NAME)).isInstanceOf(NoOpProvider.class);
                     assertThat(providerRepository.getProvider(ANOTHER_CLIENT_NAME)).isInstanceOf(NoOpProvider.class);
                 });
-        verify(featureProvider1).shutdown();
-        verify(featureProvider2).shutdown();
+        verify(featureProvider1, timeout(TIMEOUT)).shutdown();
+        verify(featureProvider2, timeout(TIMEOUT)).shutdown();
     }
 
     private void setFeatureProvider(FeatureProvider provider) {
