@@ -29,7 +29,6 @@ public class OpenFeatureClient implements Client {
     private final String version;
     private final List<Hook> clientHooks;
     private final HookSupport hookSupport;
-    // private final EventEmitter emitter = new EventEmitter();
     AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
     AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
     private EvaluationContext evaluationContext;
