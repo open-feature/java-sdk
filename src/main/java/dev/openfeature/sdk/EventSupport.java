@@ -27,6 +27,14 @@ class EventSupport {
     private final Map<String, HandlerStore> handlerStores = new ConcurrentHashMap<>();
     private final HandlerStore globalHandlerStore = new HandlerStore();
 
+    /**
+     * Run all the event handlers associated with this client name.
+     * If the client name is null, handlers attached to unnamed clients will run.
+     * 
+     * @param clientName   the client name to run event handlers for, or null
+     * @param event        the event type
+     * @param eventDetails the event details
+     */
     public void runClientHandlers(@Nullable String clientName, ProviderEvent event, EventDetails eventDetails) {
         clientName = Optional.ofNullable(clientName)
                 .orElse(defaultClientUuid);
@@ -39,6 +47,12 @@ class EventSupport {
                         .forEach(handler -> runHandler(handler, eventDetails)));
     }
 
+    /**
+     * Run all the API (global) event handlers.
+     * 
+     * @param event        the event type
+     * @param eventDetails the event details
+     */
     public void runGlobalHandlers(ProviderEvent event, EventDetails eventDetails) {
         globalHandlerStore.handlerMap.get(event)
                 .forEach(handler -> {
@@ -46,6 +60,14 @@ class EventSupport {
                 });
     }
 
+    /**
+     * Add a handler for the specified client name, or all unnamed clients.
+     * 
+     * @param clientName the client name to add handlers for, or else the unnamed
+     *                   client
+     * @param event      the event type
+     * @param handler    the handler function to run
+     */
     public void addClientHandler(@Nullable String clientName, ProviderEvent event, Consumer<EventDetails> handler) {
         final String name = Optional.ofNullable(clientName)
                 .orElse(defaultClientUuid);
@@ -60,24 +82,55 @@ class EventSupport {
         store.addHandler(event, handler);
     }
 
+    /**
+     * Remove a client event handler for the specified event type.
+     * 
+     * @param clientName the name of the client handler to remove, or null to remove
+     *                   from unnamed clients
+     * @param event      the event type
+     * @param handler    the handler ref to be removed
+     */
     public void removeClientHandler(String clientName, ProviderEvent event, Consumer<EventDetails> handler) {
         clientName = Optional.ofNullable(clientName)
                 .orElse(defaultClientUuid);
         this.handlerStores.get(clientName).removeHandler(event, handler);
     }
 
+    /**
+     * Add a global event handler of the specified event type.
+     * 
+     * @param event   the event type
+     * @param handler the handler to be added
+     */
     public void addGlobalHandler(ProviderEvent event, Consumer<EventDetails> handler) {
         this.globalHandlerStore.addHandler(event, handler);
     }
 
+    /**
+     * Remove a global event handler for the specified event type.
+     * 
+     * @param event   the event type
+     * @param handler the handler ref to be removed
+     */
     public void removeGlobalHandler(ProviderEvent event, Consumer<EventDetails> handler) {
         this.globalHandlerStore.removeHandler(event, handler);
     }
 
+    /**
+     * Get all client names for which we have event handlers registered.
+     * 
+     * @return set of client names
+     */
     public Set<String> getAllClientNames() {
         return this.handlerStores.keySet();
     }
 
+    /**
+     * Run the passed handler on the taskExecutor.
+     * 
+     * @param handler      the handler to run
+     * @param eventDetails the event details
+     */
     public void runHandler(Consumer<EventDetails> handler, EventDetails eventDetails) {
         taskExecutor.submit(() -> {
             try {
@@ -88,10 +141,16 @@ class EventSupport {
         });
     }
 
+    /**
+     * Stop the event handler task executor.
+     */
     public void shutdown() {
         taskExecutor.shutdown();
     }
 
+    // Handler store maintains a set of handlers for each event type.
+    // Each client in the SDK gets it's own handler store, which is lazily
+    // instantiated when a handler is added to that client.
     static class HandlerStore {
 
         private final Map<ProviderEvent, List<Consumer<EventDetails>>> handlerMap;

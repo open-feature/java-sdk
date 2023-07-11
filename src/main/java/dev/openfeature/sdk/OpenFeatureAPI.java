@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * Configuration here will be shared across all {@link Client}s.
  */
 @Slf4j
-public class OpenFeatureAPI implements EventHandling<OpenFeatureAPI> {
+public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     // package-private multi-read/single-write lock
     static AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
     private EvaluationContext evaluationContext;

@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 /**
  * Interface for attaching event handlers.
  */
-public interface EventHandling<T> {
+public interface EventBus<T> {
     
     /**
      * Add a handler for the {@link ProviderEvent#PROVIDER_READY} event.

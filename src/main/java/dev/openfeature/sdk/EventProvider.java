@@ -18,14 +18,21 @@ public abstract class EventProvider implements FeatureProvider {
 
     private TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = null;
 
-    void detach() {
-        this.onEmit = null;
-    }
-
+    // package private method to "attach" this EventProvider to an SDK, which allows
+    // events to propagate from this provider
     void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit) {
-        if (this.onEmit == null) {
+        if (this.onEmit != null && this.onEmit != onEmit) {
+            // if we are trying to attach this provider to a different onEmit, something has gone wrong
+            throw new IllegalStateException("Provider " + this.getMetadata().getName() + " is already attached.");
+        } else {
             this.onEmit = onEmit;
         }
+    }
+
+    // package private method to "detach" this EventProvider from an SDK, stopping
+    // event propagation
+    void detach() {
+        this.onEmit = null;
     }
 
     /**
