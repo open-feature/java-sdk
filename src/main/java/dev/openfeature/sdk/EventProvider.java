@@ -18,8 +18,12 @@ public abstract class EventProvider implements FeatureProvider {
 
     private TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = null;
 
-    // package private method to "attach" this EventProvider to an SDK, which allows
-    // events to propagate from this provider
+    /**
+     * "Attach" this EventProvider to an SDK, which allows events to propagate from this provider.
+     * No-op if the same onEmit is already attached. 
+     *
+     *  @param onEmit the function to run when a provider emits events.
+     */
     void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit) {
         if (this.onEmit != null && this.onEmit != onEmit) {
             // if we are trying to attach this provider to a different onEmit, something has gone wrong
@@ -29,8 +33,9 @@ public abstract class EventProvider implements FeatureProvider {
         }
     }
 
-    // package private method to "detach" this EventProvider from an SDK, stopping
-    // event propagation
+    /**
+     * "Detach" this EventProvider from an SDK, stopping propagation of all events.
+     */
     void detach() {
         this.onEmit = null;
     }
