@@ -81,7 +81,7 @@ class ProviderRepositoryTest {
                             return true;
                         });
 
-                verify(featureProvider).initialize(any());
+                verify(featureProvider, timeout(TIMEOUT)).initialize(any());
             }
 
             @Test
@@ -166,7 +166,7 @@ class ProviderRepositoryTest {
                             return true;
                         });
 
-                verify(newProvider).initialize(any());
+                verify(newProvider, timeout(TIMEOUT)).initialize(any());
             }
 
             @Test
@@ -239,7 +239,7 @@ class ProviderRepositoryTest {
 
                 assertThatCode(() -> setFeatureProvider(new NoOpProvider())).doesNotThrowAnyException();
 
-                verify(provider).shutdown();
+                verify(provider, timeout(TIMEOUT)).shutdown();
             }
         }
 
@@ -260,9 +260,9 @@ class ProviderRepositoryTest {
         
                 setFeatureProvider(featureProvider1, afterSet, afterInit, afterShutdown, afterError);
                 setFeatureProvider(featureProvider2);
-                verify(afterSet).accept(featureProvider1);
-                verify(afterInit).accept(featureProvider1);
-                verify(afterShutdown).accept(oldProvider);
+                verify(afterSet, timeout(TIMEOUT)).accept(featureProvider1);
+                verify(afterInit, timeout(TIMEOUT)).accept(featureProvider1);
+                verify(afterShutdown, timeout(TIMEOUT)).accept(oldProvider);
                 verify(afterError, never()).accept(any(), any());
             }
 
@@ -278,7 +278,7 @@ class ProviderRepositoryTest {
                 FeatureProvider errorFeatureProvider = createMockedErrorProvider();
         
                 setFeatureProvider(errorFeatureProvider, afterSet, afterInit, afterShutdown, afterError);
-                verify(afterSet).accept(errorFeatureProvider);
+                verify(afterSet, timeout(TIMEOUT)).accept(errorFeatureProvider);
                 verify(afterInit, never()).accept(any());;
                 verify(afterError, timeout(TIMEOUT)).accept(eq(errorFeatureProvider), any());
             }
