@@ -62,20 +62,20 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertSame(OpenFeatureAPI.getInstance(), OpenFeatureAPI.getInstance());
     }
 
-    @Specification(number="1.1.2", text="The API MUST provide a function to set the global provider singleton, which accepts an API-conformant provider implementation.")
+    @Specification(number="1.1.2.1", text="The API MUST define a provider mutator, a function to set the default provider, which accepts an API-conformant provider implementation.")
     @Test void provider() {
         FeatureProvider mockProvider = mock(FeatureProvider.class);
         FeatureProviderTestUtils.setFeatureProvider(mockProvider);
         assertThat(api.getProvider()).isEqualTo(mockProvider);
     }
 
-    @Specification(number="1.1.4", text="The API MUST provide a function for retrieving the metadata field of the configured provider.")
+    @Specification(number="1.1.5", text="The API MUST provide a function for retrieving the metadata field of the configured provider.")
     @Test void provider_metadata() {
         FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
         assertThat(api.getProviderMetadata().getName()).isEqualTo(DoSomethingProvider.name);
     }
 
-    @Specification(number="1.1.3", text="The API MUST provide a function to add hooks which accepts one or more API-conformant hooks, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")
+    @Specification(number="1.1.4", text="The API MUST provide a function to add hooks which accepts one or more API-conformant hooks, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")
     @Test void hook_addition() {
         Hook h1 = mock(Hook.class);
         Hook h2 = mock(Hook.class);
@@ -89,7 +89,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(h2, api.getHooks().get(1));
     }
 
-    @Specification(number="1.1.5", text="The API MUST provide a function for creating a client which accepts the following options:  - name (optional): A logical string identifier for the client.")
+    @Specification(number="1.1.6", text="The API MUST provide a function for creating a client which accepts the following options:  - name (optional): A logical string identifier for the client.")
     @Test void namedClient() {
         assertThatCode(() -> api.getClient("Sir Calls-a-lot")).doesNotThrowAnyException();
         // TODO: Doesn't say that you can *get* the client name.. which seems useful?
@@ -286,7 +286,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Specification(number="1.3.3", text="The client SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied default value should be returned.")
     @Test void type_system_prevents_this() {}
 
-    @Specification(number="1.1.6", text="The client creation function MUST NOT throw, or otherwise abnormally terminate.")
+    @Specification(number="1.1.7", text="The client creation function MUST NOT throw, or otherwise abnormally terminate.")
     @Test void constructor_does_not_throw() {}
 
     @Specification(number="1.4.11", text="The client SHOULD provide asynchronous or non-blocking mechanisms for flag evaluation.")

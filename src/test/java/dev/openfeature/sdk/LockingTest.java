@@ -6,19 +6,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 
 class LockingTest {
-
+    
     private static OpenFeatureAPI api;
     private OpenFeatureClient client;
-    private AutoCloseableReentrantReadWriteLock apiContextLock;
-    private AutoCloseableReentrantReadWriteLock apiHooksLock;
+    private AutoCloseableReentrantReadWriteLock apiLock;
     private AutoCloseableReentrantReadWriteLock clientContextLock;
     private AutoCloseableReentrantReadWriteLock clientHooksLock;
     
@@ -31,16 +32,109 @@ class LockingTest {
     void beforeEach() {
         client = (OpenFeatureClient) api.getClient();
         
-        apiContextLock = setupLock(apiContextLock, mockInnerReadLock(), mockInnerWriteLock());
-        apiHooksLock = setupLock(apiHooksLock, mockInnerReadLock(), mockInnerWriteLock());
-        OpenFeatureAPI.contextLock = apiContextLock;
-        OpenFeatureAPI.hooksLock = apiHooksLock;
+        apiLock = setupLock(apiLock, mockInnerReadLock(), mockInnerWriteLock());
+        OpenFeatureAPI.lock = apiLock;
 
         clientContextLock = setupLock(clientContextLock, mockInnerReadLock(), mockInnerWriteLock());
         clientHooksLock = setupLock(clientHooksLock, mockInnerReadLock(), mockInnerWriteLock());
         client.contextLock = clientContextLock;
         client.hooksLock = clientHooksLock;
     }
+
+    @Nested
+    class EventsLocking {
+
+        @Nested
+        class Api {
+
+            @Test
+            void onShouldWriteLockAndUnlock() {
+                Consumer handler = mock(Consumer.class);
+                api.on(ProviderEvent.PROVIDER_READY, handler);
+                verify(apiLock.writeLock()).lock();
+                verify(apiLock.writeLock()).unlock();
+            }
+
+            @Test
+            void onProviderReadyShouldWriteLockAndUnlock() {
+                Consumer handler = mock(Consumer.class);
+                api.onProviderReady(handler);
+                verify(apiLock.writeLock()).lock();
+                verify(apiLock.writeLock()).unlock();
+            }
+
+            @Test
+            void onProviderConfigurationChangedShouldWriteLockAndUnlock() {
+                Consumer handler = mock(Consumer.class);
+                api.onProviderConfigurationChanged(handler);
+                verify(apiLock.writeLock()).lock();
+                verify(apiLock.writeLock()).unlock();
+            }
+
+            @Test
+            void onProviderStaleShouldWriteLockAndUnlock() {
+                Consumer handler = mock(Consumer.class);
+                api.onProviderStale(handler);
+                verify(apiLock.writeLock()).lock();
+                verify(apiLock.writeLock()).unlock();
+            }
+
+            @Test
+            void onProviderErrorShouldWriteLockAndUnlock() {
+                Consumer handler = mock(Consumer.class);
+                api.onProviderError(handler);
+                verify(apiLock.writeLock()).lock();
+                verify(apiLock.writeLock()).unlock();
+            }
+        }
+
+        @Nested
+        class Client {
+            
+            // Note that the API lock is used for adding client handlers, they are all added (indirectly) on the API object.
+
+            @Test
+            void onShouldApiWriteLockAndUnlock() {
+                Consumer handler = mock(Consumer.class);
+                client.on(ProviderEvent.PROVIDER_READY, handler);
+                verify(apiLock.writeLock()).lock();
+                verify(apiLock.writeLock()).unlock();
+            }
+
+            @Test
+            void onProviderReadyShouldApiWriteLockAndUnlock() {
+                Consumer handler = mock(Consumer.class);
+                api.onProviderReady(handler);
+                verify(apiLock.writeLock()).lock();
+                verify(apiLock.writeLock()).unlock();
+            }
+
+            @Test
+            void onProviderConfigurationChangedProviderReadyShouldApiWriteLockAndUnlock() {
+                Consumer handler = mock(Consumer.class);
+                api.onProviderConfigurationChanged(handler);
+                verify(apiLock.writeLock()).lock();
+                verify(apiLock.writeLock()).unlock();
+            }
+
+            @Test
+            void onProviderStaleProviderReadyShouldApiWriteLockAndUnlock() {
+                Consumer handler = mock(Consumer.class);
+                api.onProviderStale(handler);
+                verify(apiLock.writeLock()).lock();
+                verify(apiLock.writeLock()).unlock();
+            }
+
+            @Test
+            void onProviderErrorProviderReadyShouldApiWriteLockAndUnlock() {
+                Consumer handler = mock(Consumer.class);
+                api.onProviderError(handler);
+                verify(apiLock.writeLock()).lock();
+                verify(apiLock.writeLock()).unlock();
+            }
+        }
+    }
+
 
     @Test
     void addHooksShouldWriteLockAndUnlock() {
@@ -51,8 +145,8 @@ class LockingTest {
 
         api.addHooks(new Hook() {
         });
-        verify(apiHooksLock.writeLock()).lock();
-        verify(apiHooksLock.writeLock()).unlock();
+        verify(apiLock.writeLock()).lock();
+        verify(apiLock.writeLock()).unlock();
     }
 
     @Test
@@ -62,8 +156,8 @@ class LockingTest {
         verify(clientHooksLock.readLock()).unlock();
 
         api.getHooks();
-        verify(apiHooksLock.readLock()).lock();
-        verify(apiHooksLock.readLock()).unlock();
+        verify(apiLock.readLock()).lock();
+        verify(apiLock.readLock()).unlock();
     }
 
     @Test
@@ -73,8 +167,8 @@ class LockingTest {
         verify(clientContextLock.writeLock()).unlock();
 
         api.setEvaluationContext(new ImmutableContext());
-        verify(apiContextLock.writeLock()).lock();
-        verify(apiContextLock.writeLock()).unlock();
+        verify(apiLock.writeLock()).lock();
+        verify(apiLock.writeLock()).unlock();
     }
 
     @Test
@@ -84,16 +178,16 @@ class LockingTest {
         verify(clientContextLock.readLock()).unlock();
 
         api.getEvaluationContext();
-        verify(apiContextLock.readLock()).lock();
-        verify(apiContextLock.readLock()).unlock();
+        verify(apiLock.readLock()).lock();
+        verify(apiLock.readLock()).unlock();
     }
 
 
     @Test
     void clearHooksShouldWriteLockAndUnlock() {
         api.clearHooks();
-        verify(apiHooksLock.writeLock()).lock();
-        verify(apiHooksLock.writeLock()).unlock();
+        verify(apiLock.writeLock()).lock();
+        verify(apiLock.writeLock()).unlock();
     }
 
     private static ReentrantReadWriteLock.ReadLock mockInnerReadLock() {

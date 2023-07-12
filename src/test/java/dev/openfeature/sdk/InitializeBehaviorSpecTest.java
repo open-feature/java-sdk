@@ -21,12 +21,13 @@ class InitializeBehaviorSpecTest {
         @Test
         @DisplayName("must call initialize function of the newly registered provider before using it for "
             + "flag evaluation")
-        void mustCallInitializeFunctionOfTheNewlyRegisteredProviderBeforeUsingItForFlagEvaluation() {
+        void mustCallInitializeFunctionOfTheNewlyRegisteredProviderBeforeUsingItForFlagEvaluation() throws Exception {
             FeatureProvider featureProvider = mock(FeatureProvider.class);
+            doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
 
             OpenFeatureAPI.getInstance().setProvider(featureProvider);
 
-            verify(featureProvider, timeout(1000)).initialize();
+            verify(featureProvider, timeout(1000)).initialize(any());
         }
 
         @Specification(number = "1.4.9", text = "Methods, functions, or operations on the client MUST NOT throw "
@@ -35,14 +36,15 @@ class InitializeBehaviorSpecTest {
             + "the purposes for configuration or setup.")
         @Test
         @DisplayName("should catch exception thrown by the provider on initialization")
-        void shouldCatchExceptionThrownByTheProviderOnInitialization() {
+        void shouldCatchExceptionThrownByTheProviderOnInitialization() throws Exception {
             FeatureProvider featureProvider = mock(FeatureProvider.class);
-            doThrow(TestException.class).when(featureProvider).initialize();
+            doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
+            doThrow(TestException.class).when(featureProvider).initialize(any());
 
             assertThatCode(() -> OpenFeatureAPI.getInstance().setProvider(featureProvider))
                 .doesNotThrowAnyException();
 
-            verify(featureProvider, timeout(1000)).initialize();
+            verify(featureProvider, timeout(1000)).initialize(any());
         }
     }
 
@@ -54,12 +56,13 @@ class InitializeBehaviorSpecTest {
         @Test
         @DisplayName("must call initialize function of the newly registered named provider before using it "
             + "for flag evaluation")
-        void mustCallInitializeFunctionOfTheNewlyRegisteredNamedProviderBeforeUsingItForFlagEvaluation() {
+        void mustCallInitializeFunctionOfTheNewlyRegisteredNamedProviderBeforeUsingItForFlagEvaluation() throws Exception {
             FeatureProvider featureProvider = mock(FeatureProvider.class);
+            doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
 
             OpenFeatureAPI.getInstance().setProvider("clientName", featureProvider);
 
-            verify(featureProvider, timeout(1000)).initialize();
+            verify(featureProvider, timeout(1000)).initialize(any());
         }
 
         @Specification(number = "1.4.9", text = "Methods, functions, or operations on the client MUST NOT throw "
@@ -68,14 +71,15 @@ class InitializeBehaviorSpecTest {
             + "the purposes for configuration or setup.")
         @Test
         @DisplayName("should catch exception thrown by the named client provider on initialization")
-        void shouldCatchExceptionThrownByTheNamedClientProviderOnInitialization() {
+        void shouldCatchExceptionThrownByTheNamedClientProviderOnInitialization() throws Exception {
             FeatureProvider featureProvider = mock(FeatureProvider.class);
-            doThrow(TestException.class).when(featureProvider).initialize();
+            doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
+            doThrow(TestException.class).when(featureProvider).initialize(any());
 
             assertThatCode(() -> OpenFeatureAPI.getInstance().setProvider("clientName", featureProvider))
                 .doesNotThrowAnyException();
 
-            verify(featureProvider, timeout(1000)).initialize();
+            verify(featureProvider, timeout(1000)).initialize(any());
         }
     }
 }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
@@ -33,13 +34,16 @@ public class OpenFeatureClient implements Client {
     private EvaluationContext evaluationContext;
 
     /**
-     * Client for evaluating the flag. There may be multiples of these floating
-     * around.
+     * Deprecated public constructor. Use OpenFeature.API.getClient() instead.
      * 
      * @param openFeatureAPI Backing global singleton
      * @param name           Name of the client (used by observability tools).
      * @param version        Version of the client (used by observability tools).
+     * @deprecated Do not use this constructor. It's for internal use only.
+     *             Clients created using it will not run event handlers.
+     *             Use the OpenFeatureAPI's getClient factory method instead.
      */
+    @Deprecated() // TODO: eventually we will make this non-public
     public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
         this.openfeatureApi = openFeatureAPI;
         this.name = name;
@@ -94,7 +98,6 @@ public class OpenFeatureClient implements Client {
                 () -> FlagEvaluationOptions.builder().build());
         Map<String, Object> hints = Collections.unmodifiableMap(flagOptions.getHookHints());
         ctx = ObjectUtils.defaultIfNull(ctx, () -> new ImmutableContext());
-
 
         FlagEvaluationDetails<T> details = null;
         List<Hook> mergedHooks = null;
@@ -340,5 +343,55 @@ public class OpenFeatureClient implements Client {
     @Override
     public Metadata getMetadata() {
         return () -> name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Client onProviderReady(Consumer<EventDetails> handler) {
+        return on(ProviderEvent.PROVIDER_READY, handler);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Client onProviderConfigurationChanged(Consumer<EventDetails> handler) {
+        return on(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, handler);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Client onProviderError(Consumer<EventDetails> handler) {
+        return on(ProviderEvent.PROVIDER_ERROR, handler);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Client onProviderStale(Consumer<EventDetails> handler) {
+        return on(ProviderEvent.PROVIDER_STALE, handler);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Client on(ProviderEvent event, Consumer<EventDetails> handler) {
+        OpenFeatureAPI.getInstance().addHandler(name, event, handler);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Client removeHandler(ProviderEvent event, Consumer<EventDetails> handler) {
+        OpenFeatureAPI.getInstance().removeHandler(name, event, handler);
+        return this;
     }
 }

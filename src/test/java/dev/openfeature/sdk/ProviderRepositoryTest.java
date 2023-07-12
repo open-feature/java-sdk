@@ -1,35 +1,40 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.testutils.exception.TestException;
-import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
-import java.time.Duration;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.function.Function;
-
-import static dev.openfeature.sdk.fixtures.ProviderFixture.*;
-import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doBlock;
+import static dev.openfeature.sdk.fixtures.ProviderFixture.createMockedErrorProvider;
+import static dev.openfeature.sdk.fixtures.ProviderFixture.createMockedProvider;
+import static dev.openfeature.sdk.fixtures.ProviderFixture.createMockedReadyProvider;
 import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doDelayResponse;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+
+import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import dev.openfeature.sdk.testutils.exception.TestException;
 
 class ProviderRepositoryTest {
 
     private static final String CLIENT_NAME = "client name";
     private static final String ANOTHER_CLIENT_NAME = "another client name";
-    private static final String FEATURE_KEY = "some key";
+    private static final int TIMEOUT = 5000;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -49,7 +54,8 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should reject null as default provider")
             void shouldRejectNullAsDefaultProvider() {
-                assertThatCode(() -> providerRepository.setProvider(null)).isInstanceOf(IllegalArgumentException.class);
+                assertThatCode(() -> providerRepository.setProvider(null, mockAfterSet(), mockAfterInit(),
+                        mockAfterShutdown(), mockAfterError())).isInstanceOf(IllegalArgumentException.class);
             }
 
             @Test
@@ -60,78 +66,31 @@ class ProviderRepositoryTest {
 
             @Test
             @DisplayName("should immediately return when calling the provider mutator")
-            void shouldImmediatelyReturnWhenCallingTheProviderMutator() {
+            void shouldImmediatelyReturnWhenCallingTheProviderMutator() throws Exception {
                 FeatureProvider featureProvider = createMockedProvider();
-                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize();
+                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(new ImmutableContext());
 
                 await()
                         .alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .until(() -> {
-                            providerRepository.setProvider(featureProvider);
-                            verify(featureProvider, timeout(100)).initialize();
+                            providerRepository.setProvider(featureProvider, mockAfterSet(), mockAfterInit(),
+                                    mockAfterShutdown(), mockAfterError());
+                            verify(featureProvider, timeout(TIMEOUT)).initialize(any());
                             return true;
                         });
 
-                verify(featureProvider).initialize();
-            }
-
-            @Test
-            @DisplayName("should not return set provider if initialize has not yet been finished executing")
-            void shouldNotReturnSetProviderIfItsInitializeMethodHasNotYetBeenFinishedExecuting() {
-                CountDownLatch latch = new CountDownLatch(1);
-                FeatureProvider newProvider = createMockedProvider();
-                doBlock(latch).when(newProvider).initialize();
-                FeatureProvider oldProvider = providerRepository.getProvider();
-
-                providerRepository.setProvider(newProvider);
-
-                FeatureProvider providerWhileInitialization = providerRepository.getProvider();
-                latch.countDown();
-
-                assertThat(providerWhileInitialization).isEqualTo(oldProvider);
-                await()
-                        .pollDelay(Duration.ofMillis(1))
-                        .atMost(Duration.ofSeconds(1))
-                        .untilAsserted(() -> assertThat(providerRepository.getProvider()).isEqualTo(newProvider));
-                verify(newProvider, timeout(100)).initialize();
-            }
-
-            @SneakyThrows
-            @Test
-            @DisplayName("should discard provider still initializing if a newer has finished before")
-            void shouldDiscardProviderStillInitializingIfANewerHasFinishedBefore() {
-                CountDownLatch latch = new CountDownLatch(1);
-                CountDownLatch testBlockingLatch = new CountDownLatch(1);
-                FeatureProvider blockedProvider = createBlockedProvider(latch, testBlockingLatch::countDown);
-                FeatureProvider fastProvider = createUnblockingProvider(latch);
-
-                providerRepository.setProvider(blockedProvider);
-                providerRepository.setProvider(fastProvider);
-
-                assertThat(testBlockingLatch.await(2, SECONDS))
-                        .as("blocking provider initialization not completed within 2 seconds")
-                        .isTrue();
-
-                await()
-                        .pollDelay(Duration.ofMillis(1))
-                        .atMost(Duration.ofSeconds(1))
-                        .untilAsserted(() -> assertThat(providerRepository.getProvider()).isEqualTo(fastProvider));
-
-                verify(blockedProvider, timeout(100)).initialize();
-                verify(fastProvider, timeout(100)).initialize();
+                verify(featureProvider, timeout(TIMEOUT)).initialize(any());
             }
 
             @Test
             @DisplayName("should avoid additional initialization call if provider has been initialized already")
-            void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() {
-                FeatureProvider provider = createMockedProvider();
-                setFeatureProvider(CLIENT_NAME, provider);
-
+            void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() throws Exception {
+                FeatureProvider provider = createMockedReadyProvider();
                 setFeatureProvider(provider);
-
-                verify(provider).initialize();
+                
+                verify(provider, never()).initialize(any());
             }
         }
 
@@ -141,90 +100,45 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should reject null as named provider")
             void shouldRejectNullAsNamedProvider() {
-                assertThatCode(() -> providerRepository.setProvider(CLIENT_NAME, null)).isInstanceOf(IllegalArgumentException.class);
+                assertThatCode(() -> providerRepository.setProvider(CLIENT_NAME, null, mockAfterSet(), mockAfterInit(),
+                        mockAfterShutdown(), mockAfterError()))
+                        .isInstanceOf(IllegalArgumentException.class);
             }
 
             @Test
             @DisplayName("should reject null as client name")
             void shouldRejectNullAsDefaultProvider() {
                 NoOpProvider provider = new NoOpProvider();
-                assertThatCode(() -> providerRepository.setProvider(null, provider)).isInstanceOf(IllegalArgumentException.class);
+                assertThatCode(() -> providerRepository.setProvider(null, provider, mockAfterSet(), mockAfterInit(),
+                        mockAfterShutdown(), mockAfterError()))
+                        .isInstanceOf(IllegalArgumentException.class);
             }
 
             @Test
             @DisplayName("should immediately return when calling the named client provider mutator")
-            void shouldImmediatelyReturnWhenCallingTheNamedClientProviderMutator() {
+            void shouldImmediatelyReturnWhenCallingTheNamedClientProviderMutator() throws Exception {
                 FeatureProvider featureProvider = createMockedProvider();
-                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize();
+                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(any());
 
                 await()
                         .alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .until(() -> {
-                            providerRepository.setProvider("named client", featureProvider);
-                            verify(featureProvider, timeout(1000)).initialize();
+                            providerRepository.setProvider("named client", featureProvider, mockAfterSet(),
+                                    mockAfterInit(), mockAfterShutdown(), mockAfterError());
+                            verify(featureProvider, timeout(TIMEOUT)).initialize(any());
                             return true;
                         });
             }
 
             @Test
-            @DisplayName("should not return set provider if it's initialization has not yet been finished executing")
-            void shouldNotReturnSetProviderIfItsInitializeMethodHasNotYetBeenFinishedExecuting() {
-                CountDownLatch latch = new CountDownLatch(1);
-                FeatureProvider newProvider = createMockedProvider();
-                doBlock(latch).when(newProvider).initialize();
-                FeatureProvider oldProvider = createMockedProvider();
-                setFeatureProvider(CLIENT_NAME, oldProvider);
-
-                providerRepository.setProvider(CLIENT_NAME, newProvider);
-                FeatureProvider providerWhileInitialization = getNamedProvider();
-                latch.countDown();
-
-                assertThat(providerWhileInitialization).isEqualTo(oldProvider);
-                await()
-                        .pollDelay(Duration.ofMillis(1))
-                        .atMost(Duration.ofSeconds(1))
-                        .untilAsserted(() -> assertThat(getNamedProvider()).isEqualTo(newProvider));
-                verify(newProvider, timeout(100)).initialize();
-            }
-
-            @SneakyThrows
-            @Test
-            @DisplayName("should discard provider still initializing if a newer has finished before")
-            void shouldDiscardProviderStillInitializingIfANewerHasFinishedBefore() {
-                String clientName = "clientName";
-                CountDownLatch latch = new CountDownLatch(1);
-                CountDownLatch testBlockingLatch = new CountDownLatch(1);
-                FeatureProvider blockedProvider = createBlockedProvider(latch, testBlockingLatch::countDown);
-                FeatureProvider unblockingProvider = createUnblockingProvider(latch);
-
-                providerRepository.setProvider(clientName, blockedProvider);
-                providerRepository.setProvider(clientName, unblockingProvider);
-
-                assertThat(testBlockingLatch.await(2, SECONDS))
-                        .as("blocking provider initialization not completed within 2 seconds")
-                        .isTrue();
-
-                await()
-                        .pollDelay(Duration.ofMillis(1))
-                        .atMost(Duration.ofSeconds(1))
-                        .untilAsserted(() -> assertThat(providerRepository.getProvider(clientName))
-                                .isEqualTo(unblockingProvider));
-
-                verify(blockedProvider, timeout(100)).initialize();
-                verify(unblockingProvider, timeout(100)).initialize();
-            }
-
-            @Test
             @DisplayName("should avoid additional initialization call if provider has been initialized already")
-            void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() {
-                FeatureProvider provider = createMockedProvider();
-                setFeatureProvider(provider);
-
+            void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() throws Exception {
+                FeatureProvider provider = createMockedReadyProvider();
                 setFeatureProvider(CLIENT_NAME, provider);
 
-                verify(provider).initialize();
+                verify(provider, never()).initialize(any());
             }
         }
     }
@@ -237,43 +151,22 @@ class ProviderRepositoryTest {
 
             @Test
             @DisplayName("should immediately return when calling the provider mutator")
-            void shouldImmediatelyReturnWhenCallingTheProviderMutator() {
+            void shouldImmediatelyReturnWhenCallingTheProviderMutator() throws Exception {
                 FeatureProvider newProvider = createMockedProvider();
-                doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize();
+                doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any());
 
                 await()
                         .alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .until(() -> {
-                            providerRepository.setProvider(newProvider);
-                            verify(newProvider, timeout(100)).initialize();
+                            providerRepository.setProvider(newProvider, mockAfterSet(), mockAfterInit(),
+                                    mockAfterShutdown(), mockAfterError());
+                            verify(newProvider, timeout(TIMEOUT)).initialize(any());
                             return true;
                         });
 
-                verify(newProvider).initialize();
-            }
-
-            @Test
-            @DisplayName("should use old provider if replacing one has not yet been finished initializing")
-            void shouldUseOldProviderIfReplacingOneHasNotYetBeenFinishedInitializing() {
-                CountDownLatch latch = new CountDownLatch(1);
-                FeatureProvider newProvider = createMockedProvider();
-                doBlock(latch).when(newProvider).initialize();
-                FeatureProvider oldProvider = createMockedProvider();
-
-                setFeatureProvider(oldProvider);
-                providerRepository.setProvider(newProvider);
-
-                providerRepository.getProvider().getBooleanEvaluation("some key", true, null);
-                latch.countDown();
-
-                await()
-                        .atMost(Duration.ofSeconds(1))
-                        .pollDelay(Duration.ofMillis(1))
-                        .untilAsserted(() -> assertThat(getProvider()).isEqualTo(newProvider));
-                verify(oldProvider, timeout(100)).getBooleanEvaluation(any(), any(), any());
-                verify(newProvider, never()).getBooleanEvaluation(any(), any(), any());
+                verify(newProvider, timeout(TIMEOUT)).initialize(any());
             }
 
             @Test
@@ -295,12 +188,13 @@ class ProviderRepositoryTest {
 
             @Test
             @DisplayName("should immediately return when calling the provider mutator")
-            void shouldImmediatelyReturnWhenCallingTheProviderMutator() {
+            void shouldImmediatelyReturnWhenCallingTheProviderMutator() throws Exception {
                 FeatureProvider newProvider = createMockedProvider();
-                doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize();
+                doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any());
 
                 Future<?> providerMutation = executorService
-                        .submit(() -> providerRepository.setProvider(CLIENT_NAME, newProvider));
+                        .submit(() -> providerRepository.setProvider(CLIENT_NAME, newProvider, mockAfterSet(),
+                                mockAfterInit(), mockAfterShutdown(), mockAfterError()));
 
                 await()
                         .alias("wait for provider mutator to return")
@@ -310,33 +204,12 @@ class ProviderRepositoryTest {
             }
 
             @Test
-            @DisplayName("should use old provider if replacement one has not yet been finished initializing")
-            void shouldUseOldProviderIfReplacementHasNotYetBeenFinishedInitializing() {
-                CountDownLatch latch = new CountDownLatch(1);
-                FeatureProvider newProvider = createMockedProvider();
-                doBlock(latch).when(newProvider).initialize();
-                FeatureProvider oldProvider = createMockedProvider();
-
-                setFeatureProvider(CLIENT_NAME, oldProvider);
-                providerRepository.setProvider(CLIENT_NAME, newProvider);
-
-                providerRepository.getProvider(CLIENT_NAME).getBooleanEvaluation(FEATURE_KEY, true, null);
-                latch.countDown();
-
-                await()
-                        .pollDelay(Duration.ofMillis(1))
-                        .atMost(Duration.ofSeconds(1))
-                        .untilAsserted(() -> assertThat(getNamedProvider()).isEqualTo(newProvider));
-                verify(oldProvider, timeout(100)).getBooleanEvaluation(eq(FEATURE_KEY), any(), any());
-                verify(newProvider, never()).getBooleanEvaluation(any(), any(), any());
-            }
-
-            @Test
             @DisplayName("should not call shutdown if replaced provider is bound to multiple names")
-            void shouldNotCallShutdownIfReplacedProviderIsBoundToMultipleNames() {
+            void shouldNotCallShutdownIfReplacedProviderIsBoundToMultipleNames() throws InterruptedException {
                 FeatureProvider oldProvider = createMockedProvider();
                 FeatureProvider newProvider = createMockedProvider();
                 setFeatureProvider(CLIENT_NAME, oldProvider);
+
                 setFeatureProvider(ANOTHER_CLIENT_NAME, oldProvider);
 
                 setFeatureProvider(CLIENT_NAME, newProvider);
@@ -366,7 +239,48 @@ class ProviderRepositoryTest {
 
                 assertThatCode(() -> setFeatureProvider(new NoOpProvider())).doesNotThrowAnyException();
 
-                verify(provider).shutdown();
+                verify(provider, timeout(TIMEOUT)).shutdown();
+            }
+        }
+
+        @Nested
+        class LifecyleLambdas {
+            @Test
+            @DisplayName("should run afterSet, afterInit, afterShutdown on successful set/init")
+            @SuppressWarnings("unchecked")
+            void shouldRunLambdasOnSuccessful() {
+                Consumer<FeatureProvider> afterSet = mock(Consumer.class);
+                Consumer<FeatureProvider> afterInit = mock(Consumer.class);
+                Consumer<FeatureProvider> afterShutdown = mock(Consumer.class);
+                BiConsumer<FeatureProvider, String> afterError = mock(BiConsumer.class);
+        
+                FeatureProvider oldProvider = providerRepository.getProvider();
+                FeatureProvider featureProvider1 = createMockedProvider();
+                FeatureProvider featureProvider2 = createMockedProvider();
+        
+                setFeatureProvider(featureProvider1, afterSet, afterInit, afterShutdown, afterError);
+                setFeatureProvider(featureProvider2);
+                verify(afterSet, timeout(TIMEOUT)).accept(featureProvider1);
+                verify(afterInit, timeout(TIMEOUT)).accept(featureProvider1);
+                verify(afterShutdown, timeout(TIMEOUT)).accept(oldProvider);
+                verify(afterError, never()).accept(any(), any());
+            }
+
+            @Test
+            @DisplayName("should run afterSet, afterError on unsuccessful set/init")
+            @SuppressWarnings("unchecked")
+            void shouldRunLambdasOnError() throws Exception {
+                Consumer<FeatureProvider> afterSet = mock(Consumer.class);
+                Consumer<FeatureProvider> afterInit = mock(Consumer.class);
+                Consumer<FeatureProvider> afterShutdown = mock(Consumer.class);
+                BiConsumer<FeatureProvider, String> afterError = mock(BiConsumer.class);
+        
+                FeatureProvider errorFeatureProvider = createMockedErrorProvider();
+        
+                setFeatureProvider(errorFeatureProvider, afterSet, afterInit, afterShutdown, afterError);
+                verify(afterSet, timeout(TIMEOUT)).accept(errorFeatureProvider);
+                verify(afterInit, never()).accept(any());;
+                verify(afterError, timeout(TIMEOUT)).accept(eq(errorFeatureProvider), any());
             }
         }
     }
@@ -385,31 +299,34 @@ class ProviderRepositoryTest {
 
         await()
                 .pollDelay(Duration.ofMillis(1))
-                .atMost(Duration.ofSeconds(1))
+                .atMost(Duration.ofSeconds(TIMEOUT))
                 .untilAsserted(() -> {
                     assertThat(providerRepository.getProvider()).isInstanceOf(NoOpProvider.class);
                     assertThat(providerRepository.getProvider(CLIENT_NAME)).isInstanceOf(NoOpProvider.class);
                     assertThat(providerRepository.getProvider(ANOTHER_CLIENT_NAME)).isInstanceOf(NoOpProvider.class);
                 });
-        verify(featureProvider1).shutdown();
-        verify(featureProvider2).shutdown();
-    }
-
-    private FeatureProvider getProvider() {
-        return providerRepository.getProvider();
-    }
-
-    private FeatureProvider getNamedProvider() {
-        return providerRepository.getProvider(CLIENT_NAME);
+        verify(featureProvider1, timeout(TIMEOUT)).shutdown();
+        verify(featureProvider2, timeout(TIMEOUT)).shutdown();
     }
 
     private void setFeatureProvider(FeatureProvider provider) {
-        providerRepository.setProvider(provider);
+        providerRepository.setProvider(provider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(),
+                mockAfterError());
+        waitForSettingProviderHasBeenCompleted(ProviderRepository::getProvider, provider);
+    }
+
+
+    private void setFeatureProvider(FeatureProvider provider, Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit, Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, String> afterError) {
+        providerRepository.setProvider(provider, afterSet, afterInit, afterShutdown,
+                afterError);
         waitForSettingProviderHasBeenCompleted(ProviderRepository::getProvider, provider);
     }
 
     private void setFeatureProvider(String namedProvider, FeatureProvider provider) {
-        providerRepository.setProvider(namedProvider, provider);
+        providerRepository.setProvider(namedProvider, provider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(),
+                mockAfterError());
         waitForSettingProviderHasBeenCompleted(repository -> repository.getProvider(namedProvider), provider);
     }
 
@@ -418,8 +335,30 @@ class ProviderRepositoryTest {
             FeatureProvider provider) {
         await()
                 .pollDelay(Duration.ofMillis(1))
-                .atMost(Duration.ofSeconds(1))
-                .until(() -> extractor.apply(providerRepository) == provider);
+                .atMost(Duration.ofSeconds(5))
+                .until(() -> {
+                    return extractor.apply(providerRepository) == provider;
+                });
+    }
+
+    private Consumer<FeatureProvider> mockAfterSet() {
+        return fp -> {
+        };
+    }
+
+    private Consumer<FeatureProvider> mockAfterInit() {
+        return fp -> {
+        };
+    }
+
+    private Consumer<FeatureProvider> mockAfterShutdown() {
+        return fp -> {
+        };
+    }
+
+    private BiConsumer<FeatureProvider, String> mockAfterError() {
+        return (fp, message) -> {
+        };
     }
 
 }

@@ -69,5 +69,4 @@ public class ObjectUtils {
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
     }
-
 }
