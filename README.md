@@ -28,13 +28,13 @@
 
 Standardizing feature flags unifies tools and vendors behind a common interface which avoids vendor lock-in at the code level. Additionally, it offers a framework for building extensions and integrations and allows providers to focus on their unique value proposition.
 
-## 🔍 Requirements:
+## 🔍 Requirements
 
 - Java 8+ (compiler target is 1.8)
 
 Note that this library is intended to be used in server-side contexts and has not been evaluated for use in mobile devices.
 
-## 📦 Installation:
+## 📦 Installation
 
 ### Maven
 
@@ -76,16 +76,14 @@ dependencies {
 
 We publish SBOMs with all of our releases as of 0.3.0. You can find them in Maven Central alongside the artifacts.
 
-## 🌟 Features:
+## 🌟 Features
 
 - support for various backend [providers](https://openfeature.dev/docs/reference/concepts/provider)
 - easy integration and extension via [hooks](https://openfeature.dev/docs/reference/concepts/hooks)
 - bool, string, numeric, and object flag types
 - [context-aware](https://openfeature.dev/docs/reference/concepts/evaluation-context) evaluation
 
-## 🚀 Usage:
-
-### Basics:
+## 🚀 Usage
 
 ```java
 public void example(){
@@ -102,7 +100,7 @@ public void example(){
 }
 ```
 
-### Context-aware evaluation:
+### Context-aware evaluation
 
 Sometimes the value of a flag must take into account some dynamic criteria about the application or user, such as the user location, IP, email address, or the location of the server.
 In OpenFeature, we refer to this as [`targeting`](https://openfeature.dev/specification/glossary#targeting).
@@ -146,6 +144,47 @@ OpenFeatureAPI.getInstance().onProviderStale((EventDetails eventDetails) -> {
 });
 ```
 
+### Hooks
+
+A hook is a mechanism that allows for adding arbitrary behavior at well-defined points of the flag evaluation life-cycle. Use cases include validating the resolved flag value, modifying or adding data to the evaluation context, logging, telemetry, and tracking.
+
+```java
+public class MyHook implements Hook {
+    /**
+     *
+     * @param ctx     Information about the particular flag evaluation
+     * @param details Information about how the flag was resolved, including any resolved values.
+     * @param hints   An immutable mapping of data for users to communicate to the hooks.
+     */
+    @Override
+    public void after(HookContext ctx, FlagEvaluationDetails details, Map hints) {
+        System.out.println("After evaluation!");
+    }
+}
+```
+
+See [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Hook&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=Java) for a catalog of available hooks.
+
+### Logging:
+
+The Java SDK uses SLF4J. See the [SLF4J manual](https://slf4j.org/manual.html) for complete documentation.
+
+### Named clients
+
+Clients can be given a name.
+A name is a logical identifier which can be used to associate clients with a particular provider.
+If a name has no associated provider, clients with that name use the global provider.
+
+```java
+FeatureProvider scopedProvider = new MyProvider();
+
+// set this provider for clients named "my-name"
+OpenFeatureAPI.getInstance().setProvider("my-name", provider);
+
+// create a client bound to the provider above
+Client client = OpenFeatureAPI.getInstance().getClient("my-name");
+```
+
 ### Providers:
 
 To develop a provider, you need to create a new project and include the OpenFeature SDK as a dependency. This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/java-sdk-contrib) available under the OpenFeature organization. Finally, you’ll then need to write the provider itself. This can be accomplished by implementing the `FeatureProvider` interface exported by the OpenFeature SDK.
@@ -186,30 +225,15 @@ public class MyProvider implements FeatureProvider {
 
 See [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Provider&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=Java) for a catalog of available providers.
 
-### Hooks:
+### Shutdown
 
-A hook is a mechanism that allows for adding arbitrary behavior at well-defined points of the flag evaluation life-cycle. Use cases include validating the resolved flag value, modifying or adding data to the evaluation context, logging, telemetry, and tracking.
+The OpenFeature API provides a close function to perform a cleanup of all registered providers.
+This should only be called when your application is in the process of shutting down.
 
 ```java
-public class MyHook implements Hook {
-    /**
-     *
-     * @param ctx     Information about the particular flag evaluation
-     * @param details Information about how the flag was resolved, including any resolved values.
-     * @param hints   An immutable mapping of data for users to communicate to the hooks.
-     */
-    @Override
-    public void after(HookContext ctx, FlagEvaluationDetails details, Map hints) {
-        System.out.println("After evaluation!");
-    }
-}
+// shut down all providers
+OpenFeatureAPI.getInstance().shutdown();
 ```
-
-See [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Hook&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=Java) for a catalog of available hooks.
-
-### Logging:
-
-The Java SDK uses SLF4J. See the [SLF4J manual](https://slf4j.org/manual.html) for complete documentation.
 
 ### Complete API documentation:
 
