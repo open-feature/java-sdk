@@ -127,6 +127,25 @@ EvaluationContext reqCtx = new ImmutableContext(targetingKey, attributes);
 boolean flagValue = client.getBooleanValue("some-flag", false, reqCtx);
 ```
 
+### Events
+
+Events allow you to react to state changes in the provider or underlying flag management system, such as flag definition changes, provider readiness, or error conditions.
+Initialization events (`PROVIDER_READY` on success, `PROVIDER_ERROR` on failure) are dispatched for every provider.
+Some providers support additional events, such as `PROVIDER_CONFIGURATION_CHANGED`.
+Please refer to the documentation of the provider you're using to see what events are supported.
+
+```java
+// add an event handler to a client
+client.onProviderConfigurationChanged((EventDetails eventDetails) -> {
+    // do something when the provider's flag settings change
+});
+
+// add an event handler to the global API
+OpenFeatureAPI.getInstance().onProviderStale((EventDetails eventDetails) -> {
+    // do something when the provider's cache goes stale
+});
+```
+
 ### Providers:
 
 To develop a provider, you need to create a new project and include the OpenFeature SDK as a dependency. This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/java-sdk-contrib) available under the OpenFeature organization. Finally, you’ll then need to write the provider itself. This can be accomplished by implementing the `FeatureProvider` interface exported by the OpenFeature SDK.
