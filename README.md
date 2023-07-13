@@ -146,7 +146,8 @@ OpenFeatureAPI.getInstance().onProviderStale((EventDetails eventDetails) -> {
 
 ### Hooks
 
-A hook is a mechanism that allows for adding arbitrary behavior at well-defined points of the flag evaluation life-cycle. Use cases include validating the resolved flag value, modifying or adding data to the evaluation context, logging, telemetry, and tracking.
+A hook is a mechanism that allows for adding arbitrary behavior at well-defined points of the flag evaluation life-cycle.
+Use cases include validating the resolved flag value, modifying or adding data to the evaluation context, logging, telemetry, and tracking.
 
 ```java
 public class MyHook implements Hook {
@@ -187,7 +188,10 @@ Client client = OpenFeatureAPI.getInstance().getClient("my-name");
 
 ### Providers:
 
-To develop a provider, you need to create a new project and include the OpenFeature SDK as a dependency. This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/java-sdk-contrib) available under the OpenFeature organization. Finally, you’ll then need to write the provider itself. This can be accomplished by implementing the `FeatureProvider` interface exported by the OpenFeature SDK.
+To develop a provider, you need to create a new project and include the OpenFeature SDK as a dependency.
+This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/java-sdk-contrib) available under the OpenFeature organization.
+Finally, you’ll then need to write the provider itself.
+This can be accomplished by implementing the `FeatureProvider` interface exported by the OpenFeature SDK.
 
 ```java
 public class MyProvider implements FeatureProvider {
