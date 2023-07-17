@@ -53,7 +53,7 @@ class FlagEvaluationDetailsTest {
                 .reason(Reason.ERROR.toString())
                 .value(false)
                 .errorCode(ErrorCode.GENERAL)
-                .errorMessage("impossible to contact GO Feature Flag relay proxy instance")
+                .errorMessage("error XXX")
                 .flagMetadata(ImmutableMetadata.builder().addString("metadata","1").build())
                 .build();
 
@@ -61,7 +61,7 @@ class FlagEvaluationDetailsTest {
                 .reason(Reason.ERROR.toString())
                 .value(false)
                 .errorCode(ErrorCode.GENERAL)
-                .errorMessage("impossible to contact GO Feature Flag relay proxy instance")
+                .errorMessage("error XXX")
                 .flagMetadata(ImmutableMetadata.builder().addString("metadata","1").build())
                 .build();
 
