@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.Map;
  * through builder and accessors.
  */
 @Slf4j
+@EqualsAndHashCode
 public class ImmutableMetadata {
     private final Map<String, Object> metadata;
 
