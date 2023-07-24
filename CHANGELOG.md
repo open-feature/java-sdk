@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.4.1](https://github.com/open-feature/java-sdk/compare/v1.4.0...v1.4.1) (2023-07-24)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update junit5 monorepo ([#524](https://github.com/open-feature/java-sdk/issues/524)) ([a2ee70e](https://github.com/open-feature/java-sdk/commit/a2ee70e8d66d8af0a7de8d7c6a477257de566df8))
+* Implement equals for the ImmutableMetadata object ([#512](https://github.com/open-feature/java-sdk/issues/512)) ([6253aee](https://github.com/open-feature/java-sdk/commit/6253aee3b3ae58309e328dcc1816dbbdba86f35f))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/setup-java digest to 4fb3975 ([#516](https://github.com/open-feature/java-sdk/issues/516)) ([fd2262f](https://github.com/open-feature/java-sdk/commit/fd2262f0584fed4d3130427a8b271b88d241ff71))
+* **deps:** update actions/setup-java digest to cd89f46 ([#522](https://github.com/open-feature/java-sdk/issues/522)) ([965bb19](https://github.com/open-feature/java-sdk/commit/965bb1941047e71c49cfafa625d6db9fecc08d92))
+* **deps:** update github/codeql-action digest to 013a1d0 ([#510](https://github.com/open-feature/java-sdk/issues/510)) ([bbb4008](https://github.com/open-feature/java-sdk/commit/bbb4008b381cd01719c880aa358eb055e0ac0cd4))
+* **deps:** update github/codeql-action digest to 262017a ([#514](https://github.com/open-feature/java-sdk/issues/514)) ([e9044af](https://github.com/open-feature/java-sdk/commit/e9044af48e520c1165cb6cdec6f683aac4b8d37e))
+* **deps:** update github/codeql-action digest to 6ae46f7 ([#518](https://github.com/open-feature/java-sdk/issues/518)) ([fe3be7d](https://github.com/open-feature/java-sdk/commit/fe3be7df73217bc9dcc29427f7676f05ac41a200))
+* **deps:** update github/codeql-action digest to 7b6664f ([#525](https://github.com/open-feature/java-sdk/issues/525)) ([b208c23](https://github.com/open-feature/java-sdk/commit/b208c233621c03f3330ffd1ec60f1ee87826a6dc))
+* **deps:** update github/codeql-action digest to 942acab ([#515](https://github.com/open-feature/java-sdk/issues/515)) ([ef199b9](https://github.com/open-feature/java-sdk/commit/ef199b94fd8ecd866893168f06717c1de2ee2fda))
+* **deps:** update github/codeql-action digest to a148c58 ([#508](https://github.com/open-feature/java-sdk/issues/508)) ([4e1675d](https://github.com/open-feature/java-sdk/commit/4e1675d9c321c8a980b9a2021b52419683c3730f))
+* **deps:** update github/codeql-action digest to ce84bed ([#520](https://github.com/open-feature/java-sdk/issues/520)) ([d159692](https://github.com/open-feature/java-sdk/commit/d1596924f0992c5fbdc270f567f19973d3fc1276))
+* **deps:** update github/codeql-action digest to d0dd7d7 ([#519](https://github.com/open-feature/java-sdk/issues/519)) ([b4bae84](https://github.com/open-feature/java-sdk/commit/b4bae84bc1202f7e15c399a5cf7128a4b067bf0b))
+* **deps:** update github/codeql-action digest to d2ed0a0 ([#517](https://github.com/open-feature/java-sdk/issues/517)) ([7993c36](https://github.com/open-feature/java-sdk/commit/7993c360d679a2a8715f1c43fd7b344ff357b2ef))
+* **deps:** update google-github-actions/release-please-action digest to ca6063f ([#521](https://github.com/open-feature/java-sdk/issues/521)) ([dd7d024](https://github.com/open-feature/java-sdk/commit/dd7d02466cdf96ed5595b63d34f1749629dfd01b))
+
 ## [1.4.0](https://github.com/open-feature/java-sdk/compare/v1.3.1...v1.4.0) (2023-07-13)
 
 
