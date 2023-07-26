@@ -121,6 +121,11 @@ class EventProviderTest {
             // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'getObjectEvaluation'");
         }
+
+        @Override
+        public ProviderState getState() {
+            return ProviderState.READY;            
+        }
     }
 
     @SuppressWarnings("unchecked")
