@@ -124,7 +124,7 @@ class EventProviderTest {
 
         @Override
         public ProviderState getState() {
-            return ProviderState.READY;            
+            return ProviderState.READY;
         }
     }
 
