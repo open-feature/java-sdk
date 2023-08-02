@@ -8,6 +8,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # TODO: this can be removed with https://github.com/open-feature/java-sdk/issues/523
     services:
       flagd:
         image: ghcr.io/open-feature/flagd-testbed:latest
@@ -39,7 +40,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Verify with Maven
-        run: mvn --batch-mode --update-snapshots verify -P e2e-test
+        run: mvn --batch-mode --update-snapshots --activate-profiles e2e-test verify
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@e1dd05cde2ed37d100f658b34ea423728ba1812e
