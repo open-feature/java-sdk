@@ -497,6 +497,8 @@
 
     <profile>
       <!-- this profile handles running the flagd e2e tests -->
+      <!-- TODO: this profile can likely be removed with TODO: this section should be updated with https://github.com/open-feature/java-sdk/issues/523 -->
+      <!-- TODO: we should pull the submodule and run these tests unconditionall once flagd isn't required -->
       <id>e2e-test</id>
       <properties>
         <!-- run the e2e tests by clearing the exclusions -->
@@ -523,7 +525,7 @@
                     <argument>submodule</argument>
                     <argument>update</argument>
                     <argument>--init</argument>
-                    <argument>--recursive</argument>
+                    <argument>test-harness</argument>
                   </arguments>
                 </configuration>
               </execution>
