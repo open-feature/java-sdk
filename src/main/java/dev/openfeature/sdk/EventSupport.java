@@ -23,7 +23,7 @@ class EventSupport {
     // we use a v4 uuid as a "placeholder" for anonymous clients, since
     // ConcurrentHashMap doesn't support nulls
     private static final String defaultClientUuid = UUID.randomUUID().toString();
-    private static final ExecutorService taskExecutor = Executors.newCachedThreadPool();
+    private final ExecutorService taskExecutor = Executors.newCachedThreadPool();
     private final Map<String, HandlerStore> handlerStores = new ConcurrentHashMap<>();
     private final HandlerStore globalHandlerStore = new HandlerStore();
 
