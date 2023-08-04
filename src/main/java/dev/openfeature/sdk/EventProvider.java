@@ -16,6 +16,12 @@ import dev.openfeature.sdk.internal.TriConsumer;
  */
 public abstract class EventProvider implements FeatureProvider {
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract ProviderState getState();
+
     private TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = null;
 
     /**

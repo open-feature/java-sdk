@@ -31,7 +31,7 @@ public interface FeatureProvider {
      * if they have special initialization needed prior being called for flag
      * evaluation.
      * <p>
-     * It is ok, if the method is expensive as it is executed in the background. All
+     * It is ok if the method is expensive as it is executed in the background. All
      * runtime exceptions will be
      * caught and logged.
      * </p>
@@ -46,7 +46,7 @@ public interface FeatureProvider {
      * Providers can overwrite this method, if they have special shutdown actions
      * needed.
      * <p>
-     * It is ok, if the method is expensive as it is executed in the background. All
+     * It is ok if the method is expensive as it is executed in the background. All
      * runtime exceptions will be
      * caught and logged.
      * </p>
@@ -57,7 +57,11 @@ public interface FeatureProvider {
 
     /**
      * Returns a representation of the current readiness of the provider.
-     * Providers which do not implement this method are assumed to be ready immediately.
+     * If the provider needs to be initialized, it should return {@link ProviderState#NOT_READY}.
+     * If the provider is in an error state, it should return {@link ProviderState#ERROR}.
+     * If the provider is functioning normally, it should return {@link ProviderState#READY}.
+     * 
+     * <p><i>Providers which do not implement this method are assumed to be ready immediately.</i></p>
      * 
      * @return ProviderState
      */
