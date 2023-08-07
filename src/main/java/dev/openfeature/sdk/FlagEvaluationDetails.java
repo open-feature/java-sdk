@@ -40,6 +40,7 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
                 .value(providerEval.getValue())
                 .variant(providerEval.getVariant())
                 .reason(providerEval.getReason())
+                .errorMessage(providerEval.getErrorMessage())
                 .errorCode(providerEval.getErrorCode())
                 .flagMetadata(providerEval.getFlagMetadata())
                 .build();
