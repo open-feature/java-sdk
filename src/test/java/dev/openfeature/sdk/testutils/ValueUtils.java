@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 public class ValueUtils {
 
     /**
-     * Convert object to Value.
+     * Convert object to Value with limited support.
      * Supporting bean objects with field getters.
      * Note:
-     * Not all objects may be supported.
-     * @param object
-     * @return
+     * Not all objects are supported.
+     * @param object the object to convert
+     * @return Value representing the object
      */
     @SneakyThrows
     public static Value convert(Object object) {
@@ -40,16 +40,14 @@ public class ValueUtils {
             return new Value(object);
         }
         if (object instanceof Map) {
-            Map<String, ?> map = (Map)object;
+            Map<String, ?> map = (Map<String, ?>)object;
             Map<String, Value> values = new HashMap<>();
-            map.entrySet().stream().forEach(entry -> {
-                values.put(entry.getKey(), convert(entry.getValue()));
-            });
+            map.forEach((k, v) -> values.put(k, convert(v)));
             return new Value(new MutableStructure(values));
         }
         if (object instanceof List) {
-            List<?> list = (List)object;
-            return new Value(list.stream().map(p -> convert(p)).collect(Collectors.toList()));
+            List<?> list = (List<?>)object;
+            return new Value(list.stream().map(ValueUtils::convert).collect(Collectors.toList()));
         }
         Map<String, Object> map = convertObjectToMap(object);
         return convert(map);

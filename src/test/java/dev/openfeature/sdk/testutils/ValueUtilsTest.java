@@ -1,7 +1,6 @@
 package dev.openfeature.sdk.testutils;
 
 import dev.openfeature.sdk.Value;
-import io.cucumber.core.internal.com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 import org.junit.jupiter.api.Test;
 
@@ -20,8 +19,8 @@ class ValueUtilsTest {
         private int i;
         private String s;
         private Double d;
-        private Map<String, Map<String, Int>> map = new HashMap<>();
-        private List<List<Int>> list = new ArrayList<>();
+        private Map<String, Map<String, Int>> map;
+        private List<List<Int>> list;
     }
 
     @Data
@@ -43,6 +42,11 @@ class ValueUtilsTest {
         list.add(innerList);
         Struct struct = Struct.builder().i(3).d(1.2).s("str").map(map).list(list).build();
         Value value = ValueUtils.convert(struct);
-        assertEquals("Value(innerObject=MutableStructure(attributes={i=Value(innerObject=3), s=Value(innerObject=str), d=Value(innerObject=1.2), list=Value(innerObject=[Value(innerObject=[Value(innerObject=MutableStructure(attributes={value=Value(innerObject=456)}))])]), map=Value(innerObject=MutableStructure(attributes={key1=Value(innerObject=MutableStructure(attributes={innerKey1=Value(innerObject=MutableStructure(attributes={value=Value(innerObject=4)}))}))}))}))", value.toString());
+        assertEquals("Value(innerObject=MutableStructure(attributes={i=Value(innerObject=3), " +
+            "s=Value(innerObject=str), d=Value(innerObject=1.2), list=Value(innerObject=[Value(innerObject=" +
+            "[Value(innerObject=MutableStructure(attributes={value=Value(innerObject=456)}))])]), map=Value(" +
+            "innerObject=MutableStructure(attributes={key1=Value(innerObject=MutableStructure(attributes=" +
+            "{innerKey1=Value(innerObject=MutableStructure(attributes={value=Value(innerObject=4)}))}))}))}))",
+            value.toString());
     }
 }

@@ -1,15 +1,6 @@
 package dev.openfeature.sdk.e2e;
 
-import dev.openfeature.contrib.providers.flagd.FlagdProvider;
-import dev.openfeature.sdk.Client;
-import dev.openfeature.sdk.EvaluationContext;
-import dev.openfeature.sdk.FlagEvaluationDetails;
-import dev.openfeature.sdk.ImmutableContext;
-import dev.openfeature.sdk.OpenFeatureAPI;
-import dev.openfeature.sdk.Reason;
-import dev.openfeature.sdk.Structure;
-import dev.openfeature.sdk.Value;
-import dev.openfeature.sdk.testutils.Flag;
+import dev.openfeature.sdk.*;
 import dev.openfeature.sdk.testutils.Flags;
 import dev.openfeature.sdk.testutils.InMemoryProvider;
 import io.cucumber.java.BeforeAll;
@@ -55,14 +46,8 @@ public class StepDefinitions {
 
     @SneakyThrows
     @BeforeAll()
-    @Given("an openfeature client is registered with cache disabled")
+    @Given("an openfeature client is registered")
     public static void setup() {
-        // TODO: when the FlagdProvider is updated to support caching, we might need to disable it here for this test to work as expected.
-
-        Map<String, Flag> flagsMap = new HashMap<>();
-        Map<String, Object> variants = new HashMap<>();
-        variants.put("on", true);
-        variants.put("off", false);
         ClassLoader classLoader = StepDefinitions.class.getClassLoader();
         File file = new File(classLoader.getResource("features/testing-flags.json").getFile());
         Path resPath = file.toPath();
@@ -71,9 +56,7 @@ public class StepDefinitions {
         InMemoryProvider provider = new InMemoryProvider(conf);
         OpenFeatureAPI.getInstance().setProvider(provider);
 
-        /*
-         TODO: setProvider with wait for init, pending https://github.com/open-feature/ofep/pull/80
-         */
+        // TODO: setProvider with wait for init, pending https://github.com/open-feature/ofep/pull/80
         Thread.sleep(500);
 
         client = OpenFeatureAPI.getInstance().getClient();
@@ -289,7 +272,7 @@ public class StepDefinitions {
     public void the_reason_should_indicate_an_error_and_the_error_code_should_be_flag_not_found(String errorCode) {
         assertEquals(Reason.ERROR.toString(), notFoundDetails.getReason());
         assertTrue(notFoundDetails.getErrorMessage().contains(errorCode));
-        // TODO: add errorCode assertion once flagd provider is updated.
+        assertTrue(notFoundDetails.getErrorCode().name().equals(errorCode));
     }
 
     // type mismatch
@@ -310,7 +293,7 @@ public class StepDefinitions {
     public void the_reason_should_indicate_an_error_and_the_error_code_should_be_type_mismatch(String errorCode) {
         assertEquals(Reason.ERROR.toString(), typeErrorDetails.getReason());
         assertTrue(typeErrorDetails.getErrorMessage().contains(errorCode));
-        // TODO: add errorCode assertion once flagd provider is updated.
+        assertTrue(typeErrorDetails.getErrorCode().name().equals(errorCode));
     }
 
 }

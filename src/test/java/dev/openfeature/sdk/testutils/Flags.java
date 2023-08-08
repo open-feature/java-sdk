@@ -17,7 +17,7 @@ public class Flags {
 
         private String configurationJson;
 
-        private ObjectMapper objectMapper = new ObjectMapper();
+        private final ObjectMapper objectMapper = new ObjectMapper();
 
         private FlagsBuilder() {
 
@@ -42,14 +42,5 @@ public class Flags {
 
     public enum State {
         ENABLED, DISABLED
-    }
-
-    public enum Variant {
-        on, off
-    }
-
-    @Getter
-    public class Variants {
-        private Map<String, Object> variants;
     }
 }

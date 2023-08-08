@@ -44,64 +44,6 @@
       },
       "defaultVariant": "template"
     },
-    "context-aware": {
-      "state": "ENABLED",
-      "variants": {
-        "internal": "INTERNAL",
-        "external": "EXTERNAL"
-      },
-      "defaultVariant": "external",
-      "targeting": {
-        "if": [
-          {
-            "and": [
-              {
-                "==": [
-                  {
-                    "var": [
-                      "fn"
-                    ]
-                  },
-                  "Sulisław"
-                ]
-              },
-              {
-                "==": [
-                  {
-                    "var": [
-                      "ln"
-                    ]
-                  },
-                  "Świętopełk"
-                ]
-              },
-              {
-                "==": [
-                  {
-                    "var": [
-                      "age"
-                    ]
-                  },
-                  29
-                ]
-              },
-              {
-                "==": [
-                  {
-                    "var": [
-                      "customer"
-                    ]
-                  },
-                  false
-                ]
-              }
-            ]
-          },
-          "internal",
-          "external"
-        ]
-      }
-    },
     "wrong-flag": {
       "state": "ENABLED",
       "variants": {
