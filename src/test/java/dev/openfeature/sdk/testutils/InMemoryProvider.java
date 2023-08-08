@@ -41,11 +41,22 @@ public class InMemoryProvider implements FeatureProvider {
         FeatureProvider.super.initialize(evaluationContext);
         this.flags = Flags.builder().setConfigurationJson(jsonConfig).build();
         state = ProviderState.READY;
-        log.info("finishing initializing provider, state: {}", state);
+        log.info("finished initializing provider, state: {}", state);
     }
 
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
+        if (!ProviderState.READY.equals(state)) {
+            ErrorCode errorCode = ErrorCode.PROVIDER_NOT_READY;
+            if (ProviderState.ERROR.equals(state)) {
+                errorCode = ErrorCode.GENERAL;
+            }
+            return ProviderEvaluation.<Boolean>builder()
+                .errorCode(errorCode)
+                .reason(errorCode.name())
+                .value(defaultValue)
+                .build();
+        }
         Flag flag = flags.getFlags().get(key);
         if (flag == null) {
             return ProviderEvaluation.<Boolean>builder()
@@ -74,6 +85,17 @@ public class InMemoryProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
+        if (!ProviderState.READY.equals(state)) {
+            ErrorCode errorCode = ErrorCode.PROVIDER_NOT_READY;
+            if (ProviderState.ERROR.equals(state)) {
+                errorCode = ErrorCode.GENERAL;
+            }
+            return ProviderEvaluation.<String>builder()
+                .errorCode(errorCode)
+                .reason(errorCode.name())
+                .value(defaultValue)
+                .build();
+        }
         Flag flag = flags.getFlags().get(key);
         if (flag == null) {
             ProviderEvaluation<String> providerEvaluation = ProviderEvaluation.<String>builder()
@@ -103,6 +125,17 @@ public class InMemoryProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
+        if (!ProviderState.READY.equals(state)) {
+            ErrorCode errorCode = ErrorCode.PROVIDER_NOT_READY;
+            if (ProviderState.ERROR.equals(state)) {
+                errorCode = ErrorCode.GENERAL;
+            }
+            return ProviderEvaluation.<Integer>builder()
+                .errorCode(errorCode)
+                .reason(errorCode.name())
+                .value(defaultValue)
+                .build();
+        }
         Flag flag = flags.getFlags().get(key);
         if (flag == null) {
             return ProviderEvaluation.<Integer>builder()
@@ -131,6 +164,17 @@ public class InMemoryProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
+        if (!ProviderState.READY.equals(state)) {
+            ErrorCode errorCode = ErrorCode.PROVIDER_NOT_READY;
+            if (ProviderState.ERROR.equals(state)) {
+                errorCode = ErrorCode.GENERAL;
+            }
+            return ProviderEvaluation.<Double>builder()
+                .errorCode(errorCode)
+                .reason(errorCode.name())
+                .value(defaultValue)
+                .build();
+        }
         Flag flag = flags.getFlags().get(key);
         if (flag == null) {
             return ProviderEvaluation.<Double>builder()
@@ -161,6 +205,17 @@ public class InMemoryProvider implements FeatureProvider {
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue,
                                                          EvaluationContext invocationContext) {
+        if (!ProviderState.READY.equals(state)) {
+            ErrorCode errorCode = ErrorCode.PROVIDER_NOT_READY;
+            if (ProviderState.ERROR.equals(state)) {
+                errorCode = ErrorCode.GENERAL;
+            }
+            return ProviderEvaluation.<Value>builder()
+                .errorCode(errorCode)
+                .reason(errorCode.name())
+                .value(defaultValue)
+                .build();
+        }
         Flag flag = flags.getFlags().get(key);
         if (flag == null) {
             return ProviderEvaluation.<Value>builder()

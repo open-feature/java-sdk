@@ -46,7 +46,7 @@ public class StepDefinitions {
 
     @SneakyThrows
     @BeforeAll()
-    @Given("an openfeature client is registered")
+    @Given("an openfeature client is registered with cache disabled")
     public static void setup() {
         ClassLoader classLoader = StepDefinitions.class.getClassLoader();
         File file = new File(classLoader.getResource("features/testing-flags.json").getFile());
