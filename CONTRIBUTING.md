@@ -18,7 +18,7 @@ If you're adding tests to cover something in the spec, use the `@Specification` 
 
 ## End-to-End Tests
 
-The continuous integration runs a set of [gherkin e2e tests](https://github.com/open-feature/test-harness/blob/main/features/evaluation.feature) using `InMemoryProvider`. These tests do not run with the default maven profile.
+The continuous integration runs a set of [gherkin e2e tests](https://github.com/open-feature/test-harness/blob/main/features/evaluation.feature) using `InMemoryProvider`.
 
 ## Releasing
 
