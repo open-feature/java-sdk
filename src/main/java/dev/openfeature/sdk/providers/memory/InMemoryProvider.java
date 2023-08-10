@@ -18,20 +18,20 @@ import java.util.stream.Collectors;
 public class InMemoryProvider extends EventProvider {
 
     @Getter
-    private final String name = "InMemoryProvider";
+    private static final String NAME = "InMemoryProvider";
 
-    private Flags flags;
+    private Map<String, Flag<?>> flags;
 
     @Getter
     private ProviderState state = ProviderState.NOT_READY;
 
     @Override
     public Metadata getMetadata() {
-        return () -> name;
+        return () -> NAME;
     }
 
-    public InMemoryProvider(Flags flags) {
-        this.flags = flags;
+    public InMemoryProvider(Map<String, Flag<?>> flags) {
+        this.flags = new HashMap<>(flags);
     }
 
     /**
@@ -53,11 +53,11 @@ public class InMemoryProvider extends EventProvider {
      * Updating provider flags configuration, replacing existing flags.
      * @param flags the flags to use instead of the previous flags.
      */
-    public void updateFlags(Flags flags) {
+    public void updateFlags(Map<String, Flag<?>> flags) {
         Set<String> flagsChanged = new HashSet<>();
-        flagsChanged.addAll(this.flags.getFlags().keySet());
-        flagsChanged.addAll(flags.getFlags().keySet());
-        this.flags = flags;
+        flagsChanged.addAll(this.flags.keySet());
+        flagsChanged.addAll(flags.keySet());
+        this.flags = new HashMap<>(flags);
         ProviderEventDetails details = ProviderEventDetails.builder()
             .flagsChanged(new ArrayList<>(flagsChanged))
             .message("flags changed")
@@ -110,7 +110,7 @@ public class InMemoryProvider extends EventProvider {
                 .value(defaultValue)
                 .build();
         }
-        Flag<?> flag = flags.getFlags().get(key);
+        Flag<?> flag = flags.get(key);
         if (flag == null) {
             return ProviderEvaluation.<T>builder()
                 .value(defaultValue)

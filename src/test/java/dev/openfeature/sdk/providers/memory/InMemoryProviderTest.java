@@ -16,7 +16,7 @@ import static dev.openfeature.sdk.providers.memory.InMemoryProvider.mapToStructu
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class InMemoryProviderTest {
+public class InMemoryProviderTest {
 
     private static Client client;
 
@@ -27,54 +27,7 @@ class InMemoryProviderTest {
     @SneakyThrows
     @BeforeAll
     static void beforeAll() {
-        Flags flags = Flags.builder()
-            .flag("boolean-flag", Flag.builder().state(Flag.State.ENABLED)
-                .variant("on", true)
-                .variant("off", false)
-                .defaultVariant("on")
-                .build())
-            .flag("string-flag", Flag.builder().state(Flag.State.ENABLED)
-                .variant("greeting", "hi")
-                .variant("parting", "bye")
-                .defaultVariant("greeting")
-                .build())
-            .flag("integer-flag", Flag.builder().state(Flag.State.ENABLED)
-                .variant("one", 1)
-                .variant("ten", 10)
-                .defaultVariant("ten")
-                .build())
-            .flag("float-flag", Flag.builder().state(Flag.State.ENABLED)
-                .variant("tenth", 0.1)
-                .variant("half", 0.5)
-                .defaultVariant("half")
-                .build())
-            .flag("object-flag", Flag.builder().state(Flag.State.ENABLED)
-                .variant("empty", new HashMap<>())
-                .variant("template", new Value(mapToStructure(ImmutableMap.of(
-                    "showImages", new Value(true),
-                    "title", new Value("Check out these pics!"),
-                    "imagesPerPage", new Value(100)
-                ))))
-                .defaultVariant("template")
-                .build())
-            .flag("context-aware", Flag.<String>builder().state(Flag.State.ENABLED)
-                .variant("internal", "INTERNAL")
-                .variant("external", "EXTERNAL")
-                .defaultVariant("external")
-                .contextEvaluator((flag, evaluationContext) -> {
-                    if (new Value(false).equals(evaluationContext.getValue("customer"))) {
-                        return (String) flag.getVariants().get("internal");
-                    } else {
-                        return (String) flag.getVariants().get(flag.getDefaultVariant());
-                    }
-                })
-                .build())
-            .flag("wrong-flag", Flag.builder().state(Flag.State.ENABLED)
-                .variant("one", "uno")
-                .variant("two", "dos")
-                .defaultVariant("one")
-                .build())
-            .build();
+        Map<String, Flag<?>> flags = buildFlags();
         InMemoryProvider provider = new InMemoryProvider(flags);
         OpenFeatureAPI.getInstance().setProvider(provider);
 
@@ -87,6 +40,57 @@ class InMemoryProviderTest {
 
         client.onProviderConfigurationChanged(eventDetails -> isConfigurationChanged.set(true));
         provider.updateFlags(flags);
+    }
+
+    public static Map<String, Flag<?>> buildFlags() {
+        Map<String, Flag<?>> flags = new HashMap<>();
+        flags.put("boolean-flag", Flag.builder().state(Flag.State.ENABLED)
+            .variant("on", true)
+            .variant("off", false)
+            .defaultVariant("on")
+            .build());
+        flags.put("string-flag", Flag.builder().state(Flag.State.ENABLED)
+            .variant("greeting", "hi")
+            .variant("parting", "bye")
+            .defaultVariant("greeting")
+            .build());
+        flags.put("integer-flag", Flag.builder().state(Flag.State.ENABLED)
+            .variant("one", 1)
+            .variant("ten", 10)
+            .defaultVariant("ten")
+            .build());
+        flags.put("float-flag", Flag.builder().state(Flag.State.ENABLED)
+            .variant("tenth", 0.1)
+            .variant("half", 0.5)
+            .defaultVariant("half")
+            .build());
+        flags.put("object-flag", Flag.builder().state(Flag.State.ENABLED)
+            .variant("empty", new HashMap<>())
+            .variant("template", new Value(mapToStructure(ImmutableMap.of(
+                "showImages", new Value(true),
+                "title", new Value("Check out these pics!"),
+                "imagesPerPage", new Value(100)
+            ))))
+            .defaultVariant("template")
+            .build());
+        flags.put("context-aware", Flag.<String>builder().state(Flag.State.ENABLED)
+            .variant("internal", "INTERNAL")
+            .variant("external", "EXTERNAL")
+            .defaultVariant("external")
+            .contextEvaluator((flag, evaluationContext) -> {
+                if (new Value(false).equals(evaluationContext.getValue("customer"))) {
+                    return (String) flag.getVariants().get("internal");
+                } else {
+                    return (String) flag.getVariants().get(flag.getDefaultVariant());
+                }
+            })
+            .build());
+        flags.put("wrong-flag", Flag.builder().state(Flag.State.ENABLED)
+            .variant("one", "uno")
+            .variant("two", "dos")
+            .defaultVariant("one")
+            .build());
+        return flags;
     }
 
     @SneakyThrows

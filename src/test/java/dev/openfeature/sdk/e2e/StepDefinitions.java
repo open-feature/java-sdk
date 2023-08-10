@@ -1,10 +1,7 @@
 package dev.openfeature.sdk.e2e;
 
-import com.google.common.collect.ImmutableMap;
 import dev.openfeature.sdk.*;
-import dev.openfeature.sdk.providers.memory.ContextEvaluator;
 import dev.openfeature.sdk.providers.memory.Flag;
-import dev.openfeature.sdk.providers.memory.Flags;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import io.cucumber.java.BeforeAll;
 import io.cucumber.java.en.Given;
@@ -15,7 +12,7 @@ import lombok.SneakyThrows;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dev.openfeature.sdk.providers.memory.InMemoryProvider.mapToStructure;
+import static dev.openfeature.sdk.providers.memory.InMemoryProviderTest.buildFlags;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -50,54 +47,7 @@ public class StepDefinitions {
     @BeforeAll()
     @Given("an openfeature client is registered with cache disabled")
     public static void setup() {
-        Flags flags = Flags.builder()
-            .flag("boolean-flag", Flag.builder().state(Flag.State.ENABLED)
-                .variant("on", true)
-                .variant("off", false)
-                .defaultVariant("on")
-                .build())
-            .flag("string-flag", Flag.builder().state(Flag.State.ENABLED)
-                .variant("greeting", "hi")
-                .variant("parting", "bye")
-                .defaultVariant("greeting")
-                .build())
-            .flag("integer-flag", Flag.builder().state(Flag.State.ENABLED)
-                .variant("one",  1)
-                .variant("ten", 10)
-                .defaultVariant("ten")
-                .build())
-            .flag("float-flag", Flag.builder().state(Flag.State.ENABLED)
-                .variant("tenth", 0.1)
-                .variant("half", 0.5)
-                .defaultVariant("half")
-                .build())
-            .flag("object-flag", Flag.builder().state(Flag.State.ENABLED)
-                .variant("empty", new HashMap<>())
-                .variant("template", new Value(mapToStructure(ImmutableMap.of(
-                    "showImages", new Value(true),
-                    "title", new Value("Check out these pics!"),
-                    "imagesPerPage", new Value(100)
-                ))))
-                .defaultVariant("template")
-                .build())
-            .flag("context-aware", Flag.<String>builder().state(Flag.State.ENABLED)
-                .variant("internal", "INTERNAL")
-                .variant("external", "EXTERNAL")
-                .defaultVariant("external")
-                .contextEvaluator((ContextEvaluator<String>) (flag, evaluationContext) -> {
-                    if (new Value(false).equals(evaluationContext.getValue("customer"))) {
-                        return (String) flag.getVariants().get("internal");
-                    } else {
-                        return (String) flag.getVariants().get(flag.getDefaultVariant());
-                    }
-                })
-                .build())
-            .flag("wrong-flag", Flag.builder().state(Flag.State.ENABLED)
-                .variant("one",  "uno")
-                .variant("two", "dos")
-                .defaultVariant("one")
-                .build())
-            .build();
+        Map<String, Flag<?>> flags = buildFlags();
         InMemoryProvider provider = new InMemoryProvider(flags);
         OpenFeatureAPI.getInstance().setProvider(provider);
 
