@@ -1,19 +1,21 @@
 package dev.openfeature.sdk.e2e;
 
+import com.google.common.collect.ImmutableMap;
 import dev.openfeature.sdk.*;
-import dev.openfeature.sdk.testutils.Flags;
-import dev.openfeature.sdk.testutils.InMemoryProvider;
+import dev.openfeature.sdk.providers.memory.ContextEvaluator;
+import dev.openfeature.sdk.providers.memory.Flag;
+import dev.openfeature.sdk.providers.memory.Flags;
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import io.cucumber.java.BeforeAll;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.SneakyThrows;
 
-import java.io.File;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import static dev.openfeature.sdk.providers.memory.InMemoryProvider.mapToStructure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -48,12 +50,55 @@ public class StepDefinitions {
     @BeforeAll()
     @Given("an openfeature client is registered with cache disabled")
     public static void setup() {
-        ClassLoader classLoader = StepDefinitions.class.getClassLoader();
-        File file = new File(classLoader.getResource("features/testing-flags.json").getFile());
-        Path resPath = file.toPath();
-        String conf = new String(java.nio.file.Files.readAllBytes(resPath), "UTF8");
-        Flags flags = Flags.builder().setConfigurationJson(conf).build();
-        InMemoryProvider provider = new InMemoryProvider(conf);
+        Flags flags = Flags.builder()
+            .flag("boolean-flag", Flag.builder().state(Flag.State.ENABLED)
+                .variant("on", true)
+                .variant("off", false)
+                .defaultVariant("on")
+                .build())
+            .flag("string-flag", Flag.builder().state(Flag.State.ENABLED)
+                .variant("greeting", "hi")
+                .variant("parting", "bye")
+                .defaultVariant("greeting")
+                .build())
+            .flag("integer-flag", Flag.builder().state(Flag.State.ENABLED)
+                .variant("one",  1)
+                .variant("ten", 10)
+                .defaultVariant("ten")
+                .build())
+            .flag("float-flag", Flag.builder().state(Flag.State.ENABLED)
+                .variant("tenth", 0.1)
+                .variant("half", 0.5)
+                .defaultVariant("half")
+                .build())
+            .flag("object-flag", Flag.builder().state(Flag.State.ENABLED)
+                .variant("empty", new HashMap<>())
+                .variant("template", new Value(mapToStructure(ImmutableMap.of(
+                    "showImages", new Value(true),
+                    "title", new Value("Check out these pics!"),
+                    "imagesPerPage", new Value(100)
+                ))))
+                .defaultVariant("template")
+                .build())
+            .flag("context-aware", Flag.<String>builder().state(Flag.State.ENABLED)
+                .variant("internal", "INTERNAL")
+                .variant("external", "EXTERNAL")
+                .defaultVariant("external")
+                .contextEvaluator((ContextEvaluator<String>) (flag, evaluationContext) -> {
+                    if (new Value(false).equals(evaluationContext.getValue("customer"))) {
+                        return (String) flag.getVariants().get("internal");
+                    } else {
+                        return (String) flag.getVariants().get(flag.getDefaultVariant());
+                    }
+                })
+                .build())
+            .flag("wrong-flag", Flag.builder().state(Flag.State.ENABLED)
+                .variant("one",  "uno")
+                .variant("two", "dos")
+                .defaultVariant("one")
+                .build())
+            .build();
+        InMemoryProvider provider = new InMemoryProvider(flags);
         OpenFeatureAPI.getInstance().setProvider(provider);
 
         // TODO: setProvider with wait for init, pending https://github.com/open-feature/ofep/pull/80
@@ -238,9 +283,7 @@ public class StepDefinitions {
 
     @Then("the resolved string response should be {string}")
     public void the_resolved_string_response_should_be(String expected) {
-
-        // TODO: targeting context not supported at InMemoryProvider
-//        assertEquals(expected, this.contextAwareValue);
+        assertEquals(expected, this.contextAwareValue);
     }
 
     @Then("the resolved flag value is {string} when the context is empty")

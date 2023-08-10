@@ -16,6 +16,10 @@ If you think we might be out of date with the spec, you can check that by invoki
 
 If you're adding tests to cover something in the spec, use the `@Specification` annotation like you see throughout the test suites.
 
+## End-to-End Tests
+
+The continuous integration runs a set of [gherkin e2e tests](https://github.com/open-feature/test-harness/blob/main/features/evaluation.feature) using `InMemoryProvider`. These tests do not run with the default maven profile.
+
 ## Releasing
 
 See [releasing](./docs/release.md).
