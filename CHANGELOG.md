@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.3](https://github.com/open-feature/java-sdk/compare/v1.4.2...v1.4.3) (2023-08-11)
+
+
+### 🐛 Bug Fixes
+
+* ability to set provider after shutdown ([#556](https://github.com/open-feature/java-sdk/issues/556)) ([fb42a92](https://github.com/open-feature/java-sdk/commit/fb42a92e9b36e57ba71bc05a4f52eda88729f21e))
+
+
+### 🧹 Chore
+
+* **deps:** update github/codeql-action digest to 2160dd3 ([#555](https://github.com/open-feature/java-sdk/issues/555)) ([a6eabc3](https://github.com/open-feature/java-sdk/commit/a6eabc391de27b9dff16310d942abff8675b924e))
+* **deps:** update github/codeql-action digest to 2ec74e3 ([#553](https://github.com/open-feature/java-sdk/issues/553)) ([d8c64d9](https://github.com/open-feature/java-sdk/commit/d8c64d91c43b62af383c1ae6e09417da480c92d2))
+
 ## [1.4.2](https://github.com/open-feature/java-sdk/compare/v1.4.1...v1.4.2) (2023-08-10)
 
 
