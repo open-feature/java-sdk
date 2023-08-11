@@ -21,13 +21,15 @@ import lombok.extern.slf4j.Slf4j;
 public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     // package-private multi-read/single-write lock
     static AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
-    private EvaluationContext evaluationContext;
     private final List<Hook> apiHooks;
-    private ProviderRepository providerRepository = new ProviderRepository();
-    private EventSupport eventSupport = new EventSupport();
+    private ProviderRepository providerRepository;
+    private EventSupport eventSupport;
+    private EvaluationContext evaluationContext;
 
     protected OpenFeatureAPI() {
         apiHooks = new ArrayList<>();
+        providerRepository = new ProviderRepository();
+        eventSupport = new EventSupport();
     }
 
     private static class SingletonHolder {
@@ -190,9 +192,19 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         }
     }
 
+    /**
+     * Shut down and reset the current status of OpenFeature API.
+     * This call cleans up all active providers and attempts to shut down internal event handling mechanisms.
+     * Once shut down is complete, API is reset and ready to use again.
+     * */
     public void shutdown() {
-        providerRepository.shutdown();
-        eventSupport.shutdown();
+        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+            providerRepository.shutdown();
+            eventSupport.shutdown();
+
+            providerRepository = new ProviderRepository();
+            eventSupport = new EventSupport();
+        }
     }
 
     /**
@@ -262,15 +274,6 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
             }
             eventSupport.addClientHandler(clientName, event, handler);
         }
-    }
-
-    /**
-     * This method is only here for testing as otherwise all tests after the API
-     * shutdown test would fail.
-     */
-    final void reset() {
-        providerRepository = new ProviderRepository();
-        eventSupport = new EventSupport();
     }
 
     /**

@@ -109,9 +109,22 @@ class ShutdownBehaviorSpecTest {
                             verify(defaultProvider).shutdown();
                             verify(namedProvider).shutdown();
                         });
-
-                api.reset();
             }
+        }
+
+
+        @Test
+        @DisplayName("once shutdown is complete, api must be ready to use again")
+        void apiIsReadyToUseAfterShutdown() {
+            final OpenFeatureAPI openFeatureAPI = OpenFeatureAPI.getInstance();
+
+            NoOpProvider p1 = new NoOpProvider();
+            openFeatureAPI.setProvider(p1);
+
+            openFeatureAPI.shutdown();
+
+            NoOpProvider p2 = new NoOpProvider();
+            openFeatureAPI.setProvider(p2);
         }
     }
 }
