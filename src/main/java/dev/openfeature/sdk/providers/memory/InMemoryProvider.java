@@ -1,15 +1,25 @@
 package dev.openfeature.sdk.providers.memory;
 
-import dev.openfeature.sdk.*;
+import dev.openfeature.sdk.Value;
+import dev.openfeature.sdk.Metadata;
+import dev.openfeature.sdk.EventProvider;
+import dev.openfeature.sdk.ProviderState;
+import dev.openfeature.sdk.ProviderEventDetails;
+import dev.openfeature.sdk.ErrorCode;
+import dev.openfeature.sdk.EvaluationContext;
+import dev.openfeature.sdk.ProviderEvaluation;
+import dev.openfeature.sdk.Reason;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
+import java.util.ArrayList;
 
 /**
  * In-memory provider.
@@ -61,6 +71,19 @@ public class InMemoryProvider extends EventProvider {
         ProviderEventDetails details = ProviderEventDetails.builder()
             .flagsChanged(new ArrayList<>(flagsChanged))
             .message("flags changed")
+            .build();
+        emitProviderConfigurationChanged(details);
+    }
+
+    /**
+     * Updating provider flags configuration with adding or updating a flag.
+     * @param flag the flag to update. If a flag with this key already exists, new flag replaces it.
+     */
+    public void updateFlag(String flagKey, Flag<?> flag) {
+        this.flags.put(flagKey, flag);
+        ProviderEventDetails details = ProviderEventDetails.builder()
+            .flagsChanged(Arrays.asList(flagKey))
+            .message("flag added/updated")
             .build();
         emitProviderConfigurationChanged(details);
     }
@@ -140,45 +163,4 @@ public class InMemoryProvider extends EventProvider {
             .build();
     }
 
-    private static Value objectToValue(Object object) {
-        if (object instanceof Value) {
-            return (Value) object;
-        } else if (object == null) {
-            return null;
-        } else if (object instanceof String) {
-            return new Value((String) object);
-        } else if (object instanceof Boolean) {
-            return new Value((Boolean) object);
-        } else if (object instanceof Integer) {
-            return new Value((Integer) object);
-        } else if (object instanceof Double) {
-            return new Value((Double) object);
-        } else if (object instanceof Structure) {
-            return new Value((Structure) object);
-        } else if (object instanceof List) {
-            return new Value(((List<Object>) object).stream()
-                .map(InMemoryProvider::objectToValue)
-                .collect(Collectors.toList()));
-        } else if (object instanceof Instant) {
-            return new Value((Instant) object);
-        } else if (object instanceof Map) {
-            return new Value(mapToStructure((Map<String, Object>) object));
-        } else {
-            throw new TypeMismatchError("Flag value " + object + " had unexpected type "
-                    + object.getClass() + ".");
-        }
-    }
-
-    /**
-     * transform a map to a Structure type.
-     *
-     * @param map map of objects
-     * @return a Structure object in the SDK format
-     */
-    public static Structure mapToStructure(Map<String, Object> map) {
-        return new MutableStructure(
-            map.entrySet().stream()
-                .filter(e -> e.getValue() != null)
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> objectToValue(e.getValue()))));
-    }
 }

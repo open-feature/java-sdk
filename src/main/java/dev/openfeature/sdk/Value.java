@@ -5,9 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import lombok.ToString;
+
+import static dev.openfeature.sdk.MutableStructure.mapToStructure;
 
 /**
  * Values serve as a generic return type for structure data from providers.
@@ -279,5 +282,39 @@ public class Value implements Cloneable {
             return new Value(copy);
         }
         return new Value(this.asObject());
+    }
+
+    /**
+     * Wrap an object into a Value.
+     *
+     * @param object the object to wrap
+     * @return the wrapped object
+     */
+    public static Value objectToValue(Object object) {
+        if (object instanceof Value) {
+            return (Value) object;
+        } else if (object == null) {
+            return null;
+        } else if (object instanceof String) {
+            return new Value((String) object);
+        } else if (object instanceof Boolean) {
+            return new Value((Boolean) object);
+        } else if (object instanceof Integer) {
+            return new Value((Integer) object);
+        } else if (object instanceof Double) {
+            return new Value((Double) object);
+        } else if (object instanceof Structure) {
+            return new Value((Structure) object);
+        } else if (object instanceof List) {
+            return new Value(((List<Object>) object).stream()
+                .map(o -> objectToValue(o))
+                .collect(Collectors.toList()));
+        } else if (object instanceof Instant) {
+            return new Value((Instant) object);
+        } else if (object instanceof Map) {
+            return new Value(mapToStructure((Map<String, Object>) object));
+        } else {
+            throw new TypeMismatchError("Flag value " + object + " had unexpected type " + object.getClass() + ".");
+        }
     }
 }

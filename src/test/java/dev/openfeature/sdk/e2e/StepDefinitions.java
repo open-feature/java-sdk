@@ -1,6 +1,13 @@
 package dev.openfeature.sdk.e2e;
 
-import dev.openfeature.sdk.*;
+import dev.openfeature.sdk.Value;
+import dev.openfeature.sdk.EvaluationContext;
+import dev.openfeature.sdk.Reason;
+import dev.openfeature.sdk.Client;
+import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.Structure;
+import dev.openfeature.sdk.ImmutableContext;
+import dev.openfeature.sdk.FlagEvaluationDetails;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import io.cucumber.java.BeforeAll;
@@ -12,7 +19,7 @@ import lombok.SneakyThrows;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dev.openfeature.sdk.providers.memory.InMemoryProviderTest.buildFlags;
+import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

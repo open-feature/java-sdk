@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static dev.openfeature.sdk.Value.objectToValue;
+
 /**
  * {@link MutableStructure} represents a potentially nested object type which is used to represent 
  * structured data.
@@ -107,5 +109,18 @@ public class MutableStructure implements Structure {
                 Map.Entry::getKey,
                 e -> convertValue(getValue(e.getKey()))
             ));
+    }
+
+    /**
+     * transform a map to a Structure type.
+     *
+     * @param map map of objects
+     * @return a Structure object in the SDK format
+     */
+    public static Structure mapToStructure(Map<String, Object> map) {
+        return new MutableStructure(
+            map.entrySet().stream()
+                .filter(e -> e.getValue() != null)
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> objectToValue(e.getValue()))));
     }
 }

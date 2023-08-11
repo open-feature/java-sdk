@@ -486,6 +486,59 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>e2e-test</id>
+      <properties>
+        <!-- run the e2e tests by clearing the exclusions -->
+        <testExclusions/>
+      </properties>
+      <build>
+        <plugins>
+          <!-- pull the gherkin tests as a git submodule  -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>update-test-harness-submodule</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <!-- run: git submodule update \-\-init \-\-recursive -->
+                  <executable>git</executable>
+                  <arguments>
+                    <argument>submodule</argument>
+                    <argument>update</argument>
+                    <argument>--init</argument>
+                    <argument>test-harness</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>copy-gherkin-tests</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <!-- copy the feature spec we want to test into resources so them can be easily loaded -->
+                  <!-- run: cp test-harness/features/evaluation.feature src/test/resources/features/ -->
+                  <executable>cp</executable>
+                  <arguments>
+                    <argument>test-harness/features/evaluation.feature</argument>
+                    <argument>src/test/resources/features/</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <distributionManagement>

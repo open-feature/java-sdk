@@ -1,7 +1,11 @@
 package dev.openfeature.sdk.providers.memory;
 
 import com.google.common.collect.ImmutableMap;
-import dev.openfeature.sdk.*;
+import dev.openfeature.sdk.Value;
+import dev.openfeature.sdk.Client;
+import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.Structure;
+import dev.openfeature.sdk.ImmutableContext;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -11,8 +15,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static dev.openfeature.sdk.providers.memory.InMemoryProvider.mapToStructure;
+import static dev.openfeature.sdk.MutableStructure.mapToStructure;
+import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,7 +28,7 @@ public class InMemoryProviderTest {
 
     private static final AtomicBoolean isProviderReady = new AtomicBoolean(false);
 
-    private static final AtomicBoolean isConfigurationChanged = new AtomicBoolean(false);
+    private static final AtomicInteger configurationChangedEventCount = new AtomicInteger(0);
 
     @SneakyThrows
     @BeforeAll
@@ -38,66 +44,20 @@ public class InMemoryProviderTest {
 
         client.onProviderReady(eventDetails -> isProviderReady.set(true));
 
-        client.onProviderConfigurationChanged(eventDetails -> isConfigurationChanged.set(true));
+        client.onProviderConfigurationChanged(eventDetails -> configurationChangedEventCount.incrementAndGet());
         provider.updateFlags(flags);
-    }
-
-    public static Map<String, Flag<?>> buildFlags() {
-        Map<String, Flag<?>> flags = new HashMap<>();
-        flags.put("boolean-flag", Flag.builder().state(Flag.State.ENABLED)
+        provider.updateFlag("addedFlag", Flag.builder().state(Flag.State.ENABLED)
             .variant("on", true)
             .variant("off", false)
             .defaultVariant("on")
             .build());
-        flags.put("string-flag", Flag.builder().state(Flag.State.ENABLED)
-            .variant("greeting", "hi")
-            .variant("parting", "bye")
-            .defaultVariant("greeting")
-            .build());
-        flags.put("integer-flag", Flag.builder().state(Flag.State.ENABLED)
-            .variant("one", 1)
-            .variant("ten", 10)
-            .defaultVariant("ten")
-            .build());
-        flags.put("float-flag", Flag.builder().state(Flag.State.ENABLED)
-            .variant("tenth", 0.1)
-            .variant("half", 0.5)
-            .defaultVariant("half")
-            .build());
-        flags.put("object-flag", Flag.builder().state(Flag.State.ENABLED)
-            .variant("empty", new HashMap<>())
-            .variant("template", new Value(mapToStructure(ImmutableMap.of(
-                "showImages", new Value(true),
-                "title", new Value("Check out these pics!"),
-                "imagesPerPage", new Value(100)
-            ))))
-            .defaultVariant("template")
-            .build());
-        flags.put("context-aware", Flag.<String>builder().state(Flag.State.ENABLED)
-            .variant("internal", "INTERNAL")
-            .variant("external", "EXTERNAL")
-            .defaultVariant("external")
-            .contextEvaluator((flag, evaluationContext) -> {
-                if (new Value(false).equals(evaluationContext.getValue("customer"))) {
-                    return (String) flag.getVariants().get("internal");
-                } else {
-                    return (String) flag.getVariants().get(flag.getDefaultVariant());
-                }
-            })
-            .build());
-        flags.put("wrong-flag", Flag.builder().state(Flag.State.ENABLED)
-            .variant("one", "uno")
-            .variant("two", "dos")
-            .defaultVariant("one")
-            .build());
-        return flags;
     }
 
     @SneakyThrows
     @Test
     void eventsTest() {
         assertTrue(isProviderReady.get());
-        assertTrue(isConfigurationChanged.get());
+        assertEquals(2, configurationChangedEventCount.get());
     }
 
     @Test
