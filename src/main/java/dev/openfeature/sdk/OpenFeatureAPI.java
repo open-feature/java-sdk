@@ -193,9 +193,9 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * Shutdown and reset the current status of OpenFeature API.
-     * This call cleans up all active providers and attempt to shut down internal event handling mechanisms.
-     * Once shutdown is complete, API is reset and ready to use again.
+     * Shut down and reset the current status of OpenFeature API.
+     * This call cleans up all active providers and attempts to shut down internal event handling mechanisms.
+     * Once shut down is complete, API is reset and ready to use again.
      * */
     public void shutdown() {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
