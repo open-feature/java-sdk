@@ -112,7 +112,7 @@ public class MutableStructure implements Structure {
     }
 
     /**
-     * transform a map to a Structure type.
+     * Transform an object map to a {@link Structure} type.
      *
      * @param map map of objects
      * @return a Structure object in the SDK format

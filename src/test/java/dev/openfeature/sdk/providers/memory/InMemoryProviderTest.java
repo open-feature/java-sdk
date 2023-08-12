@@ -1,18 +1,13 @@
 package dev.openfeature.sdk.providers.memory;
 
 import com.google.common.collect.ImmutableMap;
-import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.Client;
 import dev.openfeature.sdk.OpenFeatureAPI;
-import dev.openfeature.sdk.Structure;
-import dev.openfeature.sdk.ImmutableContext;
+import dev.openfeature.sdk.Value;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,7 +41,7 @@ public class InMemoryProviderTest {
 
         client.onProviderConfigurationChanged(eventDetails -> configurationChangedEventCount.incrementAndGet());
         provider.updateFlags(flags);
-        provider.updateFlag("addedFlag", Flag.builder().state(Flag.State.ENABLED)
+        provider.updateFlag("addedFlag", Flag.builder()
             .variant("on", true)
             .variant("off", false)
             .defaultVariant("on")
@@ -88,32 +83,6 @@ public class InMemoryProviderTest {
             "imagesPerPage", new Value(100)
         )));
         assertEquals(expectedObject, client.getObjectValue("object-flag", new Value(true)));
-    }
-
-    @SneakyThrows
-    @Test
-    void mapToStructureTest() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("String", "str");
-        map.put("Boolean", true);
-        map.put("Integer", 1);
-        map.put("Double", 1.1);
-        map.put("List", Collections.singletonList(new Value(1)));
-        map.put("Value", new Value((true)));
-        map.put("Instant", Instant.ofEpochSecond(0));
-        map.put("Map", new HashMap<>());
-        ImmutableContext immutableContext = new ImmutableContext();
-        map.put("ImmutableContext", immutableContext);
-        Structure res = mapToStructure(map);
-        assertEquals(new Value("str"), res.getValue("String"));
-        assertEquals(new Value(true), res.getValue("Boolean"));
-        assertEquals(new Value(1), res.getValue("Integer"));
-        assertEquals(new Value(1.1), res.getValue("Double"));
-        assertEquals(new Value(Collections.singletonList(new Value(1))), res.getValue("List"));
-        assertEquals(new Value(true), res.getValue("Value"));
-        assertEquals(new Value(Instant.ofEpochSecond(0)), res.getValue("Instant"));
-        assertEquals(new HashMap<>(), res.getValue("Map").asStructure().asMap());
-        assertEquals(new Value(immutableContext), res.getValue("ImmutableContext"));
     }
 
 }

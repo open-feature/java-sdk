@@ -1,16 +1,20 @@
 package dev.openfeature.sdk;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+import static dev.openfeature.sdk.MutableStructure.mapToStructure;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StructureTest {
     @Test public void noArgShouldContainEmptyAttributes() {
@@ -46,7 +50,7 @@ public class StructureTest {
         double DOUBLE_VAL = .5;
         Instant DATE_VAL = Instant.now();
         MutableStructure STRUCT_VAL = new MutableStructure();
-        List<Value> LIST_VAL = new ArrayList<Value>();
+        List<Value> LIST_VAL = new ArrayList<>();
         Value VALUE_VAL = new Value();
 
         MutableStructure structure = new MutableStructure();
@@ -67,5 +71,33 @@ public class StructureTest {
         assertEquals(STRUCT_VAL, structure.getValue(STRUCT_KEY).asStructure());
         assertEquals(LIST_VAL, structure.getValue(LIST_KEY).asList());
         assertTrue(structure.getValue(VALUE_KEY).isNull());
+    }
+
+    @SneakyThrows
+    @Test
+    void mapToStructureTest() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("String", "str");
+        map.put("Boolean", true);
+        map.put("Integer", 1);
+        map.put("Double", 1.1);
+        map.put("List", Collections.singletonList(new Value(1)));
+        map.put("Value", new Value((true)));
+        map.put("Instant", Instant.ofEpochSecond(0));
+        map.put("Map", new HashMap<>());
+        map.put("nullKey", null);
+        ImmutableContext immutableContext = new ImmutableContext();
+        map.put("ImmutableContext", immutableContext);
+        Structure res = mapToStructure(map);
+        assertEquals(new Value("str"), res.getValue("String"));
+        assertEquals(new Value(true), res.getValue("Boolean"));
+        assertEquals(new Value(1), res.getValue("Integer"));
+        assertEquals(new Value(1.1), res.getValue("Double"));
+        assertEquals(new Value(Collections.singletonList(new Value(1))), res.getValue("List"));
+        assertEquals(new Value(true), res.getValue("Value"));
+        assertEquals(new Value(Instant.ofEpochSecond(0)), res.getValue("Instant"));
+        assertEquals(new HashMap<>(), res.getValue("Map").asStructure().asMap());
+        assertEquals(new Value(immutableContext), res.getValue("ImmutableContext"));
+        assertNull(res.getValue("nullKey"));
     }
 }

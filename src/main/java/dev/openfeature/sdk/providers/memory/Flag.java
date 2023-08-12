@@ -14,15 +14,6 @@ import java.util.Map;
 @Builder
 @Getter
 public class Flag<T> {
-
-    /**
-     * Flag state.
-     */
-    public enum State {
-        ENABLED, DISABLED
-    }
-
-    private State state;
     @Singular
     private Map<String, Object> variants;
     private String defaultVariant;
