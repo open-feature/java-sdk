@@ -145,7 +145,11 @@ class EventSupport {
      * Stop the event handler task executor.
      */
     public void shutdown() {
-        taskExecutor.shutdown();
+        try {
+            taskExecutor.shutdown();
+        } catch (Exception e) {
+            log.warn("Exception while attempting to shutdown task executor", e);
+        }
     }
 
     // Handler store maintains a set of handlers for each event type.
