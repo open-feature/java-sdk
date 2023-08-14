@@ -53,10 +53,6 @@ public class InMemoryProvider extends EventProvider {
         super.initialize(evaluationContext);
         state = ProviderState.READY;
         log.debug("finished initializing provider, state: {}", state);
-        ProviderEventDetails details = ProviderEventDetails.builder()
-            .message("provider is ready")
-            .build();
-        emitProviderReady(details);
     }
 
     /**

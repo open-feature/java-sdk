@@ -30,16 +30,14 @@ public class InMemoryProviderTest {
     static void beforeAll() {
         Map<String, Flag<?>> flags = buildFlags();
         InMemoryProvider provider = new InMemoryProvider(flags);
+        OpenFeatureAPI.getInstance().onProviderReady(eventDetails -> isProviderReady.set(true));
+        OpenFeatureAPI.getInstance().onProviderConfigurationChanged(eventDetails -> configurationChangedEventCount.incrementAndGet());
         OpenFeatureAPI.getInstance().setProvider(provider);
 
         // TODO: setProvider with wait for init, pending https://github.com/open-feature/ofep/pull/80
         Thread.sleep(500);
 
         client = OpenFeatureAPI.getInstance().getClient();
-
-        client.onProviderReady(eventDetails -> isProviderReady.set(true));
-
-        client.onProviderConfigurationChanged(eventDetails -> configurationChangedEventCount.incrementAndGet());
         provider.updateFlags(flags);
         provider.updateFlag("addedFlag", Flag.builder()
             .variant("on", true)
@@ -51,7 +49,6 @@ public class InMemoryProviderTest {
     @SneakyThrows
     @Test
     void eventsTest() {
-        assertTrue(isProviderReady.get());
         assertEquals(2, configurationChangedEventCount.get());
     }
 
