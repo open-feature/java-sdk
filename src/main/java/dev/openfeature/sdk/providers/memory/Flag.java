@@ -8,7 +8,7 @@ import lombok.ToString;
 import java.util.Map;
 
 /**
- * Flag representation.
+ * Flag representation for the in-memory provider.
  */
 @ToString
 @Builder

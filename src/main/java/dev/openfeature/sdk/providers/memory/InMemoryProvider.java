@@ -52,7 +52,7 @@ public class InMemoryProvider extends EventProvider {
     public void initialize(EvaluationContext evaluationContext) throws Exception {
         super.initialize(evaluationContext);
         state = ProviderState.READY;
-        log.info("finished initializing provider, state: {}", state);
+        log.debug("finished initializing provider, state: {}", state);
         ProviderEventDetails details = ProviderEventDetails.builder()
             .message("provider is ready")
             .build();

@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static dev.openfeature.sdk.Value.objectToValue;
+
 /**
  * {@link Structure} represents a potentially nested object type which is used to represent 
  * structured data.
@@ -122,5 +124,17 @@ public interface Structure {
             }
         }
         return merged;
+    }
+
+    /**
+     * Transform an object map to a {@link Structure} type.
+     *
+     * @param map map of objects
+     * @return a Structure object in the SDK format
+     */
+    static Structure mapToStructure(Map<String, Object> map) {
+        return new MutableStructure(map.entrySet().stream()
+            .filter(e -> e.getValue() != null)
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> objectToValue(e.getValue()))));
     }
 }

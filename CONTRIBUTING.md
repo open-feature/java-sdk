@@ -20,6 +20,11 @@ If you're adding tests to cover something in the spec, use the `@Specification` 
 
 The continuous integration runs a set of [gherkin e2e tests](https://github.com/open-feature/test-harness/blob/main/features/evaluation.feature) using `InMemoryProvider`.
 
+to run alone:
+```
+mvn test -P e2e-test
+```
+
 ## Releasing
 
 See [releasing](./docs/release.md).

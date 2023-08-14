@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import lombok.ToString;
 
-import static dev.openfeature.sdk.MutableStructure.mapToStructure;
+import static dev.openfeature.sdk.Structure.mapToStructure;
 
 /**
  * Values serve as a generic return type for structure data from providers.

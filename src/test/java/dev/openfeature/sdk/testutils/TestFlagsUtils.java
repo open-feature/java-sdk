@@ -8,7 +8,7 @@ import lombok.experimental.UtilityClass;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dev.openfeature.sdk.MutableStructure.mapToStructure;
+import static dev.openfeature.sdk.Structure.mapToStructure;
 
 /**
  * Test flags utils.
