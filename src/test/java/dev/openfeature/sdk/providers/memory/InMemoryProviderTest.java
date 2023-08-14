@@ -9,29 +9,28 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static dev.openfeature.sdk.Structure.mapToStructure;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-public class InMemoryProviderTest {
+class InMemoryProviderTest {
 
     private static Client client;
 
-    private static final AtomicBoolean isProviderReady = new AtomicBoolean(false);
-
-    private static final AtomicInteger configurationChangedEventCount = new AtomicInteger(0);
+    private static InMemoryProvider provider;
 
     @SneakyThrows
     @BeforeAll
     static void beforeAll() {
         Map<String, Flag<?>> flags = buildFlags();
-        InMemoryProvider provider = new InMemoryProvider(flags);
-        OpenFeatureAPI.getInstance().onProviderReady(eventDetails -> isProviderReady.set(true));
-        OpenFeatureAPI.getInstance().onProviderConfigurationChanged(eventDetails -> configurationChangedEventCount.incrementAndGet());
+        provider = spy(new InMemoryProvider(flags));
+        OpenFeatureAPI.getInstance().onProviderConfigurationChanged(eventDetails -> {});
         OpenFeatureAPI.getInstance().setProvider(provider);
 
         // TODO: setProvider with wait for init, pending https://github.com/open-feature/ofep/pull/80
@@ -49,7 +48,7 @@ public class InMemoryProviderTest {
     @SneakyThrows
     @Test
     void eventsTest() {
-        assertEquals(2, configurationChangedEventCount.get());
+        verify(provider, times(2)).emitProviderConfigurationChanged(any());
     }
 
     @Test
