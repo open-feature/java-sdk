@@ -27,7 +27,7 @@
   <a href="https://javadoc.io/doc/dev.openfeature/sdk">
     <img alt="Javadoc" src="https://javadoc.io/badge2/dev.openfeature/sdk/javadoc.svg" />
   </a>
-  <a href="https://javadoc.io/doc/dev.openfeature/sdk">
+  <a href="https://maven-badges.herokuapp.com/maven-central/dev.openfeature/sdk">
     <img alt="Maven Central" src="https://maven-badges.herokuapp.com/maven-central/dev.openfeature/sdk/badge.svg" />
   </a>
   <a href="https://codecov.io/gh/open-feature/java-sdk">
