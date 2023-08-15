@@ -24,8 +24,8 @@
 
   <!-- x-release-please-end -->
   <br/>
-  <a href="https://bestpractices.coreinfrastructure.org/projects/6601">
-    <img alt="CII Best Practices" src="https://bestpractices.coreinfrastructure.org/projects/6601/badge" />
+  <a href="https://bestpractices.coreinfrastructure.org/projects/6241">
+    <img alt="CII Best Practices" src="https://bestpractices.coreinfrastructure.org/projects/6241/badge" />
   </a>
 </p>
 <!-- x-hide-in-docs-start -->
