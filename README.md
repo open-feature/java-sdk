@@ -116,7 +116,7 @@ public void example(){
 
 ### API Reference
 
-Javadoc: https://javadoc.io/doc/dev.openfeature/sdk/latest/
+See [here](https://javadoc.io/doc/dev.openfeature/sdk/latest/) for the Javadocs.
 
 ## 🌟 Features
 
