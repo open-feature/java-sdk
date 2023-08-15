@@ -18,14 +18,9 @@ If you're adding tests to cover something in the spec, use the `@Specification` 
 
 ## End-to-End Tests
 
-<!-- TODO: this section should be updated with https://github.com/open-feature/java-sdk/issues/523 -->
+The continuous integration runs a set of [gherkin e2e tests](https://github.com/open-feature/test-harness/blob/main/features/evaluation.feature) using `InMemoryProvider`.
 
-The continuous integration runs a set of [gherkin e2e tests](https://github.com/open-feature/test-harness/blob/main/features/evaluation.feature) using [`flagd`](https://github.com/open-feature/flagd). These tests do not run with the default maven profile. If you'd like to run them locally, you can start the flagd testbed with
-
-```
-docker run -p 8013:8013 ghcr.io/open-feature/flagd-testbed:latest
-```
-and then run 
+to run alone:
 ```
 mvn test -P e2e-test
 ```

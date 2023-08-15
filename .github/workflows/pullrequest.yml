@@ -8,13 +8,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # TODO: this can be removed with https://github.com/open-feature/java-sdk/issues/523
-    services:
-      flagd:
-        image: ghcr.io/open-feature/flagd-testbed:latest
-        ports:
-          - 8013:8013
-
     steps:
       - name: Check out the code
         uses: actions/checkout@96f53100ba2a5449eb71d2e6604bbcd94b9449b5
