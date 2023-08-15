@@ -33,7 +33,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Verify with Maven
-        run: mvn --batch-mode --update-snapshots --activate-profiles e2e-test verify
+        run: mvn --batch-mode --update-snapshots --activate-profiles e2e verify
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@e1dd05cde2ed37d100f658b34ea423728ba1812e

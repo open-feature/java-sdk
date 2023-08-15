@@ -11,6 +11,8 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
     <junit.jupiter.version>5.10.0</junit.jupiter.version>
+     <!-- exclusion expression for e2e tests -->
+    <testExclusions>**/e2e/*.java</testExclusions>
     <module-name>${groupId}.${artifactId}</module-name>
   </properties>
 
@@ -488,7 +490,7 @@
     </profile>
 
     <profile>
-      <id>e2e-test</id>
+      <id>e2e</id>
       <properties>
         <!-- run the e2e tests by clearing the exclusions -->
         <testExclusions/>

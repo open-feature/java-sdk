@@ -22,7 +22,7 @@ The continuous integration runs a set of [gherkin e2e tests](https://github.com/
 
 to run alone:
 ```
-mvn test -P e2e-test
+mvn test -P e2e
 ```
 
 ## Releasing
