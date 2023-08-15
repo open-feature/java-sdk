@@ -24,6 +24,15 @@
 
   <!-- x-release-please-end -->
   <br/>
+  <a href="https://javadoc.io/doc/dev.openfeature/sdk">
+    <img alt="Javadoc" src="https://javadoc.io/badge2/dev.openfeature/sdk/javadoc.svg" />
+  </a>
+  <a href="https://javadoc.io/doc/dev.openfeature/sdk">
+    <img alt="Maven Central" src="https://maven-badges.herokuapp.com/maven-central/dev.openfeature/sdk/badge.svg" />
+  </a>
+  <a href="https://codecov.io/gh/open-feature/java-sdk">
+    <img alt="Codecov" src="https://codecov.io/gh/open-feature/java-sdk/branch/main/graph/badge.svg?token=XMS9L7PBY1" />
+  </a>
   <a href="https://bestpractices.coreinfrastructure.org/projects/6241">
     <img alt="CII Best Practices" src="https://bestpractices.coreinfrastructure.org/projects/6241/badge" />
   </a>
