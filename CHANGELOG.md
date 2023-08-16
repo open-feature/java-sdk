@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.5.0](https://github.com/open-feature/java-sdk/compare/v1.4.3...v1.5.0) (2023-08-16)
+
+
+### ✨ New Features
+
+* In-memory provider for e2e testing and minimal usage ([#546](https://github.com/open-feature/java-sdk/issues/546)) ([a741568](https://github.com/open-feature/java-sdk/commit/a741568762b96091bb0e50a32a8e00e863268429))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/setup-java digest to 5b86b67 ([#562](https://github.com/open-feature/java-sdk/issues/562)) ([4a4d813](https://github.com/open-feature/java-sdk/commit/4a4d81367b50ab957d99371ffe368c0977768329))
+* **deps:** update github/codeql-action digest to 3ecf990 ([#557](https://github.com/open-feature/java-sdk/issues/557)) ([350196c](https://github.com/open-feature/java-sdk/commit/350196c6882aadba1c037132ff61296c8212d871))
+* **deps:** update github/codeql-action digest to e683046 ([#559](https://github.com/open-feature/java-sdk/issues/559)) ([6c52ee4](https://github.com/open-feature/java-sdk/commit/6c52ee464fdb5d5733cb5a31e9cfea1644840177))
+* fix codecov, throw in memory provider ([1f28921](https://github.com/open-feature/java-sdk/commit/1f28921fec2cece6d492fb77160bb97dd05c3e08))
+* fix e2e profile ([94a5a86](https://github.com/open-feature/java-sdk/commit/94a5a869d8f2d41adf632f60db1eb0f7e9b530ec))
+* fix jacoco coverage minimum, throw in memory provider ([#561](https://github.com/open-feature/java-sdk/issues/561)) ([1f28921](https://github.com/open-feature/java-sdk/commit/1f28921fec2cece6d492fb77160bb97dd05c3e08))
+
+
+### 📚 Documentation
+
+* update README to be auto-included in openfeature.dev ([#560](https://github.com/open-feature/java-sdk/issues/560)) ([3496366](https://github.com/open-feature/java-sdk/commit/3496366ae880e85c08e0b5925e9220b55a67c8eb))
+
 ## [1.4.3](https://github.com/open-feature/java-sdk/compare/v1.4.2...v1.4.3) (2023-08-11)
 
 
