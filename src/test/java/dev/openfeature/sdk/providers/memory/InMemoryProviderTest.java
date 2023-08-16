@@ -2,17 +2,22 @@ package dev.openfeature.sdk.providers.memory;
 
 import com.google.common.collect.ImmutableMap;
 import dev.openfeature.sdk.Client;
+import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.Value;
+import dev.openfeature.sdk.exceptions.FlagNotFoundError;
+import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.omg.CORBA.DynAnyPackage.TypeMismatch;
 
 import java.util.Map;
 
 import static dev.openfeature.sdk.Structure.mapToStructure;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
@@ -81,4 +86,17 @@ class InMemoryProviderTest {
         assertEquals(expectedObject, client.getObjectValue("object-flag", new Value(true)));
     }
 
+    @Test
+    void notFound() {
+        assertThrows(FlagNotFoundError.class, () -> {
+            provider.getBooleanEvaluation("not-found-flag", false, new ImmutableContext());
+        });
+    }
+
+    @Test
+    void typeMismatch() {
+        assertThrows(TypeMismatchError.class, () -> {
+            provider.getBooleanEvaluation("string-flag", false, new ImmutableContext());
+        });
+    }
 }
