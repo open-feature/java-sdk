@@ -43,8 +43,8 @@ class ProviderRepository {
 
     public List<String> getClientNamesForProvider(FeatureProvider provider) {
         return providers.entrySet().stream()
-                .filter(entry -> entry.getValue().equals(provider))
-                .map(entry -> entry.getKey()).collect(Collectors.toList());
+            .filter(entry -> entry.getValue().equals(provider))
+            .map(entry -> entry.getKey()).collect(Collectors.toList());
     }
 
     public Set<String> getAllBoundClientNames() {
@@ -55,6 +55,18 @@ class ProviderRepository {
         return this.getProvider().equals(provider);
     }
 
+    private void setProvider(FeatureProvider provider,
+            Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, String> afterError,
+            boolean waitForInit) {
+        if (provider == null) {
+            throw new IllegalArgumentException("Provider cannot be null");
+        }
+        initializeProvider(null, provider, afterSet, afterInit, afterShutdown, afterError, waitForInit);
+    }
+
     /**
      * Set the default provider.
      */
@@ -63,10 +75,23 @@ class ProviderRepository {
             Consumer<FeatureProvider> afterInit,
             Consumer<FeatureProvider> afterShutdown,
             BiConsumer<FeatureProvider, String> afterError) {
+        setProvider(provider, afterSet, afterInit, afterShutdown, afterError, false);
+    }
+
+    private void setProvider(String clientName,
+             FeatureProvider provider,
+             Consumer<FeatureProvider> afterSet,
+             Consumer<FeatureProvider> afterInit,
+             Consumer<FeatureProvider> afterShutdown,
+             BiConsumer<FeatureProvider, String> afterError,
+             boolean waitForInit) {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
-        initializeProvider(null, provider, afterSet, afterInit, afterShutdown, afterError);
+        if (clientName == null) {
+            throw new IllegalArgumentException("clientName cannot be null");
+        }
+        initializeProvider(clientName, provider, afterSet, afterInit, afterShutdown, afterError, waitForInit);
     }
 
     /**
@@ -81,13 +106,33 @@ class ProviderRepository {
             Consumer<FeatureProvider> afterInit,
             Consumer<FeatureProvider> afterShutdown,
             BiConsumer<FeatureProvider, String> afterError) {
-        if (provider == null) {
-            throw new IllegalArgumentException("Provider cannot be null");
-        }
-        if (clientName == null) {
-            throw new IllegalArgumentException("clientName cannot be null");
-        }
-        initializeProvider(clientName, provider, afterSet, afterInit, afterShutdown, afterError);
+        setProvider(clientName, provider, afterSet, afterInit, afterShutdown, afterError, false);
+    }
+
+    /**
+     * Set the default provider and wait for initialization to finish.
+     */
+    public void setProviderAndWait(FeatureProvider provider,
+            Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, String> afterError) {
+        setProvider(provider, afterSet, afterInit, afterShutdown, afterError, true);
+    }
+
+    /**
+     * Add a provider for a named client and wait for initialization to finish.
+     *
+     * @param clientName The name of the client.
+     * @param provider   The provider to set.
+     */
+    public void setProviderAndWait(String clientName,
+            FeatureProvider provider,
+            Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, String> afterError) {
+        setProvider(clientName, provider, afterSet, afterInit, afterShutdown, afterError, true);
     }
 
     private void initializeProvider(@Nullable String clientName,
@@ -95,25 +140,38 @@ class ProviderRepository {
             Consumer<FeatureProvider> afterSet,
             Consumer<FeatureProvider> afterInit,
             Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, String> afterError) {
+            BiConsumer<FeatureProvider, String> afterError,
+            boolean waitForInit) {
         // provider is set immediately, on this thread
         FeatureProvider oldProvider = clientName != null
-                ? this.providers.put(clientName, newProvider)
-                : this.defaultProvider.getAndSet(newProvider);
+            ? this.providers.put(clientName, newProvider)
+            : this.defaultProvider.getAndSet(newProvider);
         afterSet.accept(newProvider);
-        taskExecutor.submit(() -> {
-            // initialization happens in a different thread
-            try {
-                if (ProviderState.NOT_READY.equals(newProvider.getState())) {
-                    newProvider.initialize(OpenFeatureAPI.getInstance().getEvaluationContext());
-                    afterInit.accept(newProvider);
-                }
-                shutDownOld(oldProvider, afterShutdown);
-            } catch (Exception e) {
-                log.error("Exception when initializing feature provider {}", newProvider.getClass().getName(), e);
-                afterError.accept(newProvider, e.getMessage());
+        if (waitForInit) {
+            initializeProvider(newProvider, afterInit, afterShutdown, afterError, oldProvider);
+        } else {
+            taskExecutor.submit(() -> {
+                // initialization happens in a different thread
+                initializeProvider(newProvider, afterInit, afterShutdown, afterError, oldProvider);
+            });
+        }
+    }
+
+    private void initializeProvider(FeatureProvider newProvider,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, String> afterError,
+            FeatureProvider oldProvider) {
+        try {
+            if (ProviderState.NOT_READY.equals(newProvider.getState())) {
+                newProvider.initialize(OpenFeatureAPI.getInstance().getEvaluationContext());
+                afterInit.accept(newProvider);
             }
-        });
+            shutDownOld(oldProvider, afterShutdown);
+        } catch (Exception e) {
+            log.error("Exception when initializing feature provider {}", newProvider.getClass().getName(), e);
+            afterError.accept(newProvider, e.getMessage());
+        }
     }
 
     private void shutDownOld(FeatureProvider oldProvider,Consumer<FeatureProvider> afterShutdown) {

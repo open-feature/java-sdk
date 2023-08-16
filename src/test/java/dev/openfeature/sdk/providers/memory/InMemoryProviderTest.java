@@ -31,11 +31,7 @@ class InMemoryProviderTest {
         Map<String, Flag<?>> flags = buildFlags();
         provider = spy(new InMemoryProvider(flags));
         OpenFeatureAPI.getInstance().onProviderConfigurationChanged(eventDetails -> {});
-        OpenFeatureAPI.getInstance().setProvider(provider);
-
-        // TODO: setProvider with wait for init, pending https://github.com/open-feature/ofep/pull/80
-        Thread.sleep(500);
-
+        OpenFeatureAPI.getInstance().setProviderAndWait(provider);
         client = OpenFeatureAPI.getInstance().getClient();
         provider.updateFlags(flags);
         provider.updateFlag("addedFlag", Flag.builder()

@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
+import lombok.SneakyThrows;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,6 +70,33 @@ class FlagEvaluationSpecTest implements HookFixtures {
         FeatureProvider mockProvider = mock(FeatureProvider.class);
         FeatureProviderTestUtils.setFeatureProvider(mockProvider);
         assertThat(api.getProvider()).isEqualTo(mockProvider);
+    }
+
+    @SneakyThrows
+    @Specification(number="1.1.8", text="The API SHOULD provide functions to set a provider and wait for the initialize function to return or throw.")
+    @Test
+    void providerAndWait() {
+        FeatureProvider provider = buildLongInitProvider();
+        OpenFeatureAPI.getInstance().setProviderAndWait(provider);
+        assertThat(api.getProvider().getState()).isEqualTo(ProviderState.READY);
+
+        provider = buildLongInitProvider();
+        String providerName = "providerAndWait";
+        OpenFeatureAPI.getInstance().setProviderAndWait(providerName, provider);
+        assertThat(api.getProvider(providerName).getState()).isEqualTo(ProviderState.READY);
+    }
+
+    private static FeatureProvider buildLongInitProvider() {
+        FeatureProvider provider = new InMemoryProvider(new HashMap<>()) {
+            @Override
+            public void initialize(EvaluationContext evaluationContext) throws Exception {
+                super.initialize(evaluationContext);
+
+                // intentionally cause slow initialize to verify setProviderAndWait waits for it.
+                Awaitility.await().wait(500);
+            }
+        };
+        return provider;
     }
 
     @Specification(number="1.1.5", text="The API MUST provide a function for retrieving the metadata field of the configured provider.")
