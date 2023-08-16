@@ -188,17 +188,17 @@ If the hook you're looking for hasn't been created yet, see the [develop a hook]
 Once you've added a hook as a dependency, it can be registered at the global, client, or flag invocation level.
 
 ```java
-    // add a hook globally, to run on all evaluations
-    OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-    api.addHooks(new ExampleHook());
-    
-    // add a hook on this client, to run on all evaluations made by this client
-    Client client = api.getClient();        
-    client.addHooks(new ExampleHook());
-    
-    // add a hook for this evaluation only
-    Boolean retval = client.getBooleanValue(flagKey, false, null,
-            FlagEvaluationOptions.builder().hook(new ExampleHook()).build());
+  // add a hook globally, to run on all evaluations
+  OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+  api.addHooks(new ExampleHook());
+  
+  // add a hook on this client, to run on all evaluations made by this client
+  Client client = api.getClient();        
+  client.addHooks(new ExampleHook());
+  
+  // add a hook for this evaluation only
+  Boolean retval = client.getBooleanValue(flagKey, false, null,
+          FlagEvaluationOptions.builder().hook(new ExampleHook()).build());
 ```
 
 ### Logging
