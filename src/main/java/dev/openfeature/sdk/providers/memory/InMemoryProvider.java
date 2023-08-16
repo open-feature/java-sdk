@@ -1,25 +1,28 @@
 package dev.openfeature.sdk.providers.memory;
 
-import dev.openfeature.sdk.Value;
-import dev.openfeature.sdk.Metadata;
-import dev.openfeature.sdk.EventProvider;
-import dev.openfeature.sdk.ProviderState;
-import dev.openfeature.sdk.ProviderEventDetails;
-import dev.openfeature.sdk.ErrorCode;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import dev.openfeature.sdk.EvaluationContext;
+import dev.openfeature.sdk.EventProvider;
+import dev.openfeature.sdk.Metadata;
 import dev.openfeature.sdk.ProviderEvaluation;
+import dev.openfeature.sdk.ProviderEventDetails;
+import dev.openfeature.sdk.ProviderState;
 import dev.openfeature.sdk.Reason;
+import dev.openfeature.sdk.Value;
+import dev.openfeature.sdk.exceptions.FlagNotFoundError;
+import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
+import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Arrays;
-import java.util.ArrayList;
 
 /**
  * In-memory provider.
@@ -87,68 +90,52 @@ public class InMemoryProvider extends EventProvider {
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue,
             EvaluationContext evaluationContext) {
-        return getEvaluation(key, defaultValue, evaluationContext, Boolean.class);
+        return getEvaluation(key, evaluationContext, Boolean.class);
     }
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue,
             EvaluationContext evaluationContext) {
-        return getEvaluation(key, defaultValue, evaluationContext, String.class);
+        return getEvaluation(key, evaluationContext, String.class);
     }
 
     @Override
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue,
             EvaluationContext evaluationContext) {
-        return getEvaluation(key, defaultValue, evaluationContext, Integer.class);
+        return getEvaluation(key, evaluationContext, Integer.class);
     }
 
     @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue,
             EvaluationContext evaluationContext) {
-        return getEvaluation(key, defaultValue, evaluationContext, Double.class);
+        return getEvaluation(key, evaluationContext, Double.class);
     }
 
     @SneakyThrows
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue,
             EvaluationContext evaluationContext) {
-        return getEvaluation(key, defaultValue, evaluationContext, Value.class);
+        return getEvaluation(key, evaluationContext, Value.class);
     }
 
     private <T> ProviderEvaluation<T> getEvaluation(
-            String key, T defaultValue, EvaluationContext evaluationContext, Class<?> expectedType
+            String key, EvaluationContext evaluationContext, Class<?> expectedType
     ) throws OpenFeatureError {
         if (!ProviderState.READY.equals(state)) {
-            ErrorCode errorCode = ErrorCode.PROVIDER_NOT_READY;
-            if (ProviderState.ERROR.equals(state)) {
-                errorCode = ErrorCode.GENERAL;
+            if (ProviderState.NOT_READY.equals(state)) {
+                throw new ProviderNotReadyError("provider not yet initialized");
             }
-            return ProviderEvaluation.<T>builder()
-                .errorCode(errorCode)
-                .reason(errorCode.name())
-                .value(defaultValue)
-                .build();
+            throw new GeneralError("unknown error");
         }
         Flag<?> flag = flags.get(key);
         if (flag == null) {
-            return ProviderEvaluation.<T>builder()
-                .value(defaultValue)
-                .reason(Reason.ERROR.toString())
-                .errorMessage(ErrorCode.FLAG_NOT_FOUND.name())
-                .errorCode(ErrorCode.FLAG_NOT_FOUND)
-                .build();
+            throw new FlagNotFoundError("flag " + key + "not found");
         }
         T value;
         if (flag.getContextEvaluator() != null) {
             value = (T) flag.getContextEvaluator().evaluate(flag, evaluationContext);
         } else if (!expectedType.isInstance(flag.getVariants().get(flag.getDefaultVariant()))) {
-            return ProviderEvaluation.<T>builder()
-                .value(defaultValue)
-                .variant(flag.getDefaultVariant())
-                .reason(Reason.ERROR.toString())
-                .errorMessage(ErrorCode.TYPE_MISMATCH.name())
-                .errorCode(ErrorCode.TYPE_MISMATCH)
-                .build();
+            throw new TypeMismatchError("flag " + key + "is not of expected type");
         } else {
             value = (T) flag.getVariants().get(flag.getDefaultVariant());
         }
