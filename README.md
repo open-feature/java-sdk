@@ -341,30 +341,7 @@ class MyEventProvider extends EventProvider {
         // shut down your provider
     }
 
-    @Override
-    public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
-        // resolve a boolean flag value
-    }
-
-    @Override
-    public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
-        // resolve a string flag value
-    }
-
-    @Override
-    public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
-        // resolve an int flag value
-    }
-
-    @Override
-    public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
-        // resolve a double flag value
-    }
-
-    @Override
-    public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
-        // resolve an object flag value
-    }
+    // remaining provider methods...
 }
 ```
 
