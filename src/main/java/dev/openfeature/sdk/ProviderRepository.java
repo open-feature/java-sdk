@@ -55,7 +55,10 @@ class ProviderRepository {
         return this.getProvider().equals(provider);
     }
 
-    private void setProvider(FeatureProvider provider,
+    /**
+     * Set the default provider.
+     */
+    public void setProvider(FeatureProvider provider,
             Consumer<FeatureProvider> afterSet,
             Consumer<FeatureProvider> afterInit,
             Consumer<FeatureProvider> afterShutdown,
@@ -64,21 +67,18 @@ class ProviderRepository {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
-        initializeProvider(null, provider, afterSet, afterInit, afterShutdown, afterError, waitForInit);
+        prepareAndInitializeProvider(null, provider, afterSet, afterInit, afterShutdown, afterError, waitForInit);
     }
 
     /**
-     * Set the default provider.
+     * Add a provider for a named client.
+     *
+     * @param clientName  The name of the client.
+     * @param provider    The provider to set.
+     * @param waitForInit When true, wait for initialization to finish, then returns.
+     *                    Otherwise, initialization happens in the background.
      */
-    public void setProvider(FeatureProvider provider,
-            Consumer<FeatureProvider> afterSet,
-            Consumer<FeatureProvider> afterInit,
-            Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, String> afterError) {
-        setProvider(provider, afterSet, afterInit, afterShutdown, afterError, false);
-    }
-
-    private void setProvider(String clientName,
+    public void setProvider(String clientName,
              FeatureProvider provider,
              Consumer<FeatureProvider> afterSet,
              Consumer<FeatureProvider> afterInit,
@@ -91,57 +91,17 @@ class ProviderRepository {
         if (clientName == null) {
             throw new IllegalArgumentException("clientName cannot be null");
         }
-        initializeProvider(clientName, provider, afterSet, afterInit, afterShutdown, afterError, waitForInit);
+        prepareAndInitializeProvider(clientName, provider, afterSet, afterInit, afterShutdown, afterError, waitForInit);
     }
 
-    /**
-     * Add a provider for a named client.
-     *
-     * @param clientName The name of the client.
-     * @param provider   The provider to set.
-     */
-    public void setProvider(String clientName,
-            FeatureProvider provider,
-            Consumer<FeatureProvider> afterSet,
-            Consumer<FeatureProvider> afterInit,
-            Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, String> afterError) {
-        setProvider(clientName, provider, afterSet, afterInit, afterShutdown, afterError, false);
-    }
+    private void prepareAndInitializeProvider(@Nullable String clientName,
+              FeatureProvider newProvider,
+              Consumer<FeatureProvider> afterSet,
+              Consumer<FeatureProvider> afterInit,
+              Consumer<FeatureProvider> afterShutdown,
+              BiConsumer<FeatureProvider, String> afterError,
+              boolean waitForInit) {
 
-    /**
-     * Set the default provider and wait for initialization to finish.
-     */
-    public void setProviderAndWait(FeatureProvider provider,
-            Consumer<FeatureProvider> afterSet,
-            Consumer<FeatureProvider> afterInit,
-            Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, String> afterError) {
-        setProvider(provider, afterSet, afterInit, afterShutdown, afterError, true);
-    }
-
-    /**
-     * Add a provider for a named client and wait for initialization to finish.
-     *
-     * @param clientName The name of the client.
-     * @param provider   The provider to set.
-     */
-    public void setProviderAndWait(String clientName,
-            FeatureProvider provider,
-            Consumer<FeatureProvider> afterSet,
-            Consumer<FeatureProvider> afterInit,
-            Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, String> afterError) {
-        setProvider(clientName, provider, afterSet, afterInit, afterShutdown, afterError, true);
-    }
-
-    private void initializeProvider(@Nullable String clientName,
-            FeatureProvider newProvider,
-            Consumer<FeatureProvider> afterSet,
-            Consumer<FeatureProvider> afterInit,
-            Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, String> afterError,
-            boolean waitForInit) {
         // provider is set immediately, on this thread
         FeatureProvider oldProvider = clientName != null
             ? this.providers.put(clientName, newProvider)
@@ -151,7 +111,7 @@ class ProviderRepository {
             initializeProvider(newProvider, afterInit, afterShutdown, afterError, oldProvider);
         } else {
             taskExecutor.submit(() -> {
-                // initialization happens in a different thread
+                // initialization happens in a different thread if we're not waiting it
                 initializeProvider(newProvider, afterInit, afterShutdown, afterError, oldProvider);
             });
         }
@@ -215,7 +175,7 @@ class ProviderRepository {
                 },
                 (FeatureProvider fp,
                         String message) -> {
-                });
+                }, false);
         this.providers.clear();
         taskExecutor.shutdown();
     }

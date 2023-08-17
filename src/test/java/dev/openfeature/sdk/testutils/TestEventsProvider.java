@@ -15,19 +15,19 @@ public class TestEventsProvider extends EventProvider {
     private String initErrorMessage;
     private ProviderState state = ProviderState.NOT_READY;
     private boolean shutDown = false;
-    private int initTimeout = 0;
+    private int initTimeoutMs = 0;
 
     @Override
     public ProviderState getState() {
         return this.state;
     }
 
-    public TestEventsProvider(int initTimeout) {
-        this.initTimeout = initTimeout;
+    public TestEventsProvider(int initTimeoutMs) {
+        this.initTimeoutMs = initTimeoutMs;
     }
 
-    public TestEventsProvider(int initTimeout, boolean initError, String initErrorMessage) {
-        this.initTimeout = initTimeout;
+    public TestEventsProvider(int initTimeoutMs, boolean initError, String initErrorMessage) {
+        this.initTimeoutMs = initTimeoutMs;
         this.initError = initError;
         this.initErrorMessage = initErrorMessage;
     }
@@ -53,7 +53,7 @@ public class TestEventsProvider extends EventProvider {
     public void initialize(EvaluationContext evaluationContext) throws Exception {
         if (ProviderState.NOT_READY.equals(state)) {
             // wait half the TIMEOUT, otherwise some init/errors can be fired before we add handlers
-            Thread.sleep(initTimeout);
+            Thread.sleep(initTimeoutMs);
             if (this.initError) {
                 this.state = ProviderState.ERROR;
                 throw new Exception(initErrorMessage);

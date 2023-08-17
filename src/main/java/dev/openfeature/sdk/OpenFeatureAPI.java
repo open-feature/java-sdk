@@ -104,7 +104,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
                 (p) -> attachEventProvider(p),
                 (p) -> emitReady(p),
                 (p) -> detachEventProvider(p),
-                (p, message) -> emitError(p, message));
+                (p, message) -> emitError(p, message),
+                false);
         }
     }
 
@@ -117,11 +118,12 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     public void setProvider(String clientName, FeatureProvider provider) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             providerRepository.setProvider(clientName,
-                    provider,
-                    this::attachEventProvider,
-                    this::emitReady,
-                    this::detachEventProvider,
-                    this::emitError);
+                provider,
+                this::attachEventProvider,
+                this::emitReady,
+                this::detachEventProvider,
+                this::emitError,
+                false);
         }
     }
 
@@ -130,12 +132,13 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      */
     public void setProviderAndWait(FeatureProvider provider) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
-            providerRepository.setProviderAndWait(
+            providerRepository.setProvider(
                 provider,
                 (p) -> attachEventProvider(p),
                 (p) -> emitReady(p),
                 (p) -> detachEventProvider(p),
-                (p, message) -> emitError(p, message));
+                (p, message) -> emitError(p, message),
+                true);
         }
     }
 
@@ -147,12 +150,13 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      */
     public void setProviderAndWait(String clientName, FeatureProvider provider) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
-            providerRepository.setProviderAndWait(clientName,
+            providerRepository.setProvider(clientName,
                 provider,
                 this::attachEventProvider,
                 this::emitReady,
                 this::detachEventProvider,
-                this::emitError);
+                this::emitError,
+                true);
         }
     }
 
