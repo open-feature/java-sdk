@@ -101,10 +101,10 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             providerRepository.setProvider(
                 provider,
-                (p) -> attachEventProvider(p),
-                (p) -> emitReady(p),
-                (p) -> detachEventProvider(p),
-                (p, message) -> emitError(p, message),
+                    this::attachEventProvider,
+                    this::emitReady,
+                    this::detachEventProvider,
+                    this::emitError,
                 false);
         }
     }
@@ -134,10 +134,10 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             providerRepository.setProvider(
                 provider,
-                (p) -> attachEventProvider(p),
-                (p) -> emitReady(p),
-                (p) -> detachEventProvider(p),
-                (p, message) -> emitError(p, message),
+                this::attachEventProvider,
+                this::emitReady,
+                this::detachEventProvider,
+                this::emitError,
                 true);
         }
     }
