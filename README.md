@@ -1,42 +1,58 @@
 <!-- markdownlint-disable MD033 -->
+<!-- x-hide-in-docs-start -->
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/white/openfeature-horizontal-white.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/black/openfeature-horizontal-black.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/white/openfeature-horizontal-white.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/black/openfeature-horizontal-black.svg" />
     <img align="center" alt="OpenFeature Logo">
   </picture>
 </p>
 
 <h2 align="center">OpenFeature Java SDK</h2>
 
-[![Specification](https://img.shields.io/static/v1?label=Specification&message=v0.6.0&color=yellow)](https://github.com/open-feature/spec/tree/v0.6.0)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/dev.openfeature/sdk/badge.svg)](https://maven-badges.herokuapp.com/maven-central/dev.openfeature/sdk)
-[![javadoc](https://javadoc.io/badge2/dev.openfeature/sdk/javadoc.svg)](https://javadoc.io/doc/dev.openfeature/sdk) 
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![Known Vulnerabilities](https://snyk.io/test/github/open-feature/java-sdk/badge.svg)](https://snyk.io/test/github/open-feature/java-sdk)
-[![on-merge](https://github.com/open-feature/java-sdk/actions/workflows/merge.yml/badge.svg)](https://github.com/open-feature/java-sdk/actions/workflows/merge.yml)
-[![codecov](https://codecov.io/gh/open-feature/java-sdk/branch/main/graph/badge.svg?token=XMS9L7PBY1)](https://codecov.io/gh/open-feature/java-sdk)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6241/badge)](https://bestpractices.coreinfrastructure.org/projects/6241)
+<!-- x-hide-in-docs-end -->
+<!-- The 'github-badges' class is used in the docs -->
+<p align="center" class="github-badges">
+  <a href="https://github.com/open-feature/spec/tree/v0.6.0">
+    <img alt="Specification" src="https://img.shields.io/static/v1?label=specification&message=v0.6.0&color=yellow&style=for-the-badge" />
+  </a>
+  <!-- x-release-please-start-version -->
 
-## 👋 Hey there! Thanks for checking out the OpenFeature Java SDK
+  <a href="https://github.com/open-feature/java-sdk/releases/tag/v1.4.3">
+    <img alt="Release" src="https://img.shields.io/static/v1?label=release&message=v1.4.3&color=blue&style=for-the-badge" />
+  </a>  
 
-### What is OpenFeature?
+  <!-- x-release-please-end -->
+  <br/>
+  <a href="https://javadoc.io/doc/dev.openfeature/sdk">
+    <img alt="Javadoc" src="https://javadoc.io/badge2/dev.openfeature/sdk/javadoc.svg" />
+  </a>
+  <a href="https://maven-badges.herokuapp.com/maven-central/dev.openfeature/sdk">
+    <img alt="Maven Central" src="https://maven-badges.herokuapp.com/maven-central/dev.openfeature/sdk/badge.svg" />
+  </a>
+  <a href="https://codecov.io/gh/open-feature/java-sdk">
+    <img alt="Codecov" src="https://codecov.io/gh/open-feature/java-sdk/branch/main/graph/badge.svg?token=XMS9L7PBY1" />
+  </a>
+  <a href="https://bestpractices.coreinfrastructure.org/projects/6241">
+    <img alt="CII Best Practices" src="https://bestpractices.coreinfrastructure.org/projects/6241/badge" />
+  </a>
+</p>
+<!-- x-hide-in-docs-start -->
 
-[OpenFeature][openfeature-website] is an open standard that provides a vendor-agnostic, community-driven API for feature flagging that works with your favorite feature flag management tool.
+[OpenFeature](https://openfeature.dev) is an open standard that provides a vendor-agnostic, community-driven API for feature flagging that works with your favorite feature flag management tool.
 
-### Why standardize feature flags?
+<!-- x-hide-in-docs-end -->
+## 🚀 Quick start
 
-Standardizing feature flags unifies tools and vendors behind a common interface which avoids vendor lock-in at the code level. Additionally, it offers a framework for building extensions and integrations and allows providers to focus on their unique value proposition.
-
-## 🔍 Requirements
+### Requirements
 
 - Java 8+ (compiler target is 1.8)
 
 Note that this library is intended to be used in server-side contexts and has not been evaluated for use in mobile devices.
 
-## 📦 Installation
+### Install
 
-### Maven
+#### Maven
 
 <!-- x-release-please-start-version -->
 ```xml
@@ -63,7 +79,8 @@ If you would like snapshot builds, this is the relevant repository information:
 </repositories>
 ```
 
-### Gradle
+#### Gradle
+
 <!-- x-release-please-start-version -->
 ```groovy
 dependencies {
@@ -72,68 +89,153 @@ dependencies {
 ```
 <!-- x-release-please-end-version -->
 
-### Software Bill of Materials (SBOM)
-
-We publish SBOMs with all of our releases as of 0.3.0. You can find them in Maven Central alongside the artifacts.
-
-## 🌟 Features
-
-- support for various backend [providers](https://openfeature.dev/docs/reference/concepts/provider)
-- easy integration and extension via [hooks](https://openfeature.dev/docs/reference/concepts/hooks)
-- bool, string, numeric, and object flag types
-- [context-aware](https://openfeature.dev/docs/reference/concepts/evaluation-context) evaluation
-
-## 🚀 Usage
+### Usage
 
 ```java
 public void example(){
 
+    // flags defined in memory
+    Map<String, Flag<?>> myFlags = new HashMap<>();
+        flags.put("v2_enabled", Flag.builder()
+            .variant("on", true)
+            .variant("off", false)
+            .defaultVariant("on")
+            .build());
+
     // configure a provider
     OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-    api.setProvider(new MyProviderOfChoice());
+    api.setProvider(new InMemoryProvider(myFlags));
 
     // create a client
     Client client = api.getClient();
 
     // get a bool flag value
-    boolean flagValue = client.getBooleanValue("boolFlag", false);
+    boolean flagValue = client.getBooleanValue("v2_enabled", false);
 }
 ```
 
-### Context-aware evaluation
+### API Reference
 
-Sometimes the value of a flag must take into account some dynamic criteria about the application or user, such as the user location, IP, email address, or the location of the server.
-In OpenFeature, we refer to this as [`targeting`](https://openfeature.dev/specification/glossary#targeting).
-If the flag system you're using supports targeting, you can provide the input data using the `EvaluationContext`.
+See [here](https://javadoc.io/doc/dev.openfeature/sdk/latest/) for the Javadocs.
+
+## 🌟 Features
+
+| Status | Features                        | Description                                                                                                                        |
+| ------ | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| ✅     | [Providers](#providers)         | Integrate with a commercial, open source, or in-house feature management tool.                                                     |
+| ✅     | [Targeting](#targeting)         | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context). |
+| ✅     | [Hooks](#hooks)                 | Add functionality to various stages of the flag evaluation life-cycle.                                                             |
+| ✅     | [Logging](#logging)             | Integrate with popular logging packages.                                                                                           |
+| ✅     | [Named clients](#named-clients) | Utilize multiple providers in a single application.                                                                                |
+| ✅     | [Eventing](#eventing)           | React to state changes in the provider or flag management system.                                                                  |
+| ✅     | [Shutdown](#shutdown)           | Gracefully clean up a provider during application shutdown.                                                                        |
+| ✅     | [Extending](#extending)         | Extend OpenFeature with custom providers and hooks.                                                                                |
+
+<sub>Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌</sub>
+
+### Providers
+
+[Providers](https://openfeature.dev/docs/reference/concepts/provider) are an abstraction between a flag management system and the OpenFeature SDK.
+Look [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Provider&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=Java) for a complete list of available providers.
+If the provider you're looking for hasn't been created yet, see the [develop a provider](#develop-a-provider) section to learn how to build it yourself.
+
+Once you've added a provider as a dependency, it can be registered with OpenFeature like this:
 
 ```java
-// global context for static data
+    OpenFeatureAPI.getInstance().setProvider(new MyProvider());
+```
+
+In some situations, it may be beneficial to register multiple providers in the same application.
+This is possible using [named clients](#named-clients), which is covered in more details below.
+
+### Targeting
+
+Sometimes, the value of a flag must consider some dynamic criteria about the application or user, such as the user's location, IP, email address, or the server's location.
+In OpenFeature, we refer to this as [targeting](https://openfeature.dev/specification/glossary#targeting).
+If the flag management system you're using supports targeting, you can provide the input data using the [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context).
+
+```java
+// set a value to the global context
 OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-Map<String, Value> attributes = new HashMap<>();
-attributes.put("appVersion", new Value(System.getEnv("APP_VERSION")));
-EvaluationContext apiCtx = new ImmutableContext(attributes);
+Map<String, Value> apiAttrs = new HashMap<>();
+apiAttrs.put("region", new Value(System.getEnv("us-east-1")));
+EvaluationContext apiCtx = new ImmutableContext(apiAttrs);
 api.setEvaluationContext(apiCtx);
 
-// request context
-Map<String, Value> attributes = new HashMap<>();
-attributes.put("email", new Value(session.getAttribute("email")));
-attributes.put("product", new Value(productId));
-String targetingKey = session.getId();
-EvaluationContext reqCtx = new ImmutableContext(targetingKey, attributes);
+// set a value to the client context
+Map<String, Value> clientAttrs = new HashMap<>();
+clientAttrs.put("region", new Value(System.getEnv("us-east-1")));
+EvaluationContext clientCtx = new ImmutableContext(clientAttrs);
+Client client = api.getInstance().getClient();
+client.setEvaluationContext(clientCtx);
 
-// use merged contextual data to determine a flag value
+// set a value to the invocation context
+Map<String, Value> requestAttrs = new HashMap<>();
+requestAttrs.put("email", new Value(session.getAttribute("email")));
+requestAttrs.put("product", new Value("productId"));
+String targetingKey = session.getId();
+EvaluationContext reqCtx = new ImmutableContext(targetingKey, requestAttrs);
+
 boolean flagValue = client.getBooleanValue("some-flag", false, reqCtx);
 ```
 
-### Events
+### Hooks
+
+[Hooks](https://openfeature.dev/docs/reference/concepts/hooks) allow for custom logic to be added at well-defined points of the flag evaluation life-cycle
+Look [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Hook&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=Java) for a complete list of available hooks.
+If the hook you're looking for hasn't been created yet, see the [develop a hook](#develop-a-hook) section to learn how to build it yourself.
+
+Once you've added a hook as a dependency, it can be registered at the global, client, or flag invocation level.
+
+```java
+  // add a hook globally, to run on all evaluations
+  OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+  api.addHooks(new ExampleHook());
+  
+  // add a hook on this client, to run on all evaluations made by this client
+  Client client = api.getClient();        
+  client.addHooks(new ExampleHook());
+  
+  // add a hook for this evaluation only
+  Boolean retval = client.getBooleanValue(flagKey, false, null,
+          FlagEvaluationOptions.builder().hook(new ExampleHook()).build());
+```
+
+### Logging
+
+The Java SDK uses SLF4J. See the [SLF4J manual](https://slf4j.org/manual.html) for complete documentation.
+
+### Named clients
+
+Clients can be given a name.
+A name is a logical identifier which can be used to associate clients with a particular provider.
+If a name has no associated provider, the global provider is used.
+
+```java
+FeatureProvider scopedProvider = new MyProvider();
+
+// registering the default provider
+OpenFeatureAPI.getInstance().setProvider(LocalProvider());
+// registering a named provider
+OpenFeatureAPI.getInstance().setProvider("clientForCache", new CachedProvider());
+
+// a client backed by default provider
+Client clientDefault = OpenFeatureAPI.getInstance().getClient();
+// a client backed by CachedProvider
+Client clientNamed = OpenFeatureAPI.getInstance().getClient("clientForCache");
+```
+
+### Eventing
 
 Events allow you to react to state changes in the provider or underlying flag management system, such as flag definition changes, provider readiness, or error conditions.
 Initialization events (`PROVIDER_READY` on success, `PROVIDER_ERROR` on failure) are dispatched for every provider.
 Some providers support additional events, such as `PROVIDER_CONFIGURATION_CHANGED`.
+
 Please refer to the documentation of the provider you're using to see what events are supported.
 
 ```java
 // add an event handler to a client
+Client client = OpenFeatureAPI.getInstance().getClient();
 client.onProviderConfigurationChanged((EventDetails eventDetails) -> {
     // do something when the provider's flag settings change
 });
@@ -144,60 +246,44 @@ OpenFeatureAPI.getInstance().onProviderStale((EventDetails eventDetails) -> {
 });
 ```
 
-### Hooks
+### Shutdown
 
-A hook is a mechanism that allows for adding arbitrary behavior at well-defined points of the flag evaluation life-cycle.
-Use cases include validating the resolved flag value, modifying or adding data to the evaluation context, logging, telemetry, and tracking.
-
-```java
-public class MyHook implements Hook {
-    /**
-     *
-     * @param ctx     Information about the particular flag evaluation
-     * @param details Information about how the flag was resolved, including any resolved values.
-     * @param hints   An immutable mapping of data for users to communicate to the hooks.
-     */
-    @Override
-    public void after(HookContext ctx, FlagEvaluationDetails details, Map hints) {
-        System.out.println("After evaluation!");
-    }
-}
-```
-
-See [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Hook&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=Java) for a catalog of available hooks.
-
-### Logging:
-
-The Java SDK uses SLF4J. See the [SLF4J manual](https://slf4j.org/manual.html) for complete documentation.
-
-### Named clients
-
-Clients can be given a name.
-A name is a logical identifier which can be used to associate clients with a particular provider.
-If a name has no associated provider, clients with that name use the global provider.
+The OpenFeature API provides a close function to perform a cleanup of all registered providers.
+This should only be called when your application is in the process of shutting down.
 
 ```java
-FeatureProvider scopedProvider = new MyProvider();
-
-// set this provider for clients named "my-name"
-OpenFeatureAPI.getInstance().setProvider("my-name", provider);
-
-// create a client bound to the provider above
-Client client = OpenFeatureAPI.getInstance().getClient("my-name");
+// shut down all providers
+OpenFeatureAPI.getInstance().shutdown();
 ```
 
-### Providers:
+## Extending
+
+### Develop a provider
 
 To develop a provider, you need to create a new project and include the OpenFeature SDK as a dependency.
 This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/java-sdk-contrib) available under the OpenFeature organization.
-Finally, you’ll then need to write the provider itself.
-This can be accomplished by implementing the `FeatureProvider` interface exported by the OpenFeature SDK.
+You’ll then need to write the provider by implementing the `FeatureProvider` interface exported by the OpenFeature SDK.
 
 ```java
 public class MyProvider implements FeatureProvider {
-@Override
+    @Override
     public Metadata getMetadata() {
         return () -> "My Provider";
+    }
+
+    @Override
+    public ProviderState getState() {
+        // optionally indicate your provider's state (assumed to be READY if not implemented)
+    }
+
+    @Override
+    public void initialize(EvaluationContext evaluationContext) throws Exception {
+        // start up your provider
+    }
+
+    @Override
+    public void shutdown() {
+        // shut down your provider
     }
 
     @Override
@@ -227,22 +313,76 @@ public class MyProvider implements FeatureProvider {
 }
 ```
 
-See [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Provider&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=Java) for a catalog of available providers.
-
-### Shutdown
-
-The OpenFeature API provides a close function to perform a cleanup of all registered providers.
-This should only be called when your application is in the process of shutting down.
+If you'd like your provider to support firing events, such as events for when flags are changed in the flag management system, extend `EventProvider`.
 
 ```java
-// shut down all providers
-OpenFeatureAPI.getInstance().shutdown();
+class MyEventProvider extends EventProvider {
+    @Override
+    public Metadata getMetadata() {
+        return () -> "My Event Provider";
+    }
+
+    @Override
+    public ProviderState getState() {
+        // indicate your provider's state (required for EventProviders)
+    }
+
+    @Override
+    public void initialize(EvaluationContext evaluationContext) throws Exception {
+        // emit events when flags are changed in a hypothetical REST API
+        this.restApiClient.onFlagsChanged(() -> {
+            ProviderEventDetails details = ProviderEventDetails.builder().message("flags changed in API!").build();
+            this.emitProviderConfigurationChanged(details);
+        });
+    }
+
+    @Override
+    public void shutdown() {
+        // shut down your provider
+    }
+
+    // remaining provider methods...
+}
 ```
 
-### Complete API documentation:
+> Built a new provider? [Let us know](https://github.com/open-feature/openfeature.dev/issues/new?assignees=&labels=provider&projects=&template=document-provider.yaml&title=%5BProvider%5D%3A+) so we can add it to the docs!
 
-See [here](https://www.javadoc.io/doc/dev.openfeature/sdk/latest/index.html) for the complete API documentation.
+### Develop a hook
 
+To develop a hook, you need to create a new project and include the OpenFeature SDK as a dependency.
+This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/java-sdk-contrib) available under the OpenFeature organization.
+Implement your own hook by conforming to the `Hook interface`.
+To satisfy the interface, all methods (`Before`/`After`/`Finally`/`Error`) need to be defined.
+To avoid defining empty functions make use of the `UnimplementedHook` struct (which already implements all the empty functions).
+
+```java
+class MyHook implements Hook {
+
+    @Override
+    public Optional before(HookContext ctx, Map hints) {
+        // code that runs before the flag evaluation
+    }
+
+    @Override
+    public void after(HookContext ctx, FlagEvaluationDetails details, Map hints) {
+        // code that runs after the flag evaluation succeeds
+    }
+
+    @Override
+    public void error(HookContext ctx, Exception error, Map hints) {
+        // code that runs when there's an error during a flag evaluation
+    }
+
+    @Override
+    public void finallyAfter(HookContext ctx, Map hints) {
+        // code that runs regardless of success or error
+    }
+};
+```
+
+> Built a new hook? [Let us know](https://github.com/open-feature/openfeature.dev/issues/new?assignees=&labels=hook&projects=&template=document-hook.yaml&title=%5BHook%5D%3A+) so we can add it to the docs!
+
+<!-- x-hide-in-docs-start -->
 ## ⭐️ Support the project
 
 - Give this repo a ⭐️!
@@ -263,9 +403,4 @@ Interested in contributing? Great, we'd love your help! To get started, take a l
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
-
-## 📜 License
-
-[Apache License 2.0](LICENSE)
-
-[openfeature-website]: https://openfeature.dev
+<!-- x-hide-in-docs-end -->
