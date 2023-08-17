@@ -17,8 +17,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import lombok.SneakyThrows;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,8 +75,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @SneakyThrows
     @Specification(number="1.1.8", text="The API SHOULD provide functions to set a provider and wait for the initialize function to return or throw.")
-    @Test
-    void providerAndWait() {
+    @Test void providerAndWait() {
         FeatureProvider provider = new TestEventsProvider(500);
         OpenFeatureAPI.getInstance().setProviderAndWait(provider);
         assertThat(api.getProvider().getState()).isEqualTo(ProviderState.READY);
@@ -83,6 +84,21 @@ class FlagEvaluationSpecTest implements HookFixtures {
         String providerName = "providerAndWait";
         OpenFeatureAPI.getInstance().setProviderAndWait(providerName, provider);
         assertThat(api.getProvider(providerName).getState()).isEqualTo(ProviderState.READY);
+    }
+
+    @Specification(number="2.4.5", text="The provider SHOULD indicate an error if flag resolution is attempted before the provider is ready.")
+    @Test void shouldReturnNotReadyIfNotInitialized() {
+        FeatureProvider provider = new InMemoryProvider(new HashMap<>()) {
+            @Override
+            public void initialize(EvaluationContext evaluationContext) throws Exception {
+                Awaitility.await().wait(3000);
+            }
+        };
+        String providerName = "shouldReturnNotReadyIfNotInitialized";
+        OpenFeatureAPI.getInstance().setProvider(providerName, provider);
+        assertThat(api.getProvider(providerName).getState()).isEqualTo(ProviderState.NOT_READY);
+        Client client = OpenFeatureAPI.getInstance().getClient(providerName);
+        assertEquals(ErrorCode.PROVIDER_NOT_READY, client.getBooleanDetails("return_error_when_not_initialized", false).getErrorCode());
     }
 
     @Specification(number="1.1.5", text="The API MUST provide a function for retrieving the metadata field of the configured provider.")
@@ -307,4 +323,5 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @Specification(number="1.4.11", text="The client SHOULD provide asynchronous or non-blocking mechanisms for flag evaluation.")
     @Test void one_thread_per_request_model() {}
+
 }
