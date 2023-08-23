@@ -49,7 +49,7 @@ jobs:
       run: mvn --batch-mode --update-snapshots verify
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@e1dd05cde2ed37d100f658b34ea423728ba1812e
+      uses: codecov/codecov-action@c17956f54f3eb07486a0ab14eb1bae8255fd61f6
       with:
         token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
         flags: unittests # optional
