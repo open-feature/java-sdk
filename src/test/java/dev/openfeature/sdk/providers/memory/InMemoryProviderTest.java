@@ -6,12 +6,13 @@ import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
+import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
 import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.omg.CORBA.DynAnyPackage.TypeMismatch;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static dev.openfeature.sdk.Structure.mapToStructure;
@@ -36,11 +37,7 @@ class InMemoryProviderTest {
         Map<String, Flag<?>> flags = buildFlags();
         provider = spy(new InMemoryProvider(flags));
         OpenFeatureAPI.getInstance().onProviderConfigurationChanged(eventDetails -> {});
-        OpenFeatureAPI.getInstance().setProvider(provider);
-
-        // TODO: setProvider with wait for init, pending https://github.com/open-feature/ofep/pull/80
-        Thread.sleep(500);
-
+        OpenFeatureAPI.getInstance().setProviderAndWait(provider);
         client = OpenFeatureAPI.getInstance().getClient();
         provider.updateFlags(flags);
         provider.updateFlag("addedFlag", Flag.builder()
@@ -98,5 +95,14 @@ class InMemoryProviderTest {
         assertThrows(TypeMismatchError.class, () -> {
             provider.getBooleanEvaluation("string-flag", false, new ImmutableContext());
         });
+    }
+
+    @SneakyThrows
+    @Test
+    void shouldThrowIfNotInitialized() {
+        InMemoryProvider inMemoryProvider = new InMemoryProvider(new HashMap<>());
+
+        // ErrorCode.PROVIDER_NOT_READY should be returned when evaluated via the client
+        assertThrows(ProviderNotReadyError.class, ()-> inMemoryProvider.getBooleanEvaluation("fail_not_initialized", false, new ImmutableContext()));
     }
 }

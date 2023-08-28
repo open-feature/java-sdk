@@ -100,11 +100,12 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     public void setProvider(FeatureProvider provider) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             providerRepository.setProvider(
-                    provider,
-                    (p) -> attachEventProvider(p),
-                    (p) -> emitReady(p),
-                    (p) -> detachEventProvider(p),
-                    (p, message) -> emitError(p, message));
+                provider,
+                    this::attachEventProvider,
+                    this::emitReady,
+                    this::detachEventProvider,
+                    this::emitError,
+                false);
         }
     }
 
@@ -117,11 +118,45 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     public void setProvider(String clientName, FeatureProvider provider) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             providerRepository.setProvider(clientName,
-                    provider,
-                    this::attachEventProvider,
-                    this::emitReady,
-                    this::detachEventProvider,
-                    this::emitError);
+                provider,
+                this::attachEventProvider,
+                this::emitReady,
+                this::detachEventProvider,
+                this::emitError,
+                false);
+        }
+    }
+
+    /**
+     * Set the default provider and wait for initialization to finish.
+     */
+    public void setProviderAndWait(FeatureProvider provider) {
+        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+            providerRepository.setProvider(
+                provider,
+                this::attachEventProvider,
+                this::emitReady,
+                this::detachEventProvider,
+                this::emitError,
+                true);
+        }
+    }
+
+    /**
+     * Add a provider for a named client and wait for initialization to finish.
+     *
+     * @param clientName The name of the client.
+     * @param provider   The provider to set.
+     */
+    public void setProviderAndWait(String clientName, FeatureProvider provider) {
+        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+            providerRepository.setProvider(clientName,
+                provider,
+                this::attachEventProvider,
+                this::emitReady,
+                this::detachEventProvider,
+                this::emitError,
+                true);
         }
     }
 
