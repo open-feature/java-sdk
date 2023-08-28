@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@7739b9ba2efcda9dde65ad1e3c2dbe65b41dfba7
+    - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
     - name: Set up JDK 8
       uses: actions/setup-java@5b86b67f5bb794ee4de9464f70b700b9445b03a8
       with:
@@ -49,7 +49,7 @@ jobs:
       run: mvn --batch-mode --update-snapshots verify
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@c17956f54f3eb07486a0ab14eb1bae8255fd61f6
+      uses: codecov/codecov-action@6991c70c83e2c91b0e25fcd450deaf32bb17a653
       with:
         token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
         flags: unittests # optional
