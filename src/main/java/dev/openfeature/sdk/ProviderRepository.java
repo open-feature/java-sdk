@@ -142,7 +142,8 @@ class ProviderRepository {
     }
 
     private boolean isProviderRegistered(FeatureProvider oldProvider) {
-        return this.providers.containsValue(oldProvider) || this.defaultProvider.get().equals(oldProvider);
+        return oldProvider != null && (this.providers.containsValue(oldProvider)
+            || this.defaultProvider.get().equals(oldProvider));
     }
 
     private void shutdownProvider(FeatureProvider provider) {
