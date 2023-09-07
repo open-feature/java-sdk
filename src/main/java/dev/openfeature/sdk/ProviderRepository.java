@@ -135,14 +135,15 @@ class ProviderRepository {
     }
 
     private void shutDownOld(FeatureProvider oldProvider,Consumer<FeatureProvider> afterShutdown) {
-        if (!isProviderRegistered(oldProvider)) {
+        if (oldProvider != null && !isProviderRegistered(oldProvider)) {
             shutdownProvider(oldProvider);
             afterShutdown.accept(oldProvider);
         }
     }
 
     private boolean isProviderRegistered(FeatureProvider oldProvider) {
-        return this.providers.containsValue(oldProvider) || this.defaultProvider.get().equals(oldProvider);
+        return oldProvider != null && (this.providers.containsValue(oldProvider)
+            || this.defaultProvider.get().equals(oldProvider));
     }
 
     private void shutdownProvider(FeatureProvider provider) {
