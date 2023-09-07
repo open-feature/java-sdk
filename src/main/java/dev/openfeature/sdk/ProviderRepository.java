@@ -135,7 +135,7 @@ class ProviderRepository {
     }
 
     private void shutDownOld(FeatureProvider oldProvider,Consumer<FeatureProvider> afterShutdown) {
-        if (!isProviderRegistered(oldProvider)) {
+        if (oldProvider != null && !isProviderRegistered(oldProvider)) {
             shutdownProvider(oldProvider);
             afterShutdown.accept(oldProvider);
         }
