@@ -1,5 +1,8 @@
 package dev.openfeature.sdk;
 
+import lombok.extern.slf4j.Slf4j;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,9 +14,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Util class for storing and running handlers.
  */
@@ -23,9 +23,13 @@ class EventSupport {
     // we use a v4 uuid as a "placeholder" for anonymous clients, since
     // ConcurrentHashMap doesn't support nulls
     private static final String defaultClientUuid = UUID.randomUUID().toString();
-    private final ExecutorService taskExecutor = Executors.newCachedThreadPool();
     private final Map<String, HandlerStore> handlerStores = new ConcurrentHashMap<>();
     private final HandlerStore globalHandlerStore = new HandlerStore();
+    private final ExecutorService taskExecutor = Executors.newCachedThreadPool(runnable -> {
+        final Thread thread = new Thread(runnable);
+        thread.setDaemon(true);
+        return thread;
+    });
 
     /**
      * Run all the event handlers associated with this client name.
