@@ -22,7 +22,11 @@ class ProviderRepository {
 
     private final Map<String, FeatureProvider> providers = new ConcurrentHashMap<>();
     private final AtomicReference<FeatureProvider> defaultProvider = new AtomicReference<>(new NoOpProvider());
-    private final ExecutorService taskExecutor = Executors.newCachedThreadPool();
+    private final ExecutorService taskExecutor = Executors.newCachedThreadPool(runnable -> {
+        final Thread thread = new Thread(runnable);
+        thread.setDaemon(true);
+        return thread;
+    });
 
     /**
      * Return the default provider.
