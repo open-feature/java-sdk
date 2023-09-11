@@ -190,6 +190,10 @@ class HookSpecTest implements HookFixtures {
         List<String> evalOrder = new ArrayList<>();
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new NoOpProvider() {
+            @Override
+            public ProviderState getState() {
+                return ProviderState.READY;
+            }
             public List<Hook> getProviderHooks() {
                 return Collections.singletonList(new BooleanHook() {
 
@@ -387,6 +391,7 @@ class HookSpecTest implements HookFixtures {
                 .thenReturn(ProviderEvaluation.<Boolean>builder()
                         .value(true)
                         .build());
+        when(provider.getState()).thenReturn(ProviderState.READY);
         InOrder order = inOrder(hook, provider);
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
@@ -491,6 +496,7 @@ class HookSpecTest implements HookFixtures {
         when(provider.getBooleanEvaluation(any(), any(), any())).thenReturn(ProviderEvaluation.<Boolean>builder()
                 .value(true)
                 .build());
+        when(provider.getState()).thenReturn(ProviderState.READY);
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         FeatureProviderTestUtils.setFeatureProvider(provider);
@@ -551,7 +557,12 @@ class HookSpecTest implements HookFixtures {
     private Client getClient(FeatureProvider provider) {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         if (provider == null) {
-            FeatureProviderTestUtils.setFeatureProvider(new NoOpProvider());
+            FeatureProviderTestUtils.setFeatureProvider(new NoOpProvider() {
+                @Override
+                public ProviderState getState() {
+                    return ProviderState.READY;
+                }
+            });
         } else {
             FeatureProviderTestUtils.setFeatureProvider(provider);
         }

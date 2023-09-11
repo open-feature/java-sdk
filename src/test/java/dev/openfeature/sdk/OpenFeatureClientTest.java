@@ -58,7 +58,7 @@ class OpenFeatureClientTest implements HookFixtures {
           .value(true).build());
         when(api.getProvider()).thenReturn(mockProvider);
         when(api.getProvider(any())).thenReturn(mockProvider);
-
+        when(mockProvider.getState()).thenReturn(ProviderState.READY);
 
         OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
         client.setEvaluationContext(ctx);

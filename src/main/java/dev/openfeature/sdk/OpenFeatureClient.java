@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
 import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import dev.openfeature.sdk.internal.ObjectUtils;
@@ -163,6 +164,14 @@ public class OpenFeatureClient implements Client {
             T defaultValue,
             FeatureProvider provider,
             EvaluationContext invocationContext) {
+
+        if (!ProviderState.READY.equals(provider.getState())) {
+            if (ProviderState.NOT_READY.equals(provider.getState())) {
+                throw new ProviderNotReadyError("provider not yet initialized");
+            }
+            throw new GeneralError("unknown error");
+        }
+
         switch (type) {
             case BOOLEAN:
                 return provider.getBooleanEvaluation(key, (Boolean) defaultValue, invocationContext);

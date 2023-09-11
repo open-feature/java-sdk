@@ -16,9 +16,7 @@ import dev.openfeature.sdk.ProviderState;
 import dev.openfeature.sdk.Reason;
 import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
-import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
 import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -121,12 +119,6 @@ public class InMemoryProvider extends EventProvider {
     private <T> ProviderEvaluation<T> getEvaluation(
             String key, EvaluationContext evaluationContext, Class<?> expectedType
     ) throws OpenFeatureError {
-        if (!ProviderState.READY.equals(state)) {
-            if (ProviderState.NOT_READY.equals(state)) {
-                throw new ProviderNotReadyError("provider not yet initialized");
-            }
-            throw new GeneralError("unknown error");
-        }
         Flag<?> flag = flags.get(key);
         if (flag == null) {
             throw new FlagNotFoundError("flag " + key + "not found");

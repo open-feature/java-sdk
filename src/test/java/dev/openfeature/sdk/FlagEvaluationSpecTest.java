@@ -254,9 +254,9 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
         assertEquals(Reason.ERROR.toString(), result.getReason());
         Mockito.verify(logger).error(
-                ArgumentMatchers.contains("Unable to correctly evaluate flag with key"),
-                any(),
-                ArgumentMatchers.isA(FlagNotFoundError.class));
+            ArgumentMatchers.contains("Unable to correctly evaluate flag with key"),
+            any(),
+            ArgumentMatchers.isA(FlagNotFoundError.class));
     }
 
     @Specification(number="1.2.2", text="The client interface MUST define a metadata member or accessor, containing an immutable name field or accessor of type string, which corresponds to the name value supplied during client creation.")
