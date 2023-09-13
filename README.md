@@ -104,7 +104,7 @@ public void example(){
 
     // configure a provider
     OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-    api.setProvider(new InMemoryProvider(myFlags));
+    api.setProviderAndWait(new InMemoryProvider(myFlags));
 
     // create a client
     Client client = api.getClient();
@@ -139,11 +139,27 @@ See [here](https://javadoc.io/doc/dev.openfeature/sdk/latest/) for the Javadocs.
 Look [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Provider&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=Java) for a complete list of available providers.
 If the provider you're looking for hasn't been created yet, see the [develop a provider](#develop-a-provider) section to learn how to build it yourself.
 
-Once you've added a provider as a dependency, it can be registered with OpenFeature like this:
+Once you've added a provider as a dependency, you can register it with OpenFeature in either an asynchronous or synchronous manner. Below are examples of how to set providers using both methods:   
+   
+#### Asynchronous Provider Registration  
+To register a provider asynchronously, ensuring it is initialized before further actions are taken, you can use the `setProviderAndWait` method as shown in the following example:  
 
 ```java
-    OpenFeatureAPI.getInstance().setProvider(new MyProvider());
+    OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+    api.setProviderAndWait(new MyProvider());
 ```
+
+This method is appropriate when you need to wait for the provider's initialization to complete before proceeding.  
+
+#### Synchronous Provider Registration  
+For synchronous provider registration, where you set the provider without waiting for initialization, you can use the `setProvider` method directly:  
+
+```java
+    OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+    api.setProvider(new MyProvider());
+```
+
+This is a straightforward synchronous operation, suitable when you don't need to wait for the provider to initialize before continuing.   
 
 In some situations, it may be beneficial to register multiple providers in the same application.
 This is possible using [named clients](#named-clients), which is covered in more details below.
@@ -211,19 +227,41 @@ Clients can be given a name.
 A name is a logical identifier which can be used to associate clients with a particular provider.
 If a name has no associated provider, the global provider is used.
 
+#### Asynchronous Named Provider Configuration   
+
+To register providers asynchronously, ensuring they are initialized before further actions are taken, you can use the `setProviderAndWait` method as shown below:   
+
 ```java
 FeatureProvider scopedProvider = new MyProvider();
 
-// registering the default provider
+// registering the default provider asynchronously
+OpenFeatureAPI.getInstance().setProviderAndWait(LocalProvider());
+// registering a named provider asynchronously
+OpenFeatureAPI.getInstance().setProviderAndWait("clientForCache", new CachedProvider());
+
+// a client backed by the default provider
+Client clientDefault = OpenFeatureAPI.getInstance().getClient();
+// a client backed by CachedProvider
+Client clientNamed = OpenFeatureAPI.getInstance().getClient("clientForCache");
+```   
+   
+#### Synchronous Named Provider Configuration   
+
+For synchronous provider registration, where you set the provider without waiting for initialization, you can use the `setProvider` method directly, as shown in the following example:  
+
+```java
+FeatureProvider scopedProvider = new MyProvider();
+
+// registering the default provider synchronously
 OpenFeatureAPI.getInstance().setProvider(LocalProvider());
-// registering a named provider
+// registering a named provider synchronously
 OpenFeatureAPI.getInstance().setProvider("clientForCache", new CachedProvider());
 
 // a client backed by default provider
 Client clientDefault = OpenFeatureAPI.getInstance().getClient();
 // a client backed by CachedProvider
 Client clientNamed = OpenFeatureAPI.getInstance().getClient("clientForCache");
-```
+```   
 
 ### Eventing
 
