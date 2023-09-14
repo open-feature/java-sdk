@@ -104,7 +104,7 @@ public void example(){
 
     // configure a provider
     OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-    api.setProvider(new InMemoryProvider(myFlags));
+    api.setProviderAndWait(new InMemoryProvider(myFlags));
 
     // create a client
     Client client = api.getClient();
@@ -140,10 +140,23 @@ Look [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D
 If the provider you're looking for hasn't been created yet, see the [develop a provider](#develop-a-provider) section to learn how to build it yourself.
 
 Once you've added a provider as a dependency, it can be registered with OpenFeature like this:
+   
+#### Synchronous  
+  
+To register a provider in a blocking manner to ensure it is ready before further actions are taken, you can use the `setProviderAndWait` method as shown below:     
+  
+```java
+    OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+    api.setProviderAndWait(new MyProvider());
+```  
+  
+#### Asynchronous    
+
+To register a provider in a non-blocking manner, you can use the `setProvider` method as shown below:  
 
 ```java
     OpenFeatureAPI.getInstance().setProvider(new MyProvider());
-```
+```    
 
 In some situations, it may be beneficial to register multiple providers in the same application.
 This is possible using [named clients](#named-clients), which is covered in more details below.
@@ -209,7 +222,7 @@ The Java SDK uses SLF4J. See the [SLF4J manual](https://slf4j.org/manual.html) f
 
 Clients can be given a name.
 A name is a logical identifier which can be used to associate clients with a particular provider.
-If a name has no associated provider, the global provider is used.
+If a name has no associated provider, the global provider is used.  
 
 ```java
 FeatureProvider scopedProvider = new MyProvider();
@@ -224,6 +237,9 @@ Client clientDefault = OpenFeatureAPI.getInstance().getClient();
 // a client backed by CachedProvider
 Client clientNamed = OpenFeatureAPI.getInstance().getClient("clientForCache");
 ```
+
+Named providers can be set in a blocking or non-blocking way. 
+For more details, please refer to the [providers](#providers) section.  
 
 ### Eventing
 
