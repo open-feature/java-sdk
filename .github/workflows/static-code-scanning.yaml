@@ -33,12 +33,12 @@ jobs:
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@27cb1e1de53ee44dfb3046ddb445f049b3ab5f0d
+        uses: github/codeql-action/init@2cc1651ead82f0ed36eef29c42769fa37a74fd86
         with:
           languages: java
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@27cb1e1de53ee44dfb3046ddb445f049b3ab5f0d
+        uses: github/codeql-action/autobuild@2cc1651ead82f0ed36eef29c42769fa37a74fd86
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@27cb1e1de53ee44dfb3046ddb445f049b3ab5f0d
+        uses: github/codeql-action/analyze@2cc1651ead82f0ed36eef29c42769fa37a74fd86
