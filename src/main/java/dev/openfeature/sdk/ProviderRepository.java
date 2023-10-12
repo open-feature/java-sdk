@@ -171,16 +171,6 @@ class ProviderRepository {
                 .concat(Stream.of(this.defaultProvider.get()), this.providers.values().stream())
                 .distinct()
                 .forEach(this::shutdownProvider);
-        setProvider(new NoOpProvider(),
-                (FeatureProvider fp) -> {
-                },
-                (FeatureProvider fp) -> {
-                },
-                (FeatureProvider fp) -> {
-                },
-                (FeatureProvider fp,
-                        String message) -> {
-                }, false);
         this.providers.clear();
         taskExecutor.shutdown();
     }
