@@ -16,6 +16,13 @@ public class TestEventsProvider extends EventProvider {
     private ProviderState state = ProviderState.NOT_READY;
     private boolean shutDown = false;
     private int initTimeoutMs = 0;
+    private String name = "test";
+    private Metadata metadata = new Metadata() {
+        @Override
+        public String getName() {
+            return name;
+        }
+    };
 
     @Override
     public ProviderState getState() {
@@ -64,7 +71,7 @@ public class TestEventsProvider extends EventProvider {
 
     @Override
     public Metadata getMetadata() {
-        throw new UnsupportedOperationException("Unimplemented method 'getMetadata'");
+        return this.metadata;
     }
 
     @Override

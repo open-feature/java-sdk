@@ -470,7 +470,7 @@ class EventsTest {
     @Test
     @DisplayName("should have all properties")
     @Specification(number = "5.2.4", text = "The handler function MUST accept a event details parameter.")
-    @Specification(number = "5.2.3", text = "The event details MUST contain the client name associated with the event.")
+    @Specification(number = "5.2.3", text = "The `event details` MUST contain the `provider name` associated with the event.")
     void shouldHaveAllProperties() throws Exception {
         final Consumer<EventDetails> handler1 = mockHandler();
         final Consumer<EventDetails> handler2 = mockHandler();
@@ -514,9 +514,9 @@ class EventsTest {
 
     @Test
     @DisplayName("if the provider is ready handlers must run immediately")
-    @Specification(number = "5.3.3", text = "PROVIDER_READY handlers attached after the provider is already in a ready state MUST run immediately.")
-    void readyMustRunImmediately() throws Exception {
-        final String name = "readyMustRunImmediately";
+    @Specification(number = "5.3.3", text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
+    void matchingReadyEventsMustRunImmediately() throws Exception {
+        final String name = "matchingEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
 
         // provider which is already ready
@@ -526,6 +526,40 @@ class EventsTest {
         // should run even thought handler was added after ready
         Client client = OpenFeatureAPI.getInstance().getClient(name);
         client.onProviderReady(handler);
+        verify(handler, timeout(TIMEOUT)).accept(any());
+    }
+
+    @Test
+    @DisplayName("if the provider is ready handlers must run immediately")
+    @Specification(number = "5.3.3", text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
+    void matchingStaleEventsMustRunImmediately() throws Exception {
+        final String name = "matchingEventsMustRunImmediately";
+        final Consumer<EventDetails> handler = mockHandler();
+
+        // provider which is already stale
+        TestEventsProvider provider = new TestEventsProvider(ProviderState.STALE);
+        OpenFeatureAPI.getInstance().setProvider(name, provider);
+
+        // should run even thought handler was added after stale
+        Client client = OpenFeatureAPI.getInstance().getClient(name);
+        client.onProviderStale(handler);
+        verify(handler, timeout(TIMEOUT)).accept(any());
+    }
+
+    @Test
+    @DisplayName("if the provider is ready handlers must run immediately")
+    @Specification(number = "5.3.3", text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
+    void matchingErrorEventsMustRunImmediately() throws Exception {
+        final String name = "matchingEventsMustRunImmediately";
+        final Consumer<EventDetails> handler = mockHandler();
+
+        // provider which is already in error
+        TestEventsProvider provider = new TestEventsProvider(ProviderState.ERROR);
+        OpenFeatureAPI.getInstance().setProvider(name, provider);
+
+        // should run even thought handler was added after error
+        Client client = OpenFeatureAPI.getInstance().getClient(name);
+        client.onProviderError(handler);
         verify(handler, timeout(TIMEOUT)).accept(any());
     }
 
@@ -560,6 +594,7 @@ class EventsTest {
 
     @Nested
     class HandlerRemoval {
+        @Specification(number="5.2.7", text="The API and client MUST provide a function allowing the removal of event handlers.")
         @Test
         @DisplayName("should not run removed events")
         void removedEventsShouldNotRun() {

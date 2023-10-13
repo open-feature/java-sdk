@@ -1,5 +1,7 @@
 package dev.openfeature.sdk;
 
+import java.util.Optional;
+
 import javax.annotation.Nullable;
 
 import lombok.AllArgsConstructor;
@@ -8,7 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Contains information about how the provider resolved a flag, including the resolved value.
+ * Contains information about how the provider resolved a flag, including the
+ * resolved value.
  *
  * @param <T> the type of the flag being evaluated.
  */
@@ -20,11 +23,15 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
 
     private String flagKey;
     private T value;
-    @Nullable private String variant;
-    @Nullable private String reason;
+    @Nullable
+    private String variant;
+    @Nullable
+    private String reason;
     private ErrorCode errorCode;
-    @Nullable private String errorMessage;
-    @Builder.Default private ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
+    @Nullable
+    private String errorMessage;
+    @Builder.Default
+    private ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
 
     /**
      * Generate detail payload from the provider response.
@@ -42,7 +49,8 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
                 .reason(providerEval.getReason())
                 .errorMessage(providerEval.getErrorMessage())
                 .errorCode(providerEval.getErrorCode())
-                .flagMetadata(providerEval.getFlagMetadata())
+                .flagMetadata(
+                        Optional.ofNullable(providerEval.getFlagMetadata()).orElse(ImmutableMetadata.builder().build()))
                 .build();
     }
 }

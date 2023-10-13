@@ -154,7 +154,7 @@ class HookSpecTest implements HookFixtures {
                 .build();
     }
 
-    @Specification(number="4.3.2", text="The before stage MUST run before flag resolution occurs. It accepts a hook context (required) and hook hints (optional) as parameters and returns either an evaluation context or nothing.")
+    @Specification(number="4.3.2.1", text="The before stage MUST run before flag resolution occurs. It accepts a hook context (required) and hook hints (optional) as parameters and returns either an evaluation context or nothing.")
     @Test void before_runs_ahead_of_evaluation() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProvider(new AlwaysBrokenProvider());
@@ -181,11 +181,11 @@ class HookSpecTest implements HookFixtures {
         verify(h, times(0)).error(any(), any(), any());
     }
 
+    @Specification(number="4.3.6", text="The after stage MUST run after flag resolution occurs. It accepts a hook context (required), flag evaluation details (required) and hook hints (optional). It has no return value.")
+    @Specification(number="4.3.7", text="The error hook MUST run when errors are encountered in the before stage, the after stage or during flag resolution. It accepts hook context (required), exception representing what went wrong (required), and hook hints (optional). It has no return value.")
+    @Specification(number="4.3.8", text="The finally hook MUST run after the before, after, and error stages. It accepts a hook context (required) and hook hints (optional). There is no return value.")
     @Specification(number="4.4.1", text="The API, Client, Provider, and invocation MUST have a method for registering hooks.")
-    @Specification(number="4.3.5", text="The after stage MUST run after flag resolution occurs. It accepts a hook context (required), flag evaluation details (required) and hook hints (optional). It has no return value.")
     @Specification(number="4.4.2", text="Hooks MUST be evaluated in the following order:  - before: API, Client, Invocation, Provider - after: Provider, Invocation, Client, API - error (if applicable): Provider, Invocation, Client, API - finally: Provider, Invocation, Client, API")
-    @Specification(number="4.3.6", text="The error hook MUST run when errors are encountered in the before stage, the after stage or during flag resolution. It accepts hook context (required), exception representing what went wrong (required), and hook hints (optional). It has no return value.")
-    @Specification(number="4.3.7", text="The finally hook MUST run after the before, after, and error stages. It accepts a hook context (required) and hook hints (optional). There is no return value.")
     @Test void hook_eval_order() {
         List<String> evalOrder = new ArrayList<>();
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
@@ -446,7 +446,7 @@ class HookSpecTest implements HookFixtures {
     }
 
     @Specification(number = "4.1.4", text = "The evaluation context MUST be mutable only within the before hook.")
-    @Specification(number = "4.3.3", text = "Any evaluation context returned from a before hook MUST be passed to subsequent before hooks (via HookContext).")
+    @Specification(number = "4.3.4", text = "Any `evaluation context` returned from a `before` hook MUST be passed to subsequent `before` hooks (via `HookContext`).")
     @Test void beforeContextUpdated() {
         EvaluationContext ctx = new ImmutableContext();
         Hook hook = mockBooleanHook();
@@ -471,7 +471,7 @@ class HookSpecTest implements HookFixtures {
 
     }
 
-    @Specification(number="4.3.4", text="When before hooks have finished executing, any resulting evaluation context MUST be merged with the existing evaluation context.")
+    @Specification(number="4.3.5", text="When before hooks have finished executing, any resulting evaluation context MUST be merged with the existing evaluation context.")
     @Test void mergeHappensCorrectly() {
         Map<String, Value>  attributes= new HashMap<>();
         attributes.put("test", new Value("works"));
@@ -561,7 +561,7 @@ class HookSpecTest implements HookFixtures {
     @Specification(number="4.3.1", text="Hooks MUST specify at least one stage.")
     @Test void default_methods_so_impossible() {}
 
-    @Specification(number="4.3.8.1", text="Instead of finally, finallyAfter SHOULD be used.")
+    @Specification(number="4.3.9.1", text="Instead of finally, finallyAfter SHOULD be used.")
     @SneakyThrows
     @Test void doesnt_use_finally() {
         assertThatCode(() -> Hook.class.getMethod("finally", HookContext.class, Map.class))

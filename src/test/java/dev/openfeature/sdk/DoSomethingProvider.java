@@ -4,9 +4,18 @@ class DoSomethingProvider implements FeatureProvider {
 
     static final String name = "Something";
     // Flag evaluation metadata
-    static final ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
+    static final ImmutableMetadata DEFAULT_METADATA = ImmutableMetadata.builder().build();
+    private ImmutableMetadata flagMetadata;
 
     private EvaluationContext savedContext;
+
+    public DoSomethingProvider() {
+        this.flagMetadata = DEFAULT_METADATA;
+    }
+
+    public DoSomethingProvider(ImmutableMetadata flagMetadata) {
+        this.flagMetadata = flagMetadata;
+    }
 
     EvaluationContext getMergedContext() {
         return savedContext;
