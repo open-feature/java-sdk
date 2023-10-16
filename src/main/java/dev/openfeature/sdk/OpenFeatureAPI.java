@@ -302,7 +302,6 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         }
     }
 
-    // here
     void addHandler(String clientName, ProviderEvent event, Consumer<EventDetails> handler) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             // if the provider is in the state associated with event, run immediately
