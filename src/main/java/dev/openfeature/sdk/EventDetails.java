@@ -14,7 +14,7 @@ public class EventDetails extends ProviderEventDetails {
     private String providerName;
 
     static EventDetails fromProviderEventDetails(ProviderEventDetails providerEventDetails, String providerName) {
-        return EventDetails.fromProviderEventDetails(providerEventDetails, null, null);
+        return EventDetails.fromProviderEventDetails(providerEventDetails, providerName, null);
     }
 
     static EventDetails fromProviderEventDetails(
