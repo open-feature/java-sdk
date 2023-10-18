@@ -12,9 +12,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
 
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 
+@Isolated()
 class LockingTest {
     
     private static OpenFeatureAPI api;
@@ -26,11 +28,12 @@ class LockingTest {
     @BeforeAll
     static void beforeAll() {
         api = OpenFeatureAPI.getInstance();
+        OpenFeatureAPI.getInstance().setProvider("LockingTest", new NoOpProvider());
     }
 
     @BeforeEach
     void beforeEach() {
-        client = (OpenFeatureClient) api.getClient();
+        client = (OpenFeatureClient) api.getClient("LockingTest");
         
         apiLock = setupLock(apiLock, mockInnerReadLock(), mockInnerWriteLock());
         OpenFeatureAPI.lock = apiLock;
