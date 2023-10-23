@@ -54,6 +54,11 @@ public interface Structure {
      * @return an Object containing the primitive type.
      */
     default Object convertValue(Value value) {
+
+        if (value == null || value.isNull()) {
+            return null;
+        }
+
         if (value.isBoolean()) {
             return value.asBoolean();
         }

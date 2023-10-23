@@ -79,9 +79,10 @@ public final class ImmutableStructure implements Structure {
         return attributes
                 .entrySet()
                 .stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> convertValue(getValue(e.getKey()))
-                ));
+                // custom collector, workaround for Collectors.toMap in JDK8
+                // https://bugs.openjdk.org/browse/JDK-8148463
+                .collect(HashMap::new,
+                        (accumulated, entry) -> accumulated.put(entry.getKey(), convertValue(entry.getValue())),
+                        HashMap::putAll);
     }
 }

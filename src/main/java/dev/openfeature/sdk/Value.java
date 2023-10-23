@@ -19,10 +19,14 @@ import static dev.openfeature.sdk.Structure.mapToStructure;
  */
 @ToString
 @EqualsAndHashCode
-@SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
+@SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType", "checkstyle:NoFinalizer"})
 public class Value implements Cloneable {
 
     private final Object innerObject;
+
+    protected final void finalize() {
+        // DO NOT REMOVE, spotbugs: CT_CONSTRUCTOR_THROW
+    }
 
     /**
      * Construct a new null Value.
