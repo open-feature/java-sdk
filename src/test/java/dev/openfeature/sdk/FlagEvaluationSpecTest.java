@@ -1,10 +1,11 @@
 package dev.openfeature.sdk;
 
-import static dev.openfeature.sdk.DoSomethingProvider.flagMetadata;
+import static dev.openfeature.sdk.DoSomethingProvider.DEFAULT_METADATA;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -140,8 +141,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertTrue(hooks.contains(m2));
     }
 
-    @Specification(number="1.3.1", text="The client MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure, with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns the flag value.")
-    @Specification(number="1.3.2.1", text="The client SHOULD provide functions for floating-point numbers and integers, consistent with language idioms.")
+    @Specification(number="1.3.1.1", text="The client MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure, with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns the flag value.")
+    @Specification(number="1.3.3.1", text="The client SHOULD provide functions for floating-point numbers and integers, consistent with language idioms.")
     @Test void value_flags() {
         FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
 
@@ -169,12 +170,12 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(null, c.getObjectValue(key, new Value(), new ImmutableContext(), FlagEvaluationOptions.builder().build()));
     }
 
-    @Specification(number="1.4.1", text="The client MUST provide methods for detailed flag value evaluation with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns an evaluation details structure.")
-    @Specification(number="1.4.2", text="The evaluation details structure's value field MUST contain the evaluated flag value.")
-    @Specification(number="1.4.3.1", text="The evaluation details structure SHOULD accept a generic argument (or use an equivalent language feature) which indicates the type of the wrapped value field.")
-    @Specification(number="1.4.4", text="The evaluation details structure's flag key field MUST contain the flag key argument passed to the detailed flag evaluation method.")
-    @Specification(number="1.4.5", text="In cases of normal execution, the evaluation details structure's variant field MUST contain the value of the variant field in the flag resolution structure returned by the configured provider, if the field is set.")
-    @Specification(number="1.4.6", text="In cases of normal execution, the evaluation details structure's reason field MUST contain the value of the reason field in the flag resolution structure returned by the configured provider, if the field is set.")
+    @Specification(number="1.4.1.1", text="The client MUST provide methods for detailed flag value evaluation with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns an evaluation details structure.")
+    @Specification(number="1.4.3", text="The evaluation details structure's value field MUST contain the evaluated flag value.")
+    @Specification(number="1.4.4.1", text="The evaluation details structure SHOULD accept a generic argument (or use an equivalent language feature) which indicates the type of the wrapped value field.")
+    @Specification(number="1.4.5", text="The evaluation details structure's flag key field MUST contain the flag key argument passed to the detailed flag evaluation method.")
+    @Specification(number="1.4.6", text="In cases of normal execution, the evaluation details structure's variant field MUST contain the value of the variant field in the flag resolution structure returned by the configured provider, if the field is set.")
+    @Specification(number="1.4.7", text="In cases of normal execution, the `evaluation details` structure's `reason` field MUST contain the value of the `reason` field in the `flag resolution` structure returned by the configured `provider`, if the field is set.")
     @Test void detail_flags() {
         FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
         Client c = api.getClient();
@@ -184,7 +185,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 .flagKey(key)
                 .value(false)
                 .variant(null)
-                .flagMetadata(flagMetadata)
+                .flagMetadata(DEFAULT_METADATA)
                 .build();
         assertEquals(bd, c.getBooleanDetails(key, true));
         assertEquals(bd, c.getBooleanDetails(key, true, new ImmutableContext()));
@@ -194,7 +195,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 .flagKey(key)
                 .value("tset")
                 .variant(null)
-                .flagMetadata(flagMetadata)
+                .flagMetadata(DEFAULT_METADATA)
                 .build();
         assertEquals(sd, c.getStringDetails(key, "test"));
         assertEquals(sd, c.getStringDetails(key, "test", new ImmutableContext()));
@@ -203,7 +204,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         FlagEvaluationDetails<Integer> id = FlagEvaluationDetails.<Integer>builder()
                 .flagKey(key)
                 .value(400)
-                .flagMetadata(flagMetadata)
+                .flagMetadata(DEFAULT_METADATA)
                 .build();
         assertEquals(id, c.getIntegerDetails(key, 4));
         assertEquals(id, c.getIntegerDetails(key, 4, new ImmutableContext()));
@@ -212,7 +213,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         FlagEvaluationDetails<Double> dd = FlagEvaluationDetails.<Double>builder()
                 .flagKey(key)
                 .value(40.0)
-                .flagMetadata(flagMetadata)
+                .flagMetadata(DEFAULT_METADATA)
                 .build();
         assertEquals(dd, c.getDoubleDetails(key, .4));
         assertEquals(dd, c.getDoubleDetails(key, .4, new ImmutableContext()));
@@ -234,9 +235,10 @@ class FlagEvaluationSpecTest implements HookFixtures {
         verify(invocationHook, times(1)).before(any(), any());
     }
 
-    @Specification(number="1.4.9", text="Methods, functions, or operations on the client MUST NOT throw exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the default value in the event of abnormal execution. Exceptions include functions or methods for the purposes for configuration or setup.")
-    @Specification(number="1.4.7", text="In cases of abnormal execution, the `evaluation details` structure's `error code` field **MUST** contain an `error code`.")
-    @Specification(number="1.4.12", text="In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
+    @Specification(number="1.4.8", text="In cases of abnormal execution, the `evaluation details` structure's `error code` field **MUST** contain an `error code`.")
+    @Specification(number="1.4.9", text="In cases of abnormal execution (network failure, unhandled error, etc) the `reason` field in the `evaluation details` SHOULD indicate an error.")
+    @Specification(number="1.4.10", text="Methods, functions, or operations on the client MUST NOT throw exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the `default value` in the event of abnormal execution. Exceptions include functions or methods for the purposes for configuration or setup.")
+    @Specification(number="1.4.13", text="In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
     @Test void broken_provider() {
         FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
@@ -246,7 +248,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(TestConstants.BROKEN_MESSAGE, details.getErrorMessage());
     }
 
-    @Specification(number="1.4.10", text="In the case of abnormal execution, the client SHOULD log an informative error message.")
+    @Specification(number="1.4.11", text="In the case of abnormal execution, the client SHOULD log an informative error message.")
     @Test void log_on_error() throws NotImplementedException {
         FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
@@ -269,7 +271,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals("test", c2.getMetadata().getName());
     }
 
-    @Specification(number="1.4.8", text="In cases of abnormal execution (network failure, unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")
+    @Specification(number="1.4.9", text="In cases of abnormal execution (network failure, unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")
     @Test void reason_is_error_when_there_are_errors() {
         FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
@@ -277,8 +279,17 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(Reason.ERROR.toString(), result.getReason());
     }
 
-    @Specification(number="3.2.1", text="The API, Client and invocation MUST have a method for supplying evaluation context.")
-    @Specification(number="3.2.2", text="Evaluation context MUST be merged in the order: API (global; lowest precedence) - client - invocation - before hooks (highest precedence), with duplicate values being overwritten.")
+    @Specification(number="1.4.14", text="If the flag metadata field in the flag resolution structure returned by the configured provider is set, the evaluation details structure's flag metadata field MUST contain that value. Otherwise, it MUST contain an empty record.")
+    @Test void flag_metadata_passed() {
+        FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider(null));
+        Client c = api.getClient();
+        FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
+        assertNotNull(result.getFlagMetadata());
+    }
+
+    @Specification(number="3.2.1.1", text="The API, Client and invocation MUST have a method for supplying evaluation context.")
+    @Specification(number="3.2.2.1", text="The API MUST have a method for setting the global evaluation context.")
+    @Specification(number="3.2.3", text="Evaluation context MUST be merged in the order: API (global; lowest precedence) - client - invocation - before hooks (highest precedence), with duplicate values being overwritten.")
     @Test void multi_layer_context_merges_correctly() {
         DoSomethingProvider provider = new DoSomethingProvider();
         FeatureProviderTestUtils.setFeatureProvider(provider);
@@ -315,13 +326,22 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     }
 
-    @Specification(number="1.3.3", text="The client SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied default value should be returned.")
+    @Specification(number="1.3.4", text="The client SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied default value should be returned.")
     @Test void type_system_prevents_this() {}
 
     @Specification(number="1.1.7", text="The client creation function MUST NOT throw, or otherwise abnormally terminate.")
     @Test void constructor_does_not_throw() {}
 
-    @Specification(number="1.4.11", text="The client SHOULD provide asynchronous or non-blocking mechanisms for flag evaluation.")
+    @Specification(number="1.4.12", text="The client SHOULD provide asynchronous or non-blocking mechanisms for flag evaluation.")
     @Test void one_thread_per_request_model() {}
+
+    @Specification(number="1.4.14.1", text="Condition: Flag metadata MUST be immutable.")
+    @Test void compiler_enforced() {}
+
+    @Specification(number="1.4.2.1", text="The client MUST provide methods for detailed flag value evaluation with parameters flag key (string, required), default value (boolean | number | string | structure, required), and evaluation options (optional), which returns an evaluation details structure.")
+    @Specification(number="1.3.2.1", text="The client MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure, with parameters flag key (string, required), default value (boolean | number | string | structure, required), and evaluation options (optional), which returns the flag value.")
+    @Specification(number="3.2.2.2", text="The Client and invocation MUST NOT have a method for supplying evaluation context.")
+    @Specification(number="3.2.4.1", text="When the global evaluation context is set, the on context changed handler MUST run.")
+    @Test void not_applicable_for_dynamic_context() {}
 
 }

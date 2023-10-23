@@ -30,7 +30,7 @@ class InitializeBehaviorSpecTest {
             verify(featureProvider, timeout(1000)).initialize(any());
         }
 
-        @Specification(number = "1.4.9", text = "Methods, functions, or operations on the client MUST NOT throw "
+        @Specification(number = "1.4.10", text = "Methods, functions, or operations on the client MUST NOT throw "
             + "exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the "
             + "`default value` in the event of abnormal execution. Exceptions include functions or methods for "
             + "the purposes for configuration or setup.")
@@ -65,7 +65,7 @@ class InitializeBehaviorSpecTest {
             verify(featureProvider, timeout(1000)).initialize(any());
         }
 
-        @Specification(number = "1.4.9", text = "Methods, functions, or operations on the client MUST NOT throw "
+        @Specification(number = "1.4.10", text = "Methods, functions, or operations on the client MUST NOT throw "
             + "exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the "
             + "`default value` in the event of abnormal execution. Exceptions include functions or methods for "
             + "the purposes for configuration or setup.")

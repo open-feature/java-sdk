@@ -3,6 +3,7 @@ package dev.openfeature.sdk;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +40,7 @@ public class ProviderSpecTest {
 
     }
 
-    @Specification(number = "2.2.5", text = "The `provider` SHOULD populate the `resolution details` structure's `reason` field with `\"STATIC\"`, `\"DEFAULT\",` `\"TARGETING_MATCH\"`, `\"SPLIT\"`, `\"CACHED\"`, `\"DISABLED\"`, `\"UNKNOWN\"`, `\"ERROR\"` or some other string indicating the semantic reason for the returned flag value.")
+    @Specification(number = "2.2.5", text = "The `provider` SHOULD populate the `resolution details` structure's `reason` field with `\"STATIC\"`, `\"DEFAULT\",` `\"TARGETING_MATCH\"`, `\"SPLIT\"`, `\"CACHED\"`, `\"DISABLED\"`, `\"UNKNOWN\"`, `\"STALE\"`, `\"ERROR\"` or some other string indicating the semantic reason for the returned flag value.")
     @Test
     void has_reason() {
         ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new ImmutableContext());
@@ -76,10 +77,50 @@ public class ProviderSpecTest {
         assertNotNull(boolean_result.getReason());
     }
 
+    @Specification(number = "2.2.10", text = "`flag metadata` MUST be a structure supporting the definition of arbitrary properties, with keys of type `string`, and values of type `boolean | string | number`.")
+    @Test
+    void flag_metadata_structure() {
+        ImmutableMetadata metadata = ImmutableMetadata.builder()
+                .addBoolean("bool", true)
+                .addDouble("double", 1.1d)
+                .addFloat("float", 2.2f)
+                .addInteger("int", 3)
+                .addLong("long", 1l)
+                .addString("string", "str")
+                .build();
+
+        assertEquals(true, metadata.getBoolean("bool"));
+        assertEquals(1.1d, metadata.getDouble("double"));
+        assertEquals(2.2f, metadata.getFloat("float"));
+        assertEquals(3, metadata.getInteger("int"));
+        assertEquals(1l, metadata.getLong("long"));
+        assertEquals("str", metadata.getString("string"));
+    }
+
     @Specification(number = "2.3.1", text = "The provider interface MUST define a provider hook mechanism which can be optionally implemented in order to add hook instances to the evaluation life-cycle.")
     @Specification(number = "4.4.1", text = "The API, Client, Provider, and invocation MUST have a method for registering hooks.")
     @Test
     void provider_hooks() {
         assertEquals(0, p.getProviderHooks().size());
+    }
+
+    @Specification(number = "2.4.2", text = "The provider MAY define a status field/accessor which indicates the readiness of the provider, with possible values NOT_READY, READY, or ERROR.")
+    @Test
+    void defines_status() {
+        assertTrue(p.getState() instanceof ProviderState);
+    }
+
+    @Specification(number = "2.4.3", text = "The provider MUST set its status field/accessor to READY if its initialize function terminates normally.")
+    @Specification(number = "2.4.4", text = "The provider MUST set its status field to ERROR if its initialize function terminates abnormally.")
+    @Specification(number = "2.2.9", text = "The provider SHOULD populate the resolution details structure's flag metadata field.")
+    @Specification(number = "2.4.1", text = "The provider MAY define an initialize function which accepts the global evaluation context as an argument and performs initialization logic relevant to the provider.")
+    @Specification(number = "2.5.1", text = "The provider MAY define a mechanism to gracefully shutdown and dispose of resources.")
+    @Test
+    void provider_responsibility() {
+    }
+
+    @Specification(number = "2.6.1", text = "The provider MAY define an on context changed handler, which takes an argument for the previous context and the newly set context, in order to respond to an evaluation context change.")
+    @Test
+    void not_applicable_for_dynamic_context() {
     }
 }

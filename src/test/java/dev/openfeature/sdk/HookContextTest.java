@@ -23,4 +23,7 @@ class HookContextTest {
         assertTrue(Metadata.class.isAssignableFrom(hc.getProviderMetadata().getClass()));
     }
 
+    @Specification(number="4.3.3.1", text="The before stage MUST run before flag resolution occurs. It accepts a hook context (required) and hook hints (optional) as parameters. It has no return value.")
+    @Test void not_applicable_for_dynamic_context() {}
+
 }
