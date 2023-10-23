@@ -42,7 +42,7 @@
         <Bug pattern="PI_DO_NOT_REUSE_PUBLIC_IDENTIFIERS_CLASS_NAMES"/>
     </And>
     <And>
-        Added in spotbugs 4.8.0 - FlagValueType.STRING shares a name with something from the standard lib (confuising), but change would be breaking
+        Added in spotbugs 4.8.0 - FlagValueType.STRING shares a name with something from the standard lib (confusing), but change would be breaking
         <Class name="dev.openfeature.sdk.FlagValueType"/>
         <Bug pattern="PI_DO_NOT_REUSE_PUBLIC_IDENTIFIERS_FIELD_NAMES"/>
     </And>
