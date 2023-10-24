@@ -13,6 +13,9 @@
 ### ✨ New Features
 
 * implement spec 0.7.0 changes ([#655](https://github.com/open-feature/java-sdk/issues/655)) ([fe5a20f](https://github.com/open-feature/java-sdk/commit/fe5a20f2c39c776a68f5533ee950b96adf548231))
+  * run any event handler immediately if the provider is in the associated state, not just ready
+  * add providerName to event details
+  * add STALE provider state
 
 
 ### 🧹 Chore
