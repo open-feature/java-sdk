@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -141,5 +142,10 @@ public class ValueTest {
         list.add("item");
 
         assertThrows(InstantiationException.class, ()-> new Value(list));
+    }
+
+    @Test public void noOpFinalize() {
+        Value val = new Value();
+        assertDoesNotThrow(val::finalize); // does nothing, but we want to defined in and make it final.
     }
 }

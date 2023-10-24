@@ -275,11 +275,7 @@ public class Value implements Cloneable {
             return new Value(copy);
         }
         if (this.isStructure()) {
-            Map<String, Value> copy = this.asStructure().asMap().entrySet().stream().collect(Collectors.toMap(
-                    Map.Entry::getKey,
-                    e -> e.getValue().clone()
-            ));
-            return new Value(new ImmutableStructure(copy));
+            return new Value(new ImmutableStructure(this.asStructure().asMap()));
         }
         if (this.isInstant()) {
             Instant copy = Instant.ofEpochMilli(this.asInstant().toEpochMilli());
@@ -298,7 +294,7 @@ public class Value implements Cloneable {
         if (object instanceof Value) {
             return (Value) object;
         } else if (object == null) {
-            return null;
+            return new Value();
         } else if (object instanceof String) {
             return new Value((String) object);
         } else if (object instanceof Boolean) {

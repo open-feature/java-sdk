@@ -122,4 +122,11 @@ class ImmutableStructureTest {
 
         assertEquals(expected, structure.asObjectMap());
     }
+
+    @Test
+    void constructorHandlesNullValue() {
+        HashMap<String, Value> attrs = new HashMap<>();
+        attrs.put("null", null);
+        new ImmutableStructure(attrs);
+    }
 }

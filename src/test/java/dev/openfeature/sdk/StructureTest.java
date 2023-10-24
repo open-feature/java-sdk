@@ -98,7 +98,7 @@ public class StructureTest {
         assertEquals(new Value(Instant.ofEpochSecond(0)), res.getValue("Instant"));
         assertEquals(new HashMap<>(), res.getValue("Map").asStructure().asMap());
         assertEquals(new Value(immutableContext), res.getValue("ImmutableContext"));
-        assertNull(res.getValue("nullKey"));
+        assertEquals(new Value((String)null), res.getValue("nullKey"));
     }
 
     @Test

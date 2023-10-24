@@ -48,10 +48,10 @@ public interface Structure {
     Map<String, Object> asObjectMap();
 
     /**
-     * convertValue is converting the object type Value in a primitive type.
+     * Converts the Value into its equivalent primitive type.
      *
      * @param value - Value object to convert
-     * @return an Object containing the primitive type.
+     * @return an Object containing the primitive type, or null.
      */
     default Object convertValue(Value value) {
 
@@ -90,15 +90,14 @@ public interface Structure {
         if (value.isStructure()) {
             Structure s = value.asStructure();
             return s.asMap()
-                    .keySet()
+                    .entrySet()
                     .stream()
-                    .collect(
-                            Collectors.toMap(
-                                    key -> key,
-                                    key -> convertValue(s.getValue(key))
-                            )
-                    );
+                    .collect(HashMap::new,
+                            (accumulated, entry) -> accumulated.put(entry.getKey(),
+                                    convertValue(entry.getValue())),
+                            HashMap::putAll);
         }
+
         throw new ValueNotConvertableError();
     }
 
@@ -139,7 +138,9 @@ public interface Structure {
      */
     static Structure mapToStructure(Map<String, Object> map) {
         return new MutableStructure(map.entrySet().stream()
-            .filter(e -> e.getValue() != null)
-            .collect(Collectors.toMap(Map.Entry::getKey, e -> objectToValue(e.getValue()))));
+            .collect(HashMap::new,
+                        (accumulated, entry) -> accumulated.put(entry.getKey(),
+                        objectToValue(entry.getValue())),
+                        HashMap::putAll));
     }
 }
