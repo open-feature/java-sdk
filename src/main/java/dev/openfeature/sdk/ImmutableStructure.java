@@ -1,32 +1,32 @@
 package dev.openfeature.sdk;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
- * {@link ImmutableStructure} represents a potentially nested object type which is used to represent
+ * {@link ImmutableStructure} represents a potentially nested object type which
+ * is used to represent
  * structured data.
- * The ImmutableStructure is a Structure implementation which is threadsafe, and whose attributes can
- * not be modified after instantiation.
+ * The ImmutableStructure is a Structure implementation which is threadsafe, and
+ * whose attributes can
+ * not be modified after instantiation. All references are clones.
  */
 @ToString
 @EqualsAndHashCode
-@SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
-public final class ImmutableStructure implements Structure {
-
-    private final Map<String, Value> attributes;
+@SuppressWarnings({ "PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType" })
+public final class ImmutableStructure extends AbstractStructure {
 
     /**
      * create an immutable structure with the empty attributes.
      */
     public ImmutableStructure() {
-        this(new HashMap<>());
+        super();
     }
 
     /**
@@ -35,10 +35,14 @@ public final class ImmutableStructure implements Structure {
      * @param attributes attributes.
      */
     public ImmutableStructure(Map<String, Value> attributes) {
-        Map<String, Value> copy = attributes.entrySet()
+        super(new HashMap<>(attributes.entrySet()
                 .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().clone()));
-        this.attributes = new HashMap<>(copy);
+                .collect(HashMap::new,
+                        (accumulated, entry) -> accumulated.put(entry.getKey(),
+                                Optional.ofNullable(entry.getValue())
+                                    .map(e -> e.clone())
+                                    .orElse(null)),
+                        HashMap::putAll)));
     }
 
     @Override
@@ -63,25 +67,11 @@ public final class ImmutableStructure implements Structure {
         return attributes
                 .entrySet()
                 .stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> getValue(e.getKey())
-                ));
-    }
-
-    /**
-     * Get all values, with primitives types.
-     *
-     * @return all attributes on the structure into a Map
-     */
-    @Override
-    public Map<String, Object> asObjectMap() {
-        return attributes
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> convertValue(getValue(e.getKey()))
-                ));
+                .collect(HashMap::new,
+                        (accumulated, entry) -> accumulated.put(entry.getKey(),
+                                Optional.ofNullable(entry.getValue())
+                                .map(e -> e.clone())
+                                .orElse(null)),
+                        HashMap::putAll);
     }
 }

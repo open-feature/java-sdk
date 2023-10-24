@@ -98,6 +98,20 @@ public class StructureTest {
         assertEquals(new Value(Instant.ofEpochSecond(0)), res.getValue("Instant"));
         assertEquals(new HashMap<>(), res.getValue("Map").asStructure().asMap());
         assertEquals(new Value(immutableContext), res.getValue("ImmutableContext"));
-        assertNull(res.getValue("nullKey"));
+        assertEquals(new Value(), res.getValue("nullKey"));
+    }
+
+    @Test
+    void asObjectHandlesNullValue() {
+        Map<String, Value> map = new HashMap<>();
+        map.put("null", new Value((String)null));
+        ImmutableStructure structure = new ImmutableStructure(map);
+        assertNull(structure.asObjectMap().get("null"));
+    }
+
+    @Test
+    void convertValueHandlesNullValue() {
+        ImmutableStructure structure = new ImmutableStructure();
+        assertNull(structure.convertValue(new Value((String)null)));
     }
 }

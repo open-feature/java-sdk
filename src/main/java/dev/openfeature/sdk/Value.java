@@ -19,10 +19,14 @@ import static dev.openfeature.sdk.Structure.mapToStructure;
  */
 @ToString
 @EqualsAndHashCode
-@SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
+@SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType", "checkstyle:NoFinalizer"})
 public class Value implements Cloneable {
 
     private final Object innerObject;
+
+    protected final void finalize() {
+        // DO NOT REMOVE, spotbugs: CT_CONSTRUCTOR_THROW
+    }
 
     /**
      * Construct a new null Value.
@@ -271,11 +275,7 @@ public class Value implements Cloneable {
             return new Value(copy);
         }
         if (this.isStructure()) {
-            Map<String, Value> copy = this.asStructure().asMap().entrySet().stream().collect(Collectors.toMap(
-                    Map.Entry::getKey,
-                    e -> e.getValue().clone()
-            ));
-            return new Value(new ImmutableStructure(copy));
+            return new Value(new ImmutableStructure(this.asStructure().asMap()));
         }
         if (this.isInstant()) {
             Instant copy = Instant.ofEpochMilli(this.asInstant().toEpochMilli());
@@ -294,7 +294,7 @@ public class Value implements Cloneable {
         if (object instanceof Value) {
             return (Value) object;
         } else if (object == null) {
-            return null;
+            return new Value();
         } else if (object instanceof String) {
             return new Value((String) object);
         } else if (object instanceof Boolean) {

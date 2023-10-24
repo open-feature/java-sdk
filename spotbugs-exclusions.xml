@@ -26,6 +26,26 @@
         <Class name="dev.openfeature.sdk.OpenFeatureAPI"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </And>
+    <And>
+        Added in spotbugs 4.8.0 - EventProvider shares a name with something from the standard lib (confusing), but change would be breaking
+        <Class name="dev.openfeature.sdk.EventProvider"/>
+        <Bug pattern="PI_DO_NOT_REUSE_PUBLIC_IDENTIFIERS_CLASS_NAMES"/>
+    </And>
+    <And>
+        Added in spotbugs 4.8.0 - Metadata shares a name with something from the standard lib (confusing), but change would be breaking
+        <Class name="dev.openfeature.sdk.Metadata"/>
+        <Bug pattern="PI_DO_NOT_REUSE_PUBLIC_IDENTIFIERS_CLASS_NAMES"/>
+    </And>
+    <And>
+        Added in spotbugs 4.8.0 - Reason shares a name with something from the standard lib (confusing), but change would be breaking
+        <Class name="dev.openfeature.sdk.Reason"/>
+        <Bug pattern="PI_DO_NOT_REUSE_PUBLIC_IDENTIFIERS_CLASS_NAMES"/>
+    </And>
+    <And>
+        Added in spotbugs 4.8.0 - FlagValueType.STRING shares a name with something from the standard lib (confusing), but change would be breaking
+        <Class name="dev.openfeature.sdk.FlagValueType"/>
+        <Bug pattern="PI_DO_NOT_REUSE_PUBLIC_IDENTIFIERS_FIELD_NAMES"/>
+    </And>
 
     <!-- Test class that should be excluded -->
     <Match>

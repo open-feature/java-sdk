@@ -1,14 +1,13 @@
 package dev.openfeature.sdk;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * {@link MutableStructure} represents a potentially nested object type which is used to represent 
@@ -19,16 +18,14 @@ import java.util.stream.Collectors;
 @ToString
 @EqualsAndHashCode
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
-public class MutableStructure implements Structure {
-
-    protected final Map<String, Value> attributes;
+public class MutableStructure extends AbstractStructure {
 
     public MutableStructure() {
-        this.attributes = new HashMap<>();
+        super();
     }
 
     public MutableStructure(Map<String, Value> attributes) {
-        this.attributes = new HashMap<>(attributes);
+        super(attributes);
     }
 
     @Override
@@ -91,21 +88,5 @@ public class MutableStructure implements Structure {
     @Override
     public Map<String, Value> asMap() {
         return new HashMap<>(this.attributes);
-    }
-
-    /**
-     * Get all values, with primitives types.
-     *
-     * @return all attributes on the structure into a Map
-     */
-    @Override
-    public Map<String, Object> asObjectMap() {
-        return attributes
-            .entrySet()
-            .stream()
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                e -> convertValue(getValue(e.getKey()))
-            ));
     }
 }
