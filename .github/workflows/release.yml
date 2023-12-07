@@ -22,7 +22,6 @@ jobs:
       - uses: google-github-actions/release-please-action@18e07ccc3cbf9452c36a903319d532486196dba9
         id: release
         with:
-          command: manifest
           token: ${{secrets.GITHUB_TOKEN}}
           default-branch: main
 
