@@ -27,10 +27,10 @@ jobs:
 
       # These steps are only run if this was a merged release-please PR
       - name: checkout
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs.release_created }}
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Set up JDK 8
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs.release_created }}
         uses: actions/setup-java@16ef37f8dd292a31055a9ee0d26fa0a4efab58de
         with:
           java-version: '8'
@@ -41,14 +41,14 @@ jobs:
           server-password: ${{ secrets.OSSRH_PASSWORD }}
 
       - name: Configure GPG Key
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs.release_created }}
         run: |
           echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
         env:
           GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
 
       - name: Deploy
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs.release_created }}
         run: |
           mvn --batch-mode \
             --settings release/m2-settings.xml clean deploy
