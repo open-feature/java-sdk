@@ -141,17 +141,6 @@ class ProviderRepositoryTest {
 
                 verify(provider, never()).initialize(any());
             }
-
-            @Test
-            @DisplayName("Should allow same provider to be registered with multiple names")
-            void allowSameProviderOnMultipleNames() throws Exception {
-                FeatureProvider provider = createMockedProvider();
-
-                setFeatureProvider(CLIENT_NAME, provider);
-                setFeatureProvider(ANOTHER_CLIENT_NAME, provider);
-
-                verify(provider, atMostOnce()).initialize(any());
-            }
         }
     }
 

@@ -106,15 +106,15 @@ class ProviderRepository {
               BiConsumer<FeatureProvider, String> afterError,
               boolean waitForInit) {
 
-        // provider is set immediately, on this thread
-        FeatureProvider oldProvider = clientName != null
-                ? this.providers.put(clientName, newProvider)
-                : this.defaultProvider.getAndSet(newProvider);
-
         if (!isProviderRegistered(newProvider)) {
             // only run afterSet if new provider is not already attached
             afterSet.accept(newProvider);
         }
+
+        // provider is set immediately, on this thread
+        FeatureProvider oldProvider = clientName != null
+                ? this.providers.put(clientName, newProvider)
+                : this.defaultProvider.getAndSet(newProvider);
 
         if (waitForInit) {
             initializeProvider(newProvider, afterInit, afterShutdown, afterError, oldProvider);
