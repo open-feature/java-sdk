@@ -108,9 +108,14 @@ class ProviderRepository {
 
         // provider is set immediately, on this thread
         FeatureProvider oldProvider = clientName != null
-            ? this.providers.put(clientName, newProvider)
-            : this.defaultProvider.getAndSet(newProvider);
-        afterSet.accept(newProvider);
+                ? this.providers.put(clientName, newProvider)
+                : this.defaultProvider.getAndSet(newProvider);
+
+        if (!isProviderRegistered(newProvider)) {
+            // only run afterSet if new provider is not already attached
+            afterSet.accept(newProvider);
+        }
+
         if (waitForInit) {
             initializeProvider(newProvider, afterInit, afterShutdown, afterError, oldProvider);
         } else {
@@ -138,16 +143,21 @@ class ProviderRepository {
         }
     }
 
-    private void shutDownOld(FeatureProvider oldProvider,Consumer<FeatureProvider> afterShutdown) {
-        if (oldProvider != null && !isProviderRegistered(oldProvider)) {
+    private void shutDownOld(FeatureProvider oldProvider, Consumer<FeatureProvider> afterShutdown) {
+        if (!isProviderRegistered(oldProvider)) {
             shutdownProvider(oldProvider);
             afterShutdown.accept(oldProvider);
         }
     }
 
-    private boolean isProviderRegistered(FeatureProvider oldProvider) {
-        return oldProvider != null && (this.providers.containsValue(oldProvider)
-            || this.defaultProvider.get().equals(oldProvider));
+    /**
+     * Helper to check if provider is already known (registered)
+     * @param provider provider to check for registration
+     * @return boolean true if already registered, false otherwise
+     */
+    private boolean isProviderRegistered(FeatureProvider provider) {
+        return provider != null &&
+                (this.providers.containsValue(provider) || this.defaultProvider.get().equals(provider));
     }
 
     private void shutdownProvider(FeatureProvider provider) {

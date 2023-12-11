@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -139,6 +140,17 @@ class ProviderRepositoryTest {
                 setFeatureProvider(CLIENT_NAME, provider);
 
                 verify(provider, never()).initialize(any());
+            }
+
+            @Test
+            @DisplayName("Should allow same provider to be registered with multiple names")
+            void allowSameProviderOnMultipleNames() throws Exception {
+                FeatureProvider provider = createMockedProvider();
+
+                setFeatureProvider(CLIENT_NAME, provider);
+                setFeatureProvider(ANOTHER_CLIENT_NAME, provider);
+
+                verify(provider, atMostOnce()).initialize(any());
             }
         }
     }
