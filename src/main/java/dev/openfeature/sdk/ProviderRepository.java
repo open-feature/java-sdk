@@ -151,13 +151,13 @@ class ProviderRepository {
     }
 
     /**
-     * Helper to check if provider is already known (registered)
+     * Helper to check if provider is already known (registered).
      * @param provider provider to check for registration
      * @return boolean true if already registered, false otherwise
      */
     private boolean isProviderRegistered(FeatureProvider provider) {
-        return provider != null &&
-                (this.providers.containsValue(provider) || this.defaultProvider.get().equals(provider));
+        return provider != null
+                && (this.providers.containsValue(provider) || this.defaultProvider.get().equals(provider));
     }
 
     private void shutdownProvider(FeatureProvider provider) {
