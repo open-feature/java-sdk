@@ -28,7 +28,9 @@ public abstract class EventProvider implements FeatureProvider {
      * "Attach" this EventProvider to an SDK, which allows events to propagate from this provider.
      * No-op if the same onEmit is already attached. 
      *
-     *  @param onEmit the function to run when a provider emits events.
+     * @param onEmit the function to run when a provider emits events.
+     * @throws IllegalStateException if attempted to bind a new emitter for already bound provider
+     *
      */
     void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit) {
         if (this.onEmit != null && this.onEmit != onEmit) {

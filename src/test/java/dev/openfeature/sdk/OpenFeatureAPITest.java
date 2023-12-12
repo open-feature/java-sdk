@@ -1,11 +1,15 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class OpenFeatureAPITest {
 
@@ -38,6 +42,25 @@ class OpenFeatureAPITest {
 
         assertThat(OpenFeatureAPI.getInstance().getProvider(name).getMetadata().getName())
                 .isEqualTo(DoSomethingProvider.name);
+    }
+
+    @Test
+    void providerToMultipleNames() {
+        FeatureProvider inMemAsEventingProvider = new InMemoryProvider(Collections.EMPTY_MAP);
+        FeatureProvider noOpAsNonEventingProvider = new NoOpProvider();
+
+        // register same provider for multiple names & as default provider
+        OpenFeatureAPI.getInstance().setProviderAndWait(inMemAsEventingProvider);
+        OpenFeatureAPI.getInstance().setProviderAndWait("clientA", inMemAsEventingProvider);
+        OpenFeatureAPI.getInstance().setProviderAndWait("clientB", inMemAsEventingProvider);
+        OpenFeatureAPI.getInstance().setProviderAndWait("clientC", noOpAsNonEventingProvider);
+        OpenFeatureAPI.getInstance().setProviderAndWait("clientD", noOpAsNonEventingProvider);
+
+        assertEquals(inMemAsEventingProvider, OpenFeatureAPI.getInstance().getProvider());
+        assertEquals(inMemAsEventingProvider, OpenFeatureAPI.getInstance().getProvider("clientA"));
+        assertEquals(inMemAsEventingProvider, OpenFeatureAPI.getInstance().getProvider("clientB"));
+        assertEquals(noOpAsNonEventingProvider, OpenFeatureAPI.getInstance().getProvider("clientC"));
+        assertEquals(noOpAsNonEventingProvider, OpenFeatureAPI.getInstance().getProvider("clientD"));
     }
 
     @Test

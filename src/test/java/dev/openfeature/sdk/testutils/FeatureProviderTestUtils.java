@@ -8,6 +8,7 @@ import lombok.experimental.UtilityClass;
 
 import static org.awaitility.Awaitility.await;
 
+// todo check the need of this utility class as we now have setProviderAndWait capability
 @UtilityClass
 public class FeatureProviderTestUtils {
 
