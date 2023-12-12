@@ -46,16 +46,21 @@ class OpenFeatureAPITest {
 
     @Test
     void providerToMultipleNames() {
-        FeatureProvider provider = new InMemoryProvider(Collections.EMPTY_MAP);
+        FeatureProvider inMemAsEventingProvider = new InMemoryProvider(Collections.EMPTY_MAP);
+        FeatureProvider noOpAsNonEventingProvider = new NoOpProvider();
 
         // register same provider for multiple names & as default provider
-        OpenFeatureAPI.getInstance().setProviderAndWait(provider);
-        OpenFeatureAPI.getInstance().setProviderAndWait("clientA", provider);
-        OpenFeatureAPI.getInstance().setProviderAndWait("clientB", provider);
+        OpenFeatureAPI.getInstance().setProviderAndWait(inMemAsEventingProvider);
+        OpenFeatureAPI.getInstance().setProviderAndWait("clientA", inMemAsEventingProvider);
+        OpenFeatureAPI.getInstance().setProviderAndWait("clientB", inMemAsEventingProvider);
+        OpenFeatureAPI.getInstance().setProviderAndWait("clientC", noOpAsNonEventingProvider);
+        OpenFeatureAPI.getInstance().setProviderAndWait("clientD", noOpAsNonEventingProvider);
 
-        assertEquals(provider, OpenFeatureAPI.getInstance().getProvider());
-        assertEquals(provider, OpenFeatureAPI.getInstance().getProvider("clientA"));
-        assertEquals(provider, OpenFeatureAPI.getInstance().getProvider("clientB"));
+        assertEquals(inMemAsEventingProvider, OpenFeatureAPI.getInstance().getProvider());
+        assertEquals(inMemAsEventingProvider, OpenFeatureAPI.getInstance().getProvider("clientA"));
+        assertEquals(inMemAsEventingProvider, OpenFeatureAPI.getInstance().getProvider("clientB"));
+        assertEquals(noOpAsNonEventingProvider, OpenFeatureAPI.getInstance().getProvider("clientC"));
+        assertEquals(noOpAsNonEventingProvider, OpenFeatureAPI.getInstance().getProvider("clientD"));
     }
 
     @Test
