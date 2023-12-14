@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.7.2](https://github.com/open-feature/java-sdk/compare/v1.7.1...v1.7.2) (2023-12-14)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.15.0 ([#726](https://github.com/open-feature/java-sdk/issues/726)) ([07ea4c0](https://github.com/open-feature/java-sdk/commit/07ea4c02cbb7b512d5e5a8ef2fa742f601611d24))
+* tolerate duplicate provider registrations ([#725](https://github.com/open-feature/java-sdk/issues/725)) ([3319e55](https://github.com/open-feature/java-sdk/commit/3319e558700d743ed187561695b4d51f51664390))
+
+
+### 🧹 Chore
+
+* **deps:** update dependency com.github.spotbugs:spotbugs to v4.8.3 ([#728](https://github.com/open-feature/java-sdk/issues/728)) ([c204a03](https://github.com/open-feature/java-sdk/commit/c204a03739bdcf4e7464837b26e618bb6a4422d1))
+* **deps:** update dependency org.apache.maven.plugins:maven-failsafe-plugin to v3.2.3 ([#729](https://github.com/open-feature/java-sdk/issues/729)) ([39a3d2d](https://github.com/open-feature/java-sdk/commit/39a3d2d461a5184290b8ea54e83dc0633dee3794))
+* **deps:** update dependency org.apache.maven.plugins:maven-surefire-plugin to v3.2.3 ([#730](https://github.com/open-feature/java-sdk/issues/730)) ([d2ba7f9](https://github.com/open-feature/java-sdk/commit/d2ba7f91a3e224764ca80ba801e754903ff26551))
+* **deps:** update github/codeql-action digest to 511f073 ([#731](https://github.com/open-feature/java-sdk/issues/731)) ([90a9d17](https://github.com/open-feature/java-sdk/commit/90a9d1799d8c1f891de6b0629c111be19b9b2cec))
+* **deps:** update github/codeql-action digest to b995212 ([#727](https://github.com/open-feature/java-sdk/issues/727)) ([a4db19b](https://github.com/open-feature/java-sdk/commit/a4db19b3409c3fbdf45912ab03b7eeedc4f193b7))
+* **deps:** update github/codeql-action digest to fe23b5a ([#724](https://github.com/open-feature/java-sdk/issues/724)) ([449630a](https://github.com/open-feature/java-sdk/commit/449630a3d75dc7ebc1448dcde91ed0d1e11fb11b))
+* **deps:** update google-github-actions/release-please-action digest to a2d8d68 ([#721](https://github.com/open-feature/java-sdk/issues/721)) ([1fd11c4](https://github.com/open-feature/java-sdk/commit/1fd11c4e5bd4586468c85f7816be96ba5c2f2c79))
+* **deps:** update google-github-actions/release-please-action digest to ba1c241 ([#732](https://github.com/open-feature/java-sdk/issues/732)) ([3fdb4c0](https://github.com/open-feature/java-sdk/commit/3fdb4c0be01b4e3f345e601a19c11323b9f0f5bc))
+
 ## [1.7.1](https://github.com/open-feature/java-sdk/compare/v1.7.0...v1.7.1) (2023-12-07)
 
 
