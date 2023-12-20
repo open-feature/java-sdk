@@ -11,7 +11,7 @@ public class FlagNotFoundError extends OpenFeatureError {
     @Getter private final ErrorCode errorCode = ErrorCode.FLAG_NOT_FOUND;
 
     @Override
-    public Throwable fillInStackTrace() {
+    public synchronized Throwable fillInStackTrace() {
         return this;
     }
 }
