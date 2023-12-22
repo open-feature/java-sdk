@@ -9,4 +9,9 @@ import lombok.experimental.StandardException;
 public class FlagNotFoundError extends OpenFeatureError {
     private static final long serialVersionUID = 1L;
     @Getter private final ErrorCode errorCode = ErrorCode.FLAG_NOT_FOUND;
+
+    @Override
+    public synchronized Throwable fillInStackTrace() {
+        return this;
+    }
 }
