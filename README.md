@@ -1,7 +1,8 @@
 # OpenFeature SDK for Java
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/dev.openfeature/sdk/badge.svg)](https://maven-badges.herokuapp.com/maven-central/dev.openfeature/sdk)
-[![javadoc](https://javadoc.io/badge2/dev.openfeature/sdk/javadoc.svg)](https://javadoc.io/doc/dev.openfeature/sdk) 
+[![javadoc](https://javadoc.io/badge2/dev.openfeature/sdk/javadoc.svg)](https://javadoc.io/doc/dev.openfeature/sdk) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fopen-feature%2Fjava-sdk.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fopen-feature%2Fjava-sdk?ref=badge_shield)
+
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Specification](https://img.shields.io/static/v1?label=Specification&message=v0.5.2&color=yellow)](https://github.com/open-feature/spec/tree/v0.5.2)
 [![Known Vulnerabilities](https://snyk.io/test/github/open-feature/java-sdk/badge.svg)](https://snyk.io/test/github/open-feature/java-sdk)
@@ -145,3 +146,7 @@ Thanks so much to our contributors.
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fopen-feature%2Fjava-sdk.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fopen-feature%2Fjava-sdk?ref=badge_large)
