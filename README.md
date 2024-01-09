@@ -96,11 +96,11 @@ public void example(){
 
     // flags defined in memory
     Map<String, Flag<?>> myFlags = new HashMap<>();
-        flags.put("v2_enabled", Flag.builder()
-            .variant("on", true)
-            .variant("off", false)
-            .defaultVariant("on")
-            .build());
+    myFlags.put("v2_enabled", Flag.builder()
+        .variant("on", true)
+        .variant("off", false)
+        .defaultVariant("on")
+        .build());
 
     // configure a provider
     OpenFeatureAPI api = OpenFeatureAPI.getInstance();
