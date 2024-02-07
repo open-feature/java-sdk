@@ -1,15 +1,16 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.providers.memory.InMemoryProvider;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.Collections;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 
 class OpenFeatureAPITest {
 
@@ -45,7 +46,7 @@ class OpenFeatureAPITest {
     }
 
     @Test
-    void providerToMultipleNames() {
+    void providerToMultipleNames() throws Exception {
         FeatureProvider inMemAsEventingProvider = new InMemoryProvider(Collections.EMPTY_MAP);
         FeatureProvider noOpAsNonEventingProvider = new NoOpProvider();
 

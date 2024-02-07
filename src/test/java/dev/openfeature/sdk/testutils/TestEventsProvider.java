@@ -8,6 +8,7 @@ import dev.openfeature.sdk.ProviderEvent;
 import dev.openfeature.sdk.ProviderEventDetails;
 import dev.openfeature.sdk.ProviderState;
 import dev.openfeature.sdk.Value;
+import dev.openfeature.sdk.exceptions.GeneralError;
 
 public class TestEventsProvider extends EventProvider {
 
@@ -63,7 +64,7 @@ public class TestEventsProvider extends EventProvider {
             Thread.sleep(initTimeoutMs);
             if (this.initError) {
                 this.state = ProviderState.ERROR;
-                throw new Exception(initErrorMessage);
+                throw new GeneralError(initErrorMessage);
             }
             this.state = ProviderState.READY;
         }

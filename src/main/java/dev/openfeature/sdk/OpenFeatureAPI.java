@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
+import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import lombok.extern.slf4j.Slf4j;
@@ -131,14 +132,14 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     /**
      * Set the default provider and wait for initialization to finish.
      */
-    public void setProviderAndWait(FeatureProvider provider) {
+    public void setProviderAndWait(FeatureProvider provider) throws OpenFeatureError {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             providerRepository.setProvider(
                     provider,
                     this::attachEventProvider,
                     this::emitReady,
                     this::detachEventProvider,
-                    this::emitError,
+                    this::emitErrorAndThrow,
                     true);
         }
     }
@@ -149,14 +150,14 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @param clientName The name of the client.
      * @param provider   The provider to set.
      */
-    public void setProviderAndWait(String clientName, FeatureProvider provider) {
+    public void setProviderAndWait(String clientName, FeatureProvider provider) throws OpenFeatureError {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             providerRepository.setProvider(clientName,
                     provider,
                     this::attachEventProvider,
                     this::emitReady,
                     this::detachEventProvider,
-                    this::emitError,
+                    this::emitErrorAndThrow,
                     true);
         }
     }
@@ -179,9 +180,14 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         }
     }
 
-    private void emitError(FeatureProvider provider, String message) {
+    private void emitError(FeatureProvider provider, OpenFeatureError exception) {
         runHandlersForProvider(provider, ProviderEvent.PROVIDER_ERROR,
-                ProviderEventDetails.builder().message(message).build());
+                ProviderEventDetails.builder().message(exception.getMessage()).build());
+    }
+
+    private void emitErrorAndThrow(FeatureProvider provider, OpenFeatureError exception) throws OpenFeatureError {
+        this.emitError(provider, exception);
+        throw exception;
     }
 
     /**
