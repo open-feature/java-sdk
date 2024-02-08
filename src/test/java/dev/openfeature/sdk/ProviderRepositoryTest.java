@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -29,6 +28,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.testutils.exception.TestException;
 
 class ProviderRepositoryTest {
@@ -253,7 +253,7 @@ class ProviderRepositoryTest {
                 Consumer<FeatureProvider> afterSet = mock(Consumer.class);
                 Consumer<FeatureProvider> afterInit = mock(Consumer.class);
                 Consumer<FeatureProvider> afterShutdown = mock(Consumer.class);
-                BiConsumer<FeatureProvider, String> afterError = mock(BiConsumer.class);
+                BiConsumer<FeatureProvider, OpenFeatureError> afterError = mock(BiConsumer.class);
         
                 FeatureProvider oldProvider = providerRepository.getProvider();
                 FeatureProvider featureProvider1 = createMockedProvider();
@@ -274,7 +274,7 @@ class ProviderRepositoryTest {
                 Consumer<FeatureProvider> afterSet = mock(Consumer.class);
                 Consumer<FeatureProvider> afterInit = mock(Consumer.class);
                 Consumer<FeatureProvider> afterShutdown = mock(Consumer.class);
-                BiConsumer<FeatureProvider, String> afterError = mock(BiConsumer.class);
+                BiConsumer<FeatureProvider, OpenFeatureError> afterError = mock(BiConsumer.class);
         
                 FeatureProvider errorFeatureProvider = createMockedErrorProvider();
         
@@ -310,7 +310,7 @@ class ProviderRepositoryTest {
 
     private void setFeatureProvider(FeatureProvider provider, Consumer<FeatureProvider> afterSet,
             Consumer<FeatureProvider> afterInit, Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, String> afterError) {
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError) {
         providerRepository.setProvider(provider, afterSet, afterInit, afterShutdown,
                 afterError, false);
         waitForSettingProviderHasBeenCompleted(ProviderRepository::getProvider, provider);
@@ -348,8 +348,8 @@ class ProviderRepositoryTest {
         };
     }
 
-    private BiConsumer<FeatureProvider, String> mockAfterError() {
-        return (fp, message) -> {
+    private BiConsumer<FeatureProvider, OpenFeatureError> mockAfterError() {
+        return (fp, ex) -> {
         };
     }
 

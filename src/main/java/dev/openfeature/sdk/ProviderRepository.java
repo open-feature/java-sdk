@@ -15,6 +15,8 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import dev.openfeature.sdk.exceptions.GeneralError;
+import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -66,7 +68,7 @@ class ProviderRepository {
             Consumer<FeatureProvider> afterSet,
             Consumer<FeatureProvider> afterInit,
             Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, String> afterError,
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
             boolean waitForInit) {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
@@ -83,12 +85,12 @@ class ProviderRepository {
      *                    Otherwise, initialization happens in the background.
      */
     public void setProvider(String clientName,
-             FeatureProvider provider,
-             Consumer<FeatureProvider> afterSet,
-             Consumer<FeatureProvider> afterInit,
-             Consumer<FeatureProvider> afterShutdown,
-             BiConsumer<FeatureProvider, String> afterError,
-             boolean waitForInit) {
+            FeatureProvider provider,
+            Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            boolean waitForInit) {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
@@ -103,7 +105,7 @@ class ProviderRepository {
               Consumer<FeatureProvider> afterSet,
               Consumer<FeatureProvider> afterInit,
               Consumer<FeatureProvider> afterShutdown,
-              BiConsumer<FeatureProvider, String> afterError,
+              BiConsumer<FeatureProvider, OpenFeatureError> afterError,
               boolean waitForInit) {
 
         if (!isProviderRegistered(newProvider)) {
@@ -129,7 +131,7 @@ class ProviderRepository {
     private void initializeProvider(FeatureProvider newProvider,
             Consumer<FeatureProvider> afterInit,
             Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, String> afterError,
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
             FeatureProvider oldProvider) {
         try {
             if (ProviderState.NOT_READY.equals(newProvider.getState())) {
@@ -137,9 +139,12 @@ class ProviderRepository {
                 afterInit.accept(newProvider);
             }
             shutDownOld(oldProvider, afterShutdown);
+        } catch (OpenFeatureError e) {
+            log.error("Exception when initializing feature provider {}", newProvider.getClass().getName(), e);
+            afterError.accept(newProvider, e);
         } catch (Exception e) {
             log.error("Exception when initializing feature provider {}", newProvider.getClass().getName(), e);
-            afterError.accept(newProvider, e.getMessage());
+            afterError.accept(newProvider, new GeneralError(e));
         }
     }
 

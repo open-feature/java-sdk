@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -18,9 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import dev.openfeature.sdk.providers.memory.InMemoryProvider;
-import dev.openfeature.sdk.testutils.TestEventsProvider;
-import lombok.SneakyThrows;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,8 +29,12 @@ import org.simplify4u.slf4jmock.LoggerMock;
 import org.slf4j.Logger;
 
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
+import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import dev.openfeature.sdk.testutils.TestEventsProvider;
+import lombok.SneakyThrows;
 
 class FlagEvaluationSpecTest implements HookFixtures {
 
@@ -85,6 +87,17 @@ class FlagEvaluationSpecTest implements HookFixtures {
         String providerName = "providerAndWait";
         OpenFeatureAPI.getInstance().setProviderAndWait(providerName, provider);
         assertThat(api.getProvider(providerName).getState()).isEqualTo(ProviderState.READY);
+    }
+
+    @SneakyThrows
+    @Specification(number="1.1.8", text="The API SHOULD provide functions to set a provider and wait for the initialize function to return or throw.")
+    @Test void providerAndWaitError() {
+        FeatureProvider provider1 = new TestEventsProvider(500, true, "fake error");
+        assertThrows(GeneralError.class, () -> api.setProviderAndWait(provider1));
+
+        FeatureProvider provider2 = new TestEventsProvider(500, true, "fake error");
+        String providerName = "providerAndWaitError";
+        assertThrows(GeneralError.class, () -> api.setProviderAndWait(providerName, provider2));
     }
 
     @Specification(number="2.4.5", text="The provider SHOULD indicate an error if flag resolution is attempted before the provider is ready.")
