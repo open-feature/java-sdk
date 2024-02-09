@@ -20,7 +20,7 @@ import static dev.openfeature.sdk.Structure.mapToStructure;
 @ToString
 @EqualsAndHashCode
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType", "checkstyle:NoFinalizer"})
-public class Value implements Cloneable {
+public class Value {
 
     private final Object innerObject;
 
@@ -262,14 +262,12 @@ public class Value implements Cloneable {
     }
 
     /**
-     * Perform deep clone of value object.
+     * Perform a deep copy of this value.
      *
      * @return Value
      */
-
     @SneakyThrows
-    @Override
-    protected Value clone() {
+    protected Value copy() {
         if (this.isList()) {
             List<Value> copy = this.asList().stream().map(Value::new).collect(Collectors.toList());
             return new Value(copy);

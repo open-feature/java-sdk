@@ -18,12 +18,7 @@ public class NoOpProvider implements FeatureProvider {
 
     @Override
     public Metadata getMetadata() {
-        return new Metadata() {
-            @Override
-            public String getName() {
-                return name;
-            }
-        };
+        return () -> name;
     }
 
     @Override

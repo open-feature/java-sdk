@@ -52,6 +52,7 @@ public class InMemoryProvider extends EventProvider {
      * @param evaluationContext evaluation context
      * @throws Exception on error
      */
+    @Override
     public void initialize(EvaluationContext evaluationContext) throws Exception {
         super.initialize(evaluationContext);
         state = ProviderState.READY;

@@ -75,7 +75,7 @@ public class MutableStructure extends AbstractStructure {
         return this;
     }
 
-    public <T> MutableStructure add(String key, List<Value> value) {
+    public MutableStructure add(String key, List<Value> value) {
         attributes.put(key, new Value(value));
         return this;
     }
