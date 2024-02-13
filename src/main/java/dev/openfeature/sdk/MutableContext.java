@@ -145,7 +145,7 @@ public class MutableContext implements EvaluationContext {
             return null;
         }
 
-        public MutableStructure add(String ignoredKey, MutableStructure ignoredValue) {
+        public MutableStructure add(String ignoredKey, Structure ignoredValue) {
             return null;
         }
 

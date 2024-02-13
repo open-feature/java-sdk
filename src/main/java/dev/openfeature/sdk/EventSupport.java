@@ -163,8 +163,8 @@ class EventSupport {
 
         private final Map<ProviderEvent, List<Consumer<EventDetails>>> handlerMap;
 
-        {
-            handlerMap = new ConcurrentHashMap<ProviderEvent, List<Consumer<EventDetails>>>();
+        HandlerStore() {
+            handlerMap = new ConcurrentHashMap<>();
             handlerMap.put(ProviderEvent.PROVIDER_READY, new ArrayList<>());
             handlerMap.put(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, new ArrayList<>());
             handlerMap.put(ProviderEvent.PROVIDER_ERROR, new ArrayList<>());

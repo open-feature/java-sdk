@@ -266,7 +266,6 @@ public class Value implements Cloneable {
      *
      * @return Value
      */
-
     @SneakyThrows
     @Override
     protected Value clone() {

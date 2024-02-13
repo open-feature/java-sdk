@@ -168,7 +168,6 @@ class ProviderRepository {
     private void shutdownProvider(FeatureProvider provider) {
         taskExecutor.submit(() -> {
             try {
-                // detachProviderEvents(provider);
                 provider.shutdown();
             } catch (Exception e) {
                 log.error("Exception when shutting down feature provider {}", provider.getClass().getName(), e);
