@@ -40,7 +40,7 @@ public final class ImmutableStructure extends AbstractStructure {
                 .collect(HashMap::new,
                         (accumulated, entry) -> accumulated.put(entry.getKey(),
                                 Optional.ofNullable(entry.getValue())
-                                    .map(Value::copy)
+                                    .map(Value::clone)
                                     .orElse(null)),
                         HashMap::putAll)));
     }
@@ -54,7 +54,7 @@ public final class ImmutableStructure extends AbstractStructure {
     @Override
     public Value getValue(String key) {
         Value value = this.attributes.get(key);
-        return value != null ? value.copy() : null;
+        return value != null ? value.clone() : null;
     }
 
     /**
@@ -70,7 +70,7 @@ public final class ImmutableStructure extends AbstractStructure {
                 .collect(HashMap::new,
                         (accumulated, entry) -> accumulated.put(entry.getKey(),
                                 Optional.ofNullable(entry.getValue())
-                                .map(Value::copy)
+                                .map(Value::clone)
                                 .orElse(null)),
                         HashMap::putAll);
     }
