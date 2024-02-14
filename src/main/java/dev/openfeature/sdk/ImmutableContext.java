@@ -1,11 +1,10 @@
 package dev.openfeature.sdk;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Delegate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The EvaluationContext is a container for arbitrary contextual data
@@ -17,8 +16,6 @@ import lombok.experimental.Delegate;
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public final class ImmutableContext implements EvaluationContext {
 
-    @Getter
-    private final String targetingKey;
     @Delegate
     private final Structure structure;
 
@@ -26,7 +23,7 @@ public final class ImmutableContext implements EvaluationContext {
      * Create an immutable context with an empty targeting_key and attributes provided.
      */
     public ImmutableContext() {
-        this("", new HashMap<>());
+        this(new HashMap<>());
     }
 
     /**
@@ -54,8 +51,18 @@ public final class ImmutableContext implements EvaluationContext {
      * @param attributes   evaluation context attributes
      */
     public ImmutableContext(String targetingKey, Map<String, Value> attributes) {
+        if (targetingKey != null && !targetingKey.trim().isEmpty()) {
+            attributes.put(TARGETING_KEY, new Value(targetingKey));
+        }
         this.structure = new ImmutableStructure(attributes);
-        this.targetingKey = targetingKey;
+    }
+
+    /**
+     * Retrieve targetingKey from the context.
+     */
+    @Override
+    public String getTargetingKey() {
+        return this.getValue(TARGETING_KEY).asString();
     }
 
     /**
@@ -67,21 +74,10 @@ public final class ImmutableContext implements EvaluationContext {
     @Override
     public EvaluationContext merge(EvaluationContext overridingContext) {
         if (overridingContext == null) {
-            return new ImmutableContext(this.targetingKey, this.asMap());
-        }
-        String newTargetingKey = "";
-        if (this.getTargetingKey() != null && !this.getTargetingKey().trim().equals("")) {
-            newTargetingKey = this.getTargetingKey();
+            return new ImmutableContext(this.asMap());
         }
 
-        if (overridingContext.getTargetingKey() != null && !overridingContext.getTargetingKey().trim().equals("")) {
-            newTargetingKey = overridingContext.getTargetingKey();
-        }
-
-        Map<String, Value> merged = this.merge(m -> new ImmutableStructure(m),
-                                               this.asMap(),
-                                               overridingContext.asMap());
-
-        return new ImmutableContext(newTargetingKey, merged);
+        return new ImmutableContext(
+                this.merge(ImmutableStructure::new, this.asMap(), overridingContext.asMap()));
     }
 }

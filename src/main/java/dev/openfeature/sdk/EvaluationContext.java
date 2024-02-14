@@ -6,6 +6,9 @@ package dev.openfeature.sdk;
  */
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public interface EvaluationContext extends Structure {
+
+    String TARGETING_KEY = "targetingKey";
+
     String getTargetingKey();
 
     /**

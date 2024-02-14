@@ -1,19 +1,18 @@
 package dev.openfeature.sdk;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Delegate;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The EvaluationContext is a container for arbitrary contextual data
  * that can be used as a basis for dynamic evaluation.
- * The MutableContext is an EvaluationContext implementation which is not threadsafe, and whose attributes can 
+ * The MutableContext is an EvaluationContext implementation which is not threadsafe, and whose attributes can
  * be modified after instantiation.
  */
 @ToString
@@ -21,27 +20,32 @@ import lombok.experimental.Delegate;
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class MutableContext implements EvaluationContext {
 
-    @Setter() @Getter private String targetingKey;
     @Delegate(excludes = HideDelegateAddMethods.class) private final MutableStructure structure;
 
     public MutableContext() {
-        this.structure = new MutableStructure();
-        this.targetingKey = "";
+        this(new HashMap<>());
     }
 
     public MutableContext(String targetingKey) {
-        this();
-        this.targetingKey = targetingKey;
+        this(targetingKey, new HashMap<>());
     }
 
     public MutableContext(Map<String, Value> attributes) {
-        this.structure = new MutableStructure(attributes);
-        this.targetingKey = "";
+        this("", attributes);
     }
 
+    /**
+     * Create a mutable context with given targetingKey and attributes provided. TargetingKey should be non-null
+     * and non-empty to be accepted.
+     *
+     * @param targetingKey targeting key
+     * @param attributes   evaluation context attributes
+     */
     public MutableContext(String targetingKey, Map<String, Value> attributes) {
-        this(attributes);
-        this.targetingKey = targetingKey;
+        if (targetingKey != null && !targetingKey.trim().isEmpty()) {
+            attributes.put(TARGETING_KEY, new Value(targetingKey));
+        }
+        this.structure = new MutableStructure(attributes);
     }
 
     // override @Delegate methods so that we can use "add" methods and still return MutableContext, not Structure
@@ -81,8 +85,25 @@ public class MutableContext implements EvaluationContext {
     }
 
     /**
-     * Merges this EvaluationContext objects with the second overriding the this in
-     * case of conflict.
+     * Override or set targeting key for this mutable context. Value should be non-null and non-empty to be accepted.
+     */
+    public void setTargetingKey(String targetingKey) {
+        if (targetingKey != null && !targetingKey.trim().isEmpty()) {
+            this.add(TARGETING_KEY, targetingKey);
+        }
+    }
+
+
+    /**
+     * Retrieve targetingKey from the context.
+     */
+    @Override
+    public String getTargetingKey() {
+        return this.getValue(TARGETING_KEY).asString();
+    }
+
+    /**
+     * Merges this EvaluationContext objects with the second overriding the in case of conflict.
      *
      * @param overridingContext overriding context
      * @return resulting merged context
@@ -90,31 +111,12 @@ public class MutableContext implements EvaluationContext {
     @Override
     public EvaluationContext merge(EvaluationContext overridingContext) {
         if (overridingContext == null) {
-            return new MutableContext(this.targetingKey, this.asMap());
+            return new MutableContext(this.asMap());
         }
 
-        Map<String, Value> merged = this.merge(map -> new MutableStructure(map),
-                                               this.asMap(),
-                                               overridingContext.asMap());
-
-        String newTargetingKey = "";
-
-        if (this.getTargetingKey() != null && !this.getTargetingKey().trim().equals("")) {
-            newTargetingKey = this.getTargetingKey();
-        }
-
-        if (overridingContext.getTargetingKey() != null && !overridingContext.getTargetingKey().trim().equals("")) {
-            newTargetingKey = overridingContext.getTargetingKey();
-        }
-        
-        EvaluationContext ec = null;
-        if (newTargetingKey != null && !newTargetingKey.trim().equals("")) {
-            ec = new MutableContext(newTargetingKey, merged);
-        } else {
-            ec = new MutableContext(merged);
-        }
-
-        return ec;
+        Map<String, Value> merged = this.merge(
+                MutableStructure::new, this.asMap(), overridingContext.asMap());
+        return new MutableContext(merged);
     }
 
     /**
