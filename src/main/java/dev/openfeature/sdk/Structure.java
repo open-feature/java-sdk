@@ -113,9 +113,8 @@ public interface Structure {
     default <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure,
                                                            Map<String, Value> base,
                                                            Map<String, Value> overriding) {
-        Map<String, Value> merged = new HashMap<>();
 
-        merged.putAll(base);
+        final Map<String, Value> merged = new HashMap<>(base);
         for (Entry<String, Value> overridingEntry : overriding.entrySet()) {
             String key = overridingEntry.getKey();
             if (overridingEntry.getValue().isStructure() && merged.containsKey(key) && merged.get(key).isStructure()) {

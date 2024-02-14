@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
+import static dev.openfeature.sdk.EvaluationContext.TARGETING_KEY;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -20,7 +21,7 @@ class ImmutableContextTest {
         attributes.put("key2", new Value("val2"));
         EvaluationContext ctx = new ImmutableContext("targeting key", attributes);
         attributes.put("key3", new Value("val3"));
-        assertArrayEquals(new Object[]{"key1", "key2"}, ctx.keySet().toArray());
+        assertArrayEquals(new Object[]{"key1", "key2", TARGETING_KEY}, ctx.keySet().toArray());
     }
 
     @DisplayName("targeting key should be changed from the overriding context")
@@ -56,7 +57,7 @@ class ImmutableContextTest {
         EvaluationContext ctx = new ImmutableContext("targeting_key", attributes);
         EvaluationContext merge = ctx.merge(null);
         assertEquals("targeting_key", merge.getTargetingKey());
-        assertArrayEquals(new Object[]{"key1", "key2"}, merge.keySet().toArray());
+        assertArrayEquals(new Object[]{"key1", "key2", TARGETING_KEY}, merge.keySet().toArray());
     }
 
     @DisplayName("Merge should retain subkeys from the existing context when the overriding context has the same targeting key")
@@ -77,7 +78,7 @@ class ImmutableContextTest {
         EvaluationContext overriding = new ImmutableContext("targeting_key", overridingAttributes);
         EvaluationContext merge = ctx.merge(overriding);
         assertEquals("targeting_key", merge.getTargetingKey());
-        assertArrayEquals(new Object[]{"key1", "key2"}, merge.keySet().toArray());
+        assertArrayEquals(new Object[]{"key1", "key2", TARGETING_KEY}, merge.keySet().toArray());
         
         Value key1 = merge.getValue("key1");
         assertTrue(key1.isStructure());

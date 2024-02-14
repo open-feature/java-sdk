@@ -1,17 +1,16 @@
 package dev.openfeature.sdk;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.cucumber.java.hu.Ha;
-import org.junit.jupiter.api.Test;
+import static dev.openfeature.sdk.EvaluationContext.TARGETING_KEY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EvalContextTest {
     @Specification(number="3.1.1",
@@ -184,7 +183,7 @@ public class EvalContextTest {
 
         ctx2.setTargetingKey("  ");
         ctxMerged = ctx1.merge(ctx2);
-        assertEquals(key1, ctxMerged.getTargetingKey());
+        assertEquals(key2, ctxMerged.getTargetingKey());
     }
 
     @Test void asObjectMap() {
@@ -214,6 +213,7 @@ public class EvalContextTest {
 
 
         Map<String, Object> want = new HashMap<>();
+        want.put(TARGETING_KEY, key1);
         want.put("stringItem", "stringValue");
         want.put("boolItem", false);
         want.put("integerItem", 1);
