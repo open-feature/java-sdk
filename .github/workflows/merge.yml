@@ -22,7 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@8410ad0602e1e429cee44a835ae9f77f654a6694
     - name: Set up JDK 8
-      uses: actions/setup-java@80ae3c2885b277a440ee4931b74570716d9a0e27
+      uses: actions/setup-java@5896cecc08fd8a1fbdfaf517e29b571164b031f7
       with:
         java-version: '8'
         distribution: 'temurin'
