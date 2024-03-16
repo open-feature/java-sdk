@@ -105,9 +105,6 @@ public class OpenFeatureClient implements Client {
         FeatureProvider provider;
 
         try {
-            final EvaluationContext apiContext;
-            final EvaluationContext clientContext;
-
             // openfeatureApi.getProvider() must be called once to maintain a consistent reference
             provider = openfeatureApi.getProvider(this.name);
 
@@ -117,19 +114,9 @@ public class OpenFeatureClient implements Client {
             hookCtx = HookContext.from(key, type, this.getMetadata(),
                     provider.getMetadata(), ctx, defaultValue);
 
-            // merge of: API.context, client.context, invocation.context
-            apiContext = openfeatureApi.getEvaluationContext() != null
-                    ? openfeatureApi.getEvaluationContext()
-                    : new ImmutableContext();
-            clientContext = this.getEvaluationContext() != null
-                    ? this.getEvaluationContext()
-                    : new ImmutableContext();
-
             EvaluationContext ctxFromHook = hookSupport.beforeHooks(type, hookCtx, mergedHooks, hints);
 
-            EvaluationContext invocationCtx = ctx.merge(ctxFromHook);
-
-            EvaluationContext mergedCtx = apiContext.merge(clientContext.merge(invocationCtx));
+            EvaluationContext mergedCtx = mergeEvaluationContext(ctxFromHook, ctx);
 
             ProviderEvaluation<T> providerEval = (ProviderEvaluation<T>) createProviderEvaluation(type, key,
                     defaultValue, provider, mergedCtx);
@@ -155,6 +142,31 @@ public class OpenFeatureClient implements Client {
         }
 
         return details;
+    }
+
+    /**
+     * Merge hook and invocation contexts with API, transaction and client contexts.
+     *
+     * @param hookContext       hook context
+     * @param invocationContext invocation context
+     * @return merged evaluation context
+     */
+    private EvaluationContext mergeEvaluationContext(
+            EvaluationContext hookContext,
+            EvaluationContext invocationContext) {
+        final EvaluationContext apiContext = openfeatureApi.getEvaluationContext() != null
+                ? openfeatureApi.getEvaluationContext()
+                : new ImmutableContext();
+        final EvaluationContext clientContext = this.getEvaluationContext() != null
+                ? this.getEvaluationContext()
+                : new ImmutableContext();
+        final EvaluationContext transactionContext = openfeatureApi.getTransactionContext() != null
+                ? openfeatureApi.getTransactionContext()
+                : new ImmutableContext();
+
+        EvaluationContext mergedInvocationCtx = invocationContext.merge(hookContext);
+
+        return apiContext.merge(transactionContext.merge(clientContext.merge(mergedInvocationCtx)));
     }
 
     private <T> ProviderEvaluation<?> createProviderEvaluation(

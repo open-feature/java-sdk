@@ -27,11 +27,13 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     private ProviderRepository providerRepository;
     private EventSupport eventSupport;
     private EvaluationContext evaluationContext;
+    private TransactionContextPropagator transactionContextPropagator;
 
     protected OpenFeatureAPI() {
         apiHooks = new ArrayList<>();
         providerRepository = new ProviderRepository();
         eventSupport = new EventSupport();
+        transactionContextPropagator = new NoOpTransactionContextPropagator();
     }
 
     private static class SingletonHolder {
@@ -94,6 +96,46 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         try (AutoCloseableLock __ = lock.readLockAutoCloseable()) {
             return this.evaluationContext;
         }
+    }
+
+    /**
+     * Return the transaction context propagator.
+     */
+    public TransactionContextPropagator getTransactionContextPropagator() {
+        try (AutoCloseableLock __ = lock.readLockAutoCloseable()) {
+            return this.transactionContextPropagator;
+        }
+    }
+
+    /**
+     * Sets the transaction context propagator.
+     *
+     * @throws IllegalArgumentException if {@code transactionContextPropagator} is null
+     */
+    public void setTransactionContextPropagator(TransactionContextPropagator transactionContextPropagator) {
+        if (transactionContextPropagator == null) {
+            throw new IllegalArgumentException("Transaction context propagator cannot be null");
+        }
+        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+            this.transactionContextPropagator = transactionContextPropagator;
+        }
+    }
+
+    /**
+     * Returns the currently defined transaction context using the registered transaction
+     * context propagator.
+     *
+     * @return {@link EvaluationContext} The current transaction context
+     */
+    public EvaluationContext getTransactionContext() {
+        return this.transactionContextPropagator.getTransactionContext();
+    }
+
+    /**
+     * Sets the transaction context using the registered transaction context propagator.
+     */
+    void setTransactionContext(EvaluationContext evaluationContext) {
+        this.transactionContextPropagator.setTransactionContext(evaluationContext);
     }
 
     /**

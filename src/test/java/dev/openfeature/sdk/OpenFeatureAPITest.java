@@ -73,4 +73,9 @@ class OpenFeatureAPITest {
     void settingNamedClientProviderToNullErrors() {
         assertThatCode(() -> api.setProvider(CLIENT_NAME, null)).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void settingTransactionalContextPropagatorToNullErrors() {
+        assertThatCode(() -> api.setTransactionContextPropagator(null)).isInstanceOf(IllegalArgumentException.class);
+    }
 }
