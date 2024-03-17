@@ -47,6 +47,12 @@ class ImmutableContextTest {
         EvaluationContext merge = ctx.merge(overriding);
         assertEquals("targeting_key", merge.getTargetingKey());
     }
+    @DisplayName("missing targeting key should return null")
+    @Test
+    void missingTargetingKeyShould() {
+        EvaluationContext ctx = new ImmutableContext();
+        assertEquals(null, ctx.getTargetingKey());
+    }
 
     @DisplayName("Merge should retain all the attributes from the existing context when overriding context is null")
     @Test
