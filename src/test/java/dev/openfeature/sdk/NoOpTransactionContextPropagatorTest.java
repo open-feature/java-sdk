@@ -2,6 +2,9 @@ package dev.openfeature.sdk;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class NoOpTransactionContextPropagatorTest {
@@ -11,13 +14,16 @@ class NoOpTransactionContextPropagatorTest {
     @Test
     public void emptyTransactionContext() {
         EvaluationContext result = contextPropagator.getTransactionContext();
-        assertNull(result);
+        assertTrue(result.asMap().isEmpty());
     }
 
     @Test
     public void setTransactionContext() {
-        EvaluationContext firstContext = new ImmutableContext();
-        contextPropagator.setTransactionContext(firstContext);
-        assertNull(contextPropagator.getTransactionContext());
+        Map<String, Value> transactionAttrs = new HashMap<>();
+        transactionAttrs.put("userId", new Value("userId"));
+        EvaluationContext transactionCtx = new ImmutableContext(transactionAttrs);
+        contextPropagator.setTransactionContext(transactionCtx);
+        EvaluationContext result = contextPropagator.getTransactionContext();
+        assertTrue(result.asMap().isEmpty());
     }
 }

@@ -1,17 +1,17 @@
 package dev.openfeature.sdk;
 
 /**
- * A {@link TransactionContextPropagator} that simply returns null.
+ * A {@link TransactionContextPropagator} that simply returns empty context.
  */
 public class NoOpTransactionContextPropagator implements TransactionContextPropagator {
 
     /**
      * {@inheritDoc}
-     * @return null
+     * @return empty immutable context
      */
     @Override
     public EvaluationContext getTransactionContext() {
-        return null;
+        return new ImmutableContext();
     }
 
     /**

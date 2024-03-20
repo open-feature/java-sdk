@@ -127,14 +127,14 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      *
      * @return {@link EvaluationContext} The current transaction context
      */
-    public EvaluationContext getTransactionContext() {
+    EvaluationContext getTransactionContext() {
         return this.transactionContextPropagator.getTransactionContext();
     }
 
     /**
      * Sets the transaction context using the registered transaction context propagator.
      */
-    void setTransactionContext(EvaluationContext evaluationContext) {
+    public void setTransactionContext(EvaluationContext evaluationContext) {
         this.transactionContextPropagator.setTransactionContext(evaluationContext);
     }
 

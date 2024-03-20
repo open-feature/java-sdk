@@ -164,9 +164,7 @@ public class OpenFeatureClient implements Client {
                 ? openfeatureApi.getTransactionContext()
                 : new ImmutableContext();
 
-        EvaluationContext mergedInvocationCtx = invocationContext.merge(hookContext);
-
-        return apiContext.merge(transactionContext.merge(clientContext.merge(mergedInvocationCtx)));
+        return apiContext.merge(transactionContext.merge(clientContext.merge(invocationContext.merge(hookContext))));
     }
 
     private <T> ProviderEvaluation<?> createProviderEvaluation(
