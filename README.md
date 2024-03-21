@@ -277,7 +277,7 @@ OpenFeatureAPI.getInstance().shutdown();
 Transaction context is a container for transaction-specific evaluation context (e.g. user id, user agent, IP).
 Transaction context can be set where specific data is available (e.g. an auth service or request handler) and by using the transaction context propagator it will automatically be applied to all flag evaluations within a transaction (e.g. a request or thread).
 By default, the `NoOpTransactionContextPropagator` is used, which doesn't store anything.
-To register a `ThreadLocal` context propagator, you can use the `setTransactionContextPropagator` method as shown below:
+To register a `ThreadLocal` context propagator, you can use the `setTransactionContextPropagator` method as shown below.
 ```java
 // registering the ThreadLocalTransactionContextPropagator
 OpenFeatureAPI.getInstance().setTransactionContextPropagator(new ThreadLocalTransactionContextPropagator());
