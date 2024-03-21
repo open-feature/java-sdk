@@ -3,7 +3,9 @@ package dev.openfeature.sdk;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import static dev.openfeature.sdk.EvaluationContext.TARGETING_KEY;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -11,6 +13,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MutableContextTest {
+
+    @DisplayName("attributes unable to allow mutation should not affect the Mutable context")
+    @Test
+    void shouldNotAttemptToModifyAttributesForMutableContext() {
+        final Map<String, Value> attributes = new HashMap<>();
+        attributes.put("key1", new Value("val1"));
+        attributes.put("key2", new Value("val2"));
+        // should check the usage of Map.of() which is a more likely use case, but that API isn't available in Java 8
+        EvaluationContext ctx = new MutableContext("targeting key", Collections.unmodifiableMap(attributes));
+        attributes.put("key3", new Value("val3"));
+        assertArrayEquals(new Object[]{"key1", "key2", TARGETING_KEY}, ctx.keySet().toArray());
+    }
 
     @DisplayName("targeting key should be changed from the overriding context")
     @Test
