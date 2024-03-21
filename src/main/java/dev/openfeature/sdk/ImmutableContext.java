@@ -52,9 +52,12 @@ public final class ImmutableContext implements EvaluationContext {
      */
     public ImmutableContext(String targetingKey, Map<String, Value> attributes) {
         if (targetingKey != null && !targetingKey.trim().isEmpty()) {
-            attributes.put(TARGETING_KEY, new Value(targetingKey));
+            final Map<String, Value> actualAttribs = new HashMap<>(attributes);
+            actualAttribs.put(TARGETING_KEY, new Value(targetingKey));
+            this.structure = new ImmutableStructure(actualAttribs);
+        } else {
+            this.structure = new ImmutableStructure(attributes);
         }
-        this.structure = new ImmutableStructure(attributes);
     }
 
     /**

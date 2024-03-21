@@ -13,7 +13,7 @@ abstract class AbstractStructure implements Structure {
     }
 
     AbstractStructure(Map<String, Value> attributes) {
-        this.attributes = attributes;
+        this.attributes = new HashMap<>(attributes);
     }
 
     /**
