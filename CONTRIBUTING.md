@@ -8,7 +8,9 @@ be a jerk.
 
 We're not keen on vendor-specific stuff in this library, but if there are changes that need to happen in the spec to enable vendor-specific stuff in user code or other extension points, check out [the spec](https://github.com/open-feature/spec).
 
-Any contributions you make are expected to be tested with unit tests. You can validate these work with `gradle test`, or the automation itself will run them for you when you make a PR.
+Any contributions you make are expected to be tested with unit tests. You can validate these work with `mvn test`.
+Further, it is recommended to verify code styling and static code analysis with `mvn verify -P !deploy`.
+Regardless, the automation itself will run them for you when you open a PR.
 
 Your code is supposed to work with Java 8+.
 

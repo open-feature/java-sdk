@@ -1,5 +1,21 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.fixtures.HookFixtures;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,23 +28,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
-
-import dev.openfeature.sdk.fixtures.HookFixtures;
-import lombok.SneakyThrows;
 
 class HookSpecTest implements HookFixtures {
     @AfterEach
@@ -500,7 +499,7 @@ class HookSpecTest implements HookFixtures {
                         .hook(hook)
                         .build());
 
-        ArgumentCaptor<MutableContext> captor = ArgumentCaptor.forClass(MutableContext.class);
+        ArgumentCaptor<ImmutableContext> captor = ArgumentCaptor.forClass(ImmutableContext.class);
         verify(provider).getBooleanEvaluation(any(), any(), captor.capture());
         EvaluationContext ec = captor.getValue();
         assertEquals("works", ec.getValue("test").asString());

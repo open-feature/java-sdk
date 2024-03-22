@@ -34,17 +34,13 @@ public class OpenFeatureClient implements Client {
     private EvaluationContext evaluationContext;
 
     /**
-     * Deprecated public constructor. Use OpenFeature.API.getClient() instead.
-     * 
+     * Create an OpenFeature client. For internal use only.
+     *
      * @param openFeatureAPI Backing global singleton
      * @param name           Name of the client (used by observability tools).
      * @param version        Version of the client (used by observability tools).
-     * @deprecated Do not use this constructor. It's for internal use only.
-     *             Clients created using it will not run event handlers.
-     *             Use the OpenFeatureAPI's getClient factory method instead.
      */
-    @Deprecated() // TODO: eventually we will make this non-public
-    public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
+    OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
         this.openfeatureApi = openFeatureAPI;
         this.name = name;
         this.version = version;
