@@ -62,7 +62,8 @@ public final class ImmutableContext implements EvaluationContext {
      */
     @Override
     public String getTargetingKey() {
-        return this.getValue(TARGETING_KEY).asString();
+        Value value = this.getValue(TARGETING_KEY);
+        return value == null ? null : value.asString();
     }
 
     /**
