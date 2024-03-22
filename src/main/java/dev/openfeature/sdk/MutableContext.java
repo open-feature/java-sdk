@@ -42,10 +42,10 @@ public class MutableContext implements EvaluationContext {
      * @param attributes   evaluation context attributes
      */
     public MutableContext(String targetingKey, Map<String, Value> attributes) {
-        if (targetingKey != null && !targetingKey.trim().isEmpty()) {
-            attributes.put(TARGETING_KEY, new Value(targetingKey));
-        }
         this.structure = new MutableStructure(attributes);
+        if (targetingKey != null && !targetingKey.trim().isEmpty()) {
+            this.structure.attributes.put(TARGETING_KEY, new Value(targetingKey));
+        }
     }
 
     // override @Delegate methods so that we can use "add" methods and still return MutableContext, not Structure
