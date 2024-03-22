@@ -7,7 +7,7 @@
 
 * **deps:** update dependency io.cucumber:cucumber-bom to v7.16.0 ([#861](https://github.com/open-feature/java-sdk/issues/861)) ([433f94a](https://github.com/open-feature/java-sdk/commit/433f94a6ea541c5be2ee7a0f902098edce8ba3fc))
 * **deps:** update dependency org.projectlombok:lombok to v1.18.32 ([#854](https://github.com/open-feature/java-sdk/issues/854)) ([ee49872](https://github.com/open-feature/java-sdk/commit/ee49872dd56778ebb4a1ee23b596ffe812dca59c))
-* issue [#859](https://github.com/open-feature/java-sdk/issues/859) ([#860](https://github.com/open-feature/java-sdk/issues/860)) ([d51cacb](https://github.com/open-feature/java-sdk/commit/d51cacbff6827102d4e3ea5a737bd016d27b1fc2))
+* support immutable maps [#859](https://github.com/open-feature/java-sdk/issues/859) ([#860](https://github.com/open-feature/java-sdk/issues/860)) ([d51cacb](https://github.com/open-feature/java-sdk/commit/d51cacbff6827102d4e3ea5a737bd016d27b1fc2))
 * missing targeting key should return null ([#849](https://github.com/open-feature/java-sdk/issues/849)) ([48a196c](https://github.com/open-feature/java-sdk/commit/48a196c50df992e4ee1006d6b73b619e04f7a224))
 
 
