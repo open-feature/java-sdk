@@ -52,6 +52,6 @@ public class ThreadLocalTransactionContextPropagatorTest {
         EvaluationContext secondThreadContext = futureTask.get();
 
         assertSame(secondContext, secondThreadContext);
-        assertSame(firstContext, firstThreadContext);
+        assertSame(firstContext, contextPropagator.getTransactionContext());
     }
 }
