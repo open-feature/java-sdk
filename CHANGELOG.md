@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.7.7](https://github.com/open-feature/java-sdk/compare/v1.7.6...v1.7.7) (2024-03-28)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.16.1 ([#866](https://github.com/open-feature/java-sdk/issues/866)) ([6765b31](https://github.com/open-feature/java-sdk/commit/6765b31263298b2fffa1f87d06bfedd145eb81eb))
+
+
+### 🧹 Chore
+
+* **deps:** update codecov/codecov-action action to v4.1.1 ([#870](https://github.com/open-feature/java-sdk/issues/870)) ([6a9a778](https://github.com/open-feature/java-sdk/commit/6a9a77817d66c433ac72b679156242ca81d79ff0))
+* **deps:** update dependency org.apache.maven.plugins:maven-gpg-plugin to v3.2.2 ([#869](https://github.com/open-feature/java-sdk/issues/869)) ([bfe3b8d](https://github.com/open-feature/java-sdk/commit/bfe3b8d3127a2355bdf9ce75930ffe1d219f6945))
+* **deps:** update dependency org.cyclonedx:cyclonedx-maven-plugin to v2.8.0 ([#864](https://github.com/open-feature/java-sdk/issues/864)) ([eb5c43d](https://github.com/open-feature/java-sdk/commit/eb5c43d82c3c984fa9a7c4b007d209187cf205f4))
+* **deps:** update github/codeql-action digest to 84ba7fb ([#871](https://github.com/open-feature/java-sdk/issues/871)) ([fb57fab](https://github.com/open-feature/java-sdk/commit/fb57fab7d3199504865271541ecc5cc89adb9be4))
+* **deps:** update github/codeql-action digest to 956f09c ([#868](https://github.com/open-feature/java-sdk/issues/868)) ([145bf61](https://github.com/open-feature/java-sdk/commit/145bf61504ac7c689429e2754643cea38cd7e901))
+* improve contrib guide ([#863](https://github.com/open-feature/java-sdk/issues/863)) ([46d04fe](https://github.com/open-feature/java-sdk/commit/46d04feb4ba909ac28e6acf25145958a045b231a))
+
 ## [1.7.6](https://github.com/open-feature/java-sdk/compare/v1.7.5...v1.7.6) (2024-03-22)
 
 
