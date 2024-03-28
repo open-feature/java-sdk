@@ -302,41 +302,107 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @Specification(number="3.2.1.1", text="The API, Client and invocation MUST have a method for supplying evaluation context.")
     @Specification(number="3.2.2.1", text="The API MUST have a method for setting the global evaluation context.")
-    @Specification(number="3.2.3", text="Evaluation context MUST be merged in the order: API (global; lowest precedence) - client - invocation - before hooks (highest precedence), with duplicate values being overwritten.")
+    @Specification(number="3.2.3", text="Evaluation context MUST be merged in the order: API (global; lowest precedence) -> transaction -> client -> invocation -> before hooks (highest precedence), with duplicate values being overwritten.")
     @Test void multi_layer_context_merges_correctly() {
         DoSomethingProvider provider = new DoSomethingProvider();
         FeatureProviderTestUtils.setFeatureProvider(provider);
+        TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
+        api.setTransactionContextPropagator(transactionContextPropagator);
 
-        Map<String, Value> attributes = new HashMap<>();
-        attributes.put("common", new Value("1"));
-        attributes.put("common2", new Value("1"));
-        attributes.put("api", new Value("2"));
-        EvaluationContext apiCtx = new ImmutableContext(attributes);
+        Map<String, Value> apiAttributes = new HashMap<>();
+        apiAttributes.put("common1", new Value("1"));
+        apiAttributes.put("common2", new Value("1"));
+        apiAttributes.put("common3", new Value("1"));
+        apiAttributes.put("api", new Value("1"));
+        EvaluationContext apiCtx = new ImmutableContext(apiAttributes);
 
         api.setEvaluationContext(apiCtx);
 
+        Map<String, Value> transactionAttributes = new HashMap<>();
+        // overwrite value from api context
+        transactionAttributes.put("common1", new Value("2"));
+        transactionAttributes.put("common4", new Value("2"));
+        transactionAttributes.put("common5", new Value("2"));
+        transactionAttributes.put("transaction", new Value("2"));
+        EvaluationContext transactionCtx = new ImmutableContext(transactionAttributes);
+
+        api.setTransactionContext(transactionCtx);
+
         Client c = api.getClient();
-        Map<String, Value> attributes1 = new HashMap<>();
-        attributes.put("common", new Value("3"));
-        attributes.put("common2", new Value("3"));
-        attributes.put("client", new Value("4"));
-        attributes.put("common", new Value("5"));
-        attributes.put("invocation", new Value("6"));
-        EvaluationContext clientCtx = new ImmutableContext(attributes);
+        Map<String, Value> clientAttributes = new HashMap<>();
+        // overwrite value from api context
+        clientAttributes.put("common2", new Value("3"));
+        // overwrite value from transaction context
+        clientAttributes.put("common4", new Value("3"));
+        clientAttributes.put("common6", new Value("3"));
+        clientAttributes.put("client", new Value("3"));
+        EvaluationContext clientCtx = new ImmutableContext(clientAttributes);
         c.setEvaluationContext(clientCtx);
 
-        EvaluationContext invocationCtx = new ImmutableContext();
+        Map<String, Value> invocationAttributes = new HashMap<>();
+        // overwrite value from api context
+        invocationAttributes.put("common3", new Value("4"));
+        // overwrite value from transaction context
+        invocationAttributes.put("common5", new Value("4"));
+        // overwrite value from api client context
+        invocationAttributes.put("common6", new Value("4"));
+        invocationAttributes.put("invocation", new Value("4"));
+        EvaluationContext invocationCtx = new ImmutableContext(invocationAttributes);
 
         // dosomethingprovider inverts this value.
         assertTrue(c.getBooleanValue("key", false, invocationCtx));
 
         EvaluationContext merged = provider.getMergedContext();
-        assertEquals("6", merged.getValue("invocation").asString());
-        assertEquals("5", merged.getValue("common").asString(), "invocation merge is incorrect");
-        assertEquals("4", merged.getValue("client").asString());
+        assertEquals("1", merged.getValue("api").asString());
+        assertEquals("2", merged.getValue("transaction").asString());
+        assertEquals("3", merged.getValue("client").asString());
+        assertEquals("4", merged.getValue("invocation").asString());
+        assertEquals("2", merged.getValue("common1").asString(), "transaction merge is incorrect");
         assertEquals("3", merged.getValue("common2").asString(), "api client merge is incorrect");
-        assertEquals("2", merged.getValue("api").asString());
+        assertEquals("4", merged.getValue("common3").asString(), "invocation merge is incorrect");
+        assertEquals("3", merged.getValue("common4").asString(), "api client merge is incorrect");
+        assertEquals("4", merged.getValue("common5").asString(), "invocation merge is incorrect");
+        assertEquals("4", merged.getValue("common6").asString(), "invocation merge is incorrect");
 
+    }
+
+    @Specification(number="3.3.1.1", text="The API SHOULD have a method for setting a transaction context propagator.")
+    @Test void setting_transaction_context_propagator() {
+        DoSomethingProvider provider = new DoSomethingProvider();
+        FeatureProviderTestUtils.setFeatureProvider(provider);
+
+        TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
+        api.setTransactionContextPropagator(transactionContextPropagator);
+        assertEquals(transactionContextPropagator, api.getTransactionContextPropagator());
+    }
+
+    @Specification(number="3.3.1.2.1", text="The API MUST have a method for setting the evaluation context of the transaction context propagator for the current transaction.")
+    @Test void setting_transaction_context() {
+        DoSomethingProvider provider = new DoSomethingProvider();
+        FeatureProviderTestUtils.setFeatureProvider(provider);
+
+        TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
+        api.setTransactionContextPropagator(transactionContextPropagator);
+
+        Map<String, Value> attributes = new HashMap<>();
+        attributes.put("common", new Value("1"));
+        EvaluationContext transactionContext = new ImmutableContext(attributes);
+
+        api.setTransactionContext(transactionContext);
+        assertEquals(transactionContext, transactionContextPropagator.getTransactionContext());
+    }
+
+    @Specification(number="3.3.1.2.2", text="A transaction context propagator MUST have a method for setting the evaluation context of the current transaction.")
+    @Specification(number="3.3.1.2.3", text="A transaction context propagator MUST have a method for getting the evaluation context of the current transaction.")
+    @Test void transaction_context_propagator_setting_context() {
+        TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
+
+        Map<String, Value> attributes = new HashMap<>();
+        attributes.put("common", new Value("1"));
+        EvaluationContext transactionContext = new ImmutableContext(attributes);
+
+        transactionContextPropagator.setTransactionContext(transactionContext);
+        assertEquals(transactionContext, transactionContextPropagator.getTransactionContext());
     }
 
     @Specification(number="1.3.4", text="The client SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied default value should be returned.")
@@ -355,6 +421,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Specification(number="1.3.2.1", text="The client MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure, with parameters flag key (string, required), default value (boolean | number | string | structure, required), and evaluation options (optional), which returns the flag value.")
     @Specification(number="3.2.2.2", text="The Client and invocation MUST NOT have a method for supplying evaluation context.")
     @Specification(number="3.2.4.1", text="When the global evaluation context is set, the on context changed handler MUST run.")
+    @Specification(number="3.3.2.1", text="The API MUST NOT have a method for setting a transaction context propagator.")
     @Test void not_applicable_for_dynamic_context() {}
 
 }

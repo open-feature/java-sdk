@@ -120,16 +120,17 @@ See [here](https://javadoc.io/doc/dev.openfeature/sdk/latest/) for the Javadocs.
 
 ## 🌟 Features
 
-| Status | Features                        | Description                                                                                                                        |
-| ------ | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| ✅     | [Providers](#providers)         | Integrate with a commercial, open source, or in-house feature management tool.                                                     |
-| ✅     | [Targeting](#targeting)         | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context). |
-| ✅     | [Hooks](#hooks)                 | Add functionality to various stages of the flag evaluation life-cycle.                                                             |
-| ✅     | [Logging](#logging)             | Integrate with popular logging packages.                                                                                           |
-| ✅     | [Named clients](#named-clients) | Utilize multiple providers in a single application.                                                                                |
-| ✅     | [Eventing](#eventing)           | React to state changes in the provider or flag management system.                                                                  |
-| ✅     | [Shutdown](#shutdown)           | Gracefully clean up a provider during application shutdown.                                                                        |
-| ✅     | [Extending](#extending)         | Extend OpenFeature with custom providers and hooks.                                                                                |
+| Status | Features                                                              | Description                                                                                                                                                   |
+| ------ |-----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ✅     | [Providers](#providers)                                               | Integrate with a commercial, open source, or in-house feature management tool.                                                                                |
+| ✅     | [Targeting](#targeting)                                               | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context).                            |
+| ✅     | [Hooks](#hooks)                                                       | Add functionality to various stages of the flag evaluation life-cycle.                                                                                        |
+| ✅     | [Logging](#logging)                                                   | Integrate with popular logging packages.                                                                                                                      |
+| ✅     | [Named clients](#named-clients)                                       | Utilize multiple providers in a single application.                                                                                                           |
+| ✅     | [Eventing](#eventing)                                                 | React to state changes in the provider or flag management system.                                                                                             |
+| ✅     | [Shutdown](#shutdown)                                                 | Gracefully clean up a provider during application shutdown.                                                                                                   |
+| ✅     | [Transaction Context Propagation](#transaction-context-propagation)   | Set a specific [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context) for a transaction (e.g. an HTTP request or a thread). |   
+| ✅     | [Extending](#extending)                                               | Extend OpenFeature with custom providers and hooks.                                                                                                           |
 
 <sub>Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌</sub>
 
@@ -271,6 +272,27 @@ This should only be called when your application is in the process of shutting d
 // shut down all providers
 OpenFeatureAPI.getInstance().shutdown();
 ```
+
+### Transaction Context Propagation
+Transaction context is a container for transaction-specific evaluation context (e.g. user id, user agent, IP).
+Transaction context can be set where specific data is available (e.g. an auth service or request handler) and by using the transaction context propagator it will automatically be applied to all flag evaluations within a transaction (e.g. a request or thread).
+By default, the `NoOpTransactionContextPropagator` is used, which doesn't store anything.
+To register a `ThreadLocal` context propagator, you can use the `setTransactionContextPropagator` method as shown below.
+```java
+// registering the ThreadLocalTransactionContextPropagator
+OpenFeatureAPI.getInstance().setTransactionContextPropagator(new ThreadLocalTransactionContextPropagator());
+```
+Once you've registered a transaction context propagator, you can propagate the data into request scoped transaction context.
+
+```java
+// adding userId to transaction context
+OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+Map<String, Value> transactionAttrs = new HashMap<>();
+transactionAttrs.put("userId", new Value("userId"));
+EvaluationContext transactionCtx = new ImmutableContext(transactionAttrs);
+api.setTransactionContext(apiCtx);
+```
+Additionally, you can develop a custom transaction context propagator by implementing the `TransactionContextPropagator` interface and registering it as shown above.
 
 ## Extending
 

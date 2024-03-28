@@ -185,6 +185,20 @@ class LockingTest {
         verify(apiLock.readLock()).unlock();
     }
 
+    @Test
+    void setTransactionalContextPropagatorShouldWriteLockAndUnlock() {
+        api.setTransactionContextPropagator(new NoOpTransactionContextPropagator());
+        verify(apiLock.writeLock()).lock();
+        verify(apiLock.writeLock()).unlock();
+    }
+
+    @Test
+    void getTransactionalContextPropagatorShouldReadLockAndUnlock() {
+        api.getTransactionContextPropagator();
+        verify(apiLock.readLock()).lock();
+        verify(apiLock.readLock()).unlock();
+    }
+
 
     @Test
     void clearHooksShouldWriteLockAndUnlock() {
