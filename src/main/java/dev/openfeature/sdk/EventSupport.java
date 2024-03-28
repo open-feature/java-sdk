@@ -152,13 +152,15 @@ class EventSupport {
      * or timeout period has elapsed.
      */
     public void shutdown() {
+        taskExecutor.shutdown();
         try {
-            taskExecutor.shutdown();
             if (!taskExecutor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                 log.warn("Task executor did not terminate before the timeout period had elapsed");
+                taskExecutor.shutdownNow();
             }
-        } catch (Exception e) {
-            log.warn("Exception while attempting to shutdown task executor", e);
+        } catch (InterruptedException e) {
+            taskExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
 
