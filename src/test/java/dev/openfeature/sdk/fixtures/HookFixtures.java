@@ -1,6 +1,10 @@
 package dev.openfeature.sdk.fixtures;
 
-import dev.openfeature.sdk.*;
+import dev.openfeature.sdk.BooleanHook;
+import dev.openfeature.sdk.DoubleHook;
+import dev.openfeature.sdk.Hook;
+import dev.openfeature.sdk.IntegerHook;
+import dev.openfeature.sdk.StringHook;
 
 import static org.mockito.Mockito.spy;
 
