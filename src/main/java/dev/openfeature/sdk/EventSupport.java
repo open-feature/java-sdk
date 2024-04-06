@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -23,6 +24,7 @@ class EventSupport {
     // we use a v4 uuid as a "placeholder" for anonymous clients, since
     // ConcurrentHashMap doesn't support nulls
     private static final String defaultClientUuid = UUID.randomUUID().toString();
+    private static final int SHUTDOWN_TIMEOUT_SECONDS = 3;
     private final Map<String, HandlerStore> handlerStores = new ConcurrentHashMap<>();
     private final HandlerStore globalHandlerStore = new HandlerStore();
     private final ExecutorService taskExecutor = Executors.newCachedThreadPool(runnable -> {
@@ -146,13 +148,19 @@ class EventSupport {
     }
 
     /**
-     * Stop the event handler task executor.
+     * Stop the event handler task executor and block until either termination has completed
+     * or timeout period has elapsed.
      */
     public void shutdown() {
+        taskExecutor.shutdown();
         try {
-            taskExecutor.shutdown();
-        } catch (Exception e) {
-            log.warn("Exception while attempting to shutdown task executor", e);
+            if (!taskExecutor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                log.warn("Task executor did not terminate before the timeout period had elapsed");
+                taskExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            taskExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
 
