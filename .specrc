@@ -1,0 +1,5 @@
+[spec]
+file_extension=java
+multiline_regex=@Specification\((?P<innards>.*?)\)\s*$
+number_subregex=number\s*=\s*['"](.*?)['"]
+text_subregex=text\s*=\s*['"](.*)['"]
