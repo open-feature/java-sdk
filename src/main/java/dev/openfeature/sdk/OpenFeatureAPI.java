@@ -83,10 +83,11 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     /**
      * {@inheritDoc}
      */
-    public void setEvaluationContext(EvaluationContext evaluationContext) {
+    public OpenFeatureAPI setEvaluationContext(EvaluationContext evaluationContext) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             this.evaluationContext = evaluationContext;
         }
+        return this;
     }
 
     /**
