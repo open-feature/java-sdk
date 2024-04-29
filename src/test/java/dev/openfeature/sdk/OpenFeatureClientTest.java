@@ -3,12 +3,21 @@ package dev.openfeature.sdk;
 import java.util.*;
 
 import dev.openfeature.sdk.fixtures.HookFixtures;
+import net.sf.saxon.expr.Component.M;
+
+import org.checkerframework.checker.units.qual.m;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.simplify4u.slf4jmock.LoggerMock;
 import org.slf4j.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class OpenFeatureClientTest implements HookFixtures {
@@ -67,4 +76,28 @@ class OpenFeatureClientTest implements HookFixtures {
 
         assertThat(result.getValue()).isTrue();
     }
+
+    @Test
+    @DisplayName("addHooks should allow chaining by returning the same client instance")
+    void addHooksShouldAllowChaining() {
+        OpenFeatureAPI api = mock(OpenFeatureAPI.class);
+        OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
+        Hook<?> hook1 = Mockito.mock(Hook.class);
+        Hook<?> hook2 = Mockito.mock(Hook.class);
+
+        OpenFeatureClient result = client.addHooks(hook1, hook2);
+        assertSame(client, result, "addHooks method should be chainable");    
+    }
+
+    @Test
+    @DisplayName("setEvaluationContext should allow chaining by returning the same client instance")
+    void setEvaluationContextShouldAllowChaining() {
+        OpenFeatureAPI api = mock(OpenFeatureAPI.class);
+        OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
+        EvaluationContext ctx = new ImmutableContext("targeting key", new HashMap<>());
+
+        OpenFeatureClient result = client.setEvaluationContext(ctx);
+        assertSame(client, result, "setEvaluationContext method should be chainable");
+    }
+        
 }
