@@ -117,7 +117,7 @@ class MutableContextTest {
         assertArrayEquals(new Object[]{"key1_1"}, value.keySet().toArray());
     }
 
-    @DisplayName("Ensuring mutations are chainable")
+    @DisplayName("Ensure mutations are chainable")
     @Test
     void shouldAllowChainingOfMutations() {
         MutableContext context = new MutableContext();
