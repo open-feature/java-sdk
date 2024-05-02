@@ -56,10 +56,11 @@ public class OpenFeatureClient implements Client {
      * {@inheritDoc}
      */
     @Override
-    public void addHooks(Hook... hooks) {
+    public OpenFeatureClient addHooks(Hook... hooks) {
         try (AutoCloseableLock __ = this.hooksLock.writeLockAutoCloseable()) {
             this.clientHooks.addAll(Arrays.asList(hooks));
         }
+        return this;
     }
 
     /**
@@ -76,10 +77,11 @@ public class OpenFeatureClient implements Client {
      * {@inheritDoc}
      */
     @Override
-    public void setEvaluationContext(EvaluationContext evaluationContext) {
+    public OpenFeatureClient setEvaluationContext(EvaluationContext evaluationContext) {
         try (AutoCloseableLock __ = contextLock.writeLockAutoCloseable()) {
             this.evaluationContext = evaluationContext;
         }
+        return this;
     }
 
     /**

@@ -116,4 +116,19 @@ class MutableContextTest {
         Structure value = key1.asStructure();
         assertArrayEquals(new Object[]{"key1_1"}, value.keySet().toArray());
     }
+
+    @DisplayName("Ensure mutations are chainable")
+    @Test
+    void shouldAllowChainingOfMutations() {
+        MutableContext context = new MutableContext();
+        context.add("key1", "val1")
+                .add("key2", 2)
+                .setTargetingKey("TARGETING_KEY")
+                .add("key3", 3.0);
+
+        assertEquals("TARGETING_KEY", context.getTargetingKey());
+        assertEquals("val1", context.getValue("key1").asString());
+        assertEquals(2, context.getValue("key2").asInteger());
+        assertEquals(3.0, context.getValue("key3").asDouble());        
+    }
 }
