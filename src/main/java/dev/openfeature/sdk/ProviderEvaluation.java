@@ -1,7 +1,5 @@
 package dev.openfeature.sdk;
 
-import javax.annotation.Nullable;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,10 +16,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProviderEvaluation<T> implements BaseEvaluation<T> {
     T value;
-    @Nullable String variant;
-    @Nullable private String reason;
+    String variant;
+    private String reason;
     ErrorCode errorCode;
-    @Nullable private String errorMessage;
+    private String errorMessage;
     @Builder.Default
     private ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
 }

@@ -2,8 +2,6 @@ package dev.openfeature.sdk;
 
 import java.util.Optional;
 
-import javax.annotation.Nullable;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,12 +21,9 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
 
     private String flagKey;
     private T value;
-    @Nullable
     private String variant;
-    @Nullable
     private String reason;
     private ErrorCode errorCode;
-    @Nullable
     private String errorMessage;
     @Builder.Default
     private ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
