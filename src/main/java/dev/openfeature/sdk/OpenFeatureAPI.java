@@ -67,16 +67,16 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     /**
      * {@inheritDoc}
      */
-    public Client getClient(@Nullable String name) {
-        return getClient(name, null);
+    public Client getClient(@Nullable String domain) {
+        return getClient(domain, null);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Client getClient(@Nullable String name, @Nullable String version) {
+    public Client getClient(@Nullable String domain, @Nullable String version) {
         return new OpenFeatureClient(this,
-                name,
+                domain,
                 version);
     }
 
@@ -154,14 +154,14 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * Add a provider for a named client.
+     * Add a provider for a domain.
      *
-     * @param clientName The name of the client.
+     * @param domain     The domain to bind the provider to.
      * @param provider   The provider to set.
      */
-    public void setProvider(String clientName, FeatureProvider provider) {
+    public void setProvider(String domain, FeatureProvider provider) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
-            providerRepository.setProvider(clientName,
+            providerRepository.setProvider(domain,
                     provider,
                     this::attachEventProvider,
                     this::emitReady,
@@ -187,14 +187,14 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * Add a provider for a named client and wait for initialization to finish.
+     * Add a provider for a domain and wait for initialization to finish.
      *
-     * @param clientName The name of the client.
+     * @param domain     The domain to bind the provider to.
      * @param provider   The provider to set.
      */
-    public void setProviderAndWait(String clientName, FeatureProvider provider) throws OpenFeatureError {
+    public void setProviderAndWait(String domain, FeatureProvider provider) throws OpenFeatureError {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
-            providerRepository.setProvider(clientName,
+            providerRepository.setProvider(domain,
                     provider,
                     this::attachEventProvider,
                     this::emitReady,

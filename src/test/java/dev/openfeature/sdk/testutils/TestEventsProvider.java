@@ -23,6 +23,11 @@ public class TestEventsProvider extends EventProvider {
         public String getName() {
             return name;
         }
+
+        @Override
+        public String getDomain() {
+            return name;
+        }
     };
 
     @Override

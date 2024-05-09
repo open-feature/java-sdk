@@ -26,6 +26,8 @@ public class OpenFeatureClient implements Client {
     @Getter
     private final String name;
     @Getter
+    private final String domain;
+    @Getter
     private final String version;
     private final List<Hook> clientHooks;
     private final HookSupport hookSupport;
@@ -37,16 +39,17 @@ public class OpenFeatureClient implements Client {
      * Deprecated public constructor. Use OpenFeature.API.getClient() instead.
      *
      * @param openFeatureAPI Backing global singleton
-     * @param name           Name of the client (used by observability tools).
+     * @param domain         An identifier which logically binds clients with providers (used by observability tools).
      * @param version        Version of the client (used by observability tools).
      * @deprecated Do not use this constructor. It's for internal use only.
      *             Clients created using it will not run event handlers.
      *             Use the OpenFeatureAPI's getClient factory method instead.
      */
     @Deprecated() // TODO: eventually we will make this non-public. See issue #872
-    public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
+    public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String domain, String version) {
         this.openfeatureApi = openFeatureAPI;
-        this.name = name;
+        this.name = domain;
+        this.domain = domain;
         this.version = version;
         this.clientHooks = new ArrayList<>();
         this.hookSupport = new HookSupport();
@@ -352,7 +355,17 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public Metadata getMetadata() {
-        return () -> name;
+        return new Metadata() {
+            @Override
+            public String getName() {
+                return name;
+            }
+
+            @Override
+            public String getDomain() {
+                return domain;
+            }
+        };
     }
 
     /**

@@ -77,14 +77,14 @@ class ProviderRepository {
     }
 
     /**
-     * Add a provider for a named client.
+     * Add a provider for a domain.
      *
-     * @param clientName  The name of the client.
+     * @param domain      The domain to bind the provider to.
      * @param provider    The provider to set.
      * @param waitForInit When true, wait for initialization to finish, then returns.
      *                    Otherwise, initialization happens in the background.
      */
-    public void setProvider(String clientName,
+    public void setProvider(String domain,
             FeatureProvider provider,
             Consumer<FeatureProvider> afterSet,
             Consumer<FeatureProvider> afterInit,
@@ -94,13 +94,13 @@ class ProviderRepository {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
-        if (clientName == null) {
-            throw new IllegalArgumentException("clientName cannot be null");
+        if (domain == null) {
+            throw new IllegalArgumentException("domain cannot be null");
         }
-        prepareAndInitializeProvider(clientName, provider, afterSet, afterInit, afterShutdown, afterError, waitForInit);
+        prepareAndInitializeProvider(domain, provider, afterSet, afterInit, afterShutdown, afterError, waitForInit);
     }
 
-    private void prepareAndInitializeProvider(@Nullable String clientName,
+    private void prepareAndInitializeProvider(@Nullable String domain,
               FeatureProvider newProvider,
               Consumer<FeatureProvider> afterSet,
               Consumer<FeatureProvider> afterInit,
@@ -114,8 +114,8 @@ class ProviderRepository {
         }
 
         // provider is set immediately, on this thread
-        FeatureProvider oldProvider = clientName != null
-                ? this.providers.put(clientName, newProvider)
+        FeatureProvider oldProvider = domain != null
+                ? this.providers.put(domain, newProvider)
                 : this.defaultProvider.getAndSet(newProvider);
 
         if (waitForInit) {

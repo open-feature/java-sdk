@@ -24,8 +24,8 @@ public class FeatureProviderTestUtils {
             .until(() -> extractor.apply(OpenFeatureAPI.getInstance()) == provider);
     }
 
-    public static void setFeatureProvider(String namedProvider, FeatureProvider provider) {
-        OpenFeatureAPI.getInstance().setProvider(namedProvider, provider);
-        waitForProviderInitializationComplete(api -> api.getProvider(namedProvider), provider);
+    public static void setFeatureProvider(String domain, FeatureProvider provider) {
+        OpenFeatureAPI.getInstance().setProvider(domain, provider);
+        waitForProviderInitializationComplete(api -> api.getProvider(domain), provider);
     }
 }

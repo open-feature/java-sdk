@@ -40,7 +40,17 @@ public class InMemoryProvider extends EventProvider {
 
     @Override
     public Metadata getMetadata() {
-        return () -> NAME;
+        return new Metadata() {
+            @Override
+            public String getName() {
+                return NAME;
+            }
+
+            @Override
+            public String getDomain() {
+                return NAME;
+            }
+        };
     }
 
     public InMemoryProvider(Map<String, Flag<?>> flags) {

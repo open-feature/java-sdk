@@ -11,6 +11,11 @@ public class AlwaysBrokenProvider implements FeatureProvider {
             public String getName() {
                 throw new FlagNotFoundError(TestConstants.BROKEN_MESSAGE);
             }
+
+            @Override
+            public String getDomain() {
+                throw new FlagNotFoundError(TestConstants.BROKEN_MESSAGE);
+            }
         };
     }
 
