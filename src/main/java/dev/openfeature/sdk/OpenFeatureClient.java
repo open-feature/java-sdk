@@ -19,7 +19,8 @@ import lombok.extern.slf4j.Slf4j;
  * {@inheritDoc}
  */
 @Slf4j
-@SuppressWarnings({ "PMD.DataflowAnomalyAnalysis", "PMD.BeanMembersShouldSerialize", "unchecked", "rawtypes" })
+@SuppressWarnings({ "PMD.DataflowAnomalyAnalysis", "PMD.BeanMembersShouldSerialize",
+                    "PMD.UnusedLocalVariable", "unchecked", "rawtypes" })
 public class OpenFeatureClient implements Client {
 
     private final OpenFeatureAPI openfeatureApi;
@@ -107,7 +108,8 @@ public class OpenFeatureClient implements Client {
         FeatureProvider provider;
 
         try {
-            // openfeatureApi.getProvider() must be called once to maintain a consistent reference
+            // openfeatureApi.getProvider() must be called once to maintain a consistent
+            // reference
             provider = openfeatureApi.getProvider(this.name);
 
             mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
