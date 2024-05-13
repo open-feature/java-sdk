@@ -1,6 +1,5 @@
 package dev.openfeature.sdk;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
@@ -21,8 +20,8 @@ public class EventDetails extends ProviderEventDetails {
 
     static EventDetails fromProviderEventDetails(
             ProviderEventDetails providerEventDetails,
-            @Nullable String providerName,
-            @Nullable String domain) {
+            String providerName,
+            String domain) {
         return EventDetails.builder()
                 .domain(domain)
                 .providerName(providerName)

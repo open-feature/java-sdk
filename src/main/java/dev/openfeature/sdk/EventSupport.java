@@ -2,7 +2,6 @@ package dev.openfeature.sdk;
 
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,7 @@ class EventSupport {
      * @param event        the event type
      * @param eventDetails the event details
      */
-    public void runClientHandlers(@Nullable String domain, ProviderEvent event, EventDetails eventDetails) {
+    public void runClientHandlers(String domain, ProviderEvent event, EventDetails eventDetails) {
         domain = Optional.ofNullable(domain)
                 .orElse(defaultClientUuid);
 
@@ -73,7 +72,7 @@ class EventSupport {
      * @param event      the event type
      * @param handler    the handler function to run
      */
-    public void addClientHandler(@Nullable String domain, ProviderEvent event, Consumer<EventDetails> handler) {
+    public void addClientHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
         final String name = Optional.ofNullable(domain)
                 .orElse(defaultClientUuid);
 

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
+import java.util.HashMap;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,5 +78,13 @@ class OpenFeatureAPITest {
     @Test
     void settingTransactionalContextPropagatorToNullErrors() {
         assertThatCode(() -> api.setTransactionContextPropagator(null)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void setEvaluationContextShouldAllowChaining() {
+        OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
+        EvaluationContext ctx = new ImmutableContext("targeting key", new HashMap<>());
+        OpenFeatureClient result = client.setEvaluationContext(ctx);
+        assertEquals(client, result);
     }
 }

@@ -13,8 +13,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.Nullable;
-
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import lombok.extern.slf4j.Slf4j;
@@ -100,7 +98,7 @@ class ProviderRepository {
         prepareAndInitializeProvider(domain, provider, afterSet, afterInit, afterShutdown, afterError, waitForInit);
     }
 
-    private void prepareAndInitializeProvider(@Nullable String domain,
+    private void prepareAndInitializeProvider(String domain,
               FeatureProvider newProvider,
               Consumer<FeatureProvider> afterSet,
               Consumer<FeatureProvider> afterInit,
