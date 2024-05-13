@@ -109,7 +109,7 @@ public class OpenFeatureClient implements Client {
 
         try {
             // openfeatureApi.getProvider() must be called once to maintain a consistent reference
-            provider = openfeatureApi.getProvider(this.name);
+            provider = openfeatureApi.getProvider(this.domain);
 
             mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
                     openfeatureApi.getHooks());
@@ -354,8 +354,8 @@ public class OpenFeatureClient implements Client {
     }
 
     @Override
-    public Metadata getMetadata() {
-        return new Metadata() {
+    public ClientMetadata getMetadata() {
+        return new ClientMetadata() {
             @Override
             public String getName() {
                 return name;
@@ -405,7 +405,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public Client on(ProviderEvent event, Consumer<EventDetails> handler) {
-        OpenFeatureAPI.getInstance().addHandler(name, event, handler);
+        OpenFeatureAPI.getInstance().addHandler(domain, event, handler);
         return this;
     }
 
@@ -414,7 +414,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public Client removeHandler(ProviderEvent event, Consumer<EventDetails> handler) {
-        OpenFeatureAPI.getInstance().removeHandler(name, event, handler);
+        OpenFeatureAPI.getInstance().removeHandler(domain, event, handler);
         return this;
     }
 }

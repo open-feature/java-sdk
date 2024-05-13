@@ -7,7 +7,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import org.checkerframework.checker.units.qual.N;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -82,17 +81,7 @@ class EventProviderTest {
 
         @Override
         public Metadata getMetadata() {
-            return new Metadata() {
-                @Override
-                public String getName() {
-                    return NAME;
-                }
-
-                @Override
-                public String getDomain() {
-                    return NAME;
-                }
-            };
+            return () -> NAME;
         }
 
         @Override

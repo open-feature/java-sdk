@@ -8,6 +8,8 @@ import static org.mockito.Mockito.*;
 
 class InitializeBehaviorSpecTest {
 
+    private static final String DOMAIN_NAME = "mydomain";
+
     @BeforeEach
     void setupTest() {
         OpenFeatureAPI.getInstance().setProvider(new NoOpProvider());
@@ -60,7 +62,7 @@ class InitializeBehaviorSpecTest {
             FeatureProvider featureProvider = mock(FeatureProvider.class);
             doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
 
-            OpenFeatureAPI.getInstance().setProvider("clientName", featureProvider);
+            OpenFeatureAPI.getInstance().setProvider(DOMAIN_NAME, featureProvider);
 
             verify(featureProvider, timeout(1000)).initialize(any());
         }
@@ -76,7 +78,7 @@ class InitializeBehaviorSpecTest {
             doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
             doThrow(TestException.class).when(featureProvider).initialize(any());
 
-            assertThatCode(() -> OpenFeatureAPI.getInstance().setProvider("clientName", featureProvider))
+            assertThatCode(() -> OpenFeatureAPI.getInstance().setProvider(DOMAIN_NAME, featureProvider))
                 .doesNotThrowAnyException();
 
             verify(featureProvider, timeout(1000)).initialize(any());

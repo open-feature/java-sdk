@@ -38,22 +38,22 @@ class ProviderRepository {
     }
 
     /**
-     * Fetch a provider for a named client. If not found, return the default.
+     * Fetch a provider for a domain. If not found, return the default.
      *
-     * @param name The client name to look for.
+     * @param domain The domain to look for.
      * @return A named {@link FeatureProvider}
      */
-    public FeatureProvider getProvider(String name) {
-        return Optional.ofNullable(name).map(this.providers::get).orElse(this.defaultProvider.get());
+    public FeatureProvider getProvider(String domain) {
+        return Optional.ofNullable(domain).map(this.providers::get).orElse(this.defaultProvider.get());
     }
 
-    public List<String> getClientNamesForProvider(FeatureProvider provider) {
+    public List<String> getDomainsForProvider(FeatureProvider provider) {
         return providers.entrySet().stream()
             .filter(entry -> entry.getValue().equals(provider))
             .map(entry -> entry.getKey()).collect(Collectors.toList());
     }
 
-    public Set<String> getAllBoundClientNames() {
+    public Set<String> getAllBoundDomains() {
         return providers.keySet();
     }
 

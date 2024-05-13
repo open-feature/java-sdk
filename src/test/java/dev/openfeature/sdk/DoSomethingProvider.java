@@ -23,17 +23,7 @@ class DoSomethingProvider implements FeatureProvider {
 
     @Override
     public Metadata getMetadata() {
-        return new Metadata() {
-            @Override
-            public String getName() {
-                return name;
-            }
-
-            @Override
-            public String getDomain() {
-                return name;
-            }
-        };
+        return () -> name;
     }
 
     @Override

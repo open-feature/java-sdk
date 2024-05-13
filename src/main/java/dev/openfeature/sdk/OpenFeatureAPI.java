@@ -53,8 +53,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         return getProvider().getMetadata();
     }
 
-    public Metadata getProviderMetadata(String clientName) {
-        return getProvider(clientName).getMetadata();
+    public Metadata getProviderMetadata(String domain) {
+        return getProvider(domain).getMetadata();
     }
 
     /**
@@ -240,13 +240,13 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * Fetch a provider for a named client. If not found, return the default.
+     * Fetch a provider for a domain. If not found, return the default.
      *
-     * @param name The client name to look for.
+     * @param domain The domain to look for.
      * @return A named {@link FeatureProvider}
      */
-    public FeatureProvider getProvider(String name) {
-        return providerRepository.getProvider(name);
+    public FeatureProvider getProvider(String domain) {
+        return providerRepository.getProvider(domain);
     }
 
     /**
@@ -344,20 +344,20 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         return this;
     }
 
-    void removeHandler(String clientName, ProviderEvent event, Consumer<EventDetails> handler) {
+    void removeHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
-            eventSupport.removeClientHandler(clientName, event, handler);
+            eventSupport.removeClientHandler(domain, event, handler);
         }
     }
 
-    void addHandler(String clientName, ProviderEvent event, Consumer<EventDetails> handler) {
+    void addHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             // if the provider is in the state associated with event, run immediately
-            if (Optional.ofNullable(this.providerRepository.getProvider(clientName).getState())
+            if (Optional.ofNullable(this.providerRepository.getProvider(domain).getState())
                     .orElse(ProviderState.READY).matchesEvent(event)) {
-                eventSupport.runHandler(handler, EventDetails.builder().clientName(clientName).build());
+                eventSupport.runHandler(handler, EventDetails.builder().domain(domain).build());
             }
-            eventSupport.addClientHandler(clientName, event, handler);
+            eventSupport.addClientHandler(domain, event, handler);
         }
     }
 
@@ -371,8 +371,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     private void runHandlersForProvider(FeatureProvider provider, ProviderEvent event, ProviderEventDetails details) {
         try (AutoCloseableLock __ = lock.readLockAutoCloseable()) {
 
-            List<String> clientNamesForProvider = providerRepository
-                    .getClientNamesForProvider(provider);
+            List<String> domainsForProvider = providerRepository
+                    .getDomainsForProvider(provider);
 
             final String providerName = Optional.ofNullable(provider.getMetadata())
                     .map(metadata -> metadata.getName())
@@ -381,20 +381,20 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
             // run the global handlers
             eventSupport.runGlobalHandlers(event, EventDetails.fromProviderEventDetails(details, providerName));
 
-            // run the handlers associated with named clients for this provider
-            clientNamesForProvider.forEach(name -> {
-                eventSupport.runClientHandlers(name, event,
-                        EventDetails.fromProviderEventDetails(details, providerName, name));
+            // run the handlers associated with domains for this provider
+            domainsForProvider.forEach(domain -> {
+                eventSupport.runClientHandlers(domain, event,
+                        EventDetails.fromProviderEventDetails(details, providerName, domain));
             });
 
             if (providerRepository.isDefaultProvider(provider)) {
                 // run handlers for clients that have no bound providers (since this is the default)
-                Set<String> allClientNames = eventSupport.getAllClientNames();
-                Set<String> boundClientNames = providerRepository.getAllBoundClientNames();
-                allClientNames.removeAll(boundClientNames);
-                allClientNames.forEach(name -> {
-                    eventSupport.runClientHandlers(name, event,
-                            EventDetails.fromProviderEventDetails(details, providerName, name));
+                Set<String> allDomainNames = eventSupport.getAllDomainNames();
+                Set<String> boundDomains = providerRepository.getAllBoundDomains();
+                allDomainNames.removeAll(boundDomains);
+                allDomainNames.forEach(domain -> {
+                    eventSupport.runClientHandlers(domain, event,
+                            EventDetails.fromProviderEventDetails(details, providerName, domain));
                 });
             }
         }

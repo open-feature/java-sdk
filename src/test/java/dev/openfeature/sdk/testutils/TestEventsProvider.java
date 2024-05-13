@@ -18,17 +18,7 @@ public class TestEventsProvider extends EventProvider {
     private boolean shutDown = false;
     private int initTimeoutMs = 0;
     private String name = "test";
-    private Metadata metadata = new Metadata() {
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public String getDomain() {
-            return name;
-        }
-    };
+    private Metadata metadata = () -> name;
 
     @Override
     public ProviderState getState() {

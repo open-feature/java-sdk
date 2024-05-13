@@ -33,8 +33,8 @@ import dev.openfeature.sdk.testutils.exception.TestException;
 
 class ProviderRepositoryTest {
 
-    private static final String CLIENT_NAME = "client name";
-    private static final String ANOTHER_CLIENT_NAME = "another client name";
+    private static final String DOMAIN_NAME = "domain name";
+    private static final String ANOTHER_DOMAIN_NAME = "another domain name";
     private static final int TIMEOUT = 5000;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
@@ -101,13 +101,13 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should reject null as named provider")
             void shouldRejectNullAsNamedProvider() {
-                assertThatCode(() -> providerRepository.setProvider(CLIENT_NAME, null, mockAfterSet(), mockAfterInit(),
+                assertThatCode(() -> providerRepository.setProvider(DOMAIN_NAME, null, mockAfterSet(), mockAfterInit(),
                         mockAfterShutdown(), mockAfterError(), false))
                         .isInstanceOf(IllegalArgumentException.class);
             }
 
             @Test
-            @DisplayName("should reject null as client name")
+            @DisplayName("should reject null as domain name")
             void shouldRejectNullAsDefaultProvider() {
                 NoOpProvider provider = new NoOpProvider();
                 assertThatCode(() -> providerRepository.setProvider(null, provider, mockAfterSet(), mockAfterInit(),
@@ -116,8 +116,8 @@ class ProviderRepositoryTest {
             }
 
             @Test
-            @DisplayName("should immediately return when calling the named client provider mutator")
-            void shouldImmediatelyReturnWhenCallingTheNamedClientProviderMutator() throws Exception {
+            @DisplayName("should immediately return when calling the domain provider mutator")
+            void shouldImmediatelyReturnWhenCallingTheDomainProviderMutator() throws Exception {
                 FeatureProvider featureProvider = createMockedProvider();
                 doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(any());
 
@@ -126,7 +126,7 @@ class ProviderRepositoryTest {
                         .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .until(() -> {
-                            providerRepository.setProvider("named client", featureProvider, mockAfterSet(),
+                            providerRepository.setProvider("a domain", featureProvider, mockAfterSet(),
                                     mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
                             verify(featureProvider, timeout(TIMEOUT)).initialize(any());
                             return true;
@@ -137,7 +137,7 @@ class ProviderRepositoryTest {
             @DisplayName("should avoid additional initialization call if provider has been initialized already")
             void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() throws Exception {
                 FeatureProvider provider = createMockedReadyProvider();
-                setFeatureProvider(CLIENT_NAME, provider);
+                setFeatureProvider(DOMAIN_NAME, provider);
 
                 verify(provider, never()).initialize(any());
             }
@@ -176,7 +176,7 @@ class ProviderRepositoryTest {
                 FeatureProvider oldProvider = createMockedProvider();
                 FeatureProvider newProvider = createMockedProvider();
                 setFeatureProvider(oldProvider);
-                setFeatureProvider(CLIENT_NAME, oldProvider);
+                setFeatureProvider(DOMAIN_NAME, oldProvider);
 
                 setFeatureProvider(newProvider);
 
@@ -194,7 +194,7 @@ class ProviderRepositoryTest {
                 doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any());
 
                 Future<?> providerMutation = executorService
-                        .submit(() -> providerRepository.setProvider(CLIENT_NAME, newProvider, mockAfterSet(),
+                        .submit(() -> providerRepository.setProvider(DOMAIN_NAME, newProvider, mockAfterSet(),
                                 mockAfterInit(), mockAfterShutdown(), mockAfterError(), false));
 
                 await()
@@ -209,11 +209,11 @@ class ProviderRepositoryTest {
             void shouldNotCallShutdownIfReplacedProviderIsBoundToMultipleNames() throws InterruptedException {
                 FeatureProvider oldProvider = createMockedProvider();
                 FeatureProvider newProvider = createMockedProvider();
-                setFeatureProvider(CLIENT_NAME, oldProvider);
+                setFeatureProvider(DOMAIN_NAME, oldProvider);
 
-                setFeatureProvider(ANOTHER_CLIENT_NAME, oldProvider);
+                setFeatureProvider(ANOTHER_DOMAIN_NAME, oldProvider);
 
-                setFeatureProvider(CLIENT_NAME, newProvider);
+                setFeatureProvider(DOMAIN_NAME, newProvider);
 
                 verify(oldProvider, never()).shutdown();
             }
@@ -224,9 +224,9 @@ class ProviderRepositoryTest {
                 FeatureProvider oldProvider = createMockedProvider();
                 FeatureProvider newProvider = createMockedProvider();
                 setFeatureProvider(oldProvider);
-                setFeatureProvider(CLIENT_NAME, oldProvider);
+                setFeatureProvider(DOMAIN_NAME, oldProvider);
 
-                setFeatureProvider(CLIENT_NAME, newProvider);
+                setFeatureProvider(DOMAIN_NAME, newProvider);
 
                 verify(oldProvider, never()).shutdown();
             }
@@ -293,8 +293,8 @@ class ProviderRepositoryTest {
         FeatureProvider featureProvider2 = createMockedProvider();
 
         setFeatureProvider(featureProvider1);
-        setFeatureProvider(CLIENT_NAME, featureProvider1);
-        setFeatureProvider(ANOTHER_CLIENT_NAME, featureProvider2);
+        setFeatureProvider(DOMAIN_NAME, featureProvider1);
+        setFeatureProvider(ANOTHER_DOMAIN_NAME, featureProvider2);
 
         providerRepository.shutdown();
         verify(featureProvider1, timeout(TIMEOUT)).shutdown();

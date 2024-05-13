@@ -6,7 +6,7 @@ import java.util.List;
  * Interface used to resolve flags of varying types.
  */
 public interface Client extends Features, EventBus<Client> {
-    Metadata getMetadata();
+    ClientMetadata getMetadata();
 
     /**
      * Return an optional client-level evaluation context.

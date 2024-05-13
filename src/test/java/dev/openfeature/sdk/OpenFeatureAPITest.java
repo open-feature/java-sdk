@@ -14,7 +14,7 @@ import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 
 class OpenFeatureAPITest {
 
-    private static final String CLIENT_NAME = "client name";
+    private static final String DOMAIN_NAME = "my domain";
 
     private OpenFeatureAPI api;
 
@@ -41,7 +41,7 @@ class OpenFeatureAPITest {
         FeatureProviderTestUtils.setFeatureProvider(domain, provider1);
         FeatureProviderTestUtils.setFeatureProvider(domain, provider2);
 
-        assertThat(OpenFeatureAPI.getInstance().getProvider(domain).getMetadata().getDomain())
+        assertThat(OpenFeatureAPI.getInstance().getProvider(domain).getMetadata().getName())
                 .isEqualTo(DoSomethingProvider.name);
     }
 
@@ -70,8 +70,8 @@ class OpenFeatureAPITest {
     }
 
     @Test
-    void settingNamedClientProviderToNullErrors() {
-        assertThatCode(() -> api.setProvider(CLIENT_NAME, null)).isInstanceOf(IllegalArgumentException.class);
+    void settingDomainProviderToNullErrors() {
+        assertThatCode(() -> api.setProvider(DOMAIN_NAME, null)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

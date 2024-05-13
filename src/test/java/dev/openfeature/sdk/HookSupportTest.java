@@ -20,7 +20,7 @@ import dev.openfeature.sdk.fixtures.HookFixtures;
 
 class HookSupportTest implements HookFixtures {
 
-    private Metadata clientMetadata = new Metadata() {
+    private ClientMetadata clientMetadata = new ClientMetadata() {
         @Override
         public String getName() {
             return "client";
@@ -32,17 +32,7 @@ class HookSupportTest implements HookFixtures {
         }
     };
 
-    private Metadata providerMetadata = new Metadata() {
-        @Override
-        public String getName() {
-            return "provider";
-        }
-
-        @Override
-        public String getDomain() {
-            return "domain";
-        }
-    };
+    private Metadata providerMetadata = () -> "provider";
 
     @Test
     @DisplayName("should merge EvaluationContexts on before hooks correctly")
