@@ -7,8 +7,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import javax.annotation.Nullable;
-
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
@@ -67,14 +65,14 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     /**
      * {@inheritDoc}
      */
-    public Client getClient(@Nullable String name) {
+    public Client getClient(String name) {
         return getClient(name, null);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Client getClient(@Nullable String name, @Nullable String version) {
+    public Client getClient(String name, String version) {
         return new OpenFeatureClient(this,
                 name,
                 version);
@@ -83,10 +81,11 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     /**
      * {@inheritDoc}
      */
-    public void setEvaluationContext(EvaluationContext evaluationContext) {
+    public OpenFeatureAPI setEvaluationContext(EvaluationContext evaluationContext) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             this.evaluationContext = evaluationContext;
         }
+        return this;
     }
 
     /**

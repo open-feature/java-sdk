@@ -87,10 +87,11 @@ public class MutableContext implements EvaluationContext {
     /**
      * Override or set targeting key for this mutable context. Value should be non-null and non-empty to be accepted.
      */
-    public void setTargetingKey(String targetingKey) {
+    public MutableContext setTargetingKey(String targetingKey) {
         if (targetingKey != null && !targetingKey.trim().isEmpty()) {
             this.add(TARGETING_KEY, targetingKey);
         }
+        return this;
     }
 
 

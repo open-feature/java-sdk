@@ -18,7 +18,7 @@ public interface Client extends Features, EventBus<Client> {
      * Set the client-level evaluation context.
      * @param ctx Client level context.
      */
-    void setEvaluationContext(EvaluationContext ctx);
+    Client setEvaluationContext(EvaluationContext ctx);
 
     /**
      * Adds hooks for evaluation.
@@ -26,7 +26,7 @@ public interface Client extends Features, EventBus<Client> {
      *
      * @param hooks The hook to add.
      */
-    void addHooks(Hook... hooks);
+    Client addHooks(Hook... hooks);
 
     /**
      * Fetch the hooks associated to this client.
