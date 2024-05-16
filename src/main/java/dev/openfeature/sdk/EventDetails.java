@@ -13,14 +13,14 @@ public class EventDetails extends ProviderEventDetails {
     private String providerName;
 
     static EventDetails fromProviderEventDetails(ProviderEventDetails providerEventDetails, String providerName) {
-        return EventDetails.fromProviderEventDetails(providerEventDetails, providerName, null);
+        return fromProviderEventDetails(providerEventDetails, providerName, null);
     }
 
     static EventDetails fromProviderEventDetails(
             ProviderEventDetails providerEventDetails,
             String providerName,
             String clientName) {
-        return EventDetails.builder()
+        return builder()
                 .clientName(clientName)
                 .providerName(providerName)
                 .flagsChanged(providerEventDetails.getFlagsChanged())
