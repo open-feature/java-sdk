@@ -10,3 +10,6 @@ target
 
 # vscode stuff - we may want to use a more specific pattern later if we'd like to suggest editor configurations
 .vscode/
+
+# used for spec compliance tooling
+java-report.json
