@@ -48,30 +48,62 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         return SingletonHolder.INSTANCE;
     }
 
+    /**
+     * Get metadata about the default provider.
+     *
+     * @return the provider metadata
+     */
     public Metadata getProviderMetadata() {
         return getProvider().getMetadata();
     }
 
+    /**
+     * Get metadata about a registered provider using the client name.
+     * An unbound or empty client name will return metadata from the default provider.
+     *
+     * @param domain an identifier which logically binds clients with providers
+     * @return the provider metadata
+     */
     public Metadata getProviderMetadata(String domain) {
         return getProvider(domain).getMetadata();
     }
 
     /**
-     * {@inheritDoc}
+     * A factory function for creating new, OpenFeature clients.
+     * Clients can contain their own state (e.g. logger, hook, context).
+     * Multiple clients can be used to segment feature flag configuration.
+     * All un-named or unbound clients use the default provider.
+     *
+     * @return a new client instance
      */
     public Client getClient() {
         return getClient(null, null);
     }
 
     /**
-     * {@inheritDoc}
+     * A factory function for creating new domainless OpenFeature clients.
+     * Clients can contain their own state (e.g. logger, hook, context).
+     * Multiple clients can be used to segment feature flag configuration.
+     * If there is already a provider bound to this domain, this provider will be used.
+     * Otherwise, the default provider is used until a provider is assigned to that domain.
+     * 
+     * @param name an identifier which logically binds clients with providers
+     * @return a new client instance
      */
     public Client getClient(String domain) {
         return getClient(domain, null);
     }
 
     /**
-     * {@inheritDoc}
+     * A factory function for creating new domainless OpenFeature clients.
+     * Clients can contain their own state (e.g. logger, hook, context).
+     * Multiple clients can be used to segment feature flag configuration.
+     * If there is already a provider bound to this domain, this provider will be used.
+     * Otherwise, the default provider is used until a provider is assigned to that domain.
+     * 
+     * @param name a identifier which logically binds clients with providers
+     * @param version a version identifier
+     * @return a new client instance
      */
     public Client getClient(String domain, String version) {
         return new OpenFeatureClient(this,
@@ -80,7 +112,10 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * {@inheritDoc}
+     * Sets the global evaluation context, which will be used for all evaluations.
+     *
+     * @param evaluationContext the context
+     * @return api instance
      */
     public OpenFeatureAPI setEvaluationContext(EvaluationContext evaluationContext) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
@@ -90,7 +125,9 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the global evaluation context, which will be used for all evaluations.
+     *
+     * @return evaluation context
      */
     public EvaluationContext getEvaluationContext() {
         try (AutoCloseableLock __ = lock.readLockAutoCloseable()) {
@@ -250,7 +287,10 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * {@inheritDoc}
+     * Adds hooks for globally, used for all evaluations.
+     * Hooks are run in the order they're added in the before stage. They are run in reverse order for all other stages.
+     *
+     * @param hooks The hook to add.
      */
     public void addHooks(Hook... hooks) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
@@ -259,7 +299,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * {@inheritDoc}
+     * Fetch the hooks associated to this client.
+     * @return A list of {@link Hook}s.
      */
     public List<Hook> getHooks() {
         try (AutoCloseableLock __ = lock.readLockAutoCloseable()) {
@@ -268,7 +309,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * {@inheritDoc}
+     * Removes all hooks.
      */
     public void clearHooks() {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
