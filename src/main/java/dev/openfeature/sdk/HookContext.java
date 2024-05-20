@@ -16,7 +16,7 @@ public class HookContext<T> {
     @NonNull FlagValueType type;
     @NonNull T defaultValue;
     @NonNull EvaluationContext ctx;
-    ClientMetadata clientMetadata;
+    Metadata clientMetadata;
     Metadata providerMetadata;
 
     /**
@@ -30,7 +30,7 @@ public class HookContext<T> {
      * @param <T> type that the flag is evaluating against
      * @return resulting context for hook
      */
-    public static <T> HookContext<T> from(String key, FlagValueType type, ClientMetadata clientMetadata,
+    public static <T> HookContext<T> from(String key, FlagValueType type, Metadata clientMetadata,
                                           Metadata providerMetadata, EvaluationContext ctx, T defaultValue) {
         return HookContext.<T>builder()
                 .flagKey(key)

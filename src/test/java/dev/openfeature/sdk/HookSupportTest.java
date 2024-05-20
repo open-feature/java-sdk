@@ -20,7 +20,7 @@ import dev.openfeature.sdk.fixtures.HookFixtures;
 
 class HookSupportTest implements HookFixtures {
 
-    private ClientMetadata clientMetadata = new ClientMetadata() {
+    private Metadata clientMetadata = new Metadata() {
         @Override
         public String getName() {
             return "client";

@@ -356,8 +356,8 @@ public class OpenFeatureClient implements Client {
     }
 
     @Override
-    public ClientMetadata getMetadata() {
-        return new ClientMetadata() {
+    public Metadata getMetadata() {
+        return new Metadata() {
             @Override
             public String getName() {
                 return name;

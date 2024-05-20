@@ -23,6 +23,7 @@ public class EventDetails extends ProviderEventDetails {
             String providerName,
             String domain) {
         return EventDetails.builder()
+                .clientName(domain)
                 .domain(domain)
                 .providerName(providerName)
                 .flagsChanged(providerEventDetails.getFlagsChanged())
