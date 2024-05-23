@@ -11,6 +11,7 @@ import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
+import dev.openfeature.sdk.internal.ErrorUtils;
 import dev.openfeature.sdk.internal.ObjectUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -125,7 +126,12 @@ public class OpenFeatureClient implements Client {
                     defaultValue, provider, mergedCtx);
 
             details = FlagEvaluationDetails.from(providerEval, key);
-            hookSupport.afterHooks(type, hookCtx, details, mergedHooks, hints);
+            if (details.getErrorCode() != null) {
+                Exception e = ErrorUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
+                hookSupport.errorHooks(type, hookCtx, e, mergedHooks, hints);
+            } else {
+                hookSupport.afterHooks(type, hookCtx, details, mergedHooks, hints);
+            }
         } catch (Exception e) {
             log.error("Unable to correctly evaluate flag with key '{}'", key, e);
             if (details == null) {
