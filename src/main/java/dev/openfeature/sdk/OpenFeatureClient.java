@@ -11,7 +11,7 @@ import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
-import dev.openfeature.sdk.internal.ErrorUtils;
+import dev.openfeature.sdk.exceptions.ExceptionUtils;
 import dev.openfeature.sdk.internal.ObjectUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -127,7 +127,8 @@ public class OpenFeatureClient implements Client {
 
             details = FlagEvaluationDetails.from(providerEval, key);
             if (details.getErrorCode() != null) {
-                Exception e = ErrorUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
+                Exception e = ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(),
+                        details.getErrorMessage());
                 hookSupport.errorHooks(type, hookCtx, e, mergedHooks, hints);
             } else {
                 hookSupport.afterHooks(type, hookCtx, details, mergedHooks, hints);

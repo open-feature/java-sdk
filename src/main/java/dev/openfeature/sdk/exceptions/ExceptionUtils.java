@@ -1,19 +1,11 @@
-package dev.openfeature.sdk.internal;
+package dev.openfeature.sdk.exceptions;
 
 import dev.openfeature.sdk.ErrorCode;
-import dev.openfeature.sdk.exceptions.FlagNotFoundError;
-import dev.openfeature.sdk.exceptions.GeneralError;
-import dev.openfeature.sdk.exceptions.InvalidContextError;
-import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import dev.openfeature.sdk.exceptions.ParseError;
-import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
-import dev.openfeature.sdk.exceptions.TargetingKeyMissingError;
-import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import lombok.experimental.UtilityClass;
 
 @SuppressWarnings("checkstyle:MissingJavadocType")
 @UtilityClass
-public class ErrorUtils {
+public class ExceptionUtils {
 
     /**
      * Creates an Error for the specific error code.

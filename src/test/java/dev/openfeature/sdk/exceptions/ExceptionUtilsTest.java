@@ -1,14 +1,6 @@
-package dev.openfeature.sdk.internal;
+package dev.openfeature.sdk.exceptions;
 
 import dev.openfeature.sdk.ErrorCode;
-import dev.openfeature.sdk.exceptions.FlagNotFoundError;
-import dev.openfeature.sdk.exceptions.GeneralError;
-import dev.openfeature.sdk.exceptions.InvalidContextError;
-import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import dev.openfeature.sdk.exceptions.ParseError;
-import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
-import dev.openfeature.sdk.exceptions.TargetingKeyMissingError;
-import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,7 +13,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-class ErrorUtilsTest {
+class ExceptionUtilsTest {
 
     @ParameterizedTest
     @DisplayName("should produce correct exception for a provided ErrorCode")
@@ -29,7 +21,7 @@ class ErrorUtilsTest {
     void shouldProduceCorrectExceptionForErrorCode(ErrorCode errorCode, Class<? extends OpenFeatureError> exception) {
 
         String errorMessage = "error message";
-        OpenFeatureError openFeatureError = ErrorUtils.instantiateErrorByErrorCode(errorCode, errorMessage);
+        OpenFeatureError openFeatureError = ExceptionUtils.instantiateErrorByErrorCode(errorCode, errorMessage);
         assertInstanceOf(exception, openFeatureError);
         assertThat(openFeatureError.getMessage()).isEqualTo(errorMessage);
         assertThat(openFeatureError.getErrorCode()).isEqualByComparingTo(errorCode);
