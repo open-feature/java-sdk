@@ -127,9 +127,7 @@ public class OpenFeatureClient implements Client {
 
             details = FlagEvaluationDetails.from(providerEval, key);
             if (details.getErrorCode() != null) {
-                Exception e = ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(),
-                        details.getErrorMessage());
-                hookSupport.errorHooks(type, hookCtx, e, mergedHooks, hints);
+                throw ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
             } else {
                 hookSupport.afterHooks(type, hookCtx, details, mergedHooks, hints);
             }
