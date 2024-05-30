@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import lombok.SneakyThrows;
@@ -19,12 +20,14 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -179,6 +182,40 @@ class HookSpecTest implements HookFixtures {
 
         verify(h, times(0)).error(any(), any(), any());
     }
+
+
+    @Test void error_hook_must_run_if_resolution_details_returns_an_error_code() {
+
+        String errorMessage = "not found...";
+
+        EvaluationContext invocationCtx = new ImmutableContext();
+        Hook<Boolean> hook = mockBooleanHook();
+        FeatureProvider provider = mock(FeatureProvider.class);
+        when(provider.getBooleanEvaluation(any(), any(), any())).thenReturn(ProviderEvaluation.<Boolean>builder()
+                .errorCode(ErrorCode.FLAG_NOT_FOUND)
+                .errorMessage(errorMessage)
+                .build());
+
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        FeatureProviderTestUtils.setFeatureProvider(provider);
+        Client client = api.getClient();
+        client.getBooleanValue("key", false, invocationCtx,
+                FlagEvaluationOptions.builder()
+                        .hook(hook)
+                        .build());
+
+        ArgumentCaptor<Exception> captor = ArgumentCaptor.forClass(Exception.class);
+
+        verify(hook, times(1)).before(any(), any());
+        verify(hook, times(1)).error(any(), captor.capture(), any());
+        verify(hook, times(1)).finallyAfter(any(), any());
+        verify(hook, never()).after(any(),any(), any());
+
+        Exception exception = captor.getValue();
+        assertEquals(errorMessage, exception.getMessage());
+        assertInstanceOf(FlagNotFoundError.class, exception);
+    }
+
 
     @Specification(number="4.3.6", text="The after stage MUST run after flag resolution occurs. It accepts a hook context (required), flag evaluation details (required) and hook hints (optional). It has no return value.")
     @Specification(number="4.3.7", text="The error hook MUST run when errors are encountered in the before stage, the after stage or during flag resolution. It accepts hook context (required), exception representing what went wrong (required), and hook hints (optional). It has no return value.")
