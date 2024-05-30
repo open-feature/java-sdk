@@ -9,8 +9,6 @@ import lombok.experimental.SuperBuilder;
 @Data
 @SuperBuilder(toBuilder = true)
 public class EventDetails extends ProviderEventDetails {
-    @Deprecated
-    private String clientName;
     private String domain;
     private String providerName;
 
@@ -23,7 +21,6 @@ public class EventDetails extends ProviderEventDetails {
             String providerName,
             String domain) {
         return builder()
-                .clientName(domain)
                 .domain(domain)
                 .providerName(providerName)
                 .flagsChanged(providerEventDetails.getFlagsChanged())

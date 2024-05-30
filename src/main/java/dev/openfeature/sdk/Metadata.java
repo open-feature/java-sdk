@@ -5,8 +5,4 @@ package dev.openfeature.sdk;
  */
 public interface Metadata {
     String getName();
-
-    default String getDomain() {
-        return "";
-    }
 }

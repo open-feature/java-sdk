@@ -281,13 +281,11 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test void clientMetadata() {
         Client c = _client();
         assertNull(c.getMetadata().getDomain());
-        assertNull(c.getMetadata().getName());
 
         String domainName = "test domain";
         FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c2 = api.getClient(domainName);
         assertEquals(domainName, c2.getMetadata().getDomain());
-        assertEquals(domainName, c2.getMetadata().getName());
     }
 
     @Specification(number="1.4.9", text="In cases of abnormal execution (network failure, unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")

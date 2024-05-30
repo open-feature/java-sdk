@@ -25,8 +25,6 @@ public class OpenFeatureClient implements Client {
 
     private final OpenFeatureAPI openfeatureApi;
     @Getter
-    private final String name;
-    @Getter
     private final String domain;
     @Getter
     private final String version;
@@ -49,7 +47,6 @@ public class OpenFeatureClient implements Client {
     @Deprecated() // TODO: eventually we will make this non-public. See issue #872
     public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String domain, String version) {
         this.openfeatureApi = openFeatureAPI;
-        this.name = domain;
         this.domain = domain;
         this.version = version;
         this.clientHooks = new ArrayList<>();
@@ -357,18 +354,8 @@ public class OpenFeatureClient implements Client {
     }
 
     @Override
-    public Metadata getMetadata() {
-        return new Metadata() {
-            @Override
-            public String getName() {
-                return name;
-            }
-
-            @Override
-            public String getDomain() {
-                return domain;
-            }
-        };
+    public ClientMetadata getMetadata() {
+        return () -> domain;
     }
 
     /**
