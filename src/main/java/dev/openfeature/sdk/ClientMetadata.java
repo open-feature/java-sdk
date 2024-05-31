@@ -5,4 +5,10 @@ package dev.openfeature.sdk;
  */
 public interface ClientMetadata {
     String getDomain();
+
+    @Deprecated
+    // this is here for compatibility with getName() exposed from {@link Metadata}
+    default String getName() {
+        return getDomain();
+    }
 }

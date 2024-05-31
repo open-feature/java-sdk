@@ -280,11 +280,14 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Specification(number="1.2.2", text="The client interface MUST define a metadata member or accessor, containing an immutable domain field or accessor of type string, which corresponds to the domain value supplied during client creation. In previous drafts, this property was called name. For backwards compatibility, implementations should consider name an alias to domain.")
     @Test void clientMetadata() {
         Client c = _client();
+        assertNull(c.getMetadata().getName());
         assertNull(c.getMetadata().getDomain());
 
         String domainName = "test domain";
         FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c2 = api.getClient(domainName);
+
+        assertEquals(domainName, c2.getMetadata().getName());
         assertEquals(domainName, c2.getMetadata().getDomain());
     }
 
