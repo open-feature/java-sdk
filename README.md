@@ -48,7 +48,7 @@
 
 - Java 8+ (compiler target is 1.8)
 
-Note that this library is intended to be used in server-side contexts and has not been evaluated for use in mobile devices.
+Note that this library is intended to be used in server-side contexts and has not been evaluated for use on mobile devices.
 
 ### Install
 
@@ -282,7 +282,7 @@ To register a `ThreadLocal` context propagator, you can use the `setTransactionC
 // registering the ThreadLocalTransactionContextPropagator
 OpenFeatureAPI.getInstance().setTransactionContextPropagator(new ThreadLocalTransactionContextPropagator());
 ```
-Once you've registered a transaction context propagator, you can propagate the data into request scoped transaction context.
+Once you've registered a transaction context propagator, you can propagate the data into request-scoped transaction context.
 
 ```java
 // adding userId to transaction context
@@ -290,7 +290,7 @@ OpenFeatureAPI api = OpenFeatureAPI.getInstance();
 Map<String, Value> transactionAttrs = new HashMap<>();
 transactionAttrs.put("userId", new Value("userId"));
 EvaluationContext transactionCtx = new ImmutableContext(transactionAttrs);
-api.setTransactionContext(apiCtx);
+api.setTransactionContext(transactionCtx);
 ```
 Additionally, you can develop a custom transaction context propagator by implementing the `TransactionContextPropagator` interface and registering it as shown above.
 
@@ -390,8 +390,6 @@ class MyEventProvider extends EventProvider {
 To develop a hook, you need to create a new project and include the OpenFeature SDK as a dependency.
 This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/java-sdk-contrib) available under the OpenFeature organization.
 Implement your own hook by conforming to the `Hook interface`.
-To satisfy the interface, all methods (`Before`/`After`/`Finally`/`Error`) need to be defined.
-To avoid defining empty functions make use of the `UnimplementedHook` struct (which already implements all the empty functions).
 
 ```java
 class MyHook implements Hook {
@@ -434,7 +432,7 @@ class MyHook implements Hook {
 
 Interested in contributing? Great, we'd love your help! To get started, take a look at the [CONTRIBUTING](CONTRIBUTING.md) guide.
 
-### Thanks to everyone that has already contributed
+### Thanks to everyone who has already contributed
 
 <a href="https://github.com/open-feature/java-sdk/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=open-feature/java-sdk" alt="Pictures of the folks who have contributed to the project" />
