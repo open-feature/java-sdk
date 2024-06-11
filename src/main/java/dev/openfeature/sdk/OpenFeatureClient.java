@@ -26,7 +26,7 @@ public class OpenFeatureClient implements Client {
 
     private final OpenFeatureAPI openfeatureApi;
     @Getter
-    private final String name;
+    private final String domain;
     @Getter
     private final String version;
     private final List<Hook> clientHooks;
@@ -39,16 +39,16 @@ public class OpenFeatureClient implements Client {
      * Deprecated public constructor. Use OpenFeature.API.getClient() instead.
      *
      * @param openFeatureAPI Backing global singleton
-     * @param name           Name of the client (used by observability tools).
+     * @param domain         An identifier which logically binds clients with providers (used by observability tools).
      * @param version        Version of the client (used by observability tools).
      * @deprecated Do not use this constructor. It's for internal use only.
      *             Clients created using it will not run event handlers.
      *             Use the OpenFeatureAPI's getClient factory method instead.
      */
     @Deprecated() // TODO: eventually we will make this non-public. See issue #872
-    public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String name, String version) {
+    public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String domain, String version) {
         this.openfeatureApi = openFeatureAPI;
-        this.name = name;
+        this.domain = domain;
         this.version = version;
         this.clientHooks = new ArrayList<>();
         this.hookSupport = new HookSupport();
@@ -110,7 +110,7 @@ public class OpenFeatureClient implements Client {
 
         try {
             // openfeatureApi.getProvider() must be called once to maintain a consistent reference
-            provider = openfeatureApi.getProvider(this.name);
+            provider = openfeatureApi.getProvider(this.domain);
 
             mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
                     openfeatureApi.getHooks());
@@ -359,8 +359,8 @@ public class OpenFeatureClient implements Client {
     }
 
     @Override
-    public Metadata getMetadata() {
-        return () -> name;
+    public ClientMetadata getMetadata() {
+        return () -> domain;
     }
 
     /**
@@ -400,7 +400,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public Client on(ProviderEvent event, Consumer<EventDetails> handler) {
-        OpenFeatureAPI.getInstance().addHandler(name, event, handler);
+        OpenFeatureAPI.getInstance().addHandler(domain, event, handler);
         return this;
     }
 
@@ -409,7 +409,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public Client removeHandler(ProviderEvent event, Consumer<EventDetails> handler) {
-        OpenFeatureAPI.getInstance().removeHandler(name, event, handler);
+        OpenFeatureAPI.getInstance().removeHandler(domain, event, handler);
         return this;
     }
 }

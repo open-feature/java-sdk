@@ -77,14 +77,11 @@ class EventProviderTest {
 
     class TestEventProvider extends EventProvider {
 
+        private static final String NAME = "TestEventProvider";
+
         @Override
         public Metadata getMetadata() {
-            return new Metadata() {
-                @Override
-                public String getName() {
-                    return "TestEventProvider";
-                }
-            };            
+            return () -> NAME;
         }
 
         @Override

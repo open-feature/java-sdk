@@ -126,7 +126,7 @@ See [here](https://javadoc.io/doc/dev.openfeature/sdk/latest/) for the Javadocs.
 | ✅     | [Targeting](#targeting)                                               | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context).                            |
 | ✅     | [Hooks](#hooks)                                                       | Add functionality to various stages of the flag evaluation life-cycle.                                                                                        |
 | ✅     | [Logging](#logging)                                                   | Integrate with popular logging packages.                                                                                                                      |
-| ✅     | [Named clients](#named-clients)                                       | Utilize multiple providers in a single application.                                                                                                           |
+| ✅     | [Domains](#domains)                                                   | Logically bind clients with providers.                                                                                                                        |
 | ✅     | [Eventing](#eventing)                                                 | React to state changes in the provider or flag management system.                                                                                             |
 | ✅     | [Shutdown](#shutdown)                                                 | Gracefully clean up a provider during application shutdown.                                                                                                   |
 | ✅     | [Transaction Context Propagation](#transaction-context-propagation)   | Set a specific [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context) for a transaction (e.g. an HTTP request or a thread). |   
@@ -160,7 +160,7 @@ To register a provider in a non-blocking manner, you can use the `setProvider` m
 ```    
 
 In some situations, it may be beneficial to register multiple providers in the same application.
-This is possible using [named clients](#named-clients), which is covered in more details below.
+This is possible using [domains](#domains), which is covered in more detail below.
 
 ### Targeting
 
@@ -219,27 +219,27 @@ Once you've added a hook as a dependency, it can be registered at the global, cl
 
 The Java SDK uses SLF4J. See the [SLF4J manual](https://slf4j.org/manual.html) for complete documentation.
 
-### Named clients
+### Domains
 
-Clients can be given a name.
-A name is a logical identifier which can be used to associate clients with a particular provider.
-If a name has no associated provider, the global provider is used.  
+Clients can be assigned to a domain.
+A domain is a logical identifier which can be used to associate clients with a particular provider.
+If a domain has no associated provider, the global provider is used.  
 
 ```java
 FeatureProvider scopedProvider = new MyProvider();
 
 // registering the default provider
 OpenFeatureAPI.getInstance().setProvider(LocalProvider());
-// registering a named provider
-OpenFeatureAPI.getInstance().setProvider("clientForCache", new CachedProvider());
+// registering a provider to a domain
+OpenFeatureAPI.getInstance().setProvider("my-domain", new CachedProvider());
 
-// a client backed by default provider
+// A client bound to the default provider
 Client clientDefault = OpenFeatureAPI.getInstance().getClient();
-// a client backed by CachedProvider
-Client clientNamed = OpenFeatureAPI.getInstance().getClient("clientForCache");
+// A client bound to the CachedProvider provider
+Client domainScopedClient = OpenFeatureAPI.getInstance().getClient("my-domain");
 ```
 
-Named providers can be set in a blocking or non-blocking way. 
+Providers for domains can be set in a blocking or non-blocking way. 
 For more details, please refer to the [providers](#providers) section.  
 
 ### Eventing

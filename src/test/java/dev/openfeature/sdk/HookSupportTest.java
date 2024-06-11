@@ -19,7 +19,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 
 class HookSupportTest implements HookFixtures {
-
     @Test
     @DisplayName("should merge EvaluationContexts on before hooks correctly")
     void shouldMergeEvaluationContextsOnBeforeHooksCorrectly() {

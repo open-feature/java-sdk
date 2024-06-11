@@ -135,10 +135,13 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(h2, api.getHooks().get(1));
     }
 
-    @Specification(number="1.1.6", text="The API MUST provide a function for creating a client which accepts the following options:  - name (optional): A logical string identifier for the client.")
-    @Test void namedClient() {
-        assertThatCode(() -> api.getClient("Sir Calls-a-lot")).doesNotThrowAnyException();
-        // TODO: Doesn't say that you can *get* the client name.. which seems useful?
+    @Specification(number="1.1.6", text="The API MUST provide a function for creating a client which accepts the following options:  - domain (optional): A logical string identifier for binding clients to provider.")
+    @Test void domainName() {
+        assertNull(api.getClient().getMetadata().getDomain());
+
+        String domain = "Sir Calls-a-lot";
+        Client clientForDomain = api.getClient(domain);
+        assertEquals(domain, clientForDomain.getMetadata().getDomain());
     }
 
     @Specification(number="1.2.1", text="The client MUST provide a method to add hooks which accepts one or more API-conformant hooks, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")
@@ -274,14 +277,18 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 ArgumentMatchers.isA(FlagNotFoundError.class));
     }
 
-    @Specification(number="1.2.2", text="The client interface MUST define a metadata member or accessor, containing an immutable name field or accessor of type string, which corresponds to the name value supplied during client creation.")
+    @Specification(number="1.2.2", text="The client interface MUST define a metadata member or accessor, containing an immutable domain field or accessor of type string, which corresponds to the domain value supplied during client creation. In previous drafts, this property was called name. For backwards compatibility, implementations should consider name an alias to domain.")
     @Test void clientMetadata() {
         Client c = _client();
         assertNull(c.getMetadata().getName());
+        assertNull(c.getMetadata().getDomain());
 
+        String domainName = "test domain";
         FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
-        Client c2 = api.getClient("test");
-        assertEquals("test", c2.getMetadata().getName());
+        Client c2 = api.getClient(domainName);
+
+        assertEquals(domainName, c2.getMetadata().getName());
+        assertEquals(domainName, c2.getMetadata().getDomain());
     }
 
     @Specification(number="1.4.9", text="In cases of abnormal execution (network failure, unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")

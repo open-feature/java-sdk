@@ -6,11 +6,8 @@ public class AlwaysBrokenProvider implements FeatureProvider {
 
     @Override
     public Metadata getMetadata() {
-        return new Metadata() {
-            @Override
-            public String getName() {
-                throw new FlagNotFoundError(TestConstants.BROKEN_MESSAGE);
-            }
+        return () -> {
+            throw new FlagNotFoundError(TestConstants.BROKEN_MESSAGE);
         };
     }
 

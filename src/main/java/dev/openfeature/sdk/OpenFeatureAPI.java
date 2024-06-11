@@ -1,16 +1,16 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import dev.openfeature.sdk.internal.AutoCloseableLock;
+import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import dev.openfeature.sdk.internal.AutoCloseableLock;
-import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * A global singleton which holds base configuration for the OpenFeature
@@ -52,8 +52,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         return getProvider().getMetadata();
     }
 
-    public Metadata getProviderMetadata(String clientName) {
-        return getProvider(clientName).getMetadata();
+    public Metadata getProviderMetadata(String domain) {
+        return getProvider(domain).getMetadata();
     }
 
     /**
@@ -66,16 +66,16 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     /**
      * {@inheritDoc}
      */
-    public Client getClient(String name) {
-        return getClient(name, null);
+    public Client getClient(String domain) {
+        return getClient(domain, null);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Client getClient(String name, String version) {
+    public Client getClient(String domain, String version) {
         return new OpenFeatureClient(this,
-                name,
+                domain,
                 version);
     }
 
@@ -154,14 +154,14 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * Add a provider for a named client.
+     * Add a provider for a domain.
      *
-     * @param clientName The name of the client.
+     * @param domain     The domain to bind the provider to.
      * @param provider   The provider to set.
      */
-    public void setProvider(String clientName, FeatureProvider provider) {
+    public void setProvider(String domain, FeatureProvider provider) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
-            providerRepository.setProvider(clientName,
+            providerRepository.setProvider(domain,
                     provider,
                     this::attachEventProvider,
                     this::emitReady,
@@ -187,14 +187,14 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * Add a provider for a named client and wait for initialization to finish.
+     * Add a provider for a domain and wait for initialization to finish.
      *
-     * @param clientName The name of the client.
+     * @param domain     The domain to bind the provider to.
      * @param provider   The provider to set.
      */
-    public void setProviderAndWait(String clientName, FeatureProvider provider) throws OpenFeatureError {
+    public void setProviderAndWait(String domain, FeatureProvider provider) throws OpenFeatureError {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
-            providerRepository.setProvider(clientName,
+            providerRepository.setProvider(domain,
                     provider,
                     this::attachEventProvider,
                     this::emitReady,
@@ -240,13 +240,13 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * Fetch a provider for a named client. If not found, return the default.
+     * Fetch a provider for a domain. If not found, return the default.
      *
-     * @param name The client name to look for.
+     * @param domain The domain to look for.
      * @return A named {@link FeatureProvider}
      */
-    public FeatureProvider getProvider(String name) {
-        return providerRepository.getProvider(name);
+    public FeatureProvider getProvider(String domain) {
+        return providerRepository.getProvider(domain);
     }
 
     /**
@@ -344,20 +344,20 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         return this;
     }
 
-    void removeHandler(String clientName, ProviderEvent event, Consumer<EventDetails> handler) {
+    void removeHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
-            eventSupport.removeClientHandler(clientName, event, handler);
+            eventSupport.removeClientHandler(domain, event, handler);
         }
     }
 
-    void addHandler(String clientName, ProviderEvent event, Consumer<EventDetails> handler) {
+    void addHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             // if the provider is in the state associated with event, run immediately
-            if (Optional.ofNullable(this.providerRepository.getProvider(clientName).getState())
+            if (Optional.ofNullable(this.providerRepository.getProvider(domain).getState())
                     .orElse(ProviderState.READY).matchesEvent(event)) {
-                eventSupport.runHandler(handler, EventDetails.builder().clientName(clientName).build());
+                eventSupport.runHandler(handler, EventDetails.builder().domain(domain).build());
             }
-            eventSupport.addClientHandler(clientName, event, handler);
+            eventSupport.addClientHandler(domain, event, handler);
         }
     }
 
@@ -371,8 +371,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     private void runHandlersForProvider(FeatureProvider provider, ProviderEvent event, ProviderEventDetails details) {
         try (AutoCloseableLock __ = lock.readLockAutoCloseable()) {
 
-            List<String> clientNamesForProvider = providerRepository
-                    .getClientNamesForProvider(provider);
+            List<String> domainsForProvider = providerRepository
+                    .getDomainsForProvider(provider);
 
             final String providerName = Optional.ofNullable(provider.getMetadata())
                     .map(metadata -> metadata.getName())
@@ -381,20 +381,20 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
             // run the global handlers
             eventSupport.runGlobalHandlers(event, EventDetails.fromProviderEventDetails(details, providerName));
 
-            // run the handlers associated with named clients for this provider
-            clientNamesForProvider.forEach(name -> {
-                eventSupport.runClientHandlers(name, event,
-                        EventDetails.fromProviderEventDetails(details, providerName, name));
+            // run the handlers associated with domains for this provider
+            domainsForProvider.forEach(domain -> {
+                eventSupport.runClientHandlers(domain, event,
+                        EventDetails.fromProviderEventDetails(details, providerName, domain));
             });
 
             if (providerRepository.isDefaultProvider(provider)) {
                 // run handlers for clients that have no bound providers (since this is the default)
-                Set<String> allClientNames = eventSupport.getAllClientNames();
-                Set<String> boundClientNames = providerRepository.getAllBoundClientNames();
-                allClientNames.removeAll(boundClientNames);
-                allClientNames.forEach(name -> {
-                    eventSupport.runClientHandlers(name, event,
-                            EventDetails.fromProviderEventDetails(details, providerName, name));
+                Set<String> allDomainNames = eventSupport.getAllDomainNames();
+                Set<String> boundDomains = providerRepository.getAllBoundDomains();
+                allDomainNames.removeAll(boundDomains);
+                allDomainNames.forEach(domain -> {
+                    eventSupport.runClientHandlers(domain, event,
+                            EventDetails.fromProviderEventDetails(details, providerName, domain));
                 });
             }
         }

@@ -15,6 +15,8 @@ import static org.mockito.Mockito.*;
 
 class ShutdownBehaviorSpecTest {
 
+    private String DOMAIN = "myDomain";
+
     @BeforeEach
     void resetFeatureProvider() {
         setFeatureProvider(new NoOpProvider());
@@ -59,11 +61,10 @@ class ShutdownBehaviorSpecTest {
         @Test
         @DisplayName("must invoke shutdown method on previously registered provider once it should not be used for flag evaluation anymore")
         void mustInvokeShutdownMethodOnPreviouslyRegisteredProviderOnceItShouldNotBeUsedForFlagEvaluationAnymore() {
-            String clientName = "clientName";
             FeatureProvider featureProvider = ProviderFixture.createMockedProvider();
 
-            setFeatureProvider(clientName, featureProvider);
-            setFeatureProvider(clientName, new NoOpProvider());
+            setFeatureProvider(DOMAIN, featureProvider);
+            setFeatureProvider(DOMAIN, new NoOpProvider());
 
             verify(featureProvider, timeout(1000)).shutdown();
         }
@@ -75,12 +76,11 @@ class ShutdownBehaviorSpecTest {
         @Test
         @DisplayName("should catch exception thrown by the named client provider on shutdown")
         void shouldCatchExceptionThrownByTheNamedClientProviderOnShutdown() {
-            String clientName = "clientName";
             FeatureProvider featureProvider = ProviderFixture.createMockedProvider();
             doThrow(TestException.class).when(featureProvider).shutdown();
 
-            setFeatureProvider(clientName, featureProvider);
-            setFeatureProvider(clientName, new NoOpProvider());
+            setFeatureProvider(DOMAIN, featureProvider);
+            setFeatureProvider(DOMAIN, new NoOpProvider());
 
             verify(featureProvider, timeout(1000)).shutdown();
         }
@@ -96,7 +96,7 @@ class ShutdownBehaviorSpecTest {
             FeatureProvider defaultProvider = ProviderFixture.createMockedProvider();
             FeatureProvider namedProvider = ProviderFixture.createMockedProvider();
             setFeatureProvider(defaultProvider);
-            setFeatureProvider("clientName", namedProvider);
+            setFeatureProvider(DOMAIN, namedProvider);
             OpenFeatureAPI api = OpenFeatureAPI.getInstance();
 
             synchronized (OpenFeatureAPI.class) {
