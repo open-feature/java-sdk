@@ -7,18 +7,12 @@ class DoSomethingProvider implements FeatureProvider {
     static final ImmutableMetadata DEFAULT_METADATA = ImmutableMetadata.builder().build();
     private ImmutableMetadata flagMetadata;
 
-    private EvaluationContext savedContext;
-
     public DoSomethingProvider() {
         this.flagMetadata = DEFAULT_METADATA;
     }
 
     public DoSomethingProvider(ImmutableMetadata flagMetadata) {
         this.flagMetadata = flagMetadata;
-    }
-
-    EvaluationContext getMergedContext() {
-        return savedContext;
     }
 
     @Override
@@ -28,7 +22,6 @@ class DoSomethingProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
-        savedContext = ctx;
         return ProviderEvaluation.<Boolean>builder()
                 .value(!defaultValue)
                 .flagMetadata(flagMetadata)
@@ -45,7 +38,6 @@ class DoSomethingProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
-        savedContext = ctx;
         return ProviderEvaluation.<Integer>builder()
                 .value(defaultValue * 100)
                 .flagMetadata(flagMetadata)
@@ -54,7 +46,6 @@ class DoSomethingProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
-        savedContext = ctx;
         return ProviderEvaluation.<Double>builder()
                 .value(defaultValue * 100)
                 .flagMetadata(flagMetadata)
@@ -63,7 +54,6 @@ class DoSomethingProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext invocationContext) {
-        savedContext = invocationContext;
         return ProviderEvaluation.<Value>builder()
                 .value(null)
                 .flagMetadata(flagMetadata)

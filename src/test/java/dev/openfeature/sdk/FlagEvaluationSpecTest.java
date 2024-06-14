@@ -11,7 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -307,11 +309,30 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertNotNull(result.getFlagMetadata());
     }
 
-    @Specification(number="3.2.1.1", text="The API, Client and invocation MUST have a method for supplying evaluation context.")
     @Specification(number="3.2.2.1", text="The API MUST have a method for setting the global evaluation context.")
+    @Test void api_context() {
+        String contextKey = "some-key";
+        String contextValue = "some-value";
+        DoSomethingProvider provider = spy( new DoSomethingProvider());
+        FeatureProviderTestUtils.setFeatureProvider(provider);
+
+        Map<String, Value> attributes = new HashMap<>();
+        attributes.put(contextKey, new Value(contextValue));
+        EvaluationContext apiCtx = new ImmutableContext(attributes);
+
+        // set the global context
+        api.setEvaluationContext(apiCtx);
+        Client client = api.getClient();
+        client.getBooleanValue("any-flag", false);
+
+        // assert that the value from the global context was passed to the provider
+        verify(provider).getBooleanEvaluation(any(), any(), argThat((arg) -> arg.getValue(contextKey).asString().equals(contextValue)));
+    }
+
+    @Specification(number="3.2.1.1", text="The API, Client and invocation MUST have a method for supplying evaluation context.")
     @Specification(number="3.2.3", text="Evaluation context MUST be merged in the order: API (global; lowest precedence) -> transaction -> client -> invocation -> before hooks (highest precedence), with duplicate values being overwritten.")
     @Test void multi_layer_context_merges_correctly() {
-        DoSomethingProvider provider = new DoSomethingProvider();
+        DoSomethingProvider provider = spy(new DoSomethingProvider());
         FeatureProviderTestUtils.setFeatureProvider(provider);
         TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
         api.setTransactionContextPropagator(transactionContextPropagator);
@@ -356,21 +377,21 @@ class FlagEvaluationSpecTest implements HookFixtures {
         invocationAttributes.put("invocation", new Value("4"));
         EvaluationContext invocationCtx = new ImmutableContext(invocationAttributes);
 
-        // dosomethingprovider inverts this value.
-        assertTrue(c.getBooleanValue("key", false, invocationCtx));
+        c.getBooleanValue("key", false, invocationCtx);
 
-        EvaluationContext merged = provider.getMergedContext();
-        assertEquals("1", merged.getValue("api").asString());
-        assertEquals("2", merged.getValue("transaction").asString());
-        assertEquals("3", merged.getValue("client").asString());
-        assertEquals("4", merged.getValue("invocation").asString());
-        assertEquals("2", merged.getValue("common1").asString(), "transaction merge is incorrect");
-        assertEquals("3", merged.getValue("common2").asString(), "api client merge is incorrect");
-        assertEquals("4", merged.getValue("common3").asString(), "invocation merge is incorrect");
-        assertEquals("3", merged.getValue("common4").asString(), "api client merge is incorrect");
-        assertEquals("4", merged.getValue("common5").asString(), "invocation merge is incorrect");
-        assertEquals("4", merged.getValue("common6").asString(), "invocation merge is incorrect");
-
+        // assert the connect overrides
+        verify(provider).getBooleanEvaluation(any(), any(), argThat((arg) -> {
+            return arg.getValue("api").asString().equals("1") &&
+                    arg.getValue("transaction").asString().equals("2") &&
+                    arg.getValue("client").asString().equals("3") &&
+                    arg.getValue("invocation").asString().equals("4") &&
+                    arg.getValue("common1").asString().equals("2") &&
+                    arg.getValue("common2").asString().equals("3") &&
+                    arg.getValue("common3").asString().equals("4") &&
+                    arg.getValue("common4").asString().equals("3") &&
+                    arg.getValue("common5").asString().equals("4") &&
+                    arg.getValue("common6").asString().equals("4");
+        }));
     }
 
     @Specification(number="3.3.1.1", text="The API SHOULD have a method for setting a transaction context propagator.")
