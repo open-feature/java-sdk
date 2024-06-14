@@ -87,7 +87,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * If there is already a provider bound to this domain, this provider will be used.
      * Otherwise, the default provider is used until a provider is assigned to that domain.
      * 
-     * @param name an identifier which logically binds clients with providers
+     * @param domain an identifier which logically binds clients with providers
      * @return a new client instance
      */
     public Client getClient(String domain) {
@@ -101,7 +101,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * If there is already a provider bound to this domain, this provider will be used.
      * Otherwise, the default provider is used until a provider is assigned to that domain.
      * 
-     * @param name a identifier which logically binds clients with providers
+     * @param domain a identifier which logically binds clients with providers
      * @param version a version identifier
      * @return a new client instance
      */
