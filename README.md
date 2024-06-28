@@ -72,8 +72,8 @@ If you would like snapshot builds, this is the relevant repository information:
         <snapshots>
             <enabled>true</enabled>
         </snapshots>
-        <id>sonartype</id>
-        <name>Sonartype Repository</name>
+        <id>sonatype</id>
+        <name>Sonatype Repository</name>
         <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
     </repository>
 </repositories>
