@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.9.1](https://github.com/open-feature/java-sdk/compare/v1.9.0...v1.9.1) (2024-07-02)
+
+
+### 🧹 Chore
+
+* **deps:** update github/codeql-action digest to 79e9a50 ([#995](https://github.com/open-feature/java-sdk/issues/995)) ([e2c70d9](https://github.com/open-feature/java-sdk/commit/e2c70d9f0b4768ccbe9796cb14e99a92e5ba3dbc))
+* **deps:** update github/codeql-action digest to 7adf9ac ([#998](https://github.com/open-feature/java-sdk/issues/998)) ([62f95b6](https://github.com/open-feature/java-sdk/commit/62f95b651bb7bc18f984e42264900f2b486bf6bb))
+* **deps:** update github/codeql-action digest to ee4ad8b ([#997](https://github.com/open-feature/java-sdk/issues/997)) ([fc40209](https://github.com/open-feature/java-sdk/commit/fc40209edcffc063a474aec7bfe9a880e0966750))
+
+
+### 📚 Documentation
+
+* Small typo sonartype vs sonatype ([#989](https://github.com/open-feature/java-sdk/issues/989)) ([7bff3ee](https://github.com/open-feature/java-sdk/commit/7bff3eebe624c9fecd705dd5fdd51d9483cb4643))
+
 ## [1.9.0](https://github.com/open-feature/java-sdk/compare/v1.8.0...v1.9.0) (2024-06-28)
 
 
