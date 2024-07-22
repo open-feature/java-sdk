@@ -5,10 +5,13 @@ import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -33,10 +36,6 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         providerRepository = new ProviderRepository();
         eventSupport = new EventSupport();
         transactionContextPropagator = new NoOpTransactionContextPropagator();
-    }
-
-    private static class SingletonHolder {
-        private static final OpenFeatureAPI INSTANCE = new OpenFeatureAPI();
     }
 
     /**
@@ -86,7 +85,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * Multiple clients can be used to segment feature flag configuration.
      * If there is already a provider bound to this domain, this provider will be used.
      * Otherwise, the default provider is used until a provider is assigned to that domain.
-     * 
+     *
      * @param domain an identifier which logically binds clients with providers
      * @return a new client instance
      */
@@ -100,8 +99,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * Multiple clients can be used to segment feature flag configuration.
      * If there is already a provider bound to this domain, this provider will be used.
      * Otherwise, the default provider is used until a provider is assigned to that domain.
-     * 
-     * @param domain a identifier which logically binds clients with providers
+     *
+     * @param domain  a identifier which logically binds clients with providers
      * @param version a version identifier
      * @return a new client instance
      */
@@ -109,6 +108,17 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         return new OpenFeatureClient(this,
                 domain,
                 version);
+    }
+
+    /**
+     * Gets the global evaluation context, which will be used for all evaluations.
+     *
+     * @return evaluation context
+     */
+    public EvaluationContext getEvaluationContext() {
+        try (AutoCloseableLock __ = lock.readLockAutoCloseable()) {
+            return this.evaluationContext;
+        }
     }
 
     /**
@@ -122,17 +132,6 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
             this.evaluationContext = evaluationContext;
         }
         return this;
-    }
-
-    /**
-     * Gets the global evaluation context, which will be used for all evaluations.
-     *
-     * @return evaluation context
-     */
-    public EvaluationContext getEvaluationContext() {
-        try (AutoCloseableLock __ = lock.readLockAutoCloseable()) {
-            return this.evaluationContext;
-        }
     }
 
     /**
@@ -176,39 +175,6 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * Set the default provider.
-     */
-    public void setProvider(FeatureProvider provider) {
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
-            providerRepository.setProvider(
-                    provider,
-                    this::attachEventProvider,
-                    this::emitReady,
-                    this::detachEventProvider,
-                    this::emitError,
-                    false);
-        }
-    }
-
-    /**
-     * Add a provider for a domain.
-     *
-     * @param domain     The domain to bind the provider to.
-     * @param provider   The provider to set.
-     */
-    public void setProvider(String domain, FeatureProvider provider) {
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
-            providerRepository.setProvider(domain,
-                    provider,
-                    this::attachEventProvider,
-                    this::emitReady,
-                    this::detachEventProvider,
-                    this::emitError,
-                    false);
-        }
-    }
-
-    /**
      * Set the default provider and wait for initialization to finish.
      */
     public void setProviderAndWait(FeatureProvider provider) throws OpenFeatureError {
@@ -226,8 +192,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     /**
      * Add a provider for a domain and wait for initialization to finish.
      *
-     * @param domain     The domain to bind the provider to.
-     * @param provider   The provider to set.
+     * @param domain   The domain to bind the provider to.
+     * @param provider The provider to set.
      */
     public void setProviderAndWait(String domain, FeatureProvider provider) throws OpenFeatureError {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
@@ -287,6 +253,39 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
+     * Set the default provider.
+     */
+    public void setProvider(FeatureProvider provider) {
+        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+            providerRepository.setProvider(
+                    provider,
+                    this::attachEventProvider,
+                    this::emitReady,
+                    this::detachEventProvider,
+                    this::emitError,
+                    false);
+        }
+    }
+
+    /**
+     * Add a provider for a domain.
+     *
+     * @param domain   The domain to bind the provider to.
+     * @param provider The provider to set.
+     */
+    public void setProvider(String domain, FeatureProvider provider) {
+        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+            providerRepository.setProvider(domain,
+                    provider,
+                    this::attachEventProvider,
+                    this::emitReady,
+                    this::detachEventProvider,
+                    this::emitError,
+                    false);
+        }
+    }
+
+    /**
      * Adds hooks for globally, used for all evaluations.
      * Hooks are run in the order they're added in the before stage. They are run in reverse order for all other stages.
      *
@@ -300,6 +299,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
 
     /**
      * Fetch the hooks associated to this client.
+     *
      * @return A list of {@link Hook}s.
      */
     public List<Hook> getHooks() {
@@ -404,7 +404,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
 
     /**
      * Runs the handlers associated with a particular provider.
-     * 
+     *
      * @param provider the provider from where this event originated
      * @param event    the event type
      * @param details  the event details
@@ -438,6 +438,44 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
                             EventDetails.fromProviderEventDetails(details, providerName, domain));
                 });
             }
+        }
+    }
+
+    private static class SingletonHolder {
+        private static final OpenFeatureAPI INSTANCE;
+
+        static {
+            OpenFeatureAPI instance = null;
+            String cls = System.getenv("OPEN_FEATURE_API_CLASS");
+            if (cls == null) {
+                try (InputStream propertiesFile =
+                            SingletonHolder.class.getResourceAsStream("openfeature.properties")) {
+                    if (propertiesFile != null) {
+                        Properties props = new Properties();
+                        props.load(propertiesFile);
+                        cls = props.getProperty("openfeature.api.class");
+                    }
+                } catch (IOException e) {
+                    log.error("Custom OpenFeatureApi could not be initialized", e);
+                }
+            }
+            if (cls != null) {
+                try {
+                    Class<?> clazz = Class.forName(cls);
+
+                    instance = (OpenFeatureAPI) clazz.newInstance();
+                } catch (ClassNotFoundException
+                         | ClassCastException
+                         | InstantiationException
+                         | IllegalAccessException e) {
+                    log.error("Custom OpenFeatureApi could not be initialized", e);
+                }
+            }
+            if (instance == null) {
+                instance = new OpenFeatureAPI();
+            }
+
+            INSTANCE = instance;
         }
     }
 }
