@@ -2,7 +2,6 @@ package dev.openfeature.sdk;
 
 import static dev.openfeature.sdk.DoSomethingProvider.DEFAULT_METADATA;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,6 +19,7 @@ import static org.mockito.Mockito.verify;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
@@ -336,11 +336,25 @@ class FlagEvaluationSpecTest implements HookFixtures {
         FeatureProviderTestUtils.setFeatureProvider(provider);
         TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
         api.setTransactionContextPropagator(transactionContextPropagator);
+        Hook<Boolean> hook = spy(new Hook<Boolean>() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
+                Map<String, Value> attrs = ctx.getCtx().asMap();
+                attrs.put("before", new Value("5"));
+                attrs.put("common7", new Value("5"));
+                return Optional.ofNullable(new ImmutableContext(attrs));
+            }
+            @Override
+            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, Map<String, Object> hints) {
+                Hook.super.after(ctx, details, hints);
+            }
+        });
 
         Map<String, Value> apiAttributes = new HashMap<>();
         apiAttributes.put("common1", new Value("1"));
         apiAttributes.put("common2", new Value("1"));
         apiAttributes.put("common3", new Value("1"));
+        apiAttributes.put("common7", new Value("1"));
         apiAttributes.put("api", new Value("1"));
         EvaluationContext apiCtx = new ImmutableContext(apiAttributes);
 
@@ -377,21 +391,55 @@ class FlagEvaluationSpecTest implements HookFixtures {
         invocationAttributes.put("invocation", new Value("4"));
         EvaluationContext invocationCtx = new ImmutableContext(invocationAttributes);
 
-        c.getBooleanValue("key", false, invocationCtx);
+        c.getBooleanValue("key", false, invocationCtx, FlagEvaluationOptions.builder().hook(hook).build());
 
-        // assert the connect overrides
+        // assert the correct overrides in before hook
+        verify(hook).before(argThat((arg) -> {
+            EvaluationContext evaluationContext = arg.getCtx();
+            return evaluationContext.getValue("api").asString().equals("1") &&
+                    evaluationContext.getValue("transaction").asString().equals("2") &&
+                    evaluationContext.getValue("client").asString().equals("3") &&
+                    evaluationContext.getValue("invocation").asString().equals("4") &&
+                    evaluationContext.getValue("common1").asString().equals("2") &&
+                    evaluationContext.getValue("common2").asString().equals("3") &&
+                    evaluationContext.getValue("common3").asString().equals("4") &&
+                    evaluationContext.getValue("common4").asString().equals("3") &&
+                    evaluationContext.getValue("common5").asString().equals("4") &&
+                    evaluationContext.getValue("common6").asString().equals("4");
+        }), any());
+
+        // assert the correct overrides in evaluation
         verify(provider).getBooleanEvaluation(any(), any(), argThat((arg) -> {
             return arg.getValue("api").asString().equals("1") &&
                     arg.getValue("transaction").asString().equals("2") &&
                     arg.getValue("client").asString().equals("3") &&
                     arg.getValue("invocation").asString().equals("4") &&
+                    arg.getValue("before").asString().equals("5") &&
                     arg.getValue("common1").asString().equals("2") &&
                     arg.getValue("common2").asString().equals("3") &&
                     arg.getValue("common3").asString().equals("4") &&
                     arg.getValue("common4").asString().equals("3") &&
                     arg.getValue("common5").asString().equals("4") &&
-                    arg.getValue("common6").asString().equals("4");
+                    arg.getValue("common6").asString().equals("4") &&
+                    arg.getValue("common7").asString().equals("5");
         }));
+
+        // assert the correct overrides in after hook
+        verify(hook).after(argThat((arg) -> {
+            EvaluationContext evaluationContext = arg.getCtx();
+            return evaluationContext.getValue("api").asString().equals("1") &&
+                    evaluationContext.getValue("transaction").asString().equals("2") &&
+                    evaluationContext.getValue("client").asString().equals("3") &&
+                    evaluationContext.getValue("invocation").asString().equals("4") &&
+                    evaluationContext.getValue("before").asString().equals("5") &&
+                    evaluationContext.getValue("common1").asString().equals("2") &&
+                    evaluationContext.getValue("common2").asString().equals("3") &&
+                    evaluationContext.getValue("common3").asString().equals("4") &&
+                    evaluationContext.getValue("common4").asString().equals("3") &&
+                    evaluationContext.getValue("common5").asString().equals("4") &&
+                    evaluationContext.getValue("common6").asString().equals("4") &&
+                    evaluationContext.getValue("common7").asString().equals("5");
+        }), any(), any());
     }
 
     @Specification(number="3.3.1.1", text="The API SHOULD have a method for setting a transaction context propagator.")
