@@ -116,7 +116,7 @@ public class OpenFeatureClient implements Client {
                     openfeatureApi.getHooks());
 
             EvaluationContext mergedCtx = hookSupport.beforeHooks(type, HookContext.from(key, type, this.getMetadata(),
-            provider.getMetadata(), mergeEvaluationContext(ctx), defaultValue), mergedHooks, hints);
+                    provider.getMetadata(), mergeEvaluationContext(ctx), defaultValue), mergedHooks, hints);
 
             afterHookContext = HookContext.from(key, type, this.getMetadata(),
                     provider.getMetadata(), mergedCtx, defaultValue);
