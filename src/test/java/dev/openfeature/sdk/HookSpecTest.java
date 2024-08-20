@@ -484,10 +484,11 @@ class HookSpecTest implements HookFixtures {
     @Specification(number = "4.1.4", text = "The evaluation context MUST be mutable only within the before hook.")
     @Specification(number = "4.3.4", text = "Any `evaluation context` returned from a `before` hook MUST be passed to subsequent `before` hooks (via `HookContext`).")
     @Test void beforeContextUpdated() {
-        EvaluationContext ctx = new ImmutableContext();
-        Hook hook = mockBooleanHook();
+        String targetingKey = "test-key";
+        EvaluationContext ctx = new ImmutableContext(targetingKey);
+        Hook<Boolean> hook = mockBooleanHook();
         when(hook.before(any(), any())).thenReturn(Optional.of(ctx));
-        Hook hook2 = mockBooleanHook();
+        Hook<Boolean> hook2 = mockBooleanHook();
         when(hook.before(any(), any())).thenReturn(Optional.empty());
         InOrder order = inOrder(hook, hook2);
 
@@ -499,11 +500,11 @@ class HookSpecTest implements HookFixtures {
                         .build());
 
         order.verify(hook).before(any(), any());
-        ArgumentCaptor<HookContext> captor = ArgumentCaptor.forClass(HookContext.class);
+        ArgumentCaptor<HookContext<Boolean>> captor = ArgumentCaptor.forClass(HookContext.class);
         order.verify(hook2).before(captor.capture(), any());
 
-        HookContext hc = captor.getValue();
-        assertEquals(hc.getCtx(), ctx);
+        HookContext<Boolean> hc = captor.getValue();
+        assertEquals(hc.getCtx().getTargetingKey(), targetingKey);
 
     }
 

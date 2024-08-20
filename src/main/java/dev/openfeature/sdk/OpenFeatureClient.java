@@ -105,7 +105,7 @@ public class OpenFeatureClient implements Client {
 
         FlagEvaluationDetails<T> details = null;
         List<Hook> mergedHooks = null;
-        HookContext<T> hookCtx = null;
+        HookContext<T> afterHookContext = null;
         FeatureProvider provider;
 
         try {
@@ -115,12 +115,11 @@ public class OpenFeatureClient implements Client {
             mergedHooks = ObjectUtils.merge(provider.getProviderHooks(), flagOptions.getHooks(), clientHooks,
                     openfeatureApi.getHooks());
 
-            hookCtx = HookContext.from(key, type, this.getMetadata(),
-                    provider.getMetadata(), ctx, defaultValue);
+            EvaluationContext mergedCtx = hookSupport.beforeHooks(type, HookContext.from(key, type, this.getMetadata(),
+            provider.getMetadata(), mergeEvaluationContext(ctx), defaultValue), mergedHooks, hints);
 
-            EvaluationContext ctxFromHook = hookSupport.beforeHooks(type, hookCtx, mergedHooks, hints);
-
-            EvaluationContext mergedCtx = mergeEvaluationContext(ctxFromHook, ctx);
+            afterHookContext = HookContext.from(key, type, this.getMetadata(),
+                    provider.getMetadata(), mergedCtx, defaultValue);
 
             ProviderEvaluation<T> providerEval = (ProviderEvaluation<T>) createProviderEvaluation(type, key,
                     defaultValue, provider, mergedCtx);
@@ -129,7 +128,7 @@ public class OpenFeatureClient implements Client {
             if (details.getErrorCode() != null) {
                 throw ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
             } else {
-                hookSupport.afterHooks(type, hookCtx, details, mergedHooks, hints);
+                hookSupport.afterHooks(type, afterHookContext, details, mergedHooks, hints);
             }
         } catch (Exception e) {
             log.error("Unable to correctly evaluate flag with key '{}'", key, e);
@@ -144,24 +143,22 @@ public class OpenFeatureClient implements Client {
             details.setErrorMessage(e.getMessage());
             details.setValue(defaultValue);
             details.setReason(Reason.ERROR.toString());
-            hookSupport.errorHooks(type, hookCtx, e, mergedHooks, hints);
+            hookSupport.errorHooks(type, afterHookContext, e, mergedHooks, hints);
         } finally {
-            hookSupport.afterAllHooks(type, hookCtx, mergedHooks, hints);
+            hookSupport.afterAllHooks(type, afterHookContext, mergedHooks, hints);
         }
 
         return details;
     }
 
     /**
-     * Merge hook and invocation contexts with API, transaction and client contexts.
+     * Merge invocation contexts with API, transaction and client contexts.
+     * Does not merge before context.
      *
-     * @param hookContext       hook context
      * @param invocationContext invocation context
      * @return merged evaluation context
      */
-    private EvaluationContext mergeEvaluationContext(
-            EvaluationContext hookContext,
-            EvaluationContext invocationContext) {
+    private EvaluationContext mergeEvaluationContext(EvaluationContext invocationContext) {
         final EvaluationContext apiContext = openfeatureApi.getEvaluationContext() != null
                 ? openfeatureApi.getEvaluationContext()
                 : new ImmutableContext();
@@ -172,7 +169,7 @@ public class OpenFeatureClient implements Client {
                 ? openfeatureApi.getTransactionContext()
                 : new ImmutableContext();
 
-        return apiContext.merge(transactionContext.merge(clientContext.merge(invocationContext.merge(hookContext))));
+        return apiContext.merge(transactionContext.merge(clientContext.merge(invocationContext)));
     }
 
     private <T> ProviderEvaluation<?> createProviderEvaluation(
