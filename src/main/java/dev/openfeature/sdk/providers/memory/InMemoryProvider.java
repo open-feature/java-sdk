@@ -2,10 +2,10 @@ package dev.openfeature.sdk.providers.memory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.EventProvider;
@@ -44,7 +44,7 @@ public class InMemoryProvider extends EventProvider {
     }
 
     public InMemoryProvider(Map<String, Flag<?>> flags) {
-        this.flags = new HashMap<>(flags);
+        this.flags = new ConcurrentHashMap<>(flags);
     }
 
     /**
@@ -67,7 +67,7 @@ public class InMemoryProvider extends EventProvider {
         Set<String> flagsChanged = new HashSet<>();
         flagsChanged.addAll(this.flags.keySet());
         flagsChanged.addAll(flags.keySet());
-        this.flags = new HashMap<>(flags);
+        this.flags = new ConcurrentHashMap<>(flags);
         ProviderEventDetails details = ProviderEventDetails.builder()
             .flagsChanged(new ArrayList<>(flagsChanged))
             .message("flags changed")

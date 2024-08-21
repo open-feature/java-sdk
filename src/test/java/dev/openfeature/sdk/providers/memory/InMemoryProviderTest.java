@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static dev.openfeature.sdk.Structure.mapToStructure;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
@@ -104,5 +106,24 @@ class InMemoryProviderTest {
 
         // ErrorCode.PROVIDER_NOT_READY should be returned when evaluated via the client
         assertThrows(ProviderNotReadyError.class, ()-> inMemoryProvider.getBooleanEvaluation("fail_not_initialized", false, new ImmutableContext()));
+    }
+
+    @Test
+    void multithreadedTest() {
+        ExecutorService executorService = Executors.newFixedThreadPool(100);
+        for (int i = 0; i < 10000; i++) {
+            String flagKey = "multithreadedFlag" + i;
+            executorService.submit(() -> {
+                provider.updateFlag(flagKey, Flag.builder()
+                        .variant("on", true)
+                        .variant("off", false)
+                        .defaultVariant("on")
+                        .build());
+            });
+        }
+
+        for (int i = 0; i < 10000; i++) {
+            assertTrue(client.getBooleanValue("multithreadedFlag" + i, false));
+        }
     }
 }
