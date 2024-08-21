@@ -48,7 +48,7 @@ public class InMemoryProvider extends EventProvider {
     }
 
     /**
-     * Initialize the provider.
+     * Initializes the provider.
      * @param evaluationContext evaluation context
      * @throws Exception on error
      */
@@ -60,8 +60,10 @@ public class InMemoryProvider extends EventProvider {
     }
 
     /**
-     * Updating provider flags configuration, replacing existing flags.
-     * @param newFlags the flags to use instead of the previous flags.
+     * Updates the provider flags configuration.
+     * For existing flags, the new configurations replace the old one.
+     * For new flags, they are added to the configuration.
+     * @param newFlags the new flag configurations
      */
     public void updateFlags(Map<String, Flag<?>> newFlags) {
         Set<String> flagsChanged = new HashSet<>(newFlags.keySet());
@@ -76,11 +78,13 @@ public class InMemoryProvider extends EventProvider {
     }
 
     /**
-     * Updating provider flags configuration with adding or updating a flag.
-     * @param flag the flag to update. If a flag with this key already exists, new flag replaces it.
+     * Updates a single provider flag configuration.
+     * For existing flag, the new configuration replaces the old one.
+     * For new flag, they are added to the configuration.
+     * @param newFlag the flag to update
      */
-    public void updateFlag(String flagKey, Flag<?> flag) {
-        this.flags.put(flagKey, flag);
+    public void updateFlag(String flagKey, Flag<?> newFlag) {
+        this.flags.put(flagKey, newFlag);
         ProviderEventDetails details = ProviderEventDetails.builder()
             .flagsChanged(Collections.singletonList(flagKey))
             .message("flag added/updated")
