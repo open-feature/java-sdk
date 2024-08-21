@@ -239,6 +239,9 @@
         <configuration>
           <argLine>
             ${surefireArgLine}
+            <!-- workaround for Mockito issue under Java 21
+             https://github.com/mockito/mockito/issues/3121 -->
+            -Dnet.bytebuddy.experimental=true
           </argLine>
           <excludes>
             <!-- tests to exclude -->
