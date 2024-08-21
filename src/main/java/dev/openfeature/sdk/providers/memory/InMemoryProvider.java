@@ -1,12 +1,5 @@
 package dev.openfeature.sdk.providers.memory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.EventProvider;
 import dev.openfeature.sdk.Metadata;
@@ -23,6 +16,13 @@ import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * In-memory provider.
@@ -82,7 +82,7 @@ public class InMemoryProvider extends EventProvider {
     public void updateFlag(String flagKey, Flag<?> flag) {
         this.flags.put(flagKey, flag);
         ProviderEventDetails details = ProviderEventDetails.builder()
-            .flagsChanged(Arrays.asList(flagKey))
+            .flagsChanged(Collections.singletonList(flagKey))
             .message("flag added/updated")
             .build();
         emitProviderConfigurationChanged(details);
