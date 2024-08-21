@@ -33,7 +33,7 @@ public class InMemoryProvider extends EventProvider {
     @Getter
     private static final String NAME = "InMemoryProvider";
 
-    private Map<String, Flag<?>> flags;
+    private final Map<String, Flag<?>> flags;
 
     @Getter
     private ProviderState state = ProviderState.NOT_READY;
@@ -61,13 +61,13 @@ public class InMemoryProvider extends EventProvider {
 
     /**
      * Updating provider flags configuration, replacing existing flags.
-     * @param flags the flags to use instead of the previous flags.
+     * @param newFlags the flags to use instead of the previous flags.
      */
-    public void updateFlags(Map<String, Flag<?>> flags) {
-        Set<String> flagsChanged = new HashSet<>();
-        flagsChanged.addAll(this.flags.keySet());
-        flagsChanged.addAll(flags.keySet());
-        this.flags = new ConcurrentHashMap<>(flags);
+    public void updateFlags(Map<String, Flag<?>> newFlags) {
+        Set<String> flagsChanged = new HashSet<>(newFlags.keySet());
+        flagsChanged.removeAll(this.flags.keySet());
+        this.flags.putAll(newFlags);
+
         ProviderEventDetails details = ProviderEventDetails.builder()
             .flagsChanged(new ArrayList<>(flagsChanged))
             .message("flags changed")

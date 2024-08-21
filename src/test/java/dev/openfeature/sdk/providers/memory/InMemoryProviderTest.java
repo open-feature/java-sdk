@@ -2,6 +2,7 @@ package dev.openfeature.sdk.providers.memory;
 
 import com.google.common.collect.ImmutableMap;
 import dev.openfeature.sdk.Client;
+import dev.openfeature.sdk.EventDetails;
 import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.Value;
@@ -9,13 +10,17 @@ import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
 import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 import static dev.openfeature.sdk.Structure.mapToStructure;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
@@ -23,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -34,8 +41,8 @@ class InMemoryProviderTest {
     private static InMemoryProvider provider;
 
     @SneakyThrows
-    @BeforeAll
-    static void beforeAll() {
+    @BeforeEach
+    void beforeEach() {
         Map<String, Flag<?>> flags = buildFlags();
         provider = spy(new InMemoryProvider(flags));
         OpenFeatureAPI.getInstance().onProviderConfigurationChanged(eventDetails -> {});
@@ -108,19 +115,38 @@ class InMemoryProviderTest {
         assertThrows(ProviderNotReadyError.class, ()-> inMemoryProvider.getBooleanEvaluation("fail_not_initialized", false, new ImmutableContext()));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
-    void multithreadedTest() {
+    void emitChangedFlagsOnlyIfThereAreChangedFlags() {
+        Consumer<EventDetails> handler = mock(Consumer.class);
+        Map<String, Flag<?>> flags = buildFlags();
+
+        OpenFeatureAPI.getInstance().onProviderConfigurationChanged(handler);
+        OpenFeatureAPI.getInstance().setProviderAndWait(provider);
+
+        provider.updateFlags(flags);
+
+        verify(handler, times(1))
+                .accept(argThat(details -> details.getFlagsChanged().isEmpty()));
+    }
+
+    @Test
+    void multithreadedTest() throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(100);
+        List<Callable<Void>> updates = new ArrayList<>();
         for (int i = 0; i < 10000; i++) {
             String flagKey = "multithreadedFlag" + i;
-            executorService.submit(() -> {
+            updates.add(() -> {
                 provider.updateFlag(flagKey, Flag.builder()
                         .variant("on", true)
                         .variant("off", false)
                         .defaultVariant("on")
                         .build());
+                return null;
             });
         }
+
+        executorService.invokeAll(updates);
 
         for (int i = 0; i < 10000; i++) {
             assertTrue(client.getBooleanValue("multithreadedFlag" + i, false));
