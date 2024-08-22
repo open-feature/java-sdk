@@ -152,6 +152,20 @@
     <dependencies>
 
       <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>1.14.19</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy-agent</artifactId>
+        <version>1.14.19</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
         <groupId>io.cucumber</groupId>
         <artifactId>cucumber-bom</artifactId>
         <version>7.18.1</version>
@@ -239,9 +253,6 @@
         <configuration>
           <argLine>
             ${surefireArgLine}
-            <!-- workaround for Mockito issue under Java 21
-             https://github.com/mockito/mockito/issues/3121 -->
-            -Dnet.bytebuddy.experimental=true
           </argLine>
           <excludes>
             <!-- tests to exclude -->
