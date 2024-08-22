@@ -13,7 +13,7 @@
     <junit.jupiter.version>5.11.0</junit.jupiter.version>
      <!-- exclusion expression for e2e tests -->
     <testExclusions>**/e2e/*.java</testExclusions>
-    <module-name>${groupId}.${artifactId}</module-name>
+    <module-name>${project.groupId}.${project.artifactId}</module-name>
   </properties>
 
   <name>OpenFeature Java SDK</name>
@@ -150,6 +150,24 @@
 
   <dependencyManagement>
     <dependencies>
+
+      <!-- Start mockito workaround -->
+      <!-- https://github.com/mockito/mockito/issues/3121 -->
+      <!-- These are transitive dependencies of mockito we are forcing -->
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>1.14.19</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy-agent</artifactId>
+        <version>1.14.19</version>
+        <scope>test</scope>
+      </dependency>
+      <!-- End mockito workaround-->
 
       <dependency>
         <groupId>io.cucumber</groupId>
