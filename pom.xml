@@ -151,6 +151,8 @@
   <dependencyManagement>
     <dependencies>
 
+      <!-- Start mockito workaround -->
+      <!-- https://github.com/mockito/mockito/issues/3121 -->
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
@@ -164,6 +166,7 @@
         <version>1.14.19</version>
         <scope>test</scope>
       </dependency>
+      <!-- End mockito workaround-->
 
       <dependency>
         <groupId>io.cucumber</groupId>
