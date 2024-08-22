@@ -13,7 +13,7 @@
     <junit.jupiter.version>5.11.0</junit.jupiter.version>
      <!-- exclusion expression for e2e tests -->
     <testExclusions>**/e2e/*.java</testExclusions>
-    <module-name>${groupId}.${artifactId}</module-name>
+    <module-name>${project.groupId}.${project.artifactId}</module-name>
   </properties>
 
   <name>OpenFeature Java SDK</name>
