@@ -153,6 +153,7 @@
 
       <!-- Start mockito workaround -->
       <!-- https://github.com/mockito/mockito/issues/3121 -->
+      <!-- These are transitive dependencies of mockito we are forcing -->
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
