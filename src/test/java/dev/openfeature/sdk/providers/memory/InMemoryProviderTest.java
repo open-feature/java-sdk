@@ -27,6 +27,7 @@ import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -126,8 +127,8 @@ class InMemoryProviderTest {
 
         provider.updateFlags(flags);
 
-        verify(handler, times(1))
-                .accept(argThat(details -> details.getFlagsChanged().isEmpty()));
+        await().untilAsserted(() -> verify(handler, times(1))
+                .accept(argThat(details -> details.getFlagsChanged().isEmpty())));
     }
 
     @Test
