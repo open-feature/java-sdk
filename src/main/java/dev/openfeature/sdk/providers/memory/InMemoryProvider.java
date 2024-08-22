@@ -67,7 +67,6 @@ public class InMemoryProvider extends EventProvider {
      */
     public void updateFlags(Map<String, Flag<?>> newFlags) {
         Set<String> flagsChanged = new HashSet<>(newFlags.keySet());
-        flagsChanged.removeAll(this.flags.keySet());
         this.flags.putAll(newFlags);
 
         ProviderEventDetails details = ProviderEventDetails.builder()

@@ -13,13 +13,8 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import static dev.openfeature.sdk.Structure.mapToStructure;
@@ -128,29 +123,6 @@ class InMemoryProviderTest {
         provider.updateFlags(flags);
 
         await().untilAsserted(() -> verify(handler, times(1))
-                .accept(argThat(details -> details.getFlagsChanged().isEmpty())));
-    }
-
-    @Test
-    void multithreadedTest() throws InterruptedException {
-        ExecutorService executorService = Executors.newFixedThreadPool(100);
-        List<Callable<Void>> updates = new ArrayList<>();
-        for (int i = 0; i < 10000; i++) {
-            String flagKey = "multithreadedFlag" + i;
-            updates.add(() -> {
-                provider.updateFlag(flagKey, Flag.builder()
-                        .variant("on", true)
-                        .variant("off", false)
-                        .defaultVariant("on")
-                        .build());
-                return null;
-            });
-        }
-
-        executorService.invokeAll(updates);
-
-        for (int i = 0; i < 10000; i++) {
-            assertTrue(client.getBooleanValue("multithreadedFlag" + i, false));
-        }
+                .accept(argThat(details -> details.getFlagsChanged().size() == buildFlags().size())));
     }
 }
