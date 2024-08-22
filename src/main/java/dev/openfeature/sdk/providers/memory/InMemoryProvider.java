@@ -1,12 +1,5 @@
 package dev.openfeature.sdk.providers.memory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.EventProvider;
 import dev.openfeature.sdk.Metadata;
@@ -24,6 +17,13 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * In-memory provider.
  */
@@ -33,7 +33,7 @@ public class InMemoryProvider extends EventProvider {
     @Getter
     private static final String NAME = "InMemoryProvider";
 
-    private Map<String, Flag<?>> flags;
+    private final Map<String, Flag<?>> flags;
 
     @Getter
     private ProviderState state = ProviderState.NOT_READY;
@@ -44,11 +44,11 @@ public class InMemoryProvider extends EventProvider {
     }
 
     public InMemoryProvider(Map<String, Flag<?>> flags) {
-        this.flags = new HashMap<>(flags);
+        this.flags = new ConcurrentHashMap<>(flags);
     }
 
     /**
-     * Initialize the provider.
+     * Initializes the provider.
      * @param evaluationContext evaluation context
      * @throws Exception on error
      */
@@ -60,14 +60,15 @@ public class InMemoryProvider extends EventProvider {
     }
 
     /**
-     * Updating provider flags configuration, replacing existing flags.
-     * @param flags the flags to use instead of the previous flags.
+     * Updates the provider flags configuration.
+     * For existing flags, the new configurations replace the old one.
+     * For new flags, they are added to the configuration.
+     * @param newFlags the new flag configurations
      */
-    public void updateFlags(Map<String, Flag<?>> flags) {
-        Set<String> flagsChanged = new HashSet<>();
-        flagsChanged.addAll(this.flags.keySet());
-        flagsChanged.addAll(flags.keySet());
-        this.flags = new HashMap<>(flags);
+    public void updateFlags(Map<String, Flag<?>> newFlags) {
+        Set<String> flagsChanged = new HashSet<>(newFlags.keySet());
+        this.flags.putAll(newFlags);
+
         ProviderEventDetails details = ProviderEventDetails.builder()
             .flagsChanged(new ArrayList<>(flagsChanged))
             .message("flags changed")
@@ -76,13 +77,15 @@ public class InMemoryProvider extends EventProvider {
     }
 
     /**
-     * Updating provider flags configuration with adding or updating a flag.
-     * @param flag the flag to update. If a flag with this key already exists, new flag replaces it.
+     * Updates a single provider flag configuration.
+     * For existing flag, the new configuration replaces the old one.
+     * For new flag, they are added to the configuration.
+     * @param newFlag the flag to update
      */
-    public void updateFlag(String flagKey, Flag<?> flag) {
-        this.flags.put(flagKey, flag);
+    public void updateFlag(String flagKey, Flag<?> newFlag) {
+        this.flags.put(flagKey, newFlag);
         ProviderEventDetails details = ProviderEventDetails.builder()
-            .flagsChanged(Arrays.asList(flagKey))
+            .flagsChanged(Collections.singletonList(flagKey))
             .message("flag added/updated")
             .build();
         emitProviderConfigurationChanged(details);
