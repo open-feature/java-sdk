@@ -1,10 +1,11 @@
 package dev.openfeature.sdk;
 
-import lombok.ToString;
-import lombok.experimental.Delegate;
-
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
+import lombok.ToString;
+import lombok.experimental.Delegate;
 
 /**
  * The EvaluationContext is a container for arbitrary contextual data
@@ -16,8 +17,8 @@ import java.util.Map;
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public final class ImmutableContext implements EvaluationContext {
 
-    @Delegate
-    private final Structure structure;
+    @Delegate(excludes = DelegateExclusions.class)
+    private final ImmutableStructure structure;
 
     /**
      * Create an immutable context with an empty targeting_key and attributes provided.
@@ -83,5 +84,16 @@ public final class ImmutableContext implements EvaluationContext {
 
         return new ImmutableContext(
                 this.merge(ImmutableStructure::new, this.asMap(), overridingContext.asMap()));
+    }
+
+    @SuppressWarnings("all")
+    private static class DelegateExclusions {
+        @ExcludeFromGeneratedCoverageReport
+        public <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure, 
+                Map<String, Value> base,
+                Map<String, Value> overriding) {
+ 
+            return null;
+        }
     }
 }

@@ -1,13 +1,14 @@
 package dev.openfeature.sdk;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.experimental.Delegate;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Delegate;
 
 /**
  * The EvaluationContext is a container for arbitrary contextual data
@@ -20,7 +21,8 @@ import java.util.Map;
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class MutableContext implements EvaluationContext {
 
-    @Delegate(excludes = HideDelegateAddMethods.class) private final MutableStructure structure;
+    @Delegate(excludes = DelegateExclusions.class)
+    private final MutableStructure structure;
 
     public MutableContext() {
         this(new HashMap<>());
@@ -124,11 +126,21 @@ public class MutableContext implements EvaluationContext {
     /**
      * Hidden class to tell Lombok not to copy these methods over via delegation.
      */
-    private static class HideDelegateAddMethods {
+    @SuppressWarnings("all")
+    private static class DelegateExclusions {
+
+        @ExcludeFromGeneratedCoverageReport
+        public <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure,
+                Map<String, Value> base,
+                Map<String, Value> overriding) {
+
+            return null;
+        }
+
         public MutableStructure add(String ignoredKey, Boolean ignoredValue) {
             return null;
         }
-        
+
         public MutableStructure add(String ignoredKey, Double ignoredValue) {
             return null;
         }
