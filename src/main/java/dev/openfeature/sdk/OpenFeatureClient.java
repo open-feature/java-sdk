@@ -17,11 +17,17 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * {@inheritDoc}
+ * OpenFeature Client implementation.
+ * You should not instantiate this or reference this class.
+ * Use the dev.openfeature.sdk.Client interface instead.
+ * @see Client
+ * 
+ * @deprecated // TODO: eventually we will make this non-public. See issue #872
  */
 @Slf4j
 @SuppressWarnings({ "PMD.DataflowAnomalyAnalysis", "PMD.BeanMembersShouldSerialize",
                     "PMD.UnusedLocalVariable", "unchecked", "rawtypes" })
+@Deprecated() // TODO: eventually we will make this non-public. See issue #872
 public class OpenFeatureClient implements Client {
 
     private final OpenFeatureAPI openfeatureApi;
