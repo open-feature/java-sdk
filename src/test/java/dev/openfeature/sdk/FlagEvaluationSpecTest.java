@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -25,12 +26,10 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.simplify4u.slf4jmock.LoggerMock;
 import org.slf4j.Logger;
 
-import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
@@ -266,17 +265,17 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(TestConstants.BROKEN_MESSAGE, details.getErrorMessage());
     }
 
-    @Specification(number="1.4.11", text="In the case of abnormal execution, the client SHOULD log an informative error message.")
+    @Specification(number="1.4.11", text="Methods, functions, or operations on the client SHOULD NOT write log messages.")
     @Test void log_on_error() throws NotImplementedException {
         FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
 
         assertEquals(Reason.ERROR.toString(), result.getReason());
-        Mockito.verify(logger).error(
-                ArgumentMatchers.contains("Unable to correctly evaluate flag with key"),
+        Mockito.verify(logger, never()).error(
+                any(String.class),
                 any(),
-                ArgumentMatchers.isA(FlagNotFoundError.class));
+                any());
     }
 
     @Specification(number="1.2.2", text="The client interface MUST define a metadata member or accessor, containing an immutable domain field or accessor of type string, which corresponds to the domain value supplied during client creation. In previous drafts, this property was called name. For backwards compatibility, implementations should consider name an alias to domain.")
