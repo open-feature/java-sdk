@@ -14,6 +14,7 @@ import org.slf4j.spi.LoggingEventBuilder;
 /**
  * A hook for logging flag evaluations.
  * Useful for debugging.
+ * Flag evaluation data is logged at debug and error in before/after stages and error stages, respectively.
  */
 @Slf4j
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED",
@@ -35,7 +36,6 @@ public class LoggingHook implements Hook<Object> {
 
     /**
      * Construct a new LoggingHook.
-     * Flag evaluation data is logged at debug and error in before/after stages and error stages, respectively.
      */
     public LoggingHook() {
         this(false);
@@ -43,7 +43,6 @@ public class LoggingHook implements Hook<Object> {
 
     /**
      * Construct a new LoggingHook.
-     * Flag evaluation data is logged at debug and error in before/after stages and error stages, respectively.
      * @param includeEvaluationContext include a serialized evaluation context in the log message (defaults to false)
      */
     public LoggingHook(boolean includeEvaluationContext) {
