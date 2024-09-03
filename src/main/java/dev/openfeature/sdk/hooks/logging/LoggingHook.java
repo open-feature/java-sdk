@@ -22,12 +22,12 @@ import org.slf4j.spi.LoggingEventBuilder;
 public class LoggingHook implements Hook<Object> {
 
     static final String DOMAIN_KEY = "domain";
-    static final String PROVIDER_NAME_KEY = "provider name";
-    static final String FLAG_KEY_KEY = "flag key";
-    static final String DEFAULT_VALUE_KEY = "default value";
-    static final String EVALUATION_CONTEXT_KEY = "evaluation context";
-    static final String ERROR_CODE_KEY = "error code";
-    static final String ERROR_MESSAGE_KEY = "error message";
+    static final String PROVIDER_NAME_KEY = "provider_name";
+    static final String FLAG_KEY_KEY = "flag_key";
+    static final String DEFAULT_VALUE_KEY = "default_value";
+    static final String EVALUATION_CONTEXT_KEY = "evaluation_context";
+    static final String ERROR_CODE_KEY = "error_code";
+    static final String ERROR_MESSAGE_KEY = "error_message";
     static final String REASON_KEY = "reason";
     static final String VARIANT_KEY = "variant";
     static final String VALUE_KEY = "value";
