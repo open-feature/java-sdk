@@ -25,7 +25,7 @@ import org.simplify4u.slf4jmock.LoggerMock;
 import org.slf4j.Logger;
 import org.slf4j.spi.LoggingEventBuilder;
 
-public class LoggingHookTest {
+class LoggingHookTest {
 
     private static final String FLAG_KEY = "some-key";
     private static final String DEFAULT_VALUE = "default";
