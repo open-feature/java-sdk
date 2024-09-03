@@ -35,6 +35,7 @@ public class LoggingHook implements Hook<Object> {
 
     /**
      * Construct a new LoggingHook.
+     * Flag evaluation data is logged at debug and error in before/after stages and error stages, respectively.
      */
     public LoggingHook() {
         this(false);
@@ -42,6 +43,7 @@ public class LoggingHook implements Hook<Object> {
 
     /**
      * Construct a new LoggingHook.
+     * Flag evaluation data is logged at debug and error in before/after stages and error stages, respectively.
      * @param includeEvaluationContext include a serialized evaluation context in the log message (defaults to false)
      */
     public LoggingHook(boolean includeEvaluationContext) {
@@ -50,7 +52,7 @@ public class LoggingHook implements Hook<Object> {
 
     @Override
     public Optional<EvaluationContext> before(HookContext<Object> hookContext, Map<String, Object> hints) {
-        LoggingEventBuilder builder = log.atInfo();
+        LoggingEventBuilder builder = log.atDebug();
         addCommonProps(builder, hookContext);
         builder.log("Before stage");
 
@@ -60,7 +62,7 @@ public class LoggingHook implements Hook<Object> {
     @Override
     public void after(HookContext<Object> hookContext, FlagEvaluationDetails<Object> details,
             Map<String, Object> hints) {
-        LoggingEventBuilder builder = log.atInfo()
+        LoggingEventBuilder builder = log.atDebug()
                 .addKeyValue(REASON_KEY, details.getReason())
                 .addKeyValue(VARIANT_KEY, details.getVariant())
                 .addKeyValue(VALUE_KEY, details.getValue());

@@ -62,7 +62,7 @@ class LoggingHookTest {
         logger = mock(Logger.class);
         mockBuilder = mock(LoggingEventBuilder.class);
         when(mockBuilder.addKeyValue(anyString(), anyString())).thenReturn(mockBuilder);
-        when(logger.atInfo()).thenReturn(mockBuilder);
+        when(logger.atDebug()).thenReturn(mockBuilder);
         when(logger.atError()).thenReturn(mockBuilder);
         LoggerMock.setMock(LoggingHook.class, logger);
     }
@@ -73,7 +73,7 @@ class LoggingHookTest {
         LoggingHook hook = new LoggingHook();
         hook.before(hookContext, null);
 
-        verify(logger).atInfo();
+        verify(logger).atDebug();
         verifyCommonProps(mockBuilder);
         verify(mockBuilder, never()).addKeyValue(anyString(), any(EvaluationContext.class));
         verify(mockBuilder).log(argThat((String s) -> s.contains("Before")));
@@ -85,7 +85,7 @@ class LoggingHookTest {
         LoggingHook hook = new LoggingHook(true);
         hook.before(hookContext, null);
 
-        verify(logger).atInfo();
+        verify(logger).atDebug();
         verifyCommonProps(mockBuilder);
         verify(mockBuilder).addKeyValue(contains(LoggingHook.EVALUATION_CONTEXT_KEY), any(EvaluationContext.class));
         verify(mockBuilder).log(argThat((String s) -> s.contains("Before")));
@@ -98,7 +98,7 @@ class LoggingHookTest {
         FlagEvaluationDetails<Object> details = FlagEvaluationDetails.builder().reason(REASON).variant(VARIANT).value(VALUE).build();
         hook.after(hookContext, details, null);
 
-        verify(logger).atInfo();
+        verify(logger).atDebug();
         verifyAfterProps(mockBuilder);
         verifyCommonProps(mockBuilder);
         verify(mockBuilder, never()).addKeyValue(anyString(), any(EvaluationContext.class));
@@ -112,7 +112,7 @@ class LoggingHookTest {
         FlagEvaluationDetails<Object> details = FlagEvaluationDetails.builder().reason(REASON).variant(VARIANT).value(VALUE).build();
         hook.after(hookContext, details, null);
 
-        verify(logger).atInfo();
+        verify(logger).atDebug();
         verifyAfterProps(mockBuilder);
         verifyCommonProps(mockBuilder);
         verify(mockBuilder).addKeyValue(contains(LoggingHook.EVALUATION_CONTEXT_KEY), any(EvaluationContext.class));
