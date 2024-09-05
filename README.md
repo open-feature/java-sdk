@@ -218,6 +218,14 @@ Once you've added a hook as a dependency, it can be registered at the global, cl
 ### Logging
 
 The Java SDK uses SLF4J. See the [SLF4J manual](https://slf4j.org/manual.html) for complete documentation.
+Note that in accordance with the OpenFeature specification, the SDK doesn't generally log messages during flag evaluation.
+
+#### Logging Hook
+
+The Java SDK includes a `LoggingHook`, which logs detailed information at key points during flag evaluation, using SLF4J's structured logging API.
+This hook can be particularly helpful for troubleshooting and debugging; simply attach it at the global, client or invocation level and ensure your log level is set to "debug".
+
+See [hooks](#hooks) for more information on configuring hooks.
 
 ### Domains
 

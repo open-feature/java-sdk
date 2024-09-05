@@ -137,7 +137,6 @@ public class OpenFeatureClient implements Client {
                 hookSupport.afterHooks(type, afterHookContext, details, mergedHooks, hints);
             }
         } catch (Exception e) {
-            log.error("Unable to correctly evaluate flag with key '{}'", key, e);
             if (details == null) {
                 details = FlagEvaluationDetails.<T>builder().build();
             }

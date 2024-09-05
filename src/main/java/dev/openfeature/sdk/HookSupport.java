@@ -17,9 +17,18 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 class HookSupport {
 
-    public void errorHooks(FlagValueType flagValueType, HookContext hookCtx, Exception e, List<Hook> hooks,
+    public EvaluationContext beforeHooks(FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks,
             Map<String, Object> hints) {
-        executeHooks(flagValueType, hooks, "error", hook -> hook.error(hookCtx, e, hints));
+        Stream<EvaluationContext> result = callBeforeHooks(flagValueType, hookCtx, hooks, hints);
+        return hookCtx.getCtx().merge(
+                result.reduce(hookCtx.getCtx(), (EvaluationContext accumulated, EvaluationContext current) -> {
+                    return accumulated.merge(current);
+                }));
+    }
+
+    public void afterHooks(FlagValueType flagValueType, HookContext hookContext, FlagEvaluationDetails details,
+            List<Hook> hooks, Map<String, Object> hints) {
+        executeHooksUnchecked(flagValueType, hooks, hook -> hook.after(hookContext, details, hints));
     }
 
     public void afterAllHooks(FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks,
@@ -27,9 +36,9 @@ class HookSupport {
         executeHooks(flagValueType, hooks, "finally", hook -> hook.finallyAfter(hookCtx, hints));
     }
 
-    public void afterHooks(FlagValueType flagValueType, HookContext hookContext, FlagEvaluationDetails details,
-            List<Hook> hooks, Map<String, Object> hints) {
-        executeHooksUnchecked(flagValueType, hooks, hook -> hook.after(hookContext, details, hints));
+    public void errorHooks(FlagValueType flagValueType, HookContext hookCtx, Exception e, List<Hook> hooks,
+            Map<String, Object> hints) {
+        executeHooks(flagValueType, hooks, "error", hook -> hook.error(hookCtx, e, hints));
     }
 
     private <T> void executeHooks(
@@ -44,6 +53,17 @@ class HookSupport {
         }
     }
 
+    // before, error, and finally hooks shouldn't throw
+    private <T> void executeChecked(Hook<T> hook, Consumer<Hook<T>> hookCode, String hookMethod) {
+        try {
+            hookCode.accept(hook);
+        } catch (Exception exception) {
+            log.error("Unhandled exception when running {} hook {} (only 'after' hooks should throw)", hookMethod,
+                    hook.getClass(), exception);
+        }
+    }
+
+    // after hooks can throw in order to do validation
     private <T> void executeHooksUnchecked(
             FlagValueType flagValueType, List<Hook> hooks,
             Consumer<Hook<T>> hookCode) {
@@ -53,23 +73,6 @@ class HookSupport {
                     .filter(hook -> hook.supportsFlagValueType(flagValueType))
                     .forEach(hookCode::accept);
         }
-    }
-
-    private <T> void executeChecked(Hook<T> hook, Consumer<Hook<T>> hookCode, String hookMethod) {
-        try {
-            hookCode.accept(hook);
-        } catch (Exception exception) {
-            log.error("Exception when running {} hooks {}", hookMethod, hook.getClass(), exception);
-        }
-    }
-
-    public EvaluationContext beforeHooks(FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks,
-            Map<String, Object> hints) {
-        Stream<EvaluationContext> result = callBeforeHooks(flagValueType, hookCtx, hooks, hints);
-        return hookCtx.getCtx().merge(
-                result.reduce(hookCtx.getCtx(), (EvaluationContext accumulated, EvaluationContext current) -> {
-                    return accumulated.merge(current);
-                }));
     }
 
     private Stream<EvaluationContext> callBeforeHooks(FlagValueType flagValueType, HookContext hookCtx,
