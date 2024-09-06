@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the code
-        uses: actions/checkout@b6849436894e144dbce29d7d7fda2ae3bf9d8365
+        uses: actions/checkout@6d193bf28034eafb982f37bd894289fe649468fc
 
       - name: Set up JDK 8
         uses: actions/setup-java@8e04ddff28554375a9a1096c888a2ef2c9803cd7
