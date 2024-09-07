@@ -259,10 +259,27 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test void broken_provider() {
         FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
-        assertFalse(c.getBooleanValue("key", false));
-        FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", false);
+        boolean defaultValue = false;
+        assertFalse(c.getBooleanValue("key", defaultValue));
+        FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", defaultValue);
         assertEquals(ErrorCode.FLAG_NOT_FOUND, details.getErrorCode());
         assertEquals(TestConstants.BROKEN_MESSAGE, details.getErrorMessage());
+        assertEquals(defaultValue, details.getValue());
+    }
+
+    @Specification(number="1.4.8", text="In cases of abnormal execution, the `evaluation details` structure's `error code` field **MUST** contain an `error code`.")
+    @Specification(number="1.4.9", text="In cases of abnormal execution (network failure, unhandled error, etc) the `reason` field in the `evaluation details` SHOULD indicate an error.")
+    @Specification(number="1.4.10", text="Methods, functions, or operations on the client MUST NOT throw exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the `default value` in the event of abnormal execution. Exceptions include functions or methods for the purposes for configuration or setup.")
+    @Specification(number="1.4.13", text="In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
+    @Test void broken_provider_withDetails() {
+        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenWithDetailsProvider());
+        Client c = api.getClient();
+        boolean defaultValue = false;
+        assertFalse(c.getBooleanValue("key", defaultValue));
+        FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", defaultValue);
+        assertEquals(ErrorCode.FLAG_NOT_FOUND, details.getErrorCode());
+        assertEquals(TestConstants.BROKEN_MESSAGE, details.getErrorMessage());
+        assertEquals(defaultValue, details.getValue());
     }
 
     @Specification(number="1.4.11", text="Methods, functions, or operations on the client SHOULD NOT write log messages.")

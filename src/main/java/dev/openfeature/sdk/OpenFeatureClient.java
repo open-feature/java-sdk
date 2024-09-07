@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
  * You should not instantiate this or reference this class.
  * Use the dev.openfeature.sdk.Client interface instead.
  * @see Client
- * 
+ *
  * @deprecated // TODO: eventually we will make this non-public. See issue #872
  */
 @Slf4j
@@ -132,7 +132,11 @@ public class OpenFeatureClient implements Client {
 
             details = FlagEvaluationDetails.from(providerEval, key);
             if (details.getErrorCode() != null) {
-                throw ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
+                OpenFeatureError error = ExceptionUtils.instantiateErrorByErrorCode(
+                        details.getErrorCode(),
+                        details.getErrorMessage());
+                details.setValue(defaultValue);
+                hookSupport.errorHooks(type, afterHookContext, error, mergedHooks, hints);
             } else {
                 hookSupport.afterHooks(type, afterHookContext, details, mergedHooks, hints);
             }
