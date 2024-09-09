@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,11 +36,12 @@ class OpenFeatureClientTest implements HookFixtures {
     @Test
     @DisplayName("should not throw exception if hook has different type argument than hookContext")
     void shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext() {
+        DoSomethingProvider provider = new DoSomethingProvider();
         OpenFeatureAPI api = mock(OpenFeatureAPI.class);
-        when(api.getProvider(any())).thenReturn(new DoSomethingProvider());
+        when(api.getProvider(any())).thenReturn(provider);
         when(api.getHooks()).thenReturn(Arrays.asList(mockBooleanHook(), mockStringHook()));
 
-        OpenFeatureClient client = new OpenFeatureClient(() -> null, api, "name", "version");
+        OpenFeatureClient client = new OpenFeatureClient(() -> provider, api, "name", "version");
 
         FlagEvaluationDetails<Boolean> actual = client.getBooleanDetails("feature key", Boolean.FALSE);
 
@@ -69,7 +71,7 @@ class OpenFeatureClientTest implements HookFixtures {
         when(api.getProvider(any())).thenReturn(mockProvider);
 
 
-        OpenFeatureClient client = new OpenFeatureClient(() -> null, api, "name", "version");
+        OpenFeatureClient client = new OpenFeatureClient(() -> mockProvider, api, "name", "version");
         client.setEvaluationContext(ctx);
 
         FlagEvaluationDetails<Boolean> result = client.getBooleanDetails(flag, defaultValue);
@@ -100,4 +102,80 @@ class OpenFeatureClientTest implements HookFixtures {
         assertEquals(client, result);
     }
 
+    @Test
+    @DisplayName("Should not call evaluation methods when the provider has state FATAL")
+    void shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState() {
+        MockProvider mockProvider = new MockProvider(ProviderState.FATAL);
+        OpenFeatureAPI api = mock(OpenFeatureAPI.class);
+        OpenFeatureClient client = new OpenFeatureClient(() -> mockProvider, api, "name", "version");
+        FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);
+
+        assertThat(mockProvider.isEvaluationCalled()).isFalse();
+        assertThat(details.getErrorCode()).isEqualTo(ErrorCode.PROVIDER_FATAL);
+    }
+
+    @Test
+    @DisplayName("Should not call evaluation methods when the provider has state NOT_READY")
+    void shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState() {
+        MockProvider mockProvider = new MockProvider(ProviderState.NOT_READY);
+        OpenFeatureAPI api = mock(OpenFeatureAPI.class);
+        OpenFeatureClient client = new OpenFeatureClient(() -> mockProvider, api, "name", "version");
+        FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);
+
+        assertThat(mockProvider.isEvaluationCalled()).isFalse();
+        assertThat(details.getErrorCode()).isEqualTo(ErrorCode.PROVIDER_NOT_READY);
+    }
+
+    private static class MockProvider implements FeatureProvider {
+        private final AtomicBoolean evaluationCalled = new AtomicBoolean();
+        private final ProviderState providerState;
+
+        public MockProvider(ProviderState providerState) {
+            this.providerState = providerState;
+        }
+
+        public boolean isEvaluationCalled() {
+            return evaluationCalled.get();
+        }
+
+        @Override
+        public ProviderState getState() {
+            return providerState;
+        }
+
+        @Override
+        public Metadata getMetadata() {
+            return null;
+        }
+
+        @Override
+        public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
+            evaluationCalled.set(true);
+            return null;
+        }
+
+        @Override
+        public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
+            evaluationCalled.set(true);
+            return null;
+        }
+
+        @Override
+        public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
+            evaluationCalled.set(true);
+            return null;
+        }
+
+        @Override
+        public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
+            evaluationCalled.set(true);
+            return null;
+        }
+
+        @Override
+        public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
+            evaluationCalled.set(true);
+            return null;
+        }
+    }
 }

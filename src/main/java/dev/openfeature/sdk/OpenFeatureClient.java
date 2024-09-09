@@ -122,7 +122,7 @@ public class OpenFeatureClient implements Client {
 
         try {
             // openfeatureApi.getProvider() must be called once to maintain a consistent reference
-            provider = openfeatureApi.getProvider(this.domain);
+            provider = providerAccessor.getProvider();
             if (ProviderState.NOT_READY.equals(provider.getState())) {
                 throw new ProviderNotReadyError("provider not yet initialized");
             }
