@@ -1,26 +1,21 @@
 package dev.openfeature.sdk;
 
-import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.after;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Consumer;
-
+import dev.openfeature.sdk.testutils.TestEventsProvider;
+import io.cucumber.java.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 
-import dev.openfeature.sdk.testutils.TestEventsProvider;
-import io.cucumber.java.AfterAll;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.*;
 
 class EventsTest {
 
@@ -515,12 +510,12 @@ class EventsTest {
     @Test
     @DisplayName("if the provider is ready handlers must run immediately")
     @Specification(number = "5.3.3", text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
-    void matchingReadyEventsMustRunImmediately() {
+    void matchingReadyEventsMustRunImmediately()  {
         final String name = "matchingEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
 
         // provider which is already ready
-        TestEventsProvider provider = new TestEventsProvider(ProviderState.READY);
+        TestEventsProvider provider = new TestEventsProvider();
         OpenFeatureAPI.getInstance().setProvider(name, provider);
 
         // should run even thought handler was added after ready
@@ -532,12 +527,14 @@ class EventsTest {
     @Test
     @DisplayName("if the provider is ready handlers must run immediately")
     @Specification(number = "5.3.3", text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
-    void matchingStaleEventsMustRunImmediately() {
+    void matchingStaleEventsMustRunImmediately() throws Exception {
         final String name = "matchingEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
 
         // provider which is already stale
-        TestEventsProvider provider = new TestEventsProvider(ProviderState.STALE);
+        TestEventsProvider provider =TestEventsProvider.initialized();
+        provider.emitProviderStale(null);
+        assertThat(provider.getState()).isEqualTo(ProviderState.STALE);
         OpenFeatureAPI.getInstance().setProvider(name, provider);
 
         // should run even thought handler was added after stale
@@ -549,12 +546,14 @@ class EventsTest {
     @Test
     @DisplayName("if the provider is ready handlers must run immediately")
     @Specification(number = "5.3.3", text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
-    void matchingErrorEventsMustRunImmediately() {
+    void matchingErrorEventsMustRunImmediately() throws Exception {
         final String name = "matchingEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
 
         // provider which is already in error
-        TestEventsProvider provider = new TestEventsProvider(ProviderState.ERROR);
+        TestEventsProvider provider = TestEventsProvider.initialized();
+        provider.emitProviderError(null);
+        assertThat(provider.getState()).isEqualTo(ProviderState.ERROR);
         OpenFeatureAPI.getInstance().setProvider(name, provider);
 
         // should run even thought handler was added after error
@@ -597,12 +596,13 @@ class EventsTest {
         @Specification(number="5.2.7", text="The API and client MUST provide a function allowing the removal of event handlers.")
         @Test
         @DisplayName("should not run removed events")
-        void removedEventsShouldNotRun() {
+        void removedEventsShouldNotRun() throws Exception {
             final String name = "removedEventsShouldNotRun";
             final Consumer<EventDetails> handler1 = mockHandler();
             final Consumer<EventDetails> handler2 = mockHandler();
 
             TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
+            provider.initialize(null);
             OpenFeatureAPI.getInstance().setProvider(name, provider);
             Client client = OpenFeatureAPI.getInstance().getClient(name);
 

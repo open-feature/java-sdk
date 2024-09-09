@@ -1,38 +1,34 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.fixtures.HookFixtures;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import dev.openfeature.sdk.testutils.TestEventsProvider;
+import org.junit.jupiter.api.Test;
+
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
-import org.junit.jupiter.api.Test;
-
-import dev.openfeature.sdk.fixtures.HookFixtures;
-
 class DeveloperExperienceTest implements HookFixtures {
     transient String flagKey = "mykey";
 
-    @Test void simpleBooleanFlag() {
+    @Test void simpleBooleanFlag() throws Exception {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider());
+        api.setProvider(TestEventsProvider.initialized());
         Client client = api.getClient();
         Boolean retval = client.getBooleanValue(flagKey, false);
         assertFalse(retval);
     }
 
-    @Test void clientHooks() {
+    @Test void clientHooks() throws Exception {
         Hook<Boolean> exampleHook = mockBooleanHook();
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider());
+        api.setProvider(TestEventsProvider.initialized());
         Client client = api.getClient();
         client.addHooks(exampleHook);
         Boolean retval = client.getBooleanValue(flagKey, false);
@@ -40,12 +36,12 @@ class DeveloperExperienceTest implements HookFixtures {
         assertFalse(retval);
     }
 
-    @Test void evalHooks() {
+    @Test void evalHooks() throws Exception {
         Hook<Boolean> clientHook = mockBooleanHook();
         Hook<Boolean> evalHook = mockBooleanHook();
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider());
+        api.setProvider(TestEventsProvider.initialized());
         Client client = api.getClient();
         client.addHooks(clientHook);
         Boolean retval = client.getBooleanValue(flagKey, false, null,
@@ -59,10 +55,10 @@ class DeveloperExperienceTest implements HookFixtures {
      * As an application author, you probably know special things about your users. You can communicate these to the
      * provider via {@link MutableContext}
      */
-    @Test void providingContext() {
+    @Test void providingContext() throws Exception {
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider());
+        api.setProvider(TestEventsProvider.initialized());
         Client client = api.getClient();
         Map<String, Value> attributes = new HashMap<>();
         List<Value> values = Arrays.asList(new Value(2), new Value(4));
@@ -94,8 +90,12 @@ class DeveloperExperienceTest implements HookFixtures {
 
             @Override
             // change the provider during a before hook - this should not impact the evaluation in progress
-            public Optional before(HookContext ctx, Map hints) {
-                FeatureProviderTestUtils.setFeatureProvider(new NoOpProvider());
+            public Optional before(HookContext ctx, Map hints)  {
+                try {
+                    FeatureProviderTestUtils.setFeatureProvider(TestEventsProvider.initialized());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 return Optional.empty();
             }
         }

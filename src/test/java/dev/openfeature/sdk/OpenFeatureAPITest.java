@@ -1,17 +1,16 @@
 package dev.openfeature.sdk;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import dev.openfeature.sdk.providers.memory.InMemoryProvider;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class OpenFeatureAPITest {
 
@@ -33,7 +32,7 @@ class OpenFeatureAPITest {
                 .isEqualTo(api.getProviderMetadata("namedProviderTest").getName());
     }
 
-    @Specification(number="1.1.3", text="The API MUST provide a function to bind a given provider to one or more clients using a domain. If the domain already has a bound provider, it is overwritten with the new mapping.")
+    @Specification(number = "1.1.3", text = "The API MUST provide a function to bind a given provider to one or more clients using a domain. If the domain already has a bound provider, it is overwritten with the new mapping.")
     @Test
     void namedProviderOverwrittenTest() {
         String domain = "namedProviderOverwrittenTest";
@@ -82,7 +81,7 @@ class OpenFeatureAPITest {
 
     @Test
     void setEvaluationContextShouldAllowChaining() {
-        OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
+        OpenFeatureClient client = new OpenFeatureClient(() -> null, api, "name", "version");
         EvaluationContext ctx = new ImmutableContext("targeting key", new HashMap<>());
         OpenFeatureClient result = client.setEvaluationContext(ctx);
         assertEquals(client, result);

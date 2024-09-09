@@ -5,11 +5,7 @@ import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -86,7 +82,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * Multiple clients can be used to segment feature flag configuration.
      * If there is already a provider bound to this domain, this provider will be used.
      * Otherwise, the default provider is used until a provider is assigned to that domain.
-     * 
+     *
      * @param domain an identifier which logically binds clients with providers
      * @return a new client instance
      */
@@ -100,15 +96,18 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * Multiple clients can be used to segment feature flag configuration.
      * If there is already a provider bound to this domain, this provider will be used.
      * Otherwise, the default provider is used until a provider is assigned to that domain.
-     * 
-     * @param domain a identifier which logically binds clients with providers
+     *
+     * @param domain  a identifier which logically binds clients with providers
      * @param version a version identifier
      * @return a new client instance
      */
     public Client getClient(String domain, String version) {
-        return new OpenFeatureClient(this,
+        return new OpenFeatureClient(
+                () -> providerRepository.getProvider(domain),
+                this,
                 domain,
-                version);
+                version
+        );
     }
 
     /**
@@ -193,8 +192,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     /**
      * Add a provider for a domain.
      *
-     * @param domain     The domain to bind the provider to.
-     * @param provider   The provider to set.
+     * @param domain   The domain to bind the provider to.
+     * @param provider The provider to set.
      */
     public void setProvider(String domain, FeatureProvider provider) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
@@ -226,8 +225,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     /**
      * Add a provider for a domain and wait for initialization to finish.
      *
-     * @param domain     The domain to bind the provider to.
-     * @param provider   The provider to set.
+     * @param domain   The domain to bind the provider to.
+     * @param provider The provider to set.
      */
     public void setProviderAndWait(String domain, FeatureProvider provider) throws OpenFeatureError {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
@@ -300,6 +299,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
 
     /**
      * Fetch the hooks associated to this client.
+     *
      * @return A list of {@link Hook}s.
      */
     public List<Hook> getHooks() {
@@ -404,7 +404,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
 
     /**
      * Runs the handlers associated with a particular provider.
-     * 
+     *
      * @param provider the provider from where this event originated
      * @param event    the event type
      * @param details  the event details

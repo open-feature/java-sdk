@@ -3,34 +3,20 @@ package dev.openfeature.sdk;
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import dev.openfeature.sdk.testutils.TestEventsProvider;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class HookSpecTest implements HookFixtures {
     @AfterEach
@@ -225,7 +211,7 @@ class HookSpecTest implements HookFixtures {
     @Test void hook_eval_order() {
         List<String> evalOrder = new ArrayList<>();
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider() {
+        api.setProvider(new TestEventsProvider() {
             public List<Hook> getProviderHooks() {
                 return Collections.singletonList(new BooleanHook() {
 
@@ -354,12 +340,12 @@ class HookSpecTest implements HookFixtures {
     }
 
     @Specification(number="4.4.6", text="If an error occurs during the evaluation of before or after hooks, any remaining hooks in the before or after stages MUST NOT be invoked.")
-    @Test void error_stops_after() {
+    @Test void error_stops_after() throws Exception {
         Hook<Boolean> h = mockBooleanHook();
         doThrow(RuntimeException.class).when(h).after(any(), any(), any());
         Hook<Boolean> h2 = mockBooleanHook();
 
-        Client c = getClient(null);
+        Client c = getClient(TestEventsProvider.initialized());
 
         c.getBooleanDetails("key", false, null, FlagEvaluationOptions.builder()
                 .hook(h)
@@ -373,7 +359,7 @@ class HookSpecTest implements HookFixtures {
     @Specification(number="4.5.2", text="hook hints MUST be passed to each hook.")
     @Specification(number="4.2.2.1", text="Condition: Hook hints MUST be immutable.")
     @Specification(number="4.5.3", text="The hook MUST NOT alter the hook hints structure.")
-    @Test void hook_hints() {
+    @Test void hook_hints() throws Exception {
         String hintKey = "My hint key";
         Client client = getClient(null);
         Hook<Boolean> mutatingHook = new BooleanHook() {
@@ -439,10 +425,10 @@ class HookSpecTest implements HookFixtures {
 
     @Specification(number="4.4.5", text="If an error occurs in the before or after hooks, the error hooks MUST be invoked.")
     @Specification(number="4.4.7", text="If an error occurs in the before hooks, the default value MUST be returned.")
-    @Test void error_hooks__before() {
+    @Test void error_hooks__before() throws Exception {
         Hook hook = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).before(any(), any());
-        Client client = getClient(null);
+        Client client = getClient(TestEventsProvider.initialized());
         Boolean value = client.getBooleanValue("key", false, new ImmutableContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
         verify(hook, times(1)).before(any(), any());
@@ -451,17 +437,17 @@ class HookSpecTest implements HookFixtures {
     }
 
     @Specification(number="4.4.5", text="If an error occurs in the before or after hooks, the error hooks MUST be invoked.")
-    @Test void error_hooks__after() {
+    @Test void error_hooks__after() throws Exception {
         Hook hook = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).after(any(), any(), any());
-        Client client = getClient(null);
+        Client client = getClient(TestEventsProvider.initialized());
         client.getBooleanValue("key", false, new ImmutableContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
         verify(hook, times(1)).after(any(), any(), any());
         verify(hook, times(1)).error(any(), any(), any());
     }
 
-    @Test void multi_hooks_early_out__before() {
+    @Test void multi_hooks_early_out__before() throws Exception {
         Hook<Boolean> hook = mockBooleanHook();
         Hook<Boolean> hook2 = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).before(any(), any());
@@ -483,7 +469,7 @@ class HookSpecTest implements HookFixtures {
 
     @Specification(number = "4.1.4", text = "The evaluation context MUST be mutable only within the before hook.")
     @Specification(number = "4.3.4", text = "Any `evaluation context` returned from a `before` hook MUST be passed to subsequent `before` hooks (via `HookContext`).")
-    @Test void beforeContextUpdated() {
+    @Test void beforeContextUpdated() throws Exception {
         String targetingKey = "test-key";
         EvaluationContext ctx = new ImmutableContext(targetingKey);
         Hook<Boolean> hook = mockBooleanHook();
@@ -546,7 +532,7 @@ class HookSpecTest implements HookFixtures {
     }
 
     @Specification(number="4.4.3", text="If a finally hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining finally hooks.")
-    @Test void first_finally_broken() {
+    @Test void first_finally_broken() throws Exception {
         Hook hook = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).before(any(), any());
         doThrow(RuntimeException.class).when(hook).finallyAfter(any(), any());
@@ -566,7 +552,7 @@ class HookSpecTest implements HookFixtures {
     }
 
     @Specification(number="4.4.4", text="If an error hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining error hooks.")
-    @Test void first_error_broken() {
+    @Test void first_error_broken() throws Exception {
         Hook hook = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).before(any(), any());
         doThrow(RuntimeException.class).when(hook).error(any(), any(), any());
@@ -585,10 +571,10 @@ class HookSpecTest implements HookFixtures {
         order.verify(hook).error(any(), any(), any());
     }
 
-    private Client getClient(FeatureProvider provider) {
+    private Client getClient(FeatureProvider provider) throws Exception {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         if (provider == null) {
-            FeatureProviderTestUtils.setFeatureProvider(new NoOpProvider());
+            FeatureProviderTestUtils.setFeatureProvider(TestEventsProvider.initialized());
         } else {
             FeatureProviderTestUtils.setFeatureProvider(provider);
         }

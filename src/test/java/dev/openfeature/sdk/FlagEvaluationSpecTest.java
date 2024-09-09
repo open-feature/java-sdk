@@ -1,28 +1,11 @@
 package dev.openfeature.sdk;
 
-import static dev.openfeature.sdk.DoSomethingProvider.DEFAULT_METADATA;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.awaitility.Awaitility;
+import dev.openfeature.sdk.exceptions.GeneralError;
+import dev.openfeature.sdk.fixtures.HookFixtures;
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import dev.openfeature.sdk.testutils.TestEventsProvider;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,12 +13,17 @@ import org.mockito.Mockito;
 import org.simplify4u.slf4jmock.LoggerMock;
 import org.slf4j.Logger;
 
-import dev.openfeature.sdk.exceptions.GeneralError;
-import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.providers.memory.InMemoryProvider;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
-import dev.openfeature.sdk.testutils.TestEventsProvider;
-import lombok.SneakyThrows;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static dev.openfeature.sdk.DoSomethingProvider.DEFAULT_METADATA;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.*;
 
 class FlagEvaluationSpecTest implements HookFixtures {
 
@@ -44,6 +32,13 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     private Client _client() {
         FeatureProviderTestUtils.setFeatureProvider(new NoOpProvider());
+        return api.getClient();
+    }
+
+    private Client _initializedClient() throws Exception {
+        TestEventsProvider provider = new TestEventsProvider();
+        provider.initialize(null);
+        FeatureProviderTestUtils.setFeatureProvider(provider);
         return api.getClient();
     }
 
@@ -105,8 +100,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test void shouldReturnNotReadyIfNotInitialized() {
         FeatureProvider provider = new InMemoryProvider(new HashMap<>()) {
             @Override
-            public void initialize(EvaluationContext evaluationContext) throws Exception {
-                Awaitility.await().wait(3000);
+            protected void doInitialization(EvaluationContext evaluationContext) throws Exception {
+                Thread.sleep(10000);
             }
         };
         String providerName = "shouldReturnNotReadyIfNotInitialized";
@@ -240,8 +235,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
     }
 
     @Specification(number="1.5.1", text="The evaluation options structure's hooks field denotes an ordered collection of hooks that the client MUST execute for the respective flag evaluation, in addition to those already configured.")
-    @Test void hooks() {
-        Client c = _client();
+    @Test void hooks() throws Exception {
+        Client c = _initializedClient();
         Hook<Boolean> clientHook = mockBooleanHook();
         Hook<Boolean> invocationHook = mockBooleanHook();
         c.addHooks(clientHook);
