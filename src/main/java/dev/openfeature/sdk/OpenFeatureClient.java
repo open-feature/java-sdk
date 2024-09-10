@@ -19,8 +19,8 @@ import java.util.function.Consumer;
  * @deprecated // TODO: eventually we will make this non-public. See issue #872
  */
 @Slf4j
-@SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "PMD.BeanMembersShouldSerialize",
-        "PMD.UnusedLocalVariable", "unchecked", "rawtypes"})
+@SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "PMD.BeanMembersShouldSerialize", "PMD.UnusedLocalVariable",
+    "unchecked", "rawtypes"})
 @Deprecated() // TODO: eventually we will make this non-public. See issue #872
 public class OpenFeatureClient implements Client {
 
@@ -43,8 +43,8 @@ public class OpenFeatureClient implements Client {
      * @param domain         An identifier which logically binds clients with providers (used by observability tools).
      * @param version        Version of the client (used by observability tools).
      * @deprecated Do not use this constructor. It's for internal use only.
-     * Clients created using it will not run event handlers.
-     * Use the OpenFeatureAPI's getClient factory method instead.
+     *     Clients created using it will not run event handlers.
+     *     Use the OpenFeatureAPI's getClient factory method instead.
      */
     @Deprecated() // TODO: eventually we will make this non-public. See issue #872
     public OpenFeatureClient(
