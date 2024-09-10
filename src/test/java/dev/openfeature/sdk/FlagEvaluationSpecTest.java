@@ -113,7 +113,9 @@ class FlagEvaluationSpecTest implements HookFixtures {
         OpenFeatureAPI.getInstance().setProvider(providerName, provider);
         assertThat(api.getProvider(providerName).getState()).isEqualTo(ProviderState.NOT_READY);
         Client client = OpenFeatureAPI.getInstance().getClient(providerName);
-        assertEquals(ErrorCode.PROVIDER_NOT_READY, client.getBooleanDetails("return_error_when_not_initialized", false).getErrorCode());
+        FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("return_error_when_not_initialized", false);
+        assertEquals(ErrorCode.PROVIDER_NOT_READY, details.getErrorCode());
+        assertEquals(Reason.ERROR.toString(), details.getReason());
     }
 
     @Specification(number="1.1.5", text="The API MUST provide a function for retrieving the metadata field of the configured provider.")
@@ -264,6 +266,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", defaultValue);
         assertEquals(ErrorCode.FLAG_NOT_FOUND, details.getErrorCode());
         assertEquals(TestConstants.BROKEN_MESSAGE, details.getErrorMessage());
+        assertEquals(Reason.ERROR.toString(), details.getReason());
         assertEquals(defaultValue, details.getValue());
     }
 
@@ -279,6 +282,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", defaultValue);
         assertEquals(ErrorCode.FLAG_NOT_FOUND, details.getErrorCode());
         assertEquals(TestConstants.BROKEN_MESSAGE, details.getErrorMessage());
+        assertEquals(Reason.ERROR.toString(), details.getReason());
         assertEquals(defaultValue, details.getValue());
     }
 
