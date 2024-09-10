@@ -21,14 +21,17 @@ class OpenFeatureClientTest implements HookFixtures {
 
     private Logger logger;
 
-    @BeforeEach void set_logger() {
+    @BeforeEach
+    void set_logger() {
         logger = Mockito.mock(Logger.class);
         LoggerMock.setMock(OpenFeatureClient.class, logger);
     }
 
-    @AfterEach void reset_logs() {
+    @AfterEach
+    void reset_logs() {
         LoggerMock.setMock(OpenFeatureClient.class, logger);
     }
+
     @Test
     @DisplayName("should not throw exception if hook has different type argument than hookContext")
     void shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext() {
@@ -59,12 +62,12 @@ class OpenFeatureClientTest implements HookFixtures {
         FeatureProvider mockProvider = mock(FeatureProvider.class);
         // this makes it so that true is returned only if the targeting key set at the client level is honored
         when(mockProvider.getBooleanEvaluation(
-          eq(flag), eq(defaultValue), argThat(
-            context -> context.getTargetingKey().equals(targetingKey)))).thenReturn(ProviderEvaluation.<Boolean>builder()
-          .value(true).build());
+                eq(flag), eq(defaultValue), argThat(
+                        context -> context.getTargetingKey().equals(targetingKey)))).thenReturn(
+                ProviderEvaluation.<Boolean>builder()
+                        .value(true).build());
         when(api.getProvider()).thenReturn(mockProvider);
         when(api.getProvider(any())).thenReturn(mockProvider);
-
 
         OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
         client.setEvaluationContext(ctx);
@@ -83,7 +86,7 @@ class OpenFeatureClientTest implements HookFixtures {
         Hook<?> hook2 = Mockito.mock(Hook.class);
 
         OpenFeatureClient result = client.addHooks(hook1, hook2);
-        assertEquals(client, result);  
+        assertEquals(client, result);
     }
 
     @Test
@@ -96,5 +99,5 @@ class OpenFeatureClientTest implements HookFixtures {
         OpenFeatureClient result = client.setEvaluationContext(ctx);
         assertEquals(client, result);
     }
-   
+
 }

@@ -11,20 +11,23 @@ import java.util.Map;
 
 import static dev.openfeature.sdk.EvaluationContext.TARGETING_KEY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class EvalContextTest {
-    @Specification(number="3.1.1",
-            text="The `evaluation context` structure **MUST** define an optional `targeting key` field of " +
+    @Specification(number = "3.1.1",
+            text = "The `evaluation context` structure **MUST** define an optional `targeting key` field of " +
                     "type string, identifying the subject of the flag evaluation.")
-    @Test void requires_targeting_key() {
+    @Test
+    void requires_targeting_key() {
         EvaluationContext ec = new ImmutableContext("targeting-key", new HashMap<>());
         assertEquals("targeting-key", ec.getTargetingKey());
     }
 
-    @Specification(number="3.1.2", text= "The evaluation context MUST support the inclusion of " +
+    @Specification(number = "3.1.2", text = "The evaluation context MUST support the inclusion of " +
             "custom fields, having keys of type `string`, and " +
             "values of type `boolean | string | number | datetime | structure`.")
-    @Test void eval_context() {
+    @Test
+    void eval_context() {
         Map<String, Value> attributes = new HashMap<>();
         Instant dt = Instant.now().truncatedTo(ChronoUnit.MILLIS);
         attributes.put("str", new Value("test"));
@@ -42,13 +45,14 @@ public class EvalContextTest {
         assertEquals(dt, ec.getValue("dt").asInstant().truncatedTo(ChronoUnit.MILLIS));
     }
 
-    @Specification(number="3.1.2", text="The evaluation context MUST support the inclusion of " +
+    @Specification(number = "3.1.2", text = "The evaluation context MUST support the inclusion of " +
             "custom fields, having keys of type `string`, and " +
             "values of type `boolean | string | number | datetime | structure`.")
-    @Test void eval_context_structure_array() {
+    @Test
+    void eval_context_structure_array() {
         Map<String, Value> attributes = new HashMap<>();
         attributes.put("obj", new Value(new MutableStructure().add("val1", 1).add("val2", "2")));
-        List<Value> values =  new ArrayList<Value>(){{
+        List<Value> values = new ArrayList<Value>() {{
             add(new Value("one"));
             add(new Value("two"));
         }};
@@ -64,9 +68,10 @@ public class EvalContextTest {
         assertEquals("two", arr.get(1).asString());
     }
 
-    @Specification(number="3.1.3", text="The evaluation context MUST support fetching the custom fields by key and also fetching all key value pairs.")
-    @Test void fetch_all() {
-        Map<String, Value> attributes  = new HashMap<>();
+    @Specification(number = "3.1.3", text = "The evaluation context MUST support fetching the custom fields by key and also fetching all key value pairs.")
+    @Test
+    void fetch_all() {
+        Map<String, Value> attributes = new HashMap<>();
         Instant dt = Instant.now();
         MutableStructure mutableStructure = new MutableStructure().add("val1", 1).add("val2", "2");
         attributes.put("str", new Value("test"));
@@ -96,28 +101,31 @@ public class EvalContextTest {
         assertEquals("2", foundObj.getValue("val2").asString());
     }
 
-    @Specification(number="3.1.4", text="The evaluation context fields MUST have an unique key.")
-    @Test void unique_key_across_types() {
+    @Specification(number = "3.1.4", text = "The evaluation context fields MUST have an unique key.")
+    @Test
+    void unique_key_across_types() {
         MutableContext ec = new MutableContext();
         ec.add("key", "val");
         ec.add("key", "val2");
         assertEquals("val2", ec.getValue("key").asString());
         ec.add("key", 3);
-        assertEquals(null, ec.getValue("key").asString());
+        assertNull(ec.getValue("key").asString());
         assertEquals(3, ec.getValue("key").asInteger());
     }
 
-    @Test void unique_key_across_types_immutableContext() {
-        HashMap<String, Value>  attributes = new HashMap<>();
+    @Test
+    void unique_key_across_types_immutableContext() {
+        HashMap<String, Value> attributes = new HashMap<>();
         attributes.put("key", new Value("val"));
         attributes.put("key", new Value("val2"));
         attributes.put("key", new Value(3));
         EvaluationContext ec = new ImmutableContext(attributes);
-        assertEquals(null, ec.getValue("key").asString());
+        assertNull(ec.getValue("key").asString());
         assertEquals(3, ec.getValue("key").asInteger());
     }
 
-    @Test void can_chain_attribute_addition() {
+    @Test
+    void can_chain_attribute_addition() {
         MutableContext ec = new MutableContext();
         MutableContext out = ec.add("str", "test")
                 .add("int", 4)
@@ -126,24 +134,26 @@ public class EvalContextTest {
         assertEquals(MutableContext.class, out.getClass());
     }
 
-    @Test void can_add_key_with_null() {
+    @Test
+    void can_add_key_with_null() {
         MutableContext ec = new MutableContext()
-                .add("Boolean", (Boolean)null)
-                .add("String", (String)null)
-                .add("Double", (Double)null)
-                .add("Structure", (MutableStructure)null)
-                .add("List", (List<Value>)null)
-                .add("Instant", (Instant)null);
+                .add("Boolean", (Boolean) null)
+                .add("String", (String) null)
+                .add("Double", (Double) null)
+                .add("Structure", (MutableStructure) null)
+                .add("List", (List<Value>) null)
+                .add("Instant", (Instant) null);
         assertEquals(6, ec.asMap().size());
-        assertEquals(null, ec.getValue("Boolean").asBoolean());
-        assertEquals(null, ec.getValue("String").asString());
-        assertEquals(null, ec.getValue("Double").asDouble());
-        assertEquals(null, ec.getValue("Structure").asStructure());
-        assertEquals(null, ec.getValue("List").asList());
-        assertEquals(null, ec.getValue("Instant").asString());
+        assertNull(ec.getValue("Boolean").asBoolean());
+        assertNull(ec.getValue("String").asString());
+        assertNull(ec.getValue("Double").asDouble());
+        assertNull(ec.getValue("Structure").asStructure());
+        assertNull(ec.getValue("List").asList());
+        assertNull(ec.getValue("Instant").asString());
     }
 
-    @Test void Immutable_context_merge_targeting_key() {
+    @Test
+    void Immutable_context_merge_targeting_key() {
         String key1 = "key1";
         EvaluationContext ctx1 = new ImmutableContext(key1, new HashMap<>());
         EvaluationContext ctx2 = new ImmutableContext(new HashMap<>());
@@ -156,19 +166,21 @@ public class EvalContextTest {
         ctxMerged = ctx1.merge(ctx2);
         assertEquals(key2, ctxMerged.getTargetingKey());
 
-        ctx2 = new ImmutableContext(" ",new HashMap<>());
+        ctx2 = new ImmutableContext(" ", new HashMap<>());
         ctxMerged = ctx1.merge(ctx2);
         assertEquals(key1, ctxMerged.getTargetingKey());
     }
 
-    @Test void merge_null_returns_value() {
+    @Test
+    void merge_null_returns_value() {
         MutableContext ctx1 = new MutableContext("key");
         ctx1.add("mything", "value");
         EvaluationContext result = ctx1.merge(null);
         assertEquals(ctx1, result);
     }
 
-    @Test void merge_targeting_key() {
+    @Test
+    void merge_targeting_key() {
         String key1 = "key1";
         MutableContext ctx1 = new MutableContext(key1);
         MutableContext ctx2 = new MutableContext();
@@ -186,14 +198,15 @@ public class EvalContextTest {
         assertEquals(key2, ctxMerged.getTargetingKey());
     }
 
-    @Test void asObjectMap() {
+    @Test
+    void asObjectMap() {
         String key1 = "key1";
         MutableContext ctx = new MutableContext(key1);
         ctx.add("stringItem", "stringValue");
         ctx.add("boolItem", false);
         ctx.add("integerItem", 1);
         ctx.add("doubleItem", 1.2);
-        ctx.add("instantItem",  Instant.ofEpochSecond(1663331342));
+        ctx.add("instantItem", Instant.ofEpochSecond(1663331342));
         List<Value> listItem = new ArrayList<>();
         listItem.add(new Value("item1"));
         listItem.add(new Value("item2"));
@@ -207,10 +220,9 @@ public class EvalContextTest {
         structureValue.put("structBoolItem", new Value(false));
         structureValue.put("structIntegerItem", new Value(1));
         structureValue.put("structDoubleItem", new Value(1.2));
-        structureValue.put("structInstantItem",  new Value(Instant.ofEpochSecond(1663331342)));
+        structureValue.put("structInstantItem", new Value(Instant.ofEpochSecond(1663331342)));
         Structure structure = new MutableStructure(structureValue);
         ctx.add("structureItem", structure);
-
 
         Map<String, Object> want = new HashMap<>();
         want.put(TARGETING_KEY, key1);
@@ -218,7 +230,7 @@ public class EvalContextTest {
         want.put("boolItem", false);
         want.put("integerItem", 1);
         want.put("doubleItem", 1.2);
-        want.put("instantItem",  Instant.ofEpochSecond(1663331342));
+        want.put("instantItem", Instant.ofEpochSecond(1663331342));
         List<String> wantListItem = new ArrayList<>();
         wantListItem.add("item1");
         wantListItem.add("item2");
@@ -232,9 +244,9 @@ public class EvalContextTest {
         wantStructureValue.put("structBoolItem", false);
         wantStructureValue.put("structIntegerItem", 1);
         wantStructureValue.put("structDoubleItem", 1.2);
-        wantStructureValue.put("structInstantItem",  Instant.ofEpochSecond(1663331342));
-        want.put("structureItem",wantStructureValue);
+        wantStructureValue.put("structInstantItem", Instant.ofEpochSecond(1663331342));
+        want.put("structureItem", wantStructureValue);
 
-        assertEquals(want,ctx.asObjectMap());
+        assertEquals(want, ctx.asObjectMap());
     }
 }

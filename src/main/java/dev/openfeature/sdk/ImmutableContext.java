@@ -89,10 +89,10 @@ public final class ImmutableContext implements EvaluationContext {
     @SuppressWarnings("all")
     private static class DelegateExclusions {
         @ExcludeFromGeneratedCoverageReport
-        public <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure, 
+        public <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure,
                 Map<String, Value> base,
                 Map<String, Value> overriding) {
- 
+
             return null;
         }
     }

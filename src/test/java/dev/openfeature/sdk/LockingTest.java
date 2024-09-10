@@ -18,13 +18,13 @@ import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 
 @Isolated()
 class LockingTest {
-    
+
     private static OpenFeatureAPI api;
     private OpenFeatureClient client;
     private AutoCloseableReentrantReadWriteLock apiLock;
     private AutoCloseableReentrantReadWriteLock clientContextLock;
     private AutoCloseableReentrantReadWriteLock clientHooksLock;
-    
+
     @BeforeAll
     static void beforeAll() {
         api = OpenFeatureAPI.getInstance();
@@ -34,7 +34,7 @@ class LockingTest {
     @BeforeEach
     void beforeEach() {
         client = (OpenFeatureClient) api.getClient("LockingTest");
-        
+
         apiLock = setupLock(apiLock, mockInnerReadLock(), mockInnerWriteLock());
         OpenFeatureAPI.lock = apiLock;
 
@@ -93,7 +93,7 @@ class LockingTest {
 
         @Nested
         class Client {
-            
+
             // Note that the API lock is used for adding client handlers, they are all added (indirectly) on the API object.
 
             @Test

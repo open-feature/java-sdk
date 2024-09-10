@@ -90,7 +90,7 @@ class ProviderRepositoryTest {
             void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() throws Exception {
                 FeatureProvider provider = createMockedReadyProvider();
                 setFeatureProvider(provider);
-                
+
                 verify(provider, never()).initialize(any());
             }
         }
@@ -254,11 +254,11 @@ class ProviderRepositoryTest {
                 Consumer<FeatureProvider> afterInit = mock(Consumer.class);
                 Consumer<FeatureProvider> afterShutdown = mock(Consumer.class);
                 BiConsumer<FeatureProvider, OpenFeatureError> afterError = mock(BiConsumer.class);
-        
+
                 FeatureProvider oldProvider = providerRepository.getProvider();
                 FeatureProvider featureProvider1 = createMockedProvider();
                 FeatureProvider featureProvider2 = createMockedProvider();
-        
+
                 setFeatureProvider(featureProvider1, afterSet, afterInit, afterShutdown, afterError);
                 setFeatureProvider(featureProvider2);
                 verify(afterSet, timeout(TIMEOUT)).accept(featureProvider1);
@@ -275,12 +275,12 @@ class ProviderRepositoryTest {
                 Consumer<FeatureProvider> afterInit = mock(Consumer.class);
                 Consumer<FeatureProvider> afterShutdown = mock(Consumer.class);
                 BiConsumer<FeatureProvider, OpenFeatureError> afterError = mock(BiConsumer.class);
-        
+
                 FeatureProvider errorFeatureProvider = createMockedErrorProvider();
-        
+
                 setFeatureProvider(errorFeatureProvider, afterSet, afterInit, afterShutdown, afterError);
                 verify(afterSet, timeout(TIMEOUT)).accept(errorFeatureProvider);
-                verify(afterInit, never()).accept(any());;
+                verify(afterInit, never()).accept(any());
                 verify(afterError, timeout(TIMEOUT)).accept(eq(errorFeatureProvider), any());
             }
         }

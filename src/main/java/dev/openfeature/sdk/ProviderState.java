@@ -8,7 +8,7 @@ public enum ProviderState {
 
     /**
      * Returns true if the passed ProviderEvent maps to this ProviderState.
-     * 
+     *
      * @param event event to compare
      * @return boolean if matches.
      */

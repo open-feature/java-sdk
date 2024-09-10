@@ -20,8 +20,8 @@ import lombok.extern.slf4j.Slf4j;
  * OpenFeature Client implementation.
  * You should not instantiate this or reference this class.
  * Use the dev.openfeature.sdk.Client interface instead.
+ *
  * @see Client
- * 
  * @deprecated // TODO: eventually we will make this non-public. See issue #872
  */
 @Slf4j
@@ -48,8 +48,8 @@ public class OpenFeatureClient implements Client {
      * @param domain         An identifier which logically binds clients with providers (used by observability tools).
      * @param version        Version of the client (used by observability tools).
      * @deprecated Do not use this constructor. It's for internal use only.
-     *             Clients created using it will not run event handlers.
-     *             Use the OpenFeatureAPI's getClient factory method instead.
+     *         Clients created using it will not run event handlers.
+     *         Use the OpenFeatureAPI's getClient factory method instead.
      */
     @Deprecated() // TODO: eventually we will make this non-public. See issue #872
     public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String domain, String version) {

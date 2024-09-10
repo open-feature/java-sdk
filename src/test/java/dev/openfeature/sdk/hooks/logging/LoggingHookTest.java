@@ -95,7 +95,8 @@ class LoggingHookTest {
     @Test
     void afterLogsAllPropsExceptEvaluationContext() {
         LoggingHook hook = new LoggingHook();
-        FlagEvaluationDetails<Object> details = FlagEvaluationDetails.builder().reason(REASON).variant(VARIANT).value(VALUE).build();
+        FlagEvaluationDetails<Object> details = FlagEvaluationDetails.builder().reason(REASON).variant(VARIANT)
+                .value(VALUE).build();
         hook.after(hookContext, details, null);
 
         verify(logger).atDebug();
@@ -109,7 +110,8 @@ class LoggingHookTest {
     @Test
     void afterLogsAllPropsAndEvaluationContext() {
         LoggingHook hook = new LoggingHook(true);
-        FlagEvaluationDetails<Object> details = FlagEvaluationDetails.builder().reason(REASON).variant(VARIANT).value(VALUE).build();
+        FlagEvaluationDetails<Object> details = FlagEvaluationDetails.builder().reason(REASON).variant(VARIANT)
+                .value(VALUE).build();
         hook.after(hookContext, details, null);
 
         verify(logger).atDebug();

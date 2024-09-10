@@ -10,9 +10,9 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * {@link MutableStructure} represents a potentially nested object type which is used to represent 
+ * {@link MutableStructure} represents a potentially nested object type which is used to represent
  * structured data.
- * The MutableStructure is a Structure implementation which is not threadsafe, and whose attributes can 
+ * The MutableStructure is a Structure implementation which is not threadsafe, and whose attributes can
  * be modified after instantiation.
  */
 @ToString

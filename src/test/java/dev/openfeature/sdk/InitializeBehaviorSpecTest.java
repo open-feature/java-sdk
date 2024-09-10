@@ -19,10 +19,10 @@ class InitializeBehaviorSpecTest {
     class DefaultProvider {
 
         @Specification(number = "1.1.2.2", text = "The `provider mutator` function MUST invoke the `initialize` "
-            + "function on the newly registered provider before using it to resolve flag values.")
+                + "function on the newly registered provider before using it to resolve flag values.")
         @Test
         @DisplayName("must call initialize function of the newly registered provider before using it for "
-            + "flag evaluation")
+                + "flag evaluation")
         void mustCallInitializeFunctionOfTheNewlyRegisteredProviderBeforeUsingItForFlagEvaluation() throws Exception {
             FeatureProvider featureProvider = mock(FeatureProvider.class);
             doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
@@ -33,9 +33,9 @@ class InitializeBehaviorSpecTest {
         }
 
         @Specification(number = "1.4.10", text = "Methods, functions, or operations on the client MUST NOT throw "
-            + "exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the "
-            + "`default value` in the event of abnormal execution. Exceptions include functions or methods for "
-            + "the purposes for configuration or setup.")
+                + "exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the "
+                + "`default value` in the event of abnormal execution. Exceptions include functions or methods for "
+                + "the purposes for configuration or setup.")
         @Test
         @DisplayName("should catch exception thrown by the provider on initialization")
         void shouldCatchExceptionThrownByTheProviderOnInitialization() throws Exception {
@@ -44,7 +44,7 @@ class InitializeBehaviorSpecTest {
             doThrow(TestException.class).when(featureProvider).initialize(any());
 
             assertThatCode(() -> OpenFeatureAPI.getInstance().setProvider(featureProvider))
-                .doesNotThrowAnyException();
+                    .doesNotThrowAnyException();
 
             verify(featureProvider, timeout(1000)).initialize(any());
         }
@@ -54,11 +54,12 @@ class InitializeBehaviorSpecTest {
     class ProviderForNamedClient {
 
         @Specification(number = "1.1.2.2", text = "The `provider mutator` function MUST invoke the `initialize`"
-            + " function on the newly registered provider before using it to resolve flag values.")
+                + " function on the newly registered provider before using it to resolve flag values.")
         @Test
         @DisplayName("must call initialize function of the newly registered named provider before using it "
-            + "for flag evaluation")
-        void mustCallInitializeFunctionOfTheNewlyRegisteredNamedProviderBeforeUsingItForFlagEvaluation() throws Exception {
+                + "for flag evaluation")
+        void mustCallInitializeFunctionOfTheNewlyRegisteredNamedProviderBeforeUsingItForFlagEvaluation()
+                throws Exception {
             FeatureProvider featureProvider = mock(FeatureProvider.class);
             doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
 
@@ -68,9 +69,9 @@ class InitializeBehaviorSpecTest {
         }
 
         @Specification(number = "1.4.10", text = "Methods, functions, or operations on the client MUST NOT throw "
-            + "exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the "
-            + "`default value` in the event of abnormal execution. Exceptions include functions or methods for "
-            + "the purposes for configuration or setup.")
+                + "exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the "
+                + "`default value` in the event of abnormal execution. Exceptions include functions or methods for "
+                + "the purposes for configuration or setup.")
         @Test
         @DisplayName("should catch exception thrown by the named client provider on initialization")
         void shouldCatchExceptionThrownByTheNamedClientProviderOnInitialization() throws Exception {
@@ -79,7 +80,7 @@ class InitializeBehaviorSpecTest {
             doThrow(TestException.class).when(featureProvider).initialize(any());
 
             assertThatCode(() -> OpenFeatureAPI.getInstance().setProvider(DOMAIN_NAME, featureProvider))
-                .doesNotThrowAnyException();
+                    .doesNotThrowAnyException();
 
             verify(featureProvider, timeout(1000)).initialize(any());
         }

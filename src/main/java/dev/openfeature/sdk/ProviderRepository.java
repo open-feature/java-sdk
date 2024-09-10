@@ -47,8 +47,8 @@ class ProviderRepository {
 
     public List<String> getDomainsForProvider(FeatureProvider provider) {
         return providers.entrySet().stream()
-            .filter(entry -> entry.getValue().equals(provider))
-            .map(entry -> entry.getKey()).collect(Collectors.toList());
+                .filter(entry -> entry.getValue().equals(provider))
+                .map(entry -> entry.getKey()).collect(Collectors.toList());
     }
 
     public Set<String> getAllBoundDomains() {
@@ -99,12 +99,12 @@ class ProviderRepository {
     }
 
     private void prepareAndInitializeProvider(String domain,
-              FeatureProvider newProvider,
-              Consumer<FeatureProvider> afterSet,
-              Consumer<FeatureProvider> afterInit,
-              Consumer<FeatureProvider> afterShutdown,
-              BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-              boolean waitForInit) {
+            FeatureProvider newProvider,
+            Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            boolean waitForInit) {
 
         if (!isProviderRegistered(newProvider)) {
             // only run afterSet if new provider is not already attached
@@ -155,6 +155,7 @@ class ProviderRepository {
 
     /**
      * Helper to check if provider is already known (registered).
+     *
      * @param provider provider to check for registration
      * @return boolean true if already registered, false otherwise
      */

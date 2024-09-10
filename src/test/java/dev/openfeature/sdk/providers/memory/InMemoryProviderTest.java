@@ -46,10 +46,10 @@ class InMemoryProviderTest {
         client = OpenFeatureAPI.getInstance().getClient();
         provider.updateFlags(flags);
         provider.updateFlag("addedFlag", Flag.builder()
-            .variant("on", true)
-            .variant("off", false)
-            .defaultVariant("on")
-            .build());
+                .variant("on", true)
+                .variant("off", false)
+                .defaultVariant("on")
+                .build());
     }
 
     @SneakyThrows
@@ -81,9 +81,9 @@ class InMemoryProviderTest {
     @Test
     void getObjectEvaluation() {
         Value expectedObject = new Value(mapToStructure(ImmutableMap.of(
-            "showImages", new Value(true),
-            "title", new Value("Check out these pics!"),
-            "imagesPerPage", new Value(100)
+                "showImages", new Value(true),
+                "title", new Value("Check out these pics!"),
+                "imagesPerPage", new Value(100)
         )));
         assertEquals(expectedObject, client.getObjectValue("object-flag", new Value(true)));
     }
@@ -108,7 +108,8 @@ class InMemoryProviderTest {
         InMemoryProvider inMemoryProvider = new InMemoryProvider(new HashMap<>());
 
         // ErrorCode.PROVIDER_NOT_READY should be returned when evaluated via the client
-        assertThrows(ProviderNotReadyError.class, ()-> inMemoryProvider.getBooleanEvaluation("fail_not_initialized", false, new ImmutableContext()));
+        assertThrows(ProviderNotReadyError.class,
+                () -> inMemoryProvider.getBooleanEvaluation("fail_not_initialized", false, new ImmutableContext()));
     }
 
     @SuppressWarnings("unchecked")

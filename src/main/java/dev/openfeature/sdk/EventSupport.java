@@ -35,7 +35,7 @@ class EventSupport {
     /**
      * Run all the event handlers associated with this domain.
      * If the domain is null, handlers attached to unnamed clients will run.
-     * 
+     *
      * @param domain       the domain to run event handlers for, or null
      * @param event        the event type
      * @param eventDetails the event details
@@ -54,7 +54,7 @@ class EventSupport {
 
     /**
      * Run all the API (global) event handlers.
-     * 
+     *
      * @param event        the event type
      * @param eventDetails the event details
      */
@@ -67,10 +67,10 @@ class EventSupport {
 
     /**
      * Add a handler for the specified domain, or all unnamed clients.
-     * 
-     * @param domain     the domain to add handlers for, or else unnamed
-     * @param event      the event type
-     * @param handler    the handler function to run
+     *
+     * @param domain  the domain to add handlers for, or else unnamed
+     * @param event   the event type
+     * @param handler the handler function to run
      */
     public void addClientHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
         final String name = Optional.ofNullable(domain)
@@ -88,11 +88,11 @@ class EventSupport {
 
     /**
      * Remove a client event handler for the specified event type.
-     * 
-     * @param domain     the domain of the client handler to remove, or null to remove
-     *                   from unnamed clients
-     * @param event      the event type
-     * @param handler    the handler ref to be removed
+     *
+     * @param domain  the domain of the client handler to remove, or null to remove
+     *                from unnamed clients
+     * @param event   the event type
+     * @param handler the handler ref to be removed
      */
     public void removeClientHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
         domain = Optional.ofNullable(domain)
@@ -102,7 +102,7 @@ class EventSupport {
 
     /**
      * Add a global event handler of the specified event type.
-     * 
+     *
      * @param event   the event type
      * @param handler the handler to be added
      */
@@ -112,7 +112,7 @@ class EventSupport {
 
     /**
      * Remove a global event handler for the specified event type.
-     * 
+     *
      * @param event   the event type
      * @param handler the handler ref to be removed
      */
@@ -122,7 +122,7 @@ class EventSupport {
 
     /**
      * Get all domain names for which we have event handlers registered.
-     * 
+     *
      * @return set of domain names
      */
     public Set<String> getAllDomainNames() {
@@ -131,7 +131,7 @@ class EventSupport {
 
     /**
      * Run the passed handler on the taskExecutor.
-     * 
+     *
      * @param handler      the handler to run
      * @param eventDetails the event details
      */

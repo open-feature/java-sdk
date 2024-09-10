@@ -17,11 +17,12 @@ public class FeatureProviderTestUtils {
         waitForProviderInitializationComplete(OpenFeatureAPI::getProvider, provider);
     }
 
-    private static void waitForProviderInitializationComplete(Function<OpenFeatureAPI, FeatureProvider> extractor, FeatureProvider provider) {
+    private static void waitForProviderInitializationComplete(Function<OpenFeatureAPI, FeatureProvider> extractor,
+            FeatureProvider provider) {
         await()
-            .pollDelay(Duration.ofMillis(1))
-            .atMost(Duration.ofSeconds(1))
-            .until(() -> extractor.apply(OpenFeatureAPI.getInstance()) == provider);
+                .pollDelay(Duration.ofMillis(1))
+                .atMost(Duration.ofSeconds(1))
+                .until(() -> extractor.apply(OpenFeatureAPI.getInstance()) == provider);
     }
 
     public static void setFeatureProvider(String domain, FeatureProvider provider) {

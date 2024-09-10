@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
 import static dev.openfeature.sdk.Value.objectToValue;
 
 /**
- * {@link Structure} represents a potentially nested object type which is used to represent 
+ * {@link Structure} represents a potentially nested object type which is used to represent
  * structured data.
  */
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public interface Structure {
-    
+
     /**
      * Get all keys.
      *
@@ -103,16 +103,16 @@ public interface Structure {
 
     /**
      * Recursively merges the base map with the overriding map.
-     * 
-     * @param <T> Structure type
+     *
+     * @param <T>          Structure type
      * @param newStructure function to create the right structure
-     * @param base base map to merge
-     * @param overriding overriding map to merge
+     * @param base         base map to merge
+     * @param overriding   overriding map to merge
      * @return resulting merged map
      */
     default <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure,
-                                                           Map<String, Value> base,
-                                                           Map<String, Value> overriding) {
+            Map<String, Value> base,
+            Map<String, Value> overriding) {
 
         final Map<String, Value> merged = new HashMap<>(base);
         for (Entry<String, Value> overridingEntry : overriding.entrySet()) {
@@ -137,9 +137,9 @@ public interface Structure {
      */
     static Structure mapToStructure(Map<String, Object> map) {
         return new MutableStructure(map.entrySet().stream()
-            .collect(HashMap::new,
+                .collect(HashMap::new,
                         (accumulated, entry) -> accumulated.put(entry.getKey(),
-                        objectToValue(entry.getValue())),
+                                objectToValue(entry.getValue())),
                         HashMap::putAll));
     }
 }

@@ -17,12 +17,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StructureTest {
-    @Test public void noArgShouldContainEmptyAttributes() {
+    @Test
+    public void noArgShouldContainEmptyAttributes() {
         MutableStructure structure = new MutableStructure();
         assertEquals(0, structure.asMap().keySet().size());
     }
 
-    @Test public void mapArgShouldContainNewMap() {
+    @Test
+    public void mapArgShouldContainNewMap() {
         String KEY = "key";
         Map<String, Value> map = new HashMap<String, Value>() {
             {
@@ -34,7 +36,8 @@ public class StructureTest {
         assertNotSame(structure.asMap(), map); // should be a copy
     }
 
-    @Test public void addAndGetAddAndReturnValues() {
+    @Test
+    public void addAndGetAddAndReturnValues() {
         String BOOL_KEY = "bool";
         String STRING_KEY = "string";
         String INT_KEY = "int";
@@ -104,7 +107,7 @@ public class StructureTest {
     @Test
     void asObjectHandlesNullValue() {
         Map<String, Value> map = new HashMap<>();
-        map.put("null", new Value((String)null));
+        map.put("null", new Value((String) null));
         ImmutableStructure structure = new ImmutableStructure(map);
         assertNull(structure.asObjectMap().get("null"));
     }
@@ -112,6 +115,6 @@ public class StructureTest {
     @Test
     void convertValueHandlesNullValue() {
         ImmutableStructure structure = new ImmutableStructure();
-        assertNull(structure.convertValue(new Value((String)null)));
+        assertNull(structure.convertValue(new Value((String) null)));
     }
 }

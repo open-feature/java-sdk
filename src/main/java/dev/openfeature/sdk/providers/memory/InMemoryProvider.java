@@ -49,6 +49,7 @@ public class InMemoryProvider extends EventProvider {
 
     /**
      * Initializes the provider.
+     *
      * @param evaluationContext evaluation context
      * @throws Exception on error
      */
@@ -63,6 +64,7 @@ public class InMemoryProvider extends EventProvider {
      * Updates the provider flags configuration.
      * For existing flags, the new configurations replace the old one.
      * For new flags, they are added to the configuration.
+     *
      * @param newFlags the new flag configurations
      */
     public void updateFlags(Map<String, Flag<?>> newFlags) {
@@ -70,9 +72,9 @@ public class InMemoryProvider extends EventProvider {
         this.flags.putAll(newFlags);
 
         ProviderEventDetails details = ProviderEventDetails.builder()
-            .flagsChanged(new ArrayList<>(flagsChanged))
-            .message("flags changed")
-            .build();
+                .flagsChanged(new ArrayList<>(flagsChanged))
+                .message("flags changed")
+                .build();
         emitProviderConfigurationChanged(details);
     }
 
@@ -80,14 +82,15 @@ public class InMemoryProvider extends EventProvider {
      * Updates a single provider flag configuration.
      * For existing flag, the new configuration replaces the old one.
      * For new flag, they are added to the configuration.
+     *
      * @param newFlag the flag to update
      */
     public void updateFlag(String flagKey, Flag<?> newFlag) {
         this.flags.put(flagKey, newFlag);
         ProviderEventDetails details = ProviderEventDetails.builder()
-            .flagsChanged(Collections.singletonList(flagKey))
-            .message("flag added/updated")
-            .build();
+                .flagsChanged(Collections.singletonList(flagKey))
+                .message("flag added/updated")
+                .build();
         emitProviderConfigurationChanged(details);
     }
 
@@ -144,10 +147,10 @@ public class InMemoryProvider extends EventProvider {
             value = (T) flag.getVariants().get(flag.getDefaultVariant());
         }
         return ProviderEvaluation.<T>builder()
-            .value(value)
-            .variant(flag.getDefaultVariant())
-            .reason(Reason.STATIC.toString())
-            .build();
+                .value(value)
+                .variant(flag.getDefaultVariant())
+                .reason(Reason.STATIC.toString())
+                .build();
     }
 
 }

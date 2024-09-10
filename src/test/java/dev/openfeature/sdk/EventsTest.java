@@ -11,6 +11,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -99,12 +100,14 @@ class EventsTest {
 
                 @Test
                 @DisplayName("should support all event types")
-                @Specification(number = "5.1.1", text = "The provider MAY define a mechanism for signaling the occurrence "
-                        + "of one of a set of events, including PROVIDER_READY, PROVIDER_ERROR, "
-                        + "PROVIDER_CONFIGURATION_CHANGED and PROVIDER_STALE, with a provider event details payload.")
-                @Specification(number = "5.2.2", text = "The API MUST provide a function for associating handler functions"
-                        +
-                        " with a particular provider event type.")
+                @Specification(number = "5.1.1", text =
+                        "The provider MAY define a mechanism for signaling the occurrence "
+                                + "of one of a set of events, including PROVIDER_READY, PROVIDER_ERROR, "
+                                + "PROVIDER_CONFIGURATION_CHANGED and PROVIDER_STALE, with a provider event details payload.")
+                @Specification(number = "5.2.2", text =
+                        "The API MUST provide a function for associating handler functions"
+                                +
+                                " with a particular provider event type.")
                 void apiShouldSupportAllEventTypes() {
                     final String name = "apiShouldSupportAllEventTypes";
                     final Consumer<EventDetails> handler1 = mockHandler();
@@ -303,9 +306,10 @@ class EventsTest {
             @Specification(number = "5.1.1", text = "The provider MAY define a mechanism for signaling the occurrence "
                     + "of one of a set of events, including PROVIDER_READY, PROVIDER_ERROR, "
                     + "PROVIDER_CONFIGURATION_CHANGED and PROVIDER_STALE, with a provider event details payload.")
-            @Specification(number = "5.2.1", text = "The client MUST provide a function for associating handler functions"
-                    +
-                    " with a particular provider event type.")
+            @Specification(number = "5.2.1", text =
+                    "The client MUST provide a function for associating handler functions"
+                            +
+                            " with a particular provider event type.")
             void shouldSupportAllEventTypes() {
                 final String name = "shouldSupportAllEventTypes";
                 final Consumer<EventDetails> handler1 = mockHandler();
@@ -337,7 +341,7 @@ class EventsTest {
 
     @Test
     @DisplayName("shutdown provider should not run handlers")
-    void shouldNotRunHandlers()  {
+    void shouldNotRunHandlers() {
         final Consumer<EventDetails> handler1 = mockHandler();
         final Consumer<EventDetails> handler2 = mockHandler();
         final String name = "shouldNotRunHandlers";
@@ -484,7 +488,7 @@ class EventsTest {
         OpenFeatureAPI.getInstance().onProviderConfigurationChanged(handler1);
         client.onProviderConfigurationChanged(handler2);
 
-        List<String> flagsChanged = Arrays.asList("flag");
+        List<String> flagsChanged = Collections.singletonList("flag");
         ImmutableMetadata metadata = ImmutableMetadata.builder().addInteger("int", 1).build();
         String message = "a message";
         ProviderEventDetails details = ProviderEventDetails.builder()
@@ -594,7 +598,7 @@ class EventsTest {
 
     @Nested
     class HandlerRemoval {
-        @Specification(number="5.2.7", text="The API and client MUST provide a function allowing the removal of event handlers.")
+        @Specification(number = "5.2.7", text = "The API and client MUST provide a function allowing the removal of event handlers.")
         @Test
         @DisplayName("should not run removed events")
         void removedEventsShouldNotRun() {

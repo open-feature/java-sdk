@@ -33,7 +33,7 @@ class OpenFeatureAPITest {
                 .isEqualTo(api.getProviderMetadata("namedProviderTest").getName());
     }
 
-    @Specification(number="1.1.3", text="The API MUST provide a function to bind a given provider to one or more clients using a domain. If the domain already has a bound provider, it is overwritten with the new mapping.")
+    @Specification(number = "1.1.3", text = "The API MUST provide a function to bind a given provider to one or more clients using a domain. If the domain already has a bound provider, it is overwritten with the new mapping.")
     @Test
     void namedProviderOverwrittenTest() {
         String domain = "namedProviderOverwrittenTest";

@@ -10,12 +10,14 @@ public interface Client extends Features, EventBus<Client> {
 
     /**
      * Return an optional client-level evaluation context.
+     *
      * @return {@link EvaluationContext}
      */
     EvaluationContext getEvaluationContext();
 
     /**
      * Set the client-level evaluation context.
+     *
      * @param ctx Client level context.
      */
     Client setEvaluationContext(EvaluationContext ctx);
@@ -30,6 +32,7 @@ public interface Client extends Features, EventBus<Client> {
 
     /**
      * Fetch the hooks associated to this client.
+     *
      * @return A list of {@link Hook}s.
      */
     List<Hook> getHooks();

@@ -28,12 +28,12 @@ class ProviderEvaluationTest {
         ImmutableMetadata metadata = ImmutableMetadata.builder().build();
 
         ProviderEvaluation<Integer> details = new ProviderEvaluation<>(
-        value,
-        variant,
-        reason.toString(),
-        errorCode,
-        errorMessage,
-        metadata);
+                value,
+                variant,
+                reason.toString(),
+                errorCode,
+                errorMessage,
+                metadata);
 
         assertEquals(value, details.getValue());
         assertEquals(variant, details.getVariant());

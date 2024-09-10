@@ -26,11 +26,10 @@ public abstract class EventProvider implements FeatureProvider {
 
     /**
      * "Attach" this EventProvider to an SDK, which allows events to propagate from this provider.
-     * No-op if the same onEmit is already attached. 
+     * No-op if the same onEmit is already attached.
      *
      * @param onEmit the function to run when a provider emits events.
      * @throws IllegalStateException if attempted to bind a new emitter for already bound provider
-     *
      */
     void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit) {
         if (this.onEmit != null && this.onEmit != onEmit) {
@@ -50,7 +49,7 @@ public abstract class EventProvider implements FeatureProvider {
 
     /**
      * Emit the specified {@link ProviderEvent}.
-     * 
+     *
      * @param event   The event type
      * @param details The details of the event
      */
@@ -63,7 +62,7 @@ public abstract class EventProvider implements FeatureProvider {
     /**
      * Emit a {@link ProviderEvent#PROVIDER_READY} event.
      * Shorthand for {@link #emit(ProviderEvent, ProviderEventDetails)}
-     * 
+     *
      * @param details The details of the event
      */
     public void emitProviderReady(ProviderEventDetails details) {
@@ -74,7 +73,7 @@ public abstract class EventProvider implements FeatureProvider {
      * Emit a
      * {@link ProviderEvent#PROVIDER_CONFIGURATION_CHANGED}
      * event. Shorthand for {@link #emit(ProviderEvent, ProviderEventDetails)}
-     * 
+     *
      * @param details The details of the event
      */
     public void emitProviderConfigurationChanged(ProviderEventDetails details) {
@@ -84,7 +83,7 @@ public abstract class EventProvider implements FeatureProvider {
     /**
      * Emit a {@link ProviderEvent#PROVIDER_STALE} event.
      * Shorthand for {@link #emit(ProviderEvent, ProviderEventDetails)}
-     * 
+     *
      * @param details The details of the event
      */
     public void emitProviderStale(ProviderEventDetails details) {
@@ -94,7 +93,7 @@ public abstract class EventProvider implements FeatureProvider {
     /**
      * Emit a {@link ProviderEvent#PROVIDER_ERROR} event.
      * Shorthand for {@link #emit(ProviderEvent, ProviderEventDetails)}
-     * 
+     *
      * @param details The details of the event
      */
     public void emitProviderError(ProviderEventDetails details) {

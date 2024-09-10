@@ -127,6 +127,6 @@ class EventProviderTest {
 
     @SuppressWarnings("unchecked")
     private TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> mockOnEmit() {
-        return (TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails>)mock(TriConsumer.class);
+        return (TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails>) mock(TriConsumer.class);
     }
 }

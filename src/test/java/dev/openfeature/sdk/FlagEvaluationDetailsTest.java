@@ -29,13 +29,13 @@ class FlagEvaluationDetailsTest {
         ImmutableMetadata metadata = ImmutableMetadata.builder().build();
 
         FlagEvaluationDetails<Integer> details = new FlagEvaluationDetails<>(
-        flagKey,
-        value,
-        variant,
-        reason.toString(),
-        errorCode,
-        errorMessage,
-        metadata);
+                flagKey,
+                value,
+                variant,
+                reason.toString(),
+                errorCode,
+                errorMessage,
+                metadata);
 
         assertEquals(flagKey, details.getFlagKey());
         assertEquals(value, details.getValue());
@@ -48,13 +48,13 @@ class FlagEvaluationDetailsTest {
 
     @Test
     @DisplayName("should be able to compare 2 FlagEvaluationDetails")
-    public void compareFlagEvaluationDetails(){
+    public void compareFlagEvaluationDetails() {
         FlagEvaluationDetails fed1 = FlagEvaluationDetails.builder()
                 .reason(Reason.ERROR.toString())
                 .value(false)
                 .errorCode(ErrorCode.GENERAL)
                 .errorMessage("error XXX")
-                .flagMetadata(ImmutableMetadata.builder().addString("metadata","1").build())
+                .flagMetadata(ImmutableMetadata.builder().addString("metadata", "1").build())
                 .build();
 
         FlagEvaluationDetails fed2 = FlagEvaluationDetails.builder()
@@ -62,9 +62,9 @@ class FlagEvaluationDetailsTest {
                 .value(false)
                 .errorCode(ErrorCode.GENERAL)
                 .errorMessage("error XXX")
-                .flagMetadata(ImmutableMetadata.builder().addString("metadata","1").build())
+                .flagMetadata(ImmutableMetadata.builder().addString("metadata", "1").build())
                 .build();
 
-        assertEquals(fed1,fed2);
+        assertEquals(fed1, fed2);
     }
 }
