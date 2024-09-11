@@ -2,6 +2,7 @@ package dev.openfeature.sdk.testutils;
 
 import dev.openfeature.sdk.*;
 import dev.openfeature.sdk.exceptions.GeneralError;
+import lombok.SneakyThrows;
 
 public class TestEventsProvider extends EventProvider {
     public static final String PASSED_IN_DEFAULT = "Passed in default";
@@ -26,7 +27,8 @@ public class TestEventsProvider extends EventProvider {
         this.initErrorMessage = initErrorMessage;
     }
 
-    public static TestEventsProvider initialized() throws Exception {
+    @SneakyThrows
+    public static TestEventsProvider newInitializedTestEventsProvider() {
         TestEventsProvider provider = new TestEventsProvider();
         provider.initialize(null);
         return provider;
@@ -106,4 +108,4 @@ public class TestEventsProvider extends EventProvider {
                 .reason(Reason.DEFAULT.toString())
                 .build();
     }
-};
+}

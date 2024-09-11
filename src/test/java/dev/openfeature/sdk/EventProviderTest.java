@@ -3,6 +3,7 @@ package dev.openfeature.sdk;
 import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.internal.TriConsumer;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,8 @@ class EventProviderTest {
     private TestEventProvider eventProvider;
 
     @BeforeEach
-    void setup() throws Exception {
+    @SneakyThrows
+    void setup() {
         eventProvider = new TestEventProvider();
         eventProvider.initialize(null);
     }
@@ -95,8 +97,9 @@ class EventProviderTest {
     }
 
     @Test
+    @SneakyThrows
     @DisplayName("sets the state to READY after running the initialize method")
-    void setsStateToReadyAfterInit() throws Exception {
+    void setsStateToReadyAfterInit() {
         AtomicBoolean doInitializationCalled = new AtomicBoolean();
         EventProvider provider = new TestEventProvider() {
             @Override
@@ -139,6 +142,49 @@ class EventProviderTest {
         assertThrows(FatalError.class, () -> provider.initialize(null));
         assertThat(provider.getState()).isEqualTo(ProviderState.FATAL);
         assertThat(doInitializationCalled).isTrue();
+    }
+
+    @Test
+    @Specification(number = "5.3.5", text = "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")
+    @DisplayName("sets the state to ERROR when an error event is emitted")
+    void setsStateToErrorWhenErrorEventIsEmitted() {
+        EventProvider provider = new TestEventProvider() {
+            @Override
+            protected void doInitialization(EvaluationContext evaluationContext) {
+            }
+        };
+        assertThat(provider.getState()).isNotEqualTo(ProviderState.ERROR);
+        provider.emitProviderError(ProviderEventDetails.builder().build());
+        assertThat(provider.getState()).isEqualTo(ProviderState.ERROR);
+    }
+
+    @Test
+    @Specification(number = "5.3.5", text = "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")
+    @DisplayName("sets the state to STALE when a stale event is emitted")
+    void setsStateToStaleWhenStaleEventIsEmitted() {
+        EventProvider provider = new TestEventProvider() {
+            @Override
+            protected void doInitialization(EvaluationContext evaluationContext) {
+            }
+        };
+        assertThat(provider.getState()).isNotEqualTo(ProviderState.STALE);
+        provider.emitProviderStale(ProviderEventDetails.builder().build());
+        assertThat(provider.getState()).isEqualTo(ProviderState.STALE);
+    }
+
+    @Test
+    @Specification(number = "5.3.5", text = "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")
+    @DisplayName("sets the state to READY when a ready event is emitted")
+    void setsStateToReadyWhenReadyEventIsEmitted() {
+        EventProvider provider = new TestEventProvider() {
+            @Override
+            protected void doInitialization(EvaluationContext evaluationContext) {
+            }
+        };
+        provider.emitProviderStale(ProviderEventDetails.builder().build());
+        assertThat(provider.getState()).isNotEqualTo(ProviderState.READY);
+        provider.emitProviderReady(ProviderEventDetails.builder().build());
+        assertThat(provider.getState()).isEqualTo(ProviderState.READY);
     }
 
     static class TestEventProvider extends EventProvider {

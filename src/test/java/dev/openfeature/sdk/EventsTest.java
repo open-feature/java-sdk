@@ -2,6 +2,7 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import io.cucumber.java.AfterAll;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -332,7 +333,7 @@ class EventsTest {
 
     @Test
     @DisplayName("shutdown provider should not run handlers")
-    void shouldNotRunHandlers()  {
+    void shouldNotRunHandlers() {
         final Consumer<EventDetails> handler1 = mockHandler();
         final Consumer<EventDetails> handler2 = mockHandler();
         final String name = "shouldNotRunHandlers";
@@ -510,13 +511,13 @@ class EventsTest {
     @Test
     @DisplayName("if the provider is ready handlers must run immediately")
     @Specification(number = "5.3.3", text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
-    void matchingReadyEventsMustRunImmediately()  {
+    void matchingReadyEventsMustRunImmediately() {
         final String name = "matchingEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
 
         // provider which is already ready
         TestEventsProvider provider = new TestEventsProvider();
-        OpenFeatureAPI.getInstance().setProvider(name, provider);
+        OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
 
         // should run even thought handler was added after ready
         Client client = OpenFeatureAPI.getInstance().getClient(name);
@@ -527,12 +528,12 @@ class EventsTest {
     @Test
     @DisplayName("if the provider is ready handlers must run immediately")
     @Specification(number = "5.3.3", text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
-    void matchingStaleEventsMustRunImmediately() throws Exception {
+    void matchingStaleEventsMustRunImmediately() {
         final String name = "matchingEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
 
         // provider which is already stale
-        TestEventsProvider provider =TestEventsProvider.initialized();
+        TestEventsProvider provider = TestEventsProvider.newInitializedTestEventsProvider();
         provider.emitProviderStale(null);
         assertThat(provider.getState()).isEqualTo(ProviderState.STALE);
         OpenFeatureAPI.getInstance().setProvider(name, provider);
@@ -546,12 +547,12 @@ class EventsTest {
     @Test
     @DisplayName("if the provider is ready handlers must run immediately")
     @Specification(number = "5.3.3", text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
-    void matchingErrorEventsMustRunImmediately() throws Exception {
+    void matchingErrorEventsMustRunImmediately() {
         final String name = "matchingEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
 
         // provider which is already in error
-        TestEventsProvider provider = TestEventsProvider.initialized();
+        TestEventsProvider provider = TestEventsProvider.newInitializedTestEventsProvider();
         provider.emitProviderError(null);
         assertThat(provider.getState()).isEqualTo(ProviderState.ERROR);
         OpenFeatureAPI.getInstance().setProvider(name, provider);
@@ -593,10 +594,11 @@ class EventsTest {
 
     @Nested
     class HandlerRemoval {
-        @Specification(number="5.2.7", text="The API and client MUST provide a function allowing the removal of event handlers.")
+        @Specification(number = "5.2.7", text = "The API and client MUST provide a function allowing the removal of event handlers.")
         @Test
         @DisplayName("should not run removed events")
-        void removedEventsShouldNotRun() throws Exception {
+        @SneakyThrows
+        void removedEventsShouldNotRun() {
             final String name = "removedEventsShouldNotRun";
             final Consumer<EventDetails> handler1 = mockHandler();
             final Consumer<EventDetails> handler2 = mockHandler();

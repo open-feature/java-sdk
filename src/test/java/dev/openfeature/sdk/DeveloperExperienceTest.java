@@ -3,6 +3,7 @@ package dev.openfeature.sdk;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -16,19 +17,21 @@ import static org.mockito.Mockito.verify;
 class DeveloperExperienceTest implements HookFixtures {
     transient String flagKey = "mykey";
 
-    @Test void simpleBooleanFlag() throws Exception {
+    @Test
+    void simpleBooleanFlag() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(TestEventsProvider.initialized());
+        api.setProviderAndWait(new TestEventsProvider());
         Client client = api.getClient();
         Boolean retval = client.getBooleanValue(flagKey, false);
         assertFalse(retval);
     }
 
-    @Test void clientHooks() throws Exception {
+    @Test
+    void clientHooks() {
         Hook<Boolean> exampleHook = mockBooleanHook();
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(TestEventsProvider.initialized());
+        api.setProviderAndWait(new TestEventsProvider());
         Client client = api.getClient();
         client.addHooks(exampleHook);
         Boolean retval = client.getBooleanValue(flagKey, false);
@@ -36,12 +39,13 @@ class DeveloperExperienceTest implements HookFixtures {
         assertFalse(retval);
     }
 
-    @Test void evalHooks() throws Exception {
+    @Test
+    void evalHooks() {
         Hook<Boolean> clientHook = mockBooleanHook();
         Hook<Boolean> evalHook = mockBooleanHook();
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(TestEventsProvider.initialized());
+        api.setProviderAndWait(new TestEventsProvider());
         Client client = api.getClient();
         client.addHooks(clientHook);
         Boolean retval = client.getBooleanValue(flagKey, false, null,
@@ -55,10 +59,11 @@ class DeveloperExperienceTest implements HookFixtures {
      * As an application author, you probably know special things about your users. You can communicate these to the
      * provider via {@link MutableContext}
      */
-    @Test void providingContext() throws Exception {
+    @Test
+    void providingContext() {
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(TestEventsProvider.initialized());
+        api.setProviderAndWait(new TestEventsProvider());
         Client client = api.getClient();
         Map<String, Value> attributes = new HashMap<>();
         List<Value> values = Arrays.asList(new Value(2), new Value(4));
@@ -72,7 +77,8 @@ class DeveloperExperienceTest implements HookFixtures {
         assertFalse(retval);
     }
 
-    @Test void brokenProvider() {
+    @Test
+    void brokenProvider() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client client = api.getClient();
@@ -89,17 +95,16 @@ class DeveloperExperienceTest implements HookFixtures {
         class MutatingHook implements Hook {
 
             @Override
+            @SneakyThrows
             // change the provider during a before hook - this should not impact the evaluation in progress
-            public Optional before(HookContext ctx, Map hints)  {
-                try {
-                    FeatureProviderTestUtils.setFeatureProvider(TestEventsProvider.initialized());
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+            public Optional before(HookContext ctx, Map hints) {
+
+                FeatureProviderTestUtils.setFeatureProvider(TestEventsProvider.newInitializedTestEventsProvider());
+
                 return Optional.empty();
             }
         }
-        
+
         final String defaultValue = "string-value";
         final OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         final Client client = api.getClient();
@@ -111,7 +116,7 @@ class DeveloperExperienceTest implements HookFixtures {
         assertEquals(new StringBuilder(defaultValue).reverse().toString(), doSomethingValue);
 
         api.clearHooks();
-        
+
         // subsequent evaluations should now use new provider set by hook
         String noOpValue = client.getStringValue("val", defaultValue);
         assertEquals(noOpValue, defaultValue);

@@ -6,6 +6,7 @@ import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import lombok.SneakyThrows;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
         return api.getClient();
     }
 
-    private Client _initializedClient() throws Exception {
+    @SneakyThrows
+    private Client _initializedClient() {
         TestEventsProvider provider = new TestEventsProvider();
         provider.initialize(null);
         FeatureProviderTestUtils.setFeatureProvider(provider);
@@ -101,7 +103,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         FeatureProvider provider = new InMemoryProvider(new HashMap<>()) {
             @Override
             protected void doInitialization(EvaluationContext evaluationContext) throws Exception {
-                Thread.sleep(10000);
+                Awaitility.await().wait(3000);
             }
         };
         String providerName = "shouldReturnNotReadyIfNotInitialized";
@@ -235,7 +237,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
     }
 
     @Specification(number="1.5.1", text="The evaluation options structure's hooks field denotes an ordered collection of hooks that the client MUST execute for the respective flag evaluation, in addition to those already configured.")
-    @Test void hooks() throws Exception {
+    @SneakyThrows
+    @Test void hooks()  {
         Client c = _initializedClient();
         Hook<Boolean> clientHook = mockBooleanHook();
         Hook<Boolean> invocationHook = mockBooleanHook();
