@@ -23,14 +23,21 @@ class FeatureProviderWrapperTest {
         wrapper = new FeatureProviderWrapper(testDelegate);
     }
 
+    @SuppressWarnings("java:S5845")
     @Test
     void wrapperShouldEqualItsDelegate() {
         assertThat(wrapper).isEqualTo(testDelegate);
     }
 
+    @SuppressWarnings("java:S5845")
+    @Test
+    void delegateShouldEqualItsWrapper() {
+        assertThat(testDelegate).isEqualTo(wrapper);
+    }
+
     @Test
     void wrapperShouldHaveSameHashCodeAsDelegate() {
-        assertThat(wrapper.hashCode()).isEqualTo(testDelegate.hashCode());
+        assertThat(wrapper).hasSameHashCodeAs(testDelegate);
     }
 
     @SneakyThrows
