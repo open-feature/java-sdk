@@ -337,15 +337,15 @@ class HookSpecTest implements HookFixtures {
         Hook<Boolean> h2 = mockBooleanHook();
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenProvider());
         Client c = api.getClient();
 
         c.getBooleanDetails("key", false, null, FlagEvaluationOptions.builder()
                 .hook(h2)
                 .hook(h)
                 .build());
-        verify(h, times(1)).before(any(), any());
-        verify(h2, times(0)).before(any(), any());
+            verify(h, times(1)).before(any(), any());
+            verify(h2, times(0)).before(any(), any());
     }
 
     @Specification(number = "4.4.6", text = "If an error occurs during the evaluation of before or after hooks, any remaining hooks in the before or after stages MUST NOT be invoked.")

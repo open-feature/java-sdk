@@ -99,7 +99,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @Specification(number="2.4.5", text="The provider SHOULD indicate an error if flag resolution is attempted before the provider is ready.")
     @Test void shouldReturnNotReadyIfNotInitialized() {
-        FeatureProvider provider = new InMemoryProvider(new HashMap<>()) ;
+        FeatureProvider provider = new TestEventsProvider(100);
         String providerName = "shouldReturnNotReadyIfNotInitialized";
         OpenFeatureAPI.getInstance().setProvider(providerName, provider);
         assertThat(api.getProviderState(providerName)).isEqualTo(ProviderState.NOT_READY);
