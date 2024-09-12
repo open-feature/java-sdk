@@ -6,7 +6,6 @@ import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import lombok.SneakyThrows;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,12 +78,12 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test void providerAndWait() {
         FeatureProvider provider = new TestEventsProvider(500);
         OpenFeatureAPI.getInstance().setProviderAndWait(provider);
-        assertThat(api.getProvider().getState()).isEqualTo(ProviderState.READY);
+        assertThat(api.getProviderState()).isEqualTo(ProviderState.READY);
 
         provider = new TestEventsProvider(500);
         String providerName = "providerAndWait";
         OpenFeatureAPI.getInstance().setProviderAndWait(providerName, provider);
-        assertThat(api.getProvider(providerName).getState()).isEqualTo(ProviderState.READY);
+        assertThat(api.getProviderState(providerName)).isEqualTo(ProviderState.READY);
     }
 
     @SneakyThrows
@@ -100,15 +99,10 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @Specification(number="2.4.5", text="The provider SHOULD indicate an error if flag resolution is attempted before the provider is ready.")
     @Test void shouldReturnNotReadyIfNotInitialized() {
-        FeatureProvider provider = new InMemoryProvider(new HashMap<>()) {
-            @Override
-            protected void doInitialization(EvaluationContext evaluationContext) throws Exception {
-                Awaitility.await().wait(3000);
-            }
-        };
+        FeatureProvider provider = new InMemoryProvider(new HashMap<>()) ;
         String providerName = "shouldReturnNotReadyIfNotInitialized";
         OpenFeatureAPI.getInstance().setProvider(providerName, provider);
-        assertThat(api.getProvider(providerName).getState()).isEqualTo(ProviderState.NOT_READY);
+        assertThat(api.getProviderState(providerName)).isEqualTo(ProviderState.NOT_READY);
         Client client = OpenFeatureAPI.getInstance().getClient(providerName);
         assertEquals(ErrorCode.PROVIDER_NOT_READY, client.getBooleanDetails("return_error_when_not_initialized", false).getErrorCode());
     }

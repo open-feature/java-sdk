@@ -43,18 +43,16 @@ public class TestEventsProvider extends EventProvider {
     }
 
     @Override
-    protected void doShutdown() {
+    public void shutdown() {
         this.shutDown = true;
     }
 
     @Override
-    protected void doInitialization(EvaluationContext evaluationContext) throws Exception {
-        if (ProviderState.NOT_READY.equals(getState())) {
-            // wait half the TIMEOUT, otherwise some init/errors can be fired before we add handlers
-            Thread.sleep(initTimeoutMs);
-            if (this.initError) {
-                throw new GeneralError(initErrorMessage);
-            }
+    public void initialize(EvaluationContext evaluationContext) throws Exception {
+        // wait half the TIMEOUT, otherwise some init/errors can be fired before we add handlers
+        Thread.sleep(initTimeoutMs);
+        if (this.initError) {
+            throw new GeneralError(initErrorMessage);
         }
     }
 

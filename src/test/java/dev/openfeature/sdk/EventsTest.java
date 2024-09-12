@@ -531,15 +531,16 @@ class EventsTest {
     void matchingStaleEventsMustRunImmediately() {
         final String name = "matchingEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
 
         // provider which is already stale
         TestEventsProvider provider = TestEventsProvider.newInitializedTestEventsProvider();
-        provider.emitProviderStale(null);
-        assertThat(provider.getState()).isEqualTo(ProviderState.STALE);
-        OpenFeatureAPI.getInstance().setProvider(name, provider);
+        api.setProviderAndWait(name, provider);
+        provider.emitProviderStale(ProviderEventDetails.builder().build());
+        assertThat(api.getProviderState(name)).isEqualTo(ProviderState.STALE);
 
         // should run even thought handler was added after stale
-        Client client = OpenFeatureAPI.getInstance().getClient(name);
+        Client client = api.getClient(name);
         client.onProviderStale(handler);
         verify(handler, timeout(TIMEOUT)).accept(any());
     }
@@ -550,15 +551,17 @@ class EventsTest {
     void matchingErrorEventsMustRunImmediately() {
         final String name = "matchingEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
 
         // provider which is already in error
-        TestEventsProvider provider = TestEventsProvider.newInitializedTestEventsProvider();
-        provider.emitProviderError(null);
-        assertThat(provider.getState()).isEqualTo(ProviderState.ERROR);
-        OpenFeatureAPI.getInstance().setProvider(name, provider);
+        TestEventsProvider provider = new TestEventsProvider();
+        api.setProvider(name, provider);
+        provider.emitProviderError(ProviderEventDetails.builder().build());
+        assertThat(api.getProviderState(name)).isEqualTo(ProviderState.ERROR);
+
 
         // should run even thought handler was added after error
-        Client client = OpenFeatureAPI.getInstance().getClient(name);
+        Client client = api.getClient(name);
         client.onProviderError(handler);
         verify(handler, timeout(TIMEOUT)).accept(any());
     }

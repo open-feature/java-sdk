@@ -56,6 +56,8 @@ public interface FeatureProvider {
     }
 
     /**
+     * @deprecated State is handled by the SDK internally.
+     * <p>
      * Returns a representation of the current readiness of the provider.
      * If the provider needs to be initialized, it should return {@link ProviderState#NOT_READY}.
      * If the provider is in an error state, it should return {@link ProviderState#ERROR}.
@@ -65,6 +67,7 @@ public interface FeatureProvider {
      * 
      * @return ProviderState
      */
+    @Deprecated
     default ProviderState getState() {
         return ProviderState.READY;
     }

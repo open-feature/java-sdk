@@ -56,7 +56,8 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should have NoOpProvider set as default on initialization")
             void shouldHaveNoOpProviderSetAsDefaultOnInitialization() {
-                assertThat(providerRepository.getProvider()).isInstanceOf(NoOpProvider.class);
+                assertThat(((FeatureProviderWrapper)providerRepository.getProvider()).getDelegate())
+                        .isInstanceOf(NoOpProvider.class);
             }
 
             @Test
@@ -77,16 +78,6 @@ class ProviderRepositoryTest {
                         });
 
                 verify(featureProvider, timeout(TIMEOUT)).initialize(any());
-            }
-
-            @SneakyThrows
-            @Test
-            @DisplayName("should avoid additional initialization call if provider has been newInitializedTestEventsProvider already")
-            void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() {
-                FeatureProvider provider = createMockedReadyProvider();
-                setFeatureProvider(provider);
-
-                verify(provider, never()).initialize(any());
             }
         }
 
@@ -126,15 +117,6 @@ class ProviderRepositoryTest {
                             verify(featureProvider, timeout(TIMEOUT)).initialize(any());
                             return true;
                         });
-            }
-
-            @Test
-            @DisplayName("should avoid additional initialization call if provider has been newInitializedTestEventsProvider already")
-            void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() throws Exception {
-                FeatureProvider provider = createMockedReadyProvider();
-                setFeatureProvider(DOMAIN_NAME, provider);
-
-                verify(provider, never()).initialize(any());
             }
         }
     }
@@ -325,7 +307,7 @@ class ProviderRepositoryTest {
                 .pollDelay(Duration.ofMillis(1))
                 .atMost(Duration.ofSeconds(5))
                 .until(() -> {
-                    return extractor.apply(providerRepository) == provider;
+                    return extractor.apply(providerRepository).equals(provider);
                 });
     }
 

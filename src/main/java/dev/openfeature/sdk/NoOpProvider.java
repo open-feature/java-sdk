@@ -59,11 +59,22 @@ public class NoOpProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue,
-        EvaluationContext invocationContext) {
+                                                         EvaluationContext invocationContext) {
         return ProviderEvaluation.<Value>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
                 .reason(Reason.DEFAULT.toString())
                 .build();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof FeatureProviderWrapper) {
+            return ((FeatureProviderWrapper) obj).getDelegate() == this;
+        }
+        return obj == this;
     }
 }

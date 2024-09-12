@@ -1,5 +1,9 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.exceptions.GeneralError;
+import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -13,15 +17,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import dev.openfeature.sdk.exceptions.GeneralError;
-import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 class ProviderRepository {
 
-    private final Map<String, FeatureProvider> providers = new ConcurrentHashMap<>();
-    private final AtomicReference<FeatureProvider> defaultProvider = new AtomicReference<>(new NoOpProvider());
+    private final Map<String, FeatureProviderWrapper> providers = new ConcurrentHashMap<>();
+    private final AtomicReference<FeatureProviderWrapper> defaultProvider = new AtomicReference<>(new FeatureProviderWrapper(new NoOpProvider()));
     private final ExecutorService taskExecutor = Executors.newCachedThreadPool(runnable -> {
         final Thread thread = new Thread(runnable);
         thread.setDaemon(true);
@@ -45,10 +45,18 @@ class ProviderRepository {
         return Optional.ofNullable(domain).map(this.providers::get).orElse(this.defaultProvider.get());
     }
 
+    public ProviderState getProviderState() {
+        return defaultProvider.get().getState();
+    }
+
+    public ProviderState getProviderState(String domain) {
+        return Optional.ofNullable(domain).map(this.providers::get).orElse(this.defaultProvider.get()).getState();
+    }
+
     public List<String> getDomainsForProvider(FeatureProvider provider) {
         return providers.entrySet().stream()
-            .filter(entry -> entry.getValue().equals(provider))
-            .map(entry -> entry.getKey()).collect(Collectors.toList());
+                .filter(entry -> entry.getValue().equals(provider))
+                .map(entry -> entry.getKey()).collect(Collectors.toList());
     }
 
     public Set<String> getAllBoundDomains() {
@@ -63,11 +71,11 @@ class ProviderRepository {
      * Set the default provider.
      */
     public void setProvider(FeatureProvider provider,
-            Consumer<FeatureProvider> afterSet,
-            Consumer<FeatureProvider> afterInit,
-            Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-            boolean waitForInit) {
+                            Consumer<FeatureProvider> afterSet,
+                            Consumer<FeatureProvider> afterInit,
+                            Consumer<FeatureProvider> afterShutdown,
+                            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+                            boolean waitForInit) {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
@@ -83,12 +91,12 @@ class ProviderRepository {
      *                    Otherwise, initialization happens in the background.
      */
     public void setProvider(String domain,
-            FeatureProvider provider,
-            Consumer<FeatureProvider> afterSet,
-            Consumer<FeatureProvider> afterInit,
-            Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-            boolean waitForInit) {
+                            FeatureProvider provider,
+                            Consumer<FeatureProvider> afterSet,
+                            Consumer<FeatureProvider> afterInit,
+                            Consumer<FeatureProvider> afterShutdown,
+                            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+                            boolean waitForInit) {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
@@ -99,12 +107,14 @@ class ProviderRepository {
     }
 
     private void prepareAndInitializeProvider(String domain,
-              FeatureProvider newProvider,
-              Consumer<FeatureProvider> afterSet,
-              Consumer<FeatureProvider> afterInit,
-              Consumer<FeatureProvider> afterShutdown,
-              BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-              boolean waitForInit) {
+                                              FeatureProvider newProvider,
+                                              Consumer<FeatureProvider> afterSet,
+                                              Consumer<FeatureProvider> afterInit,
+                                              Consumer<FeatureProvider> afterShutdown,
+                                              BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+                                              boolean waitForInit) {
+
+        FeatureProviderWrapper newProviderWrapper = new FeatureProviderWrapper(newProvider);
 
         if (!isProviderRegistered(newProvider)) {
             // only run afterSet if new provider is not already attached
@@ -112,55 +122,63 @@ class ProviderRepository {
         }
 
         // provider is set immediately, on this thread
-        FeatureProvider oldProvider = domain != null
-                ? this.providers.put(domain, newProvider)
-                : this.defaultProvider.getAndSet(newProvider);
+        FeatureProviderWrapper oldProvider = domain != null
+                ? this.providers.put(domain, newProviderWrapper)
+                : this.defaultProvider.getAndSet(newProviderWrapper);
 
         if (waitForInit) {
-            initializeProvider(newProvider, afterInit, afterShutdown, afterError, oldProvider);
+            initializeProvider(newProviderWrapper, afterInit, afterShutdown, afterError, oldProvider);
         } else {
             taskExecutor.submit(() -> {
                 // initialization happens in a different thread if we're not waiting it
-                initializeProvider(newProvider, afterInit, afterShutdown, afterError, oldProvider);
+                initializeProvider(newProviderWrapper, afterInit, afterShutdown, afterError, oldProvider);
             });
         }
     }
 
-    private void initializeProvider(FeatureProvider newProvider,
-            Consumer<FeatureProvider> afterInit,
-            Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-            FeatureProvider oldProvider) {
+    private void initializeProvider(FeatureProviderWrapper newProvider,
+                                    Consumer<FeatureProvider> afterInit,
+                                    Consumer<FeatureProvider> afterShutdown,
+                                    BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+                                    FeatureProviderWrapper oldProvider) {
         try {
             if (ProviderState.NOT_READY.equals(newProvider.getState())) {
                 newProvider.initialize(OpenFeatureAPI.getInstance().getEvaluationContext());
-                afterInit.accept(newProvider);
+                afterInit.accept(newProvider.getDelegate());
             }
             shutDownOld(oldProvider, afterShutdown);
         } catch (OpenFeatureError e) {
-            log.error("Exception when initializing feature provider {}", newProvider.getClass().getName(), e);
-            afterError.accept(newProvider, e);
+            log.error("Exception when initializing feature provider {}", newProvider.getDelegate().getClass().getName(), e);
+            afterError.accept(newProvider.getDelegate(), e);
         } catch (Exception e) {
-            log.error("Exception when initializing feature provider {}", newProvider.getClass().getName(), e);
-            afterError.accept(newProvider, new GeneralError(e));
+            log.error("Exception when initializing feature provider {}", newProvider.getDelegate().getClass().getName(), e);
+            afterError.accept(newProvider.getDelegate(), new GeneralError(e));
         }
     }
 
-    private void shutDownOld(FeatureProvider oldProvider, Consumer<FeatureProvider> afterShutdown) {
-        if (!isProviderRegistered(oldProvider)) {
+    private void shutDownOld(FeatureProviderWrapper oldProvider, Consumer<FeatureProvider> afterShutdown) {
+        if (oldProvider != null && !isProviderRegistered(oldProvider)) {
             shutdownProvider(oldProvider);
-            afterShutdown.accept(oldProvider);
+            afterShutdown.accept(oldProvider.getDelegate());
         }
     }
 
     /**
      * Helper to check if provider is already known (registered).
+     *
      * @param provider provider to check for registration
      * @return boolean true if already registered, false otherwise
      */
     private boolean isProviderRegistered(FeatureProvider provider) {
         return provider != null
                 && (this.providers.containsValue(provider) || this.defaultProvider.get().equals(provider));
+    }
+
+    private void shutdownProvider(FeatureProviderWrapper provider) {
+        if (provider == null) {
+            return;
+        }
+        shutdownProvider(provider.getDelegate());
     }
 
     private void shutdownProvider(FeatureProvider provider) {

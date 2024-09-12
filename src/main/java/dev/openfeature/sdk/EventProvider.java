@@ -1,8 +1,8 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.exceptions.GeneralError;
-import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.internal.TriConsumer;
+
+import javax.annotation.Nullable;
 
 /**
  * Abstract EventProvider. Providers must extend this class to support events.
@@ -17,47 +17,10 @@ import dev.openfeature.sdk.internal.TriConsumer;
  * @see FeatureProvider
  */
 public abstract class EventProvider implements FeatureProvider {
+    private @Nullable EventProviderListener eventProviderListener;
 
-    private ProviderState providerState = ProviderState.NOT_READY;
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final ProviderState getState() {
-        return providerState;
-    }
-
-    @Override
-    public final void initialize(EvaluationContext evaluationContext) throws Exception {
-        try {
-            doInitialization(evaluationContext);
-            providerState = ProviderState.READY;
-        } catch (OpenFeatureError openFeatureError) {
-            if (ErrorCode.PROVIDER_FATAL.equals(openFeatureError.getErrorCode())) {
-                providerState = ProviderState.FATAL;
-            } else {
-                providerState = ProviderState.ERROR;
-            }
-            throw openFeatureError;
-        } catch (Exception e) {
-            providerState = ProviderState.ERROR;
-            throw new GeneralError(e);
-        }
-    }
-
-    protected void doInitialization(EvaluationContext evaluationContext) throws Exception {
-        // Intentionally left blank, to be implemented by inheritors
-    }
-
-    @Override
-    public final void shutdown() {
-        providerState = ProviderState.NOT_READY;
-        doShutdown();
-    }
-
-    protected void doShutdown() {
-        // Intentionally left blank, to be implemented by inheritors
+    void setEventProviderListener(@Nullable EventProviderListener eventProviderListener) {
+        this.eventProviderListener = eventProviderListener;
     }
 
     private TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = null;
@@ -92,12 +55,8 @@ public abstract class EventProvider implements FeatureProvider {
      * @param details The details of the event
      */
     public void emit(ProviderEvent event, ProviderEventDetails details) {
-        if (ProviderEvent.PROVIDER_ERROR.equals(event)) {
-            providerState = ProviderState.ERROR;
-        } else if (ProviderEvent.PROVIDER_STALE.equals(event)) {
-            providerState = ProviderState.STALE;
-        } else if (ProviderEvent.PROVIDER_READY.equals(event)) {
-            providerState = ProviderState.READY;
+        if (eventProviderListener != null) {
+            eventProviderListener.onEmit(event, details);
         }
         if (this.onEmit != null) {
             this.onEmit.accept(this, event, details);
@@ -143,5 +102,16 @@ public abstract class EventProvider implements FeatureProvider {
      */
     public void emitProviderError(ProviderEventDetails details) {
         emit(ProviderEvent.PROVIDER_ERROR, details);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof FeatureProviderWrapper) {
+            return this == ((FeatureProviderWrapper) obj).getDelegate();
+        }
+        return this == obj;
     }
 }

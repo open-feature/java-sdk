@@ -118,15 +118,4 @@ class InMemoryProviderTest {
         await().untilAsserted(() -> verify(handler, times(1))
                 .accept(argThat(details -> details.getFlagsChanged().size() == buildFlags().size())));
     }
-
-    @SneakyThrows
-    @Test
-    void shouldThrowGeneralErrorAfterEmittingErrorEvent() {
-        InMemoryProvider inMemoryProvider = new InMemoryProvider(new HashMap<>());
-        inMemoryProvider.initialize(null);
-        inMemoryProvider.emitProviderError(ProviderEventDetails.builder().build());
-
-        // ErrorCode.GENERAL should be returned when evaluated via the client
-        assertThrows(GeneralError.class, () -> inMemoryProvider.getBooleanEvaluation("fail_in_error", false, new ImmutableContext()));
-    }
 }

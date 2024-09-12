@@ -6,7 +6,11 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -20,6 +24,9 @@ public class InMemoryProvider extends EventProvider {
 
     private final Map<String, Flag<?>> flags;
 
+    @Getter
+    private ProviderState state = ProviderState.NOT_READY;
+
     @Override
     public Metadata getMetadata() {
         return () -> NAME;
@@ -27,6 +34,18 @@ public class InMemoryProvider extends EventProvider {
 
     public InMemoryProvider(Map<String, Flag<?>> flags) {
         this.flags = new ConcurrentHashMap<>(flags);
+    }
+
+    /**
+     * Initializes the provider.
+     * @param evaluationContext evaluation context
+     * @throws Exception on error
+     */
+    @Override
+    public void initialize(EvaluationContext evaluationContext) throws Exception {
+        super.initialize(evaluationContext);
+        state = ProviderState.READY;
+        log.debug("finished initializing provider, state: {}", state);
     }
 
     /**
@@ -41,9 +60,9 @@ public class InMemoryProvider extends EventProvider {
         this.flags.putAll(newFlags);
 
         ProviderEventDetails details = ProviderEventDetails.builder()
-                .flagsChanged(new ArrayList<>(flagsChanged))
-                .message("flags changed")
-                .build();
+            .flagsChanged(new ArrayList<>(flagsChanged))
+            .message("flags changed")
+            .build();
         emitProviderConfigurationChanged(details);
     }
 
@@ -57,9 +76,9 @@ public class InMemoryProvider extends EventProvider {
     public void updateFlag(String flagKey, Flag<?> newFlag) {
         this.flags.put(flagKey, newFlag);
         ProviderEventDetails details = ProviderEventDetails.builder()
-                .flagsChanged(Collections.singletonList(flagKey))
-                .message("flag added/updated")
-                .build();
+            .flagsChanged(Collections.singletonList(flagKey))
+            .message("flag added/updated")
+            .build();
         emitProviderConfigurationChanged(details);
     }
 
@@ -97,11 +116,11 @@ public class InMemoryProvider extends EventProvider {
     private <T> ProviderEvaluation<T> getEvaluation(
             String key, EvaluationContext evaluationContext, Class<?> expectedType
     ) throws OpenFeatureError {
-        if (!ProviderState.READY.equals(getState())) {
-            if (ProviderState.NOT_READY.equals(getState())) {
+        if (!ProviderState.READY.equals(state)) {
+            if (ProviderState.NOT_READY.equals(state)) {
                 throw new ProviderNotReadyError("provider not yet initialized");
             }
-            if (ProviderState.FATAL.equals(getState())) {
+            if (ProviderState.FATAL.equals(state)) {
                 throw new FatalError("provider in fatal error state");
             }
             throw new GeneralError("unknown error");
@@ -119,10 +138,9 @@ public class InMemoryProvider extends EventProvider {
             value = (T) flag.getVariants().get(flag.getDefaultVariant());
         }
         return ProviderEvaluation.<T>builder()
-                .value(value)
-                .variant(flag.getDefaultVariant())
-                .reason(Reason.STATIC.toString())
-                .build();
+            .value(value)
+            .variant(flag.getDefaultVariant())
+            .reason(Reason.STATIC.toString())
+            .build();
     }
-
 }
