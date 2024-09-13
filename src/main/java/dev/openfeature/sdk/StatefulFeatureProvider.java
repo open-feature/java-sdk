@@ -5,7 +5,7 @@ import lombok.experimental.Delegate;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class FeatureProviderWrapper implements FeatureProvider, EventProviderListener {
+class StatefulFeatureProvider implements FeatureProvider, EventProviderListener {
 
     private interface ExcludeFromDelegate {
         void initialize(EvaluationContext evaluationContext) throws Exception;
@@ -20,7 +20,7 @@ class FeatureProviderWrapper implements FeatureProvider, EventProviderListener {
     private final AtomicBoolean isInitialized = new AtomicBoolean();
     private ProviderState state = ProviderState.NOT_READY;
 
-    public FeatureProviderWrapper(FeatureProvider delegate) {
+    public StatefulFeatureProvider(FeatureProvider delegate) {
         this.delegate = delegate;
         if (delegate instanceof EventProvider) {
             ((EventProvider) delegate).setEventProviderListener(this);
@@ -72,8 +72,8 @@ class FeatureProviderWrapper implements FeatureProvider, EventProviderListener {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof FeatureProviderWrapper) {
-            return delegate.equals(((FeatureProviderWrapper) obj).delegate);
+        if (obj instanceof StatefulFeatureProvider) {
+            return delegate.equals(((StatefulFeatureProvider) obj).delegate);
         }
         return delegate.equals(obj);
     }

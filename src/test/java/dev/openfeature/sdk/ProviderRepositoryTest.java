@@ -2,7 +2,6 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.testutils.exception.TestException;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -56,7 +55,7 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should have NoOpProvider set as default on initialization")
             void shouldHaveNoOpProviderSetAsDefaultOnInitialization() {
-                assertThat(((FeatureProviderWrapper)providerRepository.getProvider()).getDelegate())
+                assertThat(((StatefulFeatureProvider)providerRepository.getProvider()).getDelegate())
                         .isInstanceOf(NoOpProvider.class);
             }
 

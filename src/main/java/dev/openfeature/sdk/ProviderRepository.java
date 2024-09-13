@@ -20,9 +20,9 @@ import java.util.stream.Stream;
 @Slf4j
 class ProviderRepository {
 
-    private final Map<String, FeatureProviderWrapper> providers = new ConcurrentHashMap<>();
-    private final AtomicReference<FeatureProviderWrapper> defaultProvider = new AtomicReference<>(
-            new FeatureProviderWrapper(new NoOpProvider())
+    private final Map<String, StatefulFeatureProvider> providers = new ConcurrentHashMap<>();
+    private final AtomicReference<StatefulFeatureProvider> defaultProvider = new AtomicReference<>(
+            new StatefulFeatureProvider(new NoOpProvider())
     );
     private final ExecutorService taskExecutor = Executors.newCachedThreadPool(runnable -> {
         final Thread thread = new Thread(runnable);
@@ -49,6 +49,24 @@ class ProviderRepository {
 
     public ProviderState getProviderState() {
         return defaultProvider.get().getState();
+    }
+
+    public ProviderState getProviderState(FeatureProvider featureProvider) {
+        if (featureProvider instanceof StatefulFeatureProvider) {
+            return ((StatefulFeatureProvider) featureProvider).getState();
+        }
+
+        StatefulFeatureProvider defaultProvider = this.defaultProvider.get();
+        if (defaultProvider.equals(featureProvider)) {
+            return defaultProvider.getState();
+        }
+
+        for (StatefulFeatureProvider wrapper : providers.values()) {
+            if (wrapper.equals(featureProvider)) {
+                return wrapper.getState();
+            }
+        }
+        return null;
     }
 
     public ProviderState getProviderState(String domain) {
@@ -116,7 +134,7 @@ class ProviderRepository {
                                               BiConsumer<FeatureProvider, OpenFeatureError> afterError,
                                               boolean waitForInit) {
 
-        FeatureProviderWrapper newProviderWrapper = new FeatureProviderWrapper(newProvider);
+        StatefulFeatureProvider newProviderWrapper = new StatefulFeatureProvider(newProvider);
 
         if (!isProviderRegistered(newProvider)) {
             // only run afterSet if new provider is not already attached
@@ -124,7 +142,7 @@ class ProviderRepository {
         }
 
         // provider is set immediately, on this thread
-        FeatureProviderWrapper oldProvider = domain != null
+        StatefulFeatureProvider oldProvider = domain != null
                 ? this.providers.put(domain, newProviderWrapper)
                 : this.defaultProvider.getAndSet(newProviderWrapper);
 
@@ -138,11 +156,11 @@ class ProviderRepository {
         }
     }
 
-    private void initializeProvider(FeatureProviderWrapper newProvider,
+    private void initializeProvider(StatefulFeatureProvider newProvider,
                                     Consumer<FeatureProvider> afterInit,
                                     Consumer<FeatureProvider> afterShutdown,
                                     BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-                                    FeatureProviderWrapper oldProvider) {
+                                    StatefulFeatureProvider oldProvider) {
         try {
             if (ProviderState.NOT_READY.equals(newProvider.getState())) {
                 newProvider.initialize(OpenFeatureAPI.getInstance().getEvaluationContext());
@@ -166,7 +184,7 @@ class ProviderRepository {
         }
     }
 
-    private void shutDownOld(FeatureProviderWrapper oldProvider, Consumer<FeatureProvider> afterShutdown) {
+    private void shutDownOld(StatefulFeatureProvider oldProvider, Consumer<FeatureProvider> afterShutdown) {
         if (oldProvider != null && !isProviderRegistered(oldProvider)) {
             shutdownProvider(oldProvider);
             afterShutdown.accept(oldProvider.getDelegate());
@@ -184,7 +202,7 @@ class ProviderRepository {
                 && (this.providers.containsValue(provider) || this.defaultProvider.get().equals(provider));
     }
 
-    private void shutdownProvider(FeatureProviderWrapper provider) {
+    private void shutdownProvider(StatefulFeatureProvider provider) {
         if (provider == null) {
             return;
         }

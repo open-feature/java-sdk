@@ -303,6 +303,10 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         return providerRepository.getProviderState(domain);
     }
 
+    public ProviderState getProviderState(FeatureProvider provider) {
+        return providerRepository.getProviderState(provider);
+    }
+
     /**
      * Adds hooks for globally, used for all evaluations.
      * Hooks are run in the order they're added in the before stage. They are run in reverse order for all other stages.

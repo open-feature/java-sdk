@@ -72,8 +72,8 @@ public class NoOpProvider implements FeatureProvider {
         if (obj == null) {
             return false;
         }
-        if (obj instanceof FeatureProviderWrapper) {
-            return ((FeatureProviderWrapper) obj).getDelegate() == this;
+        if (obj instanceof StatefulFeatureProvider) {
+            return ((StatefulFeatureProvider) obj).getDelegate() == this;
         }
         return obj == this;
     }

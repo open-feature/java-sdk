@@ -12,15 +12,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class FeatureProviderWrapperTest {
+class StatefulFeatureProviderTest {
 
-    private FeatureProviderWrapper wrapper;
+    private StatefulFeatureProvider wrapper;
     private TestDelegate testDelegate;
 
     @BeforeEach
     public void setUp() {
         testDelegate = new TestDelegate();
-        wrapper = new FeatureProviderWrapper(testDelegate);
+        wrapper = new StatefulFeatureProvider(testDelegate);
     }
 
     @SuppressWarnings("java:S5845")
