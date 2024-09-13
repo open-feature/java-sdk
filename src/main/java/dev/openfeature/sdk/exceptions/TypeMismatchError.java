@@ -9,7 +9,7 @@ import lombok.experimental.StandardException;
  */
 @SuppressWarnings({"checkstyle:MissingJavadocType", "squid:S110"})
 @StandardException
-public class TypeMismatchError extends OpenFeatureErrorWithoutStacktrace {
+public class TypeMismatchError extends OpenFeatureError {
     private static final long serialVersionUID = 1L;
 
     @Getter private final ErrorCode errorCode = ErrorCode.TYPE_MISMATCH;
