@@ -25,7 +25,7 @@ class EventsTest {
 
     @AfterAll
     public static void resetDefaultProvider() {
-        OpenFeatureAPI.getInstance().setProvider(new NoOpProvider());
+        OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
     }
 
     @Nested
@@ -49,7 +49,7 @@ class EventsTest {
 
                     TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                     OpenFeatureAPI.getInstance().onProviderReady(handler);
-                    OpenFeatureAPI.getInstance().setProvider(name, provider);
+                    OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
                     verify(handler, timeout(TIMEOUT).atLeastOnce())
                             .accept(any());
                 }
@@ -86,7 +86,7 @@ class EventsTest {
                     final String name = "apiShouldPropagateEvents";
 
                     TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
-                    OpenFeatureAPI.getInstance().setProvider(name, provider);
+                    OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
                     OpenFeatureAPI.getInstance().onProviderConfigurationChanged(handler);
 
                     provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, EventDetails.builder().build());
@@ -109,7 +109,7 @@ class EventsTest {
                     final Consumer<EventDetails> handler4 = mockHandler();
 
                     TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
-                    OpenFeatureAPI.getInstance().setProvider(name, provider);
+                    OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
 
                     OpenFeatureAPI.getInstance().onProviderReady(handler1);
                     OpenFeatureAPI.getInstance().onProviderConfigurationChanged(handler2);
@@ -149,7 +149,7 @@ class EventsTest {
 
                     TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                     // set provider before getting a client
-                    OpenFeatureAPI.getInstance().setProvider(provider);
+                    OpenFeatureAPI.getInstance().setProviderAndWait(provider);
                     Client client = OpenFeatureAPI.getInstance().getClient();
                     client.onProviderStale(handler);
 
@@ -166,7 +166,7 @@ class EventsTest {
 
                     TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                     // set provider before getting a client
-                    OpenFeatureAPI.getInstance().setProvider(provider);
+                    OpenFeatureAPI.getInstance().setProviderAndWait(provider);
                     Client client = OpenFeatureAPI.getInstance().getClient(name);
                     client.onProviderStale(handler);
 
@@ -195,7 +195,7 @@ class EventsTest {
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
                 client.onProviderReady(handler);
                 // set provider after getting a client
-                OpenFeatureAPI.getInstance().setProvider(name, provider);
+                OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
                 verify(handler, timeout(TIMEOUT).atLeastOnce())
                         .accept(argThat(details -> details.getDomain().equals(name)));
             }
@@ -209,7 +209,7 @@ class EventsTest {
 
                 TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                 // set provider before getting a client
-                OpenFeatureAPI.getInstance().setProvider(name, provider);
+                OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
                 client.onProviderReady(handler);
                 verify(handler, timeout(TIMEOUT).atLeastOnce())
@@ -268,7 +268,7 @@ class EventsTest {
 
                 TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                 // set provider before getting a client
-                OpenFeatureAPI.getInstance().setProvider(name, provider);
+                OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
                 client.onProviderConfigurationChanged(handler);
 
@@ -288,7 +288,7 @@ class EventsTest {
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
                 client.onProviderConfigurationChanged(handler);
                 // set provider after getting a client
-                OpenFeatureAPI.getInstance().setProvider(name, provider);
+                OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
 
                 provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, EventDetails.builder().build());
                 verify(handler, timeout(TIMEOUT)).accept(argThat(details -> details.getDomain().equals(name)));
@@ -310,7 +310,7 @@ class EventsTest {
                 final Consumer<EventDetails> handler4 = mockHandler();
 
                 TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
-                OpenFeatureAPI.getInstance().setProvider(name, provider);
+                OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
 
                 client.onProviderReady(handler1);
@@ -340,14 +340,14 @@ class EventsTest {
 
         TestEventsProvider provider1 = new TestEventsProvider(INIT_DELAY);
         TestEventsProvider provider2 = new TestEventsProvider(INIT_DELAY);
-        OpenFeatureAPI.getInstance().setProvider(name, provider1);
+        OpenFeatureAPI.getInstance().setProviderAndWait(name, provider1);
         Client client = OpenFeatureAPI.getInstance().getClient(name);
 
         // attached handlers
         OpenFeatureAPI.getInstance().onProviderConfigurationChanged(handler1);
         client.onProviderConfigurationChanged(handler2);
 
-        OpenFeatureAPI.getInstance().setProvider(name, provider2);
+        OpenFeatureAPI.getInstance().setProviderAndWait(name, provider2);
 
         // wait for the new provider to be ready and make sure things are cleaned up.
         await().until(() -> provider1.isShutDown());
@@ -373,8 +373,8 @@ class EventsTest {
 
         TestEventsProvider provider1 = new TestEventsProvider(INIT_DELAY);
         TestEventsProvider provider2 = new TestEventsProvider(INIT_DELAY);
-        OpenFeatureAPI.getInstance().setProvider(name1, provider1);
-        OpenFeatureAPI.getInstance().setProvider(name2, provider2);
+        OpenFeatureAPI.getInstance().setProviderAndWait(name1, provider1);
+        OpenFeatureAPI.getInstance().setProviderAndWait(name2, provider2);
 
         Client client1 = OpenFeatureAPI.getInstance().getClient(name1);
         Client client2 = OpenFeatureAPI.getInstance().getClient(name2);
@@ -398,11 +398,11 @@ class EventsTest {
 
         TestEventsProvider namedProvider = new TestEventsProvider(INIT_DELAY);
         TestEventsProvider defaultProvider = new TestEventsProvider(INIT_DELAY);
-        OpenFeatureAPI.getInstance().setProvider(defaultProvider);
+        OpenFeatureAPI.getInstance().setProviderAndWait(defaultProvider);
 
         Client client = OpenFeatureAPI.getInstance().getClient(name);
         client.onProviderConfigurationChanged(handlerNotToRun);
-        OpenFeatureAPI.getInstance().setProvider(name, namedProvider);
+        OpenFeatureAPI.getInstance().setProviderAndWait(name, namedProvider);
 
         // await the new provider to make sure the old one is shut down
         await().until(() -> namedProvider.getState().equals(ProviderState.READY));
@@ -411,7 +411,7 @@ class EventsTest {
         defaultProvider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.builder().build());
 
         verify(handlerNotToRun, after(TIMEOUT).never()).accept(any());
-        OpenFeatureAPI.getInstance().setProvider(new NoOpProvider());
+        OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
     }
 
     @Test
@@ -423,7 +423,7 @@ class EventsTest {
         final Consumer<EventDetails> handlerToRun = mockHandler();
 
         TestEventsProvider defaultProvider = new TestEventsProvider(INIT_DELAY);
-        OpenFeatureAPI.getInstance().setProvider(defaultProvider);
+        OpenFeatureAPI.getInstance().setProviderAndWait(defaultProvider);
 
         Client client = OpenFeatureAPI.getInstance().getClient(name);
         client.onProviderConfigurationChanged(handlerToRun);
@@ -435,7 +435,7 @@ class EventsTest {
         defaultProvider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.builder().build());
 
         verify(handlerToRun, timeout(TIMEOUT)).accept(any());
-        OpenFeatureAPI.getInstance().setProvider(new NoOpProvider());
+        OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
     }
 
     @Test
@@ -449,7 +449,7 @@ class EventsTest {
         final Consumer<EventDetails> lastHandler = mockHandler();
 
         TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
-        OpenFeatureAPI.getInstance().setProvider(name, provider);
+        OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
 
         Client client1 = OpenFeatureAPI.getInstance().getClient(name);
 
@@ -473,7 +473,7 @@ class EventsTest {
         final String name = "shouldHaveAllProperties";
 
         TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
-        OpenFeatureAPI.getInstance().setProvider(name, provider);
+        OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
         Client client = OpenFeatureAPI.getInstance().getClient(name);
 
         // attached handlers
@@ -555,7 +555,7 @@ class EventsTest {
 
         // provider which is already in error
         TestEventsProvider provider = new TestEventsProvider();
-        api.setProvider(name, provider);
+        api.setProviderAndWait(name, provider);
         provider.emitProviderError(ProviderEventDetails.builder().build());
         assertThat(api.getProviderState(name)).isEqualTo(ProviderState.ERROR);
 
@@ -576,7 +576,7 @@ class EventsTest {
         TestEventsProvider provider1 = new TestEventsProvider(INIT_DELAY);
         TestEventsProvider provider2 = new TestEventsProvider(INIT_DELAY);
 
-        OpenFeatureAPI.getInstance().setProvider(name, provider1);
+        OpenFeatureAPI.getInstance().setProviderAndWait(name, provider1);
         Client client = OpenFeatureAPI.getInstance().getClient(name);
         client.onProviderConfigurationChanged(handler);
 
@@ -586,8 +586,7 @@ class EventsTest {
         verify(handler, timeout(TIMEOUT).times(1)).accept(argThat(nameMatches));
 
         // wait for the new provider to be ready.
-        OpenFeatureAPI.getInstance().setProvider(name, provider2);
-        await().until(() -> provider2.getState().equals(ProviderState.READY));
+        OpenFeatureAPI.getInstance().setProviderAndWait(name, provider2);
 
         // verify that with the new provider under the same name, the handler is called
         // again.
@@ -608,7 +607,7 @@ class EventsTest {
 
             TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
             provider.initialize(null);
-            OpenFeatureAPI.getInstance().setProvider(name, provider);
+            OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
             Client client = OpenFeatureAPI.getInstance().getClient(name);
 
             // attached handlers

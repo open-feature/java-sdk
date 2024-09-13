@@ -4,11 +4,11 @@ import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 
 public class AlwaysBrokenProvider implements FeatureProvider {
 
+    private final String name = "always broken";
+
     @Override
     public Metadata getMetadata() {
-        return () -> {
-            throw new FlagNotFoundError(TestConstants.BROKEN_MESSAGE);
-        };
+        return () -> name;
     }
 
     @Override
