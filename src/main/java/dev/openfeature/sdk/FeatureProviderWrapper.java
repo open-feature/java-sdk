@@ -1,11 +1,21 @@
 package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import lombok.experimental.Delegate;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class FeatureProviderWrapper implements FeatureProvider, EventProviderListener {
+class FeatureProviderWrapper implements FeatureProvider, EventProviderListener {
+
+    private interface ExcludeFromDelegate {
+        void initialize(EvaluationContext evaluationContext) throws Exception;
+
+        void shutdown();
+
+        ProviderState getState();
+    }
+
+    @Delegate(excludes = ExcludeFromDelegate.class)
     private final FeatureProvider delegate;
     private final AtomicBoolean isInitialized = new AtomicBoolean();
     private ProviderState state = ProviderState.NOT_READY;
@@ -15,41 +25,6 @@ public class FeatureProviderWrapper implements FeatureProvider, EventProviderLis
         if (delegate instanceof EventProvider) {
             ((EventProvider) delegate).setEventProviderListener(this);
         }
-    }
-
-    @Override
-    public Metadata getMetadata() {
-        return delegate.getMetadata();
-    }
-
-    @Override
-    public List<Hook> getProviderHooks() {
-        return delegate.getProviderHooks();
-    }
-
-    @Override
-    public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
-        return delegate.getBooleanEvaluation(key, defaultValue, ctx);
-    }
-
-    @Override
-    public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
-        return delegate.getStringEvaluation(key, defaultValue, ctx);
-    }
-
-    @Override
-    public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
-        return delegate.getIntegerEvaluation(key, defaultValue, ctx);
-    }
-
-    @Override
-    public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
-        return delegate.getDoubleEvaluation(key, defaultValue, ctx);
-    }
-
-    @Override
-    public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
-        return delegate.getObjectEvaluation(key, defaultValue, ctx);
     }
 
     @Override
@@ -94,7 +69,9 @@ public class FeatureProviderWrapper implements FeatureProvider, EventProviderLis
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
+        if (this == obj) {
+            return true;
+        }
         if (obj instanceof FeatureProviderWrapper) {
             return delegate.equals(((FeatureProviderWrapper) obj).delegate);
         }
@@ -112,7 +89,7 @@ public class FeatureProviderWrapper implements FeatureProvider, EventProviderLis
         }
     }
 
-    FeatureProvider getDelegate(){
+    FeatureProvider getDelegate() {
         return delegate;
     }
 }

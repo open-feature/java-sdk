@@ -2,7 +2,6 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.internal.TriConsumer;
 
-import javax.annotation.Nullable;
 
 /**
  * Abstract EventProvider. Providers must extend this class to support events.
@@ -17,9 +16,9 @@ import javax.annotation.Nullable;
  * @see FeatureProvider
  */
 public abstract class EventProvider implements FeatureProvider {
-    private @Nullable EventProviderListener eventProviderListener;
+    private EventProviderListener eventProviderListener;
 
-    void setEventProviderListener(@Nullable EventProviderListener eventProviderListener) {
+    void setEventProviderListener(EventProviderListener eventProviderListener) {
         this.eventProviderListener = eventProviderListener;
     }
 

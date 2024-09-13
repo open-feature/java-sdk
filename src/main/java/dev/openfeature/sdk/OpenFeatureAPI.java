@@ -276,13 +276,6 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * Return the state of the default provider.
-     */
-    public ProviderState getProviderState() {
-        return providerRepository.getProviderState();
-    }
-
-    /**
      * Fetch a provider for a domain. If not found, return the default.
      *
      * @param domain The domain to look for.
@@ -290,6 +283,13 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      */
     public FeatureProvider getProvider(String domain) {
         return providerRepository.getProvider(domain);
+    }
+
+    /**
+     * Return the state of the default provider.
+     */
+    public ProviderState getProviderState() {
+        return providerRepository.getProviderState();
     }
 
     /**

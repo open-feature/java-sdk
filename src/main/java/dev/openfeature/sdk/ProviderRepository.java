@@ -21,7 +21,9 @@ import java.util.stream.Stream;
 class ProviderRepository {
 
     private final Map<String, FeatureProviderWrapper> providers = new ConcurrentHashMap<>();
-    private final AtomicReference<FeatureProviderWrapper> defaultProvider = new AtomicReference<>(new FeatureProviderWrapper(new NoOpProvider()));
+    private final AtomicReference<FeatureProviderWrapper> defaultProvider = new AtomicReference<>(
+            new FeatureProviderWrapper(new NoOpProvider())
+    );
     private final ExecutorService taskExecutor = Executors.newCachedThreadPool(runnable -> {
         final Thread thread = new Thread(runnable);
         thread.setDaemon(true);
@@ -148,10 +150,18 @@ class ProviderRepository {
             }
             shutDownOld(oldProvider, afterShutdown);
         } catch (OpenFeatureError e) {
-            log.error("Exception when initializing feature provider {}", newProvider.getDelegate().getClass().getName(), e);
+            log.error(
+                    "Exception when initializing feature provider {}",
+                    newProvider.getDelegate().getClass().getName(),
+                    e
+            );
             afterError.accept(newProvider.getDelegate(), e);
         } catch (Exception e) {
-            log.error("Exception when initializing feature provider {}", newProvider.getDelegate().getClass().getName(), e);
+            log.error(
+                    "Exception when initializing feature provider {}",
+                    newProvider.getDelegate().getClass().getName(),
+                    e
+            );
             afterError.accept(newProvider.getDelegate(), new GeneralError(e));
         }
     }

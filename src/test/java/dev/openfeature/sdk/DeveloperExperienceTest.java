@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
@@ -120,5 +121,55 @@ class DeveloperExperienceTest implements HookFixtures {
         // subsequent evaluations should now use new provider set by hook
         String noOpValue = client.getStringValue("val", defaultValue);
         assertEquals(noOpValue, defaultValue);
+    }
+
+    @Test
+    void setProviderAndWaitShouldPutTheProviderInReadyState() {
+        String domain = "domain";
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProviderAndWait(domain, new TestEventsProvider());
+        Client client = api.getClient(domain);
+        assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
+    }
+
+    @Specification(number = "5.3.5", text = "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")
+    @Test
+    void shouldPutTheProviderInStateErrorAfterEmittingErrorEvent() {
+        String domain = "domain";
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        TestEventsProvider provider = new TestEventsProvider();
+        api.setProviderAndWait(domain, provider);
+        Client client = api.getClient(domain);
+        assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
+        provider.emitProviderError(ProviderEventDetails.builder().build());
+        assertThat(client.getProviderState()).isEqualTo(ProviderState.ERROR);
+    }
+
+    @Specification(number = "5.3.5", text = "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")
+    @Test
+    void shouldPutTheProviderInStateStaleAfterEmittingStaleEvent() {
+        String domain = "domain";
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        TestEventsProvider provider = new TestEventsProvider();
+        api.setProviderAndWait(domain, provider);
+        Client client = api.getClient(domain);
+        assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
+        provider.emitProviderStale(ProviderEventDetails.builder().build());
+        assertThat(client.getProviderState()).isEqualTo(ProviderState.STALE);
+    }
+
+    @Specification(number = "5.3.5", text = "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")
+    @Test
+    void shouldPutTheProviderInStateReadyAfterEmittingReadyEvent() {
+        String domain = "domain";
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        TestEventsProvider provider = new TestEventsProvider();
+        api.setProviderAndWait(domain, provider);
+        Client client = api.getClient(domain);
+        assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
+        provider.emitProviderStale(ProviderEventDetails.builder().build());
+        assertThat(client.getProviderState()).isEqualTo(ProviderState.STALE);
+        provider.emitProviderReady(ProviderEventDetails.builder().build());
+        assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
     }
 }
