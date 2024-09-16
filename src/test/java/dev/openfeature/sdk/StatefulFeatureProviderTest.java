@@ -129,8 +129,22 @@ class StatefulFeatureProviderTest {
     @Test
     void shouldSetTheStateToErrorWhenAnErrorEventIsEmitted() {
         assertThat(wrapper.getState()).isEqualTo(ProviderState.NOT_READY);
-        wrapper.onEmit(ProviderEvent.PROVIDER_ERROR, null);
+        wrapper.onEmit(
+                ProviderEvent.PROVIDER_ERROR,
+                ProviderEventDetails.builder().errorCode(ErrorCode.GENERAL).build()
+        );
         assertThat(wrapper.getState()).isEqualTo(ProviderState.ERROR);
+    }
+
+    @Specification(number = "5.3.5", text = "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")
+    @Test
+    void shouldSetTheStateToFatalWhenAFatalErrorEventIsEmitted() {
+        assertThat(wrapper.getState()).isEqualTo(ProviderState.NOT_READY);
+        wrapper.onEmit(
+                ProviderEvent.PROVIDER_ERROR,
+                ProviderEventDetails.builder().errorCode(ErrorCode.PROVIDER_FATAL).build()
+        );
+        assertThat(wrapper.getState()).isEqualTo(ProviderState.FATAL);
     }
 
     static class TestDelegate extends EventProvider {

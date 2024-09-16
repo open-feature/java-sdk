@@ -81,7 +81,11 @@ class StatefulFeatureProvider implements FeatureProvider, EventProviderListener 
     @Override
     public void onEmit(ProviderEvent event, ProviderEventDetails details) {
         if (ProviderEvent.PROVIDER_ERROR.equals(event)) {
-            state = ProviderState.ERROR;
+            if (details != null && details.getErrorCode() == ErrorCode.PROVIDER_FATAL) {
+                state = ProviderState.FATAL;
+            } else {
+                state = ProviderState.ERROR;
+            }
         } else if (ProviderEvent.PROVIDER_STALE.equals(event)) {
             state = ProviderState.STALE;
         } else if (ProviderEvent.PROVIDER_READY.equals(event)) {

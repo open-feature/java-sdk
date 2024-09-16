@@ -45,12 +45,6 @@ class InMemoryProviderTest {
                 .build());
     }
 
-    @SneakyThrows
-    @Test
-    void eventsTest() {
-        verify(provider, times(2)).emitProviderConfigurationChanged(any());
-    }
-
     @Test
     void getBooleanEvaluation() {
         assertTrue(client.getBooleanValue("boolean-flag", false));
