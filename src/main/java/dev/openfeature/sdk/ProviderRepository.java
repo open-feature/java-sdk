@@ -34,7 +34,7 @@ class ProviderRepository {
      * Return the default provider.
      */
     public FeatureProvider getProvider() {
-        return defaultProvider.get();
+        return defaultProvider.get().getDelegate();
     }
 
     /**
@@ -44,7 +44,13 @@ class ProviderRepository {
      * @return A named {@link FeatureProvider}
      */
     public FeatureProvider getProvider(String domain) {
-        return Optional.ofNullable(domain).map(this.providers::get).orElse(this.defaultProvider.get());
+        if (domain == null) return defaultProvider.get().getDelegate();
+        StatefulFeatureProvider fromMap = this.providers.get(domain);
+        if (fromMap == null) {
+            return this.defaultProvider.get().getDelegate();
+        } else {
+            return fromMap.getDelegate();
+        }
     }
 
     public ProviderState getProviderState() {

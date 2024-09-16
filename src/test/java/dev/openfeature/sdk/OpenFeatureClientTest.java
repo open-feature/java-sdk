@@ -41,7 +41,17 @@ class OpenFeatureClientTest implements HookFixtures {
         when(api.getProvider(any())).thenReturn(provider);
         when(api.getHooks()).thenReturn(Arrays.asList(mockBooleanHook(), mockStringHook()));
 
-        OpenFeatureClient client = new OpenFeatureClient(() -> provider, api, "name", "version");
+        OpenFeatureClient client = new OpenFeatureClient(new ProviderAccessor() {
+            @Override
+            public FeatureProvider getProvider() {
+                return provider;
+            }
+
+            @Override
+            public ProviderState getProviderState() {
+                return ProviderState.READY;
+            }
+        }, api, "name", "version");
 
         FlagEvaluationDetails<Boolean> actual = client.getBooleanDetails("feature key", Boolean.FALSE);
 
@@ -71,7 +81,17 @@ class OpenFeatureClientTest implements HookFixtures {
         when(api.getProvider(any())).thenReturn(mockProvider);
 
 
-        OpenFeatureClient client = new OpenFeatureClient(() -> mockProvider, api, "name", "version");
+        OpenFeatureClient client = new OpenFeatureClient(new ProviderAccessor() {
+            @Override
+            public FeatureProvider getProvider() {
+                return mockProvider;
+            }
+
+            @Override
+            public ProviderState getProviderState() {
+                return ProviderState.READY;
+            }
+        }, api, "name", "version");
         client.setEvaluationContext(ctx);
 
         FlagEvaluationDetails<Boolean> result = client.getBooleanDetails(flag, defaultValue);
@@ -83,7 +103,17 @@ class OpenFeatureClientTest implements HookFixtures {
     @DisplayName("addHooks should allow chaining by returning the same client instance")
     void addHooksShouldAllowChaining() {
         OpenFeatureAPI api = mock(OpenFeatureAPI.class);
-        OpenFeatureClient client = new OpenFeatureClient(() -> null, api, "name", "version");
+        OpenFeatureClient client = new OpenFeatureClient(new ProviderAccessor() {
+            @Override
+            public FeatureProvider getProvider() {
+                return null;
+            }
+
+            @Override
+            public ProviderState getProviderState() {
+                return ProviderState.READY;
+            }
+        }, api, "name", "version");
         Hook<?> hook1 = Mockito.mock(Hook.class);
         Hook<?> hook2 = Mockito.mock(Hook.class);
 
@@ -95,7 +125,17 @@ class OpenFeatureClientTest implements HookFixtures {
     @DisplayName("setEvaluationContext should allow chaining by returning the same client instance")
     void setEvaluationContextShouldAllowChaining() {
         OpenFeatureAPI api = mock(OpenFeatureAPI.class);
-        OpenFeatureClient client = new OpenFeatureClient(() -> null, api, "name", "version");
+        OpenFeatureClient client = new OpenFeatureClient(new ProviderAccessor() {
+            @Override
+            public FeatureProvider getProvider() {
+                return null;
+            }
+
+            @Override
+            public ProviderState getProviderState() {
+                return ProviderState.READY;
+            }
+        }, api, "name", "version");
         EvaluationContext ctx = new ImmutableContext("targeting key", new HashMap<>());
 
         OpenFeatureClient result = client.setEvaluationContext(ctx);
@@ -107,7 +147,17 @@ class OpenFeatureClientTest implements HookFixtures {
     void shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState() {
         MockProvider mockProvider = new MockProvider(ProviderState.FATAL);
         OpenFeatureAPI api = mock(OpenFeatureAPI.class);
-        OpenFeatureClient client = new OpenFeatureClient(() -> mockProvider, api, "name", "version");
+        OpenFeatureClient client = new OpenFeatureClient(new ProviderAccessor() {
+            @Override
+            public FeatureProvider getProvider() {
+                return mockProvider;
+            }
+
+            @Override
+            public ProviderState getProviderState() {
+                return ProviderState.FATAL;
+            }
+        }, api, "name", "version");
         FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);
 
         assertThat(mockProvider.isEvaluationCalled()).isFalse();
@@ -119,7 +169,17 @@ class OpenFeatureClientTest implements HookFixtures {
     void shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState() {
         MockProvider mockProvider = new MockProvider(ProviderState.NOT_READY);
         OpenFeatureAPI api = mock(OpenFeatureAPI.class);
-        OpenFeatureClient client = new OpenFeatureClient(() -> mockProvider, api, "name", "version");
+        OpenFeatureClient client = new OpenFeatureClient(new ProviderAccessor() {
+            @Override
+            public FeatureProvider getProvider() {
+                return mockProvider;
+            }
+
+            @Override
+            public ProviderState getProviderState() {
+                return ProviderState.NOT_READY;
+            }
+        }, api, "name", "version");
         FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);
 
         assertThat(mockProvider.isEvaluationCalled()).isFalse();

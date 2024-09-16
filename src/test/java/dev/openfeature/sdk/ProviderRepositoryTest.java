@@ -55,8 +55,7 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should have NoOpProvider set as default on initialization")
             void shouldHaveNoOpProviderSetAsDefaultOnInitialization() {
-                assertThat(((StatefulFeatureProvider)providerRepository.getProvider()).getDelegate())
-                        .isInstanceOf(NoOpProvider.class);
+                assertThat(providerRepository.getProvider()).isInstanceOf(NoOpProvider.class);
             }
 
             @Test

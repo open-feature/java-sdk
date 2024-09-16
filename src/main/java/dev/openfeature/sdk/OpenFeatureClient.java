@@ -63,7 +63,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public ProviderState getProviderState() {
-        return providerAccessor.getProvider().getState();
+        return providerAccessor.getProviderState();
     }
 
     /**
@@ -123,10 +123,11 @@ public class OpenFeatureClient implements Client {
         try {
             // openfeatureApi.getProvider() must be called once to maintain a consistent reference
             provider = providerAccessor.getProvider();
-            if (ProviderState.NOT_READY.equals(provider.getState())) {
+            ProviderState state = providerAccessor.getProviderState();
+            if (ProviderState.NOT_READY.equals(state)) {
                 throw new ProviderNotReadyError("provider not yet initialized");
             }
-            if (ProviderState.FATAL.equals(provider.getState())) {
+            if (ProviderState.FATAL.equals(state)) {
                 throw new FatalError("provider is in an irrecoverable error state");
             }
 

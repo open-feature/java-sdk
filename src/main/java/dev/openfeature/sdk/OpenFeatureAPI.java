@@ -103,7 +103,17 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      */
     public Client getClient(String domain, String version) {
         return new OpenFeatureClient(
-                () -> providerRepository.getProvider(domain),
+                new ProviderAccessor() {
+                    @Override
+                    public FeatureProvider getProvider() {
+                        return providerRepository.getProvider(domain);
+                    }
+
+                    @Override
+                    public ProviderState getProviderState() {
+                        return providerRepository.getProviderState(domain);
+                    }
+                },
                 this,
                 domain,
                 version
@@ -416,7 +426,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     void addHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             // if the provider is in the state associated with event, run immediately
-            if (Optional.ofNullable(this.providerRepository.getProvider(domain).getState())
+            if (Optional.ofNullable(this.providerRepository.getProviderState(domain))
                     .orElse(ProviderState.READY).matchesEvent(event)) {
                 eventSupport.runHandler(handler, EventDetails.builder().domain(domain).build());
             }
