@@ -44,7 +44,9 @@ class ProviderRepository {
      * @return A named {@link FeatureProvider}
      */
     public FeatureProvider getProvider(String domain) {
-        if (domain == null) return defaultProvider.get().getDelegate();
+        if (domain == null) {
+            return defaultProvider.get().getDelegate();
+        }
         StatefulFeatureProvider fromMap = this.providers.get(domain);
         if (fromMap == null) {
             return this.defaultProvider.get().getDelegate();

@@ -5,5 +5,6 @@ package dev.openfeature.sdk;
  */
 public interface ProviderAccessor {
     FeatureProvider getProvider();
+
     ProviderState getProviderState();
 }
