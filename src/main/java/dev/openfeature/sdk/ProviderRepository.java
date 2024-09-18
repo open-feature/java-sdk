@@ -184,7 +184,9 @@ class ProviderRepository {
 
     private FeatureProviderStateManager getExistingStateManagerForProvider(FeatureProvider provider) {
         for (FeatureProviderStateManager stateManager : stateManagers.values()) {
-            if (stateManager.hasSameProvider(provider)) return stateManager;
+            if (stateManager.hasSameProvider(provider)) {
+                return stateManager;
+            }
         }
         FeatureProviderStateManager defaultFeatureProviderStateManager = defaultStateManger.get();
         if (defaultFeatureProviderStateManager.hasSameProvider(provider)) {
@@ -231,19 +233,19 @@ class ProviderRepository {
     /**
      * Helper to check if provider is already known (registered).
      *
-     * @param provider provider to check for registration
+     * @param manager manager to check for registration
      * @return boolean true if already registered, false otherwise
      */
-    private boolean isStateManagerRegistered(FeatureProviderStateManager provider) {
-        return provider != null
-                && (this.stateManagers.containsValue(provider) || this.defaultStateManger.get().equals(provider));
+    private boolean isStateManagerRegistered(FeatureProviderStateManager manager) {
+        return manager != null
+                && (this.stateManagers.containsValue(manager) || this.defaultStateManger.get().equals(manager));
     }
 
-    private void shutdownProvider(FeatureProviderStateManager provider) {
-        if (provider == null) {
+    private void shutdownProvider(FeatureProviderStateManager manager) {
+        if (manager == null) {
             return;
         }
-        shutdownProvider(provider.getProvider());
+        shutdownProvider(manager.getProvider());
     }
 
     private void shutdownProvider(FeatureProvider provider) {

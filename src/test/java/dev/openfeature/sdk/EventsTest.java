@@ -606,7 +606,6 @@ class EventsTest {
             final Consumer<EventDetails> handler2 = mockHandler();
 
             TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
-            provider.initialize(null);
             OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
             Client client = OpenFeatureAPI.getInstance().getClient(name);
 
@@ -619,7 +618,7 @@ class EventsTest {
 
             // emit event
             provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.builder().build());
-
+            
             // both global and client handlers should not run.
             verify(handler1, after(TIMEOUT).never()).accept(any());
             verify(handler2, never()).accept(any());

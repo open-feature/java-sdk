@@ -102,15 +102,4 @@ public abstract class EventProvider implements FeatureProvider {
     protected void emitProviderError(ProviderEventDetails details) {
         emit(ProviderEvent.PROVIDER_ERROR, details);
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (obj instanceof FeatureProviderStateManager) {
-            return this == ((FeatureProviderStateManager) obj).getProvider();
-        }
-        return this == obj;
-    }
 }
