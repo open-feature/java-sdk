@@ -53,7 +53,7 @@ public abstract class EventProvider implements FeatureProvider {
      * @param event   The event type
      * @param details The details of the event
      */
-    protected void emit(ProviderEvent event, ProviderEventDetails details) {
+    public void emit(ProviderEvent event, ProviderEventDetails details) {
         if (eventProviderListener != null) {
             eventProviderListener.onEmit(event, details);
         }
@@ -68,7 +68,7 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    protected void emitProviderReady(ProviderEventDetails details) {
+    public void emitProviderReady(ProviderEventDetails details) {
         emit(ProviderEvent.PROVIDER_READY, details);
     }
 
@@ -79,7 +79,7 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    protected void emitProviderConfigurationChanged(ProviderEventDetails details) {
+    public void emitProviderConfigurationChanged(ProviderEventDetails details) {
         emit(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, details);
     }
 
@@ -89,7 +89,7 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    protected void emitProviderStale(ProviderEventDetails details) {
+    public void emitProviderStale(ProviderEventDetails details) {
         emit(ProviderEvent.PROVIDER_STALE, details);
     }
 
@@ -99,7 +99,7 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    protected void emitProviderError(ProviderEventDetails details) {
+    public void emitProviderError(ProviderEventDetails details) {
         emit(ProviderEvent.PROVIDER_ERROR, details);
     }
 }
