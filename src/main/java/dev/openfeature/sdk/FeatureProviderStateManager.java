@@ -1,11 +1,12 @@
 package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import lombok.Getter;
 import lombok.experimental.Delegate;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class StatefulFeatureProvider implements FeatureProvider, EventProviderListener {
+class FeatureProviderStateManager implements EventProviderListener {
 
     private interface ExcludeFromDelegate {
         void initialize(EvaluationContext evaluationContext) throws Exception;
@@ -18,16 +19,16 @@ class StatefulFeatureProvider implements FeatureProvider, EventProviderListener 
     @Delegate(excludes = ExcludeFromDelegate.class)
     private final FeatureProvider delegate;
     private final AtomicBoolean isInitialized = new AtomicBoolean();
+    @Getter
     private ProviderState state = ProviderState.NOT_READY;
 
-    public StatefulFeatureProvider(FeatureProvider delegate) {
+    public FeatureProviderStateManager(FeatureProvider delegate) {
         this.delegate = delegate;
         if (delegate instanceof EventProvider) {
             ((EventProvider) delegate).setEventProviderListener(this);
         }
     }
 
-    @Override
     public void initialize(EvaluationContext evaluationContext) throws Exception {
         if (isInitialized.getAndSet(true)) {
             return;
@@ -50,32 +51,10 @@ class StatefulFeatureProvider implements FeatureProvider, EventProviderListener 
         }
     }
 
-    @Override
     public void shutdown() {
         delegate.shutdown();
         state = ProviderState.NOT_READY;
         isInitialized.set(false);
-    }
-
-    @Override
-    public ProviderState getState() {
-        return state;
-    }
-
-    @Override
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof StatefulFeatureProvider) {
-            return delegate.equals(((StatefulFeatureProvider) obj).delegate);
-        }
-        return delegate.equals(obj);
     }
 
     @Override
@@ -93,7 +72,11 @@ class StatefulFeatureProvider implements FeatureProvider, EventProviderListener 
         }
     }
 
-    FeatureProvider getDelegate() {
+    FeatureProvider getProvider() {
         return delegate;
+    }
+
+    public boolean hasSameProvider(FeatureProvider featureProvider){
+        return this.delegate.equals(featureProvider);
     }
 }

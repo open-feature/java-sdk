@@ -12,32 +12,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class StatefulFeatureProviderTest {
+class FeatureProviderStateManagerTest {
 
-    private StatefulFeatureProvider wrapper;
+    private FeatureProviderStateManager wrapper;
     private TestDelegate testDelegate;
 
     @BeforeEach
     public void setUp() {
         testDelegate = new TestDelegate();
-        wrapper = new StatefulFeatureProvider(testDelegate);
-    }
-
-    @SuppressWarnings("java:S5845")
-    @Test
-    void wrapperShouldEqualItsDelegate() {
-        assertThat(wrapper).isEqualTo(testDelegate);
-    }
-
-    @SuppressWarnings("java:S5845")
-    @Test
-    void delegateShouldEqualItsWrapper() {
-        assertThat(testDelegate).isEqualTo(wrapper);
-    }
-
-    @Test
-    void wrapperShouldHaveSameHashCodeAsDelegate() {
-        assertThat(wrapper).hasSameHashCodeAs(testDelegate);
+        wrapper = new FeatureProviderStateManager(testDelegate);
     }
 
     @SneakyThrows

@@ -66,15 +66,4 @@ public class NoOpProvider implements FeatureProvider {
                 .reason(Reason.DEFAULT.toString())
                 .build();
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (obj instanceof StatefulFeatureProvider) {
-            return ((StatefulFeatureProvider) obj).getDelegate() == this;
-        }
-        return obj == this;
-    }
 }

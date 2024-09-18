@@ -65,7 +65,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * A factory function for creating new, OpenFeature clients.
+     * A factory function for creating new, OpenFeature client.
      * Clients can contain their own state (e.g. logger, hook, context).
      * Multiple clients can be used to segment feature flag configuration.
      * All un-named or unbound clients use the default provider.
@@ -77,7 +77,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * A factory function for creating new domainless OpenFeature clients.
+     * A factory function for creating new domainless OpenFeature client.
      * Clients can contain their own state (e.g. logger, hook, context).
      * Multiple clients can be used to segment feature flag configuration.
      * If there is already a provider bound to this domain, this provider will be used.
@@ -91,7 +91,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * A factory function for creating new domainless OpenFeature clients.
+     * A factory function for creating new domainless OpenFeature client.
      * Clients can contain their own state (e.g. logger, hook, context).
      * Multiple clients can be used to segment feature flag configuration.
      * If there is already a provider bound to this domain, this provider will be used.
@@ -103,17 +103,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      */
     public Client getClient(String domain, String version) {
         return new OpenFeatureClient(
-                new ProviderAccessor() {
-                    @Override
-                    public FeatureProvider getProvider() {
-                        return providerRepository.getProvider(domain);
-                    }
-
-                    @Override
-                    public ProviderState getProviderState() {
-                        return providerRepository.getProviderState(domain);
-                    }
-                },
+                () -> providerRepository.getFeatureProviderStateManager(domain),
                 this,
                 domain,
                 version

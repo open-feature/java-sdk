@@ -63,7 +63,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public ProviderState getProviderState() {
-        return providerAccessor.getProviderState();
+        return providerAccessor.getProviderStateManager().getState();
     }
 
     /**
@@ -122,8 +122,9 @@ public class OpenFeatureClient implements Client {
 
         try {
             // openfeatureApi.getProvider() must be called once to maintain a consistent reference
-            provider = providerAccessor.getProvider();
-            ProviderState state = providerAccessor.getProviderState();
+            FeatureProviderStateManager stateManager = providerAccessor.getProviderStateManager();
+            provider = stateManager.getProvider();
+            ProviderState state = stateManager.getState();
             if (ProviderState.NOT_READY.equals(state)) {
                 throw new ProviderNotReadyError("provider not yet initialized");
             }

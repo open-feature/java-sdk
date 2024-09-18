@@ -108,8 +108,8 @@ public abstract class EventProvider implements FeatureProvider {
         if (obj == null) {
             return false;
         }
-        if (obj instanceof StatefulFeatureProvider) {
-            return this == ((StatefulFeatureProvider) obj).getDelegate();
+        if (obj instanceof FeatureProviderStateManager) {
+            return this == ((FeatureProviderStateManager) obj).getProvider();
         }
         return this == obj;
     }

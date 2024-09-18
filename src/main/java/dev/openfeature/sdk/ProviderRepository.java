@@ -20,21 +20,38 @@ import java.util.stream.Stream;
 @Slf4j
 class ProviderRepository {
 
-    private final Map<String, StatefulFeatureProvider> providers = new ConcurrentHashMap<>();
-    private final AtomicReference<StatefulFeatureProvider> defaultProvider = new AtomicReference<>(
-            new StatefulFeatureProvider(new NoOpProvider())
+    private final Map<String, FeatureProviderStateManager> stateManagers = new ConcurrentHashMap<>();
+    private final AtomicReference<FeatureProviderStateManager> defaultStateManger = new AtomicReference<>(
+            new FeatureProviderStateManager(new NoOpProvider())
     );
     private final ExecutorService taskExecutor = Executors.newCachedThreadPool(runnable -> {
         final Thread thread = new Thread(runnable);
         thread.setDaemon(true);
         return thread;
     });
+    private final Object registerStateManagerLock = new Object();
+
+    FeatureProviderStateManager getFeatureProviderStateManager() {
+        return defaultStateManger.get();
+    }
+
+    FeatureProviderStateManager getFeatureProviderStateManager(String domain) {
+        if (domain == null) {
+            return defaultStateManger.get();
+        }
+        FeatureProviderStateManager fromMap = this.stateManagers.get(domain);
+        if (fromMap == null) {
+            return this.defaultStateManger.get();
+        } else {
+            return fromMap;
+        }
+    }
 
     /**
      * Return the default provider.
      */
     public FeatureProvider getProvider() {
-        return defaultProvider.get().getDelegate();
+        return defaultStateManger.get().getProvider();
     }
 
     /**
@@ -44,33 +61,25 @@ class ProviderRepository {
      * @return A named {@link FeatureProvider}
      */
     public FeatureProvider getProvider(String domain) {
-        if (domain == null) {
-            return defaultProvider.get().getDelegate();
-        }
-        StatefulFeatureProvider fromMap = this.providers.get(domain);
-        if (fromMap == null) {
-            return this.defaultProvider.get().getDelegate();
-        } else {
-            return fromMap.getDelegate();
-        }
+        return getFeatureProviderStateManager(domain).getProvider();
     }
 
     public ProviderState getProviderState() {
-        return defaultProvider.get().getState();
+        return getFeatureProviderStateManager().getState();
     }
 
     public ProviderState getProviderState(FeatureProvider featureProvider) {
-        if (featureProvider instanceof StatefulFeatureProvider) {
-            return ((StatefulFeatureProvider) featureProvider).getState();
+        if (featureProvider instanceof FeatureProviderStateManager) {
+            return ((FeatureProviderStateManager) featureProvider).getState();
         }
 
-        StatefulFeatureProvider defaultProvider = this.defaultProvider.get();
-        if (defaultProvider.equals(featureProvider)) {
+        FeatureProviderStateManager defaultProvider = this.defaultStateManger.get();
+        if (defaultProvider.hasSameProvider(featureProvider)) {
             return defaultProvider.getState();
         }
 
-        for (StatefulFeatureProvider wrapper : providers.values()) {
-            if (wrapper.equals(featureProvider)) {
+        for (FeatureProviderStateManager wrapper : stateManagers.values()) {
+            if (wrapper.hasSameProvider(featureProvider)) {
                 return wrapper.getState();
             }
         }
@@ -78,17 +87,17 @@ class ProviderRepository {
     }
 
     public ProviderState getProviderState(String domain) {
-        return Optional.ofNullable(domain).map(this.providers::get).orElse(this.defaultProvider.get()).getState();
+        return Optional.ofNullable(domain).map(this.stateManagers::get).orElse(this.defaultStateManger.get()).getState();
     }
 
     public List<String> getDomainsForProvider(FeatureProvider provider) {
-        return providers.entrySet().stream()
-                .filter(entry -> entry.getValue().equals(provider))
-                .map(entry -> entry.getKey()).collect(Collectors.toList());
+        return stateManagers.entrySet().stream()
+                .filter(entry -> entry.getValue().hasSameProvider(provider))
+                .map(Map.Entry::getKey).collect(Collectors.toList());
     }
 
     public Set<String> getAllBoundDomains() {
-        return providers.keySet();
+        return stateManagers.keySet();
     }
 
     public boolean isDefaultProvider(FeatureProvider provider) {
@@ -141,61 +150,78 @@ class ProviderRepository {
                                               Consumer<FeatureProvider> afterShutdown,
                                               BiConsumer<FeatureProvider, OpenFeatureError> afterError,
                                               boolean waitForInit) {
+        final FeatureProviderStateManager newStateManager;
+        final FeatureProviderStateManager oldStateManager;
 
-        StatefulFeatureProvider newProviderWrapper = new StatefulFeatureProvider(newProvider);
+        synchronized (registerStateManagerLock) {
+            FeatureProviderStateManager existing = getExistingStateManagerForProvider(newProvider);
+            if (existing == null) {
+                newStateManager = new FeatureProviderStateManager(newProvider);
+                // only run afterSet if new provider is not already attached
+                afterSet.accept(newProvider);
+            } else {
+                newStateManager = existing;
+            }
 
-        if (!isProviderRegistered(newProvider)) {
-            // only run afterSet if new provider is not already attached
-            afterSet.accept(newProvider);
+            // provider is set immediately, on this thread
+            oldStateManager = domain != null
+                    ? this.stateManagers.put(domain, newStateManager)
+                    : this.defaultStateManger.getAndSet(newStateManager);
         }
 
-        // provider is set immediately, on this thread
-        StatefulFeatureProvider oldProvider = domain != null
-                ? this.providers.put(domain, newProviderWrapper)
-                : this.defaultProvider.getAndSet(newProviderWrapper);
-
         if (waitForInit) {
-            initializeProvider(newProviderWrapper, afterInit, afterShutdown, afterError, oldProvider);
+            initializeProvider(newStateManager, afterInit, afterShutdown, afterError, oldStateManager);
         } else {
             taskExecutor.submit(() -> {
-                // initialization happens in a different thread if we're not waiting it
-                initializeProvider(newProviderWrapper, afterInit, afterShutdown, afterError, oldProvider);
+                // initialization happens in a different thread if we're not waiting for it
+                initializeProvider(newStateManager, afterInit, afterShutdown, afterError, oldStateManager);
             });
         }
     }
 
-    private void initializeProvider(StatefulFeatureProvider newProvider,
+    private FeatureProviderStateManager getExistingStateManagerForProvider(FeatureProvider provider) {
+        for (FeatureProviderStateManager stateManager : stateManagers.values()) {
+            if (stateManager.hasSameProvider(provider)) return stateManager;
+        }
+        FeatureProviderStateManager defaultFeatureProviderStateManager = defaultStateManger.get();
+        if (defaultFeatureProviderStateManager.hasSameProvider(provider)) {
+            return defaultFeatureProviderStateManager;
+        }
+        return null;
+    }
+
+    private void initializeProvider(FeatureProviderStateManager newProvider,
                                     Consumer<FeatureProvider> afterInit,
                                     Consumer<FeatureProvider> afterShutdown,
                                     BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-                                    StatefulFeatureProvider oldProvider) {
+                                    FeatureProviderStateManager oldProvider) {
         try {
             if (ProviderState.NOT_READY.equals(newProvider.getState())) {
                 newProvider.initialize(OpenFeatureAPI.getInstance().getEvaluationContext());
-                afterInit.accept(newProvider.getDelegate());
+                afterInit.accept(newProvider.getProvider());
             }
             shutDownOld(oldProvider, afterShutdown);
         } catch (OpenFeatureError e) {
             log.error(
                     "Exception when initializing feature provider {}",
-                    newProvider.getDelegate().getClass().getName(),
+                    newProvider.getProvider().getClass().getName(),
                     e
             );
-            afterError.accept(newProvider.getDelegate(), e);
+            afterError.accept(newProvider.getProvider(), e);
         } catch (Exception e) {
             log.error(
                     "Exception when initializing feature provider {}",
-                    newProvider.getDelegate().getClass().getName(),
+                    newProvider.getProvider().getClass().getName(),
                     e
             );
-            afterError.accept(newProvider.getDelegate(), new GeneralError(e));
+            afterError.accept(newProvider.getProvider(), new GeneralError(e));
         }
     }
 
-    private void shutDownOld(StatefulFeatureProvider oldProvider, Consumer<FeatureProvider> afterShutdown) {
-        if (oldProvider != null && !isProviderRegistered(oldProvider)) {
+    private void shutDownOld(FeatureProviderStateManager oldProvider, Consumer<FeatureProvider> afterShutdown) {
+        if (oldProvider != null && !isStateManagerRegistered(oldProvider)) {
             shutdownProvider(oldProvider);
-            afterShutdown.accept(oldProvider.getDelegate());
+            afterShutdown.accept(oldProvider.getProvider());
         }
     }
 
@@ -205,16 +231,16 @@ class ProviderRepository {
      * @param provider provider to check for registration
      * @return boolean true if already registered, false otherwise
      */
-    private boolean isProviderRegistered(FeatureProvider provider) {
+    private boolean isStateManagerRegistered(FeatureProviderStateManager provider) {
         return provider != null
-                && (this.providers.containsValue(provider) || this.defaultProvider.get().equals(provider));
+                && (this.stateManagers.containsValue(provider) || this.defaultStateManger.get().equals(provider));
     }
 
-    private void shutdownProvider(StatefulFeatureProvider provider) {
+    private void shutdownProvider(FeatureProviderStateManager provider) {
         if (provider == null) {
             return;
         }
-        shutdownProvider(provider.getDelegate());
+        shutdownProvider(provider.getProvider());
     }
 
     private void shutdownProvider(FeatureProvider provider) {
@@ -234,10 +260,10 @@ class ProviderRepository {
      */
     public void shutdown() {
         Stream
-                .concat(Stream.of(this.defaultProvider.get()), this.providers.values().stream())
+                .concat(Stream.of(this.defaultStateManger.get()), this.stateManagers.values().stream())
                 .distinct()
                 .forEach(this::shutdownProvider);
-        this.providers.clear();
+        this.stateManagers.clear();
         taskExecutor.shutdown();
     }
 }
