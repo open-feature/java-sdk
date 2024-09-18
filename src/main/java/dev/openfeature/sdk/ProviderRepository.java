@@ -87,7 +87,10 @@ class ProviderRepository {
     }
 
     public ProviderState getProviderState(String domain) {
-        return Optional.ofNullable(domain).map(this.stateManagers::get).orElse(this.defaultStateManger.get()).getState();
+        return Optional.ofNullable(domain)
+                .map(this.stateManagers::get)
+                .orElse(this.defaultStateManger.get())
+                .getState();
     }
 
     public List<String> getDomainsForProvider(FeatureProvider provider) {

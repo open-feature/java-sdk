@@ -76,7 +76,7 @@ class FeatureProviderStateManager implements EventProviderListener {
         return delegate;
     }
 
-    public boolean hasSameProvider(FeatureProvider featureProvider){
+    public boolean hasSameProvider(FeatureProvider featureProvider) {
         return this.delegate.equals(featureProvider);
     }
 }
