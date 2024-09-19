@@ -318,12 +318,6 @@ public class MyProvider implements FeatureProvider {
     }
 
     @Override
-    @Deprecated
-    public ProviderState getState() {
-        // the state of a FeatureProvider is managed by the SDK 
-    }
-
-    @Override
     public void initialize(EvaluationContext evaluationContext) throws Exception {
         // start up your provider
     }
@@ -370,12 +364,6 @@ class MyEventProvider extends EventProvider {
     }
 
     @Override
-    @Deprecated
-    public ProviderState getState() {
-      // the state of an EventProvider is managed by the SDK 
-    }
-
-    @Override
     public void initialize(EvaluationContext evaluationContext) throws Exception {
         // emit events when flags are changed in a hypothetical REST API
         this.restApiClient.onFlagsChanged(() -> {
@@ -391,6 +379,13 @@ class MyEventProvider extends EventProvider {
 
     // remaining provider methods...
 }
+```
+
+Providers no longer need to manage their own state, this is done by the SDK itself. If desired, the state of a provider 
+can be queried through the client that uses the provider.
+
+```java
+OpenFeatureAPI.getInstance().getClient().getProviderState();
 ```
 
 > Built a new provider? [Let us know](https://github.com/open-feature/openfeature.dev/issues/new?assignees=&labels=provider&projects=&template=document-provider.yaml&title=%5BProvider%5D%3A+) so we can add it to the docs!
