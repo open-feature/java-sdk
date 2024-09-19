@@ -149,7 +149,7 @@ class HookSpecTest implements HookFixtures {
     @Test
     void before_runs_ahead_of_evaluation() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenProvider());
         Client client = api.getClient();
         Hook<Boolean> evalHook = mockBooleanHook();
 

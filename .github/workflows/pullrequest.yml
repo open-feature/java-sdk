@@ -13,14 +13,14 @@ jobs:
         uses: actions/checkout@6d193bf28034eafb982f37bd894289fe649468fc
 
       - name: Set up JDK 8
-        uses: actions/setup-java@2dfa2011c5b2a0f1489bf9e433881c92c1631f88
+        uses: actions/setup-java@bcfbca5b713b77435aded8de683c7ee5e79f63cb
         with:
           java-version: '8'
           distribution: 'temurin'
           cache: maven
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@8fd294e26a0e458834582b0fe4988d79966c7c0a
+        uses: github/codeql-action/init@64431c66d0e98a26d34f9485e5f8e317e14956fc
         with:
           languages: java
 
@@ -45,4 +45,4 @@ jobs:
           verbose: true # optional (default = false)
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@8fd294e26a0e458834582b0fe4988d79966c7c0a
+        uses: github/codeql-action/analyze@64431c66d0e98a26d34f9485e5f8e317e14956fc

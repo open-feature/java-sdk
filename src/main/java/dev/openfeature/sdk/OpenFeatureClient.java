@@ -146,7 +146,11 @@ public class OpenFeatureClient implements Client {
 
             details = FlagEvaluationDetails.from(providerEval, key);
             if (details.getErrorCode() != null) {
-                throw ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
+                OpenFeatureError error = ExceptionUtils.instantiateErrorByErrorCode(
+                        details.getErrorCode(),
+                        details.getErrorMessage());
+                enrichDetailsWithErrorDefaults(defaultValue, details);
+                hookSupport.errorHooks(type, afterHookContext, error, mergedHooks, hints);
             } else {
                 hookSupport.afterHooks(type, afterHookContext, details, mergedHooks, hints);
             }
@@ -160,14 +164,18 @@ public class OpenFeatureClient implements Client {
                 details.setErrorCode(ErrorCode.GENERAL);
             }
             details.setErrorMessage(e.getMessage());
-            details.setValue(defaultValue);
-            details.setReason(Reason.ERROR.toString());
+            enrichDetailsWithErrorDefaults(defaultValue, details);
             hookSupport.errorHooks(type, afterHookContext, e, mergedHooks, hints);
         } finally {
             hookSupport.afterAllHooks(type, afterHookContext, mergedHooks, hints);
         }
 
         return details;
+    }
+
+    private static <T> void enrichDetailsWithErrorDefaults(T defaultValue, FlagEvaluationDetails<T> details) {
+        details.setValue(defaultValue);
+        details.setReason(Reason.ERROR.toString());
     }
 
     /**

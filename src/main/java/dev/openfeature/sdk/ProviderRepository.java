@@ -184,7 +184,9 @@ class ProviderRepository {
 
     private FeatureProviderStateManager getExistingStateManagerForProvider(FeatureProvider provider) {
         for (FeatureProviderStateManager stateManager : stateManagers.values()) {
-            if (stateManager.hasSameProvider(provider)) return stateManager;
+            if (stateManager.hasSameProvider(provider)) {
+                return stateManager;
+            }
         }
         FeatureProviderStateManager defaultFeatureProviderStateManager = defaultStateManger.get();
         if (defaultFeatureProviderStateManager.hasSameProvider(provider)) {
