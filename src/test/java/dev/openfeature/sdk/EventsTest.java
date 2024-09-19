@@ -606,7 +606,6 @@ class EventsTest {
             final Consumer<EventDetails> handler2 = mockHandler();
 
             TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
-            provider.initialize(null);
             OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
             Client client = OpenFeatureAPI.getInstance().getClient(name);
 

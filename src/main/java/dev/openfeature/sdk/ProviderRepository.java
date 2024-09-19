@@ -193,57 +193,57 @@ class ProviderRepository {
         return null;
     }
 
-    private void initializeProvider(FeatureProviderStateManager newProvider,
+    private void initializeProvider(FeatureProviderStateManager newManager,
                                     Consumer<FeatureProvider> afterInit,
                                     Consumer<FeatureProvider> afterShutdown,
                                     BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-                                    FeatureProviderStateManager oldProvider) {
+                                    FeatureProviderStateManager oldManager) {
         try {
-            if (ProviderState.NOT_READY.equals(newProvider.getState())) {
-                newProvider.initialize(OpenFeatureAPI.getInstance().getEvaluationContext());
-                afterInit.accept(newProvider.getProvider());
+            if (ProviderState.NOT_READY.equals(newManager.getState())) {
+                newManager.initialize(OpenFeatureAPI.getInstance().getEvaluationContext());
+                afterInit.accept(newManager.getProvider());
             }
-            shutDownOld(oldProvider, afterShutdown);
+            shutDownOld(oldManager, afterShutdown);
         } catch (OpenFeatureError e) {
             log.error(
                     "Exception when initializing feature provider {}",
-                    newProvider.getProvider().getClass().getName(),
+                    newManager.getProvider().getClass().getName(),
                     e
             );
-            afterError.accept(newProvider.getProvider(), e);
+            afterError.accept(newManager.getProvider(), e);
         } catch (Exception e) {
             log.error(
                     "Exception when initializing feature provider {}",
-                    newProvider.getProvider().getClass().getName(),
+                    newManager.getProvider().getClass().getName(),
                     e
             );
-            afterError.accept(newProvider.getProvider(), new GeneralError(e));
+            afterError.accept(newManager.getProvider(), new GeneralError(e));
         }
     }
 
-    private void shutDownOld(FeatureProviderStateManager oldProvider, Consumer<FeatureProvider> afterShutdown) {
-        if (oldProvider != null && !isStateManagerRegistered(oldProvider)) {
-            shutdownProvider(oldProvider);
-            afterShutdown.accept(oldProvider.getProvider());
+    private void shutDownOld(FeatureProviderStateManager oldManager, Consumer<FeatureProvider> afterShutdown) {
+        if (oldManager != null && !isStateManagerRegistered(oldManager)) {
+            shutdownProvider(oldManager);
+            afterShutdown.accept(oldManager.getProvider());
         }
     }
 
     /**
-     * Helper to check if provider is already known (registered).
+     * Helper to check if manager is already known (registered).
      *
-     * @param provider provider to check for registration
+     * @param manager manager to check for registration
      * @return boolean true if already registered, false otherwise
      */
-    private boolean isStateManagerRegistered(FeatureProviderStateManager provider) {
-        return provider != null
-                && (this.stateManagers.containsValue(provider) || this.defaultStateManger.get().equals(provider));
+    private boolean isStateManagerRegistered(FeatureProviderStateManager manager) {
+        return manager != null
+                && (this.stateManagers.containsValue(manager) || this.defaultStateManger.get().equals(manager));
     }
 
-    private void shutdownProvider(FeatureProviderStateManager provider) {
-        if (provider == null) {
+    private void shutdownProvider(FeatureProviderStateManager manager) {
+        if (manager == null) {
             return;
         }
-        shutdownProvider(provider.getProvider());
+        shutdownProvider(manager.getProvider());
     }
 
     private void shutdownProvider(FeatureProvider provider) {

@@ -318,8 +318,9 @@ public class MyProvider implements FeatureProvider {
     }
 
     @Override
+    @Deprecated
     public ProviderState getState() {
-        // optionally indicate your provider's state (assumed to be READY if not implemented)
+        // the state of a FeatureProvider is managed by the SDK 
     }
 
     @Override
@@ -369,8 +370,9 @@ class MyEventProvider extends EventProvider {
     }
 
     @Override
+    @Deprecated
     public ProviderState getState() {
-        // indicate your provider's state (required for EventProviders)
+      // the state of an EventProvider is managed by the SDK 
     }
 
     @Override
