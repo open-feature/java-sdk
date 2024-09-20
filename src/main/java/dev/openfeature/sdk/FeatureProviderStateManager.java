@@ -2,21 +2,10 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import lombok.Getter;
-import lombok.experimental.Delegate;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class FeatureProviderStateManager implements EventProviderListener {
-
-    private interface ExcludeFromDelegate {
-        void initialize(EvaluationContext evaluationContext) throws Exception;
-
-        void shutdown();
-
-        ProviderState getState();
-    }
-
-    @Delegate(excludes = ExcludeFromDelegate.class)
     private final FeatureProvider delegate;
     private final AtomicBoolean isInitialized = new AtomicBoolean();
     @Getter

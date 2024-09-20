@@ -121,7 +121,7 @@ public class OpenFeatureClient implements Client {
         FeatureProvider provider;
 
         try {
-            // openfeatureApi.getProvider() must be called once to maintain a consistent reference
+            // providerAccessor.getProviderStateManager() must be called once to maintain a consistent reference
             FeatureProviderStateManager stateManager = providerAccessor.getProviderStateManager();
             provider = stateManager.getProvider();
             ProviderState state = stateManager.getState();
