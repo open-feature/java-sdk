@@ -405,7 +405,6 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         return providerRepository.getFeatureProviderStateManager(domain);
     }
 
-
     /**
      * Runs the handlers associated with a particular provider.
      *

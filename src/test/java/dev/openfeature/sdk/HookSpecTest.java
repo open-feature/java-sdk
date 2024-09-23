@@ -219,7 +219,7 @@ class HookSpecTest implements HookFixtures {
     void hook_eval_order() {
         List<String> evalOrder = new ArrayList<>();
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new TestEventsProvider() {
+        api.setProvider("evalOrder", new TestEventsProvider() {
             public List<Hook> getProviderHooks() {
                 return Collections.singletonList(new BooleanHook() {
 
@@ -271,7 +271,7 @@ class HookSpecTest implements HookFixtures {
             }
         });
 
-        Client c = api.getClient();
+        Client c = api.getClient("evalOrder");
         c.addHooks(new BooleanHook() {
             @Override
             public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
