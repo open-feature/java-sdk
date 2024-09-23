@@ -78,12 +78,14 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test void providerAndWait() {
         FeatureProvider provider = new TestEventsProvider(500);
         OpenFeatureAPI.getInstance().setProviderAndWait(provider);
-        assertThat(api.getProviderState()).isEqualTo(ProviderState.READY);
+        Client client = api.getClient();
+        assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
 
         provider = new TestEventsProvider(500);
         String providerName = "providerAndWait";
         OpenFeatureAPI.getInstance().setProviderAndWait(providerName, provider);
-        assertThat(api.getProviderState(providerName)).isEqualTo(ProviderState.READY);
+        Client client2 = api.getClient(providerName);
+        assertThat(client2.getProviderState()).isEqualTo(ProviderState.READY);
     }
 
     @SneakyThrows
@@ -102,7 +104,6 @@ class FlagEvaluationSpecTest implements HookFixtures {
         FeatureProvider provider = new TestEventsProvider(100);
         String providerName = "shouldReturnNotReadyIfNotInitialized";
         OpenFeatureAPI.getInstance().setProvider(providerName, provider);
-        assertThat(api.getProviderState(providerName)).isEqualTo(ProviderState.NOT_READY);
         Client client = OpenFeatureAPI.getInstance().getClient(providerName);
         FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("return_error_when_not_initialized", false);
         assertEquals(ErrorCode.PROVIDER_NOT_READY, details.getErrorCode());

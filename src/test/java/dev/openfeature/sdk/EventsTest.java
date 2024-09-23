@@ -535,12 +535,12 @@ class EventsTest {
 
         // provider which is already stale
         TestEventsProvider provider = TestEventsProvider.newInitializedTestEventsProvider();
+        Client client = api.getClient(name);
         api.setProviderAndWait(name, provider);
         provider.emitProviderStale(ProviderEventDetails.builder().build());
-        assertThat(api.getProviderState(name)).isEqualTo(ProviderState.STALE);
+        assertThat(client.getProviderState()).isEqualTo(ProviderState.STALE);
 
         // should run even thought handler was added after stale
-        Client client = api.getClient(name);
         client.onProviderStale(handler);
         verify(handler, timeout(TIMEOUT)).accept(any());
     }
@@ -555,13 +555,13 @@ class EventsTest {
 
         // provider which is already in error
         TestEventsProvider provider = new TestEventsProvider();
+        Client client = api.getClient(name);
         api.setProviderAndWait(name, provider);
         provider.emitProviderError(ProviderEventDetails.builder().build());
-        assertThat(api.getProviderState(name)).isEqualTo(ProviderState.ERROR);
+        assertThat(client.getProviderState()).isEqualTo(ProviderState.ERROR);
 
 
         // should run even thought handler was added after error
-        Client client = api.getClient(name);
         client.onProviderError(handler);
         verify(handler, timeout(TIMEOUT)).accept(any());
     }

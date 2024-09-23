@@ -103,7 +103,6 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      */
     public Client getClient(String domain, String version) {
         return new OpenFeatureClient(
-                () -> providerRepository.getFeatureProviderStateManager(domain),
                 this,
                 domain,
                 version
@@ -286,28 +285,6 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * Return the state of the default provider.
-     */
-    public ProviderState getProviderState() {
-        return providerRepository.getProviderState();
-    }
-
-    /**
-     * Get the state of the provider for a domain. If no provider with the domain is found, returns the state of the
-     * default provider.
-     *
-     * @param domain The domain to look for.
-     * @return A named {@link FeatureProvider}
-     */
-    public ProviderState getProviderState(String domain) {
-        return providerRepository.getProviderState(domain);
-    }
-
-    public ProviderState getProviderState(FeatureProvider provider) {
-        return providerRepository.getProviderState(provider);
-    }
-
-    /**
      * Adds hooks for globally, used for all evaluations.
      * Hooks are run in the order they're added in the before stage. They are run in reverse order for all other stages.
      *
@@ -423,6 +400,11 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
             eventSupport.addClientHandler(domain, event, handler);
         }
     }
+
+    FeatureProviderStateManager getFeatureProviderStateManager(String domain) {
+        return providerRepository.getFeatureProviderStateManager(domain);
+    }
+
 
     /**
      * Runs the handlers associated with a particular provider.

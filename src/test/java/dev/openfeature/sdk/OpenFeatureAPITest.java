@@ -82,7 +82,7 @@ class OpenFeatureAPITest {
 
     @Test
     void setEvaluationContextShouldAllowChaining() {
-        OpenFeatureClient client = new OpenFeatureClient(() -> null, api, "name", "version");
+        OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
         EvaluationContext ctx = new ImmutableContext("targeting key", new HashMap<>());
         OpenFeatureClient result = client.setEvaluationContext(ctx);
         assertEquals(client, result);

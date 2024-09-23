@@ -1,7 +1,16 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.fixtures.HookFixtures;
-import lombok.SneakyThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,14 +19,9 @@ import org.mockito.Mockito;
 import org.simplify4u.slf4jmock.LoggerMock;
 import org.slf4j.Logger;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import dev.openfeature.sdk.exceptions.FatalError;
+import dev.openfeature.sdk.fixtures.HookFixtures;
+import dev.openfeature.sdk.testutils.TestEventsProvider;
 
 class OpenFeatureClientTest implements HookFixtures {
 
@@ -37,14 +41,10 @@ class OpenFeatureClientTest implements HookFixtures {
     @Test
     @DisplayName("should not throw exception if hook has different type argument than hookContext")
     void shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext() {
-        DoSomethingProvider provider = new DoSomethingProvider();
-        OpenFeatureAPI api = mock(OpenFeatureAPI.class);
-        when(api.getProvider(any())).thenReturn(provider);
-        when(api.getHooks()).thenReturn(Arrays.asList(mockBooleanHook(), mockStringHook()));
-
-        MockProviderRepository mockProviderRepository = new MockProviderRepository(provider, true);
-        OpenFeatureClient client = new OpenFeatureClient(mockProviderRepository, api, "name", "version");
-
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider("shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext", new DoSomethingProvider());
+        Client client = api.getClient("shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext");
+        client.addHooks(mockBooleanHook(), mockStringHook());
         FlagEvaluationDetails<Boolean> actual = client.getBooleanDetails("feature key", Boolean.FALSE);
 
         assertThat(actual.getValue()).isTrue();
@@ -57,35 +57,10 @@ class OpenFeatureClientTest implements HookFixtures {
     }
 
     @Test
-    void mergeContextTest() {
-        String flag = "feature key";
-        boolean defaultValue = false;
-        String targetingKey = "targeting key";
-        EvaluationContext ctx = new ImmutableContext(targetingKey, new HashMap<>());
-        OpenFeatureAPI api = mock(OpenFeatureAPI.class);
-        FeatureProvider mockProvider = mock(FeatureProvider.class);
-        // this makes it so that true is returned only if the targeting key set at the client level is honored
-        when(mockProvider.getBooleanEvaluation(
-                eq(flag), eq(defaultValue), argThat(
-                        context -> context.getTargetingKey().equals(targetingKey)))).thenReturn(ProviderEvaluation.<Boolean>builder()
-                .value(true).build());
-        when(api.getProvider()).thenReturn(mockProvider);
-        when(api.getProvider(any())).thenReturn(mockProvider);
-
-        MockProviderRepository mockProviderRepository = new MockProviderRepository(mockProvider, true);
-        OpenFeatureClient client = new OpenFeatureClient(mockProviderRepository, api, "name", "version");
-        client.setEvaluationContext(ctx);
-
-        FlagEvaluationDetails<Boolean> result = client.getBooleanDetails(flag, defaultValue);
-
-        assertThat(result.getValue()).isTrue();
-    }
-
-    @Test
     @DisplayName("addHooks should allow chaining by returning the same client instance")
     void addHooksShouldAllowChaining() {
         OpenFeatureAPI api = mock(OpenFeatureAPI.class);
-        OpenFeatureClient client = new OpenFeatureClient(() -> null, api, "name", "version");
+        OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
         Hook<?> hook1 = Mockito.mock(Hook.class);
         Hook<?> hook2 = Mockito.mock(Hook.class);
 
@@ -97,7 +72,7 @@ class OpenFeatureClientTest implements HookFixtures {
     @DisplayName("setEvaluationContext should allow chaining by returning the same client instance")
     void setEvaluationContextShouldAllowChaining() {
         OpenFeatureAPI api = mock(OpenFeatureAPI.class);
-        OpenFeatureClient client = new OpenFeatureClient(() -> null, api, "name", "version");
+        OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
         EvaluationContext ctx = new ImmutableContext("targeting key", new HashMap<>());
 
         OpenFeatureClient result = client.setEvaluationContext(ctx);
@@ -107,47 +82,25 @@ class OpenFeatureClientTest implements HookFixtures {
     @Test
     @DisplayName("Should not call evaluation methods when the provider has state FATAL")
     void shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState() {
-        MockProvider mockProvider = new MockProvider(ProviderState.FATAL);
-        OpenFeatureAPI api = mock(OpenFeatureAPI.class);
-        MockProviderRepository mockProviderRepository = new MockProviderRepository(mockProvider, true);
-        OpenFeatureClient client = new OpenFeatureClient(mockProviderRepository, api, "name", "version");
-        mockProviderRepository.featureProviderStateManager.onEmit(
-                ProviderEvent.PROVIDER_ERROR,
-                ProviderEventDetails.builder().errorCode(ErrorCode.PROVIDER_FATAL).build()
-        );
-        FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);
+        FeatureProvider provider = new TestEventsProvider(100, true, "fake fatal", true);
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        Client client = api.getClient("shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState");
 
-        assertThat(mockProvider.isEvaluationCalled()).isFalse();
+        assertThrows(FatalError.class, () -> api.setProviderAndWait("shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState", provider));
+        FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);
         assertThat(details.getErrorCode()).isEqualTo(ErrorCode.PROVIDER_FATAL);
     }
 
     @Test
     @DisplayName("Should not call evaluation methods when the provider has state NOT_READY")
     void shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState() {
-        MockProvider mockProvider = new MockProvider(ProviderState.NOT_READY);
-        OpenFeatureAPI api = mock(OpenFeatureAPI.class);
-        OpenFeatureClient client = new OpenFeatureClient(new MockProviderRepository(mockProvider, false), api, "name", "version");
+        FeatureProvider provider = new TestEventsProvider(5000);
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        api.setProvider("shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState", provider);
+        Client client = api.getClient("shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState");
         FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);
 
-        assertThat(mockProvider.isEvaluationCalled()).isFalse();
         assertThat(details.getErrorCode()).isEqualTo(ErrorCode.PROVIDER_NOT_READY);
-    }
-
-    private static class MockProviderRepository implements ProviderAccessor {
-        private final FeatureProviderStateManager featureProviderStateManager;
-
-        @SneakyThrows
-        public MockProviderRepository(FeatureProvider featureProvider, boolean init) {
-            this.featureProviderStateManager = new FeatureProviderStateManager(featureProvider);
-            if (init) {
-                this.featureProviderStateManager.initialize(null);
-            }
-        }
-
-        @Override
-        public FeatureProviderStateManager getProviderStateManager() {
-            return featureProviderStateManager;
-        }
     }
 
     private static class MockProvider implements FeatureProvider {

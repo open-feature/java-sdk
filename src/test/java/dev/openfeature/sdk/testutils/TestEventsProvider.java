@@ -1,6 +1,7 @@
 package dev.openfeature.sdk.testutils;
 
 import dev.openfeature.sdk.*;
+import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import lombok.SneakyThrows;
 
@@ -13,6 +14,7 @@ public class TestEventsProvider extends EventProvider {
     private int initTimeoutMs = 0;
     private String name = "test";
     private Metadata metadata = () -> name;
+    private boolean isFatalInitError = false;
 
     public TestEventsProvider() {
     }
@@ -25,6 +27,13 @@ public class TestEventsProvider extends EventProvider {
         this.initTimeoutMs = initTimeoutMs;
         this.initError = initError;
         this.initErrorMessage = initErrorMessage;
+    }
+
+    public TestEventsProvider(int initTimeoutMs, boolean initError, String initErrorMessage, boolean fatal) {
+        this.initTimeoutMs = initTimeoutMs;
+        this.initError = initError;
+        this.initErrorMessage = initErrorMessage;
+        this.isFatalInitError = fatal;
     }
 
     @SneakyThrows
@@ -52,6 +61,9 @@ public class TestEventsProvider extends EventProvider {
         // wait half the TIMEOUT, otherwise some init/errors can be fired before we add handlers
         Thread.sleep(initTimeoutMs);
         if (this.initError) {
+            if (this.isFatalInitError) {
+                throw new FatalError(initErrorMessage);
+            }
             throw new GeneralError(initErrorMessage);
         }
     }

@@ -24,7 +24,6 @@ import java.util.function.Consumer;
 @Deprecated() // TODO: eventually we will make this non-public. See issue #872
 public class OpenFeatureClient implements Client {
 
-    private final ProviderAccessor providerAccessor;
     private final OpenFeatureAPI openfeatureApi;
     @Getter
     private final String domain;
@@ -48,12 +47,10 @@ public class OpenFeatureClient implements Client {
      */
     @Deprecated() // TODO: eventually we will make this non-public. See issue #872
     public OpenFeatureClient(
-            ProviderAccessor providerAccessor,
             OpenFeatureAPI openFeatureAPI,
             String domain,
             String version
     ) {
-        this.providerAccessor = providerAccessor;
         this.openfeatureApi = openFeatureAPI;
         this.domain = domain;
         this.version = version;
@@ -63,7 +60,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public ProviderState getProviderState() {
-        return providerAccessor.getProviderStateManager().getState();
+        return openfeatureApi.getFeatureProviderStateManager(domain).getState();
     }
 
     /**
@@ -121,8 +118,8 @@ public class OpenFeatureClient implements Client {
         FeatureProvider provider;
 
         try {
-            // providerAccessor.getProviderStateManager() must be called once to maintain a consistent reference
-            FeatureProviderStateManager stateManager = providerAccessor.getProviderStateManager();
+            FeatureProviderStateManager stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
+            // provider must be accessed once to maintain a consistent reference
             provider = stateManager.getProvider();
             ProviderState state = stateManager.getState();
             if (ProviderState.NOT_READY.equals(state)) {
