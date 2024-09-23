@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.12.0](https://github.com/open-feature/java-sdk/compare/v1.11.0...v1.12.0) (2024-09-23)
+
+
+### ✨ New Features
+
+* make provider interface "stateless"; SDK maintains provider state ([#1096](https://github.com/open-feature/java-sdk/issues/1096)) ([1b1e527](https://github.com/open-feature/java-sdk/commit/1b1e527e780128c9aa3c0686427a8fe8856800b4))
+
+
+### 🧹 Chore
+
+* **deps:** update dependency com.github.spotbugs:spotbugs-maven-plugin to v4.8.6.4 ([#1113](https://github.com/open-feature/java-sdk/issues/1113)) ([dd8ba81](https://github.com/open-feature/java-sdk/commit/dd8ba81f1286a622aec2611f023d03a56a155e89))
+* **deps:** update github/codeql-action digest to 323f5ef ([#1111](https://github.com/open-feature/java-sdk/issues/1111)) ([52e6d2b](https://github.com/open-feature/java-sdk/commit/52e6d2b0ee17124ef2a742fc872a939fde977a27))
+
 ## [1.11.0](https://github.com/open-feature/java-sdk/compare/v1.10.0...v1.11.0) (2024-09-20)
 
 
