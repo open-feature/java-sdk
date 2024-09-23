@@ -4,7 +4,7 @@
 
   <groupId>dev.openfeature</groupId>
   <artifactId>sdk</artifactId>
-  <version>1.10.0</version> <!--x-release-please-version -->
+  <version>1.11.0</version> <!--x-release-please-version -->
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -367,7 +367,7 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>4.8.6.3</version>
+        <version>4.8.6.4</version>
         <configuration>
           <excludeFilterFile>spotbugs-exclusions.xml</excludeFilterFile>
           <plugins>
