@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@6d193bf28034eafb982f37bd894289fe649468fc
       - name: Set up JDK 8
         if: ${{ steps.release.outputs.release_created }}
-        uses: actions/setup-java@40b9536ce5efadffec365e30f26f62a3640d2548
+        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73
         with:
           java-version: '8'
           distribution: 'temurin'
