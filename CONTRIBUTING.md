@@ -12,6 +12,9 @@ Any contributions you make are expected to be tested with unit tests. You can va
 Further, it is recommended to verify code styling and static code analysis with `mvn verify -P !deploy`.
 Regardless, the automation itself will run them for you when you open a PR.
 
+> [!TIP]
+> For easier usage maven wrapper is available. Example usage: `./mvnw verify`
+
 Your code is supposed to work with Java 8+.
 
 If you think we might be out of date with the spec, you can check that by invoking `python spec_finder.py` in the root of the repository. This will validate we have tests defined for all of the specification entries we know about.
