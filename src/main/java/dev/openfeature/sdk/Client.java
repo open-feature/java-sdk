@@ -39,6 +39,7 @@ public interface Client extends Features, EventBus<Client> {
 
     /**
      * Returns the current state of the associated provider.
+     *
      * @return the provider state
      */
     ProviderState getProviderState();
