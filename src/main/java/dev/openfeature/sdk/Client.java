@@ -36,4 +36,10 @@ public interface Client extends Features, EventBus<Client> {
      * @return A list of {@link Hook}s.
      */
     List<Hook> getHooks();
+
+    /**
+     * Returns the current state of the associated provider.
+     * @return the provider state
+     */
+    ProviderState getProviderState();
 }

@@ -4,15 +4,11 @@ import dev.openfeature.sdk.ErrorCode;
 import lombok.Getter;
 import lombok.experimental.StandardException;
 
-@SuppressWarnings("checkstyle:MissingJavadocType")
+@SuppressWarnings({"checkstyle:MissingJavadocType", "squid:S110"})
 @StandardException
-public class FlagNotFoundError extends OpenFeatureError {
+public class FlagNotFoundError extends OpenFeatureErrorWithoutStacktrace {
     private static final long serialVersionUID = 1L;
     @Getter
     private final ErrorCode errorCode = ErrorCode.FLAG_NOT_FOUND;
 
-    @Override
-    public synchronized Throwable fillInStackTrace() {
-        return this;
-    }
 }

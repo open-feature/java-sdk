@@ -1,19 +1,11 @@
 package dev.openfeature.sdk;
 
-import static dev.openfeature.sdk.fixtures.ProviderFixture.createMockedErrorProvider;
-import static dev.openfeature.sdk.fixtures.ProviderFixture.createMockedProvider;
-import static dev.openfeature.sdk.fixtures.ProviderFixture.createMockedReadyProvider;
-import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doDelayResponse;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
+import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import dev.openfeature.sdk.testutils.exception.TestException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
@@ -23,13 +15,14 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
-import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import dev.openfeature.sdk.testutils.exception.TestException;
+import static dev.openfeature.sdk.fixtures.ProviderFixture.*;
+import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doDelayResponse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 class ProviderRepositoryTest {
 
@@ -84,15 +77,6 @@ class ProviderRepositoryTest {
 
                 verify(featureProvider, timeout(TIMEOUT)).initialize(any());
             }
-
-            @Test
-            @DisplayName("should avoid additional initialization call if provider has been initialized already")
-            void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() throws Exception {
-                FeatureProvider provider = createMockedReadyProvider();
-                setFeatureProvider(provider);
-
-                verify(provider, never()).initialize(any());
-            }
         }
 
         @Nested
@@ -131,15 +115,6 @@ class ProviderRepositoryTest {
                             verify(featureProvider, timeout(TIMEOUT)).initialize(any());
                             return true;
                         });
-            }
-
-            @Test
-            @DisplayName("should avoid additional initialization call if provider has been initialized already")
-            void shouldAvoidAdditionalInitializationCallIfProviderHasBeenInitializedAlready() throws Exception {
-                FeatureProvider provider = createMockedReadyProvider();
-                setFeatureProvider(DOMAIN_NAME, provider);
-
-                verify(provider, never()).initialize(any());
             }
         }
     }
@@ -281,6 +256,7 @@ class ProviderRepositoryTest {
                 setFeatureProvider(errorFeatureProvider, afterSet, afterInit, afterShutdown, afterError);
                 verify(afterSet, timeout(TIMEOUT)).accept(errorFeatureProvider);
                 verify(afterInit, never()).accept(any());
+                ;
                 verify(afterError, timeout(TIMEOUT)).accept(eq(errorFeatureProvider), any());
             }
         }
@@ -309,8 +285,8 @@ class ProviderRepositoryTest {
 
 
     private void setFeatureProvider(FeatureProvider provider, Consumer<FeatureProvider> afterSet,
-            Consumer<FeatureProvider> afterInit, Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, OpenFeatureError> afterError) {
+                                    Consumer<FeatureProvider> afterInit, Consumer<FeatureProvider> afterShutdown,
+                                    BiConsumer<FeatureProvider, OpenFeatureError> afterError) {
         providerRepository.setProvider(provider, afterSet, afterInit, afterShutdown,
                 afterError, false);
         waitForSettingProviderHasBeenCompleted(ProviderRepository::getProvider, provider);
@@ -329,7 +305,7 @@ class ProviderRepositoryTest {
                 .pollDelay(Duration.ofMillis(1))
                 .atMost(Duration.ofSeconds(5))
                 .until(() -> {
-                    return extractor.apply(providerRepository) == provider;
+                    return extractor.apply(providerRepository).equals(provider);
                 });
     }
 

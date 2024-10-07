@@ -4,13 +4,13 @@
 
   <groupId>dev.openfeature</groupId>
   <artifactId>sdk</artifactId>
-  <version>1.10.0</version> <!--x-release-please-version -->
+  <version>1.12.0</version> <!--x-release-please-version -->
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
-    <junit.jupiter.version>5.11.0</junit.jupiter.version>
+    <junit.jupiter.version>5.11.2</junit.jupiter.version>
      <!-- exclusion expression for e2e tests -->
     <testExclusions>**/e2e/*.java</testExclusions>
     <module-name>${project.groupId}.${project.artifactId}</module-name>
@@ -109,7 +109,7 @@
     <dependency>
       <groupId>org.junit.platform</groupId>
       <artifactId>junit-platform-suite</artifactId>
-      <version>1.11.0</version>
+      <version>1.11.2</version>
       <scope>test</scope>
     </dependency>
 
@@ -135,7 +135,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.3.0-jre</version>
+      <version>33.3.1-jre</version>
       <scope>test</scope>
     </dependency>
 
@@ -157,14 +157,14 @@
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
-        <version>1.15.1</version>
+        <version>1.15.3</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy-agent</artifactId>
-        <version>1.15.1</version>
+        <version>1.15.3</version>
         <scope>test</scope>
       </dependency>
       <!-- End mockito workaround-->
@@ -172,7 +172,7 @@
       <dependency>
         <groupId>io.cucumber</groupId>
         <artifactId>cucumber-bom</artifactId>
-        <version>7.18.1</version>
+        <version>7.20.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -180,7 +180,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.11.0</version>
+        <version>5.11.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -193,7 +193,7 @@
       <plugin>
         <groupId>org.cyclonedx</groupId>
         <artifactId>cyclonedx-maven-plugin</artifactId>
-        <version>2.8.1</version>
+        <version>2.8.2</version>
         <configuration>
           <projectType>library</projectType>
           <schemaVersion>1.3</schemaVersion>
@@ -253,7 +253,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.5.1</version>
         <configuration>
           <argLine>
             ${surefireArgLine}
@@ -367,7 +367,7 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>4.8.6.3</version>
+        <version>4.8.6.4</version>
         <configuration>
           <excludeFilterFile>spotbugs-exclusions.xml</excludeFilterFile>
           <plugins>
@@ -470,7 +470,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.10.0</version>
+            <version>3.10.1</version>
             <configuration>
               <failOnWarnings>true</failOnWarnings>
               <doclint>all,-missing</doclint>  <!-- ignore missing javadoc, these are enforced with more customizability in the checkstyle plugin -->
@@ -490,7 +490,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.2.5</version>
+            <version>3.2.7</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>

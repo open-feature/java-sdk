@@ -13,4 +13,5 @@ public class ProviderEventDetails {
     private List<String> flagsChanged;
     private String message;
     private ImmutableMetadata eventMetadata;
+    private ErrorCode errorCode;
 }

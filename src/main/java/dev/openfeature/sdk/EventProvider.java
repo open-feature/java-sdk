@@ -2,6 +2,7 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.internal.TriConsumer;
 
+
 /**
  * Abstract EventProvider. Providers must extend this class to support events.
  * Emit events with {@link #emit(ProviderEvent, ProviderEventDetails)}. Please
@@ -15,12 +16,11 @@ import dev.openfeature.sdk.internal.TriConsumer;
  * @see FeatureProvider
  */
 public abstract class EventProvider implements FeatureProvider {
+    private EventProviderListener eventProviderListener;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract ProviderState getState();
+    void setEventProviderListener(EventProviderListener eventProviderListener) {
+        this.eventProviderListener = eventProviderListener;
+    }
 
     private TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = null;
 
@@ -54,6 +54,9 @@ public abstract class EventProvider implements FeatureProvider {
      * @param details The details of the event
      */
     public void emit(ProviderEvent event, ProviderEventDetails details) {
+        if (eventProviderListener != null) {
+            eventProviderListener.onEmit(event, details);
+        }
         if (this.onEmit != null) {
             this.onEmit.accept(this, event, details);
         }

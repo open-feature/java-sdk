@@ -1,28 +1,11 @@
 package dev.openfeature.sdk;
 
-import static dev.openfeature.sdk.DoSomethingProvider.DEFAULT_METADATA;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.awaitility.Awaitility;
+import dev.openfeature.sdk.exceptions.GeneralError;
+import dev.openfeature.sdk.fixtures.HookFixtures;
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import dev.openfeature.sdk.testutils.TestEventsProvider;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,12 +13,17 @@ import org.mockito.Mockito;
 import org.simplify4u.slf4jmock.LoggerMock;
 import org.slf4j.Logger;
 
-import dev.openfeature.sdk.exceptions.GeneralError;
-import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.providers.memory.InMemoryProvider;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
-import dev.openfeature.sdk.testutils.TestEventsProvider;
-import lombok.SneakyThrows;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static dev.openfeature.sdk.DoSomethingProvider.DEFAULT_METADATA;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.*;
 
 class FlagEvaluationSpecTest implements HookFixtures {
 
@@ -47,59 +35,62 @@ class FlagEvaluationSpecTest implements HookFixtures {
         return api.getClient();
     }
 
+    @SneakyThrows
+    private Client _initializedClient() {
+        TestEventsProvider provider = new TestEventsProvider();
+        provider.initialize(null);
+        FeatureProviderTestUtils.setFeatureProvider(provider);
+        return api.getClient();
+    }
+
     @BeforeEach
     void getApiInstance() {
         api = OpenFeatureAPI.getInstance();
     }
 
-    @AfterEach
-    void reset_ctx() {
+    @AfterEach void reset_ctx() {
         api.setEvaluationContext(null);
     }
 
-    @BeforeEach
-    void set_logger() {
+    @BeforeEach void set_logger() {
         logger = Mockito.mock(Logger.class);
         LoggerMock.setMock(OpenFeatureClient.class, logger);
     }
 
-    @AfterEach
-    void reset_logs() {
+    @AfterEach void reset_logs() {
         LoggerMock.setMock(OpenFeatureClient.class, logger);
     }
 
-    @Specification(number = "1.1.1", text = "The API, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the API are present at runtime.")
-    @Test
-    void global_singleton() {
+    @Specification(number="1.1.1", text="The API, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the API are present at runtime.")
+    @Test void global_singleton() {
         assertSame(OpenFeatureAPI.getInstance(), OpenFeatureAPI.getInstance());
     }
 
-    @Specification(number = "1.1.2.1", text = "The API MUST define a provider mutator, a function to set the default provider, which accepts an API-conformant provider implementation.")
-    @Test
-    void provider() {
+    @Specification(number="1.1.2.1", text="The API MUST define a provider mutator, a function to set the default provider, which accepts an API-conformant provider implementation.")
+    @Test void provider() {
         FeatureProvider mockProvider = mock(FeatureProvider.class);
         FeatureProviderTestUtils.setFeatureProvider(mockProvider);
         assertThat(api.getProvider()).isEqualTo(mockProvider);
     }
 
     @SneakyThrows
-    @Specification(number = "1.1.8", text = "The API SHOULD provide functions to set a provider and wait for the initialize function to return or throw.")
-    @Test
-    void providerAndWait() {
+    @Specification(number="1.1.8", text="The API SHOULD provide functions to set a provider and wait for the initialize function to return or throw.")
+    @Test void providerAndWait() {
         FeatureProvider provider = new TestEventsProvider(500);
         OpenFeatureAPI.getInstance().setProviderAndWait(provider);
-        assertThat(api.getProvider().getState()).isEqualTo(ProviderState.READY);
+        Client client = api.getClient();
+        assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
 
         provider = new TestEventsProvider(500);
         String providerName = "providerAndWait";
         OpenFeatureAPI.getInstance().setProviderAndWait(providerName, provider);
-        assertThat(api.getProvider(providerName).getState()).isEqualTo(ProviderState.READY);
+        Client client2 = api.getClient(providerName);
+        assertThat(client2.getProviderState()).isEqualTo(ProviderState.READY);
     }
 
     @SneakyThrows
-    @Specification(number = "1.1.8", text = "The API SHOULD provide functions to set a provider and wait for the initialize function to return or throw.")
-    @Test
-    void providerAndWaitError() {
+    @Specification(number="1.1.8", text="The API SHOULD provide functions to set a provider and wait for the initialize function to return or throw.")
+    @Test void providerAndWaitError() {
         FeatureProvider provider1 = new TestEventsProvider(500, true, "fake error");
         assertThrows(GeneralError.class, () -> api.setProviderAndWait(provider1));
 
@@ -108,33 +99,25 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertThrows(GeneralError.class, () -> api.setProviderAndWait(providerName, provider2));
     }
 
-    @Specification(number = "2.4.5", text = "The provider SHOULD indicate an error if flag resolution is attempted before the provider is ready.")
-    @Test
-    void shouldReturnNotReadyIfNotInitialized() {
-        FeatureProvider provider = new InMemoryProvider(new HashMap<>()) {
-            @Override
-            public void initialize(EvaluationContext evaluationContext) throws Exception {
-                Awaitility.await().wait(3000);
-            }
-        };
+    @Specification(number="2.4.5", text="The provider SHOULD indicate an error if flag resolution is attempted before the provider is ready.")
+    @Test void shouldReturnNotReadyIfNotInitialized() {
+        FeatureProvider provider = new TestEventsProvider(100);
         String providerName = "shouldReturnNotReadyIfNotInitialized";
         OpenFeatureAPI.getInstance().setProvider(providerName, provider);
-        assertThat(api.getProvider(providerName).getState()).isEqualTo(ProviderState.NOT_READY);
         Client client = OpenFeatureAPI.getInstance().getClient(providerName);
-        assertEquals(ErrorCode.PROVIDER_NOT_READY,
-                client.getBooleanDetails("return_error_when_not_initialized", false).getErrorCode());
+        FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("return_error_when_not_initialized", false);
+        assertEquals(ErrorCode.PROVIDER_NOT_READY, details.getErrorCode());
+        assertEquals(Reason.ERROR.toString(), details.getReason());
     }
 
-    @Specification(number = "1.1.5", text = "The API MUST provide a function for retrieving the metadata field of the configured provider.")
-    @Test
-    void provider_metadata() {
+    @Specification(number="1.1.5", text="The API MUST provide a function for retrieving the metadata field of the configured provider.")
+    @Test void provider_metadata() {
         FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
         assertThat(api.getProviderMetadata().getName()).isEqualTo(DoSomethingProvider.name);
     }
 
-    @Specification(number = "1.1.4", text = "The API MUST provide a function to add hooks which accepts one or more API-conformant hooks, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")
-    @Test
-    void hook_addition() {
+    @Specification(number="1.1.4", text="The API MUST provide a function to add hooks which accepts one or more API-conformant hooks, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")
+    @Test void hook_addition() {
         Hook h1 = mock(Hook.class);
         Hook h2 = mock(Hook.class);
         api.addHooks(h1);
@@ -147,9 +130,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(h2, api.getHooks().get(1));
     }
 
-    @Specification(number = "1.1.6", text = "The API MUST provide a function for creating a client which accepts the following options:  - domain (optional): A logical string identifier for binding clients to provider.")
-    @Test
-    void domainName() {
+    @Specification(number="1.1.6", text="The API MUST provide a function for creating a client which accepts the following options:  - domain (optional): A logical string identifier for binding clients to provider.")
+    @Test void domainName() {
         assertNull(api.getClient().getMetadata().getDomain());
 
         String domain = "Sir Calls-a-lot";
@@ -157,9 +139,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(domain, clientForDomain.getMetadata().getDomain());
     }
 
-    @Specification(number = "1.2.1", text = "The client MUST provide a method to add hooks which accepts one or more API-conformant hooks, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")
-    @Test
-    void hookRegistration() {
+    @Specification(number="1.2.1", text="The client MUST provide a method to add hooks which accepts one or more API-conformant hooks, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")
+    @Test void hookRegistration() {
         Client c = _client();
         Hook m1 = mock(Hook.class);
         Hook m2 = mock(Hook.class);
@@ -171,10 +152,9 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertTrue(hooks.contains(m2));
     }
 
-    @Specification(number = "1.3.1.1", text = "The client MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure, with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns the flag value.")
-    @Specification(number = "1.3.3.1", text = "The client SHOULD provide functions for floating-point numbers and integers, consistent with language idioms.")
-    @Test
-    void value_flags() {
+    @Specification(number="1.3.1.1", text="The client MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure, with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns the flag value.")
+    @Specification(number="1.3.3.1", text="The client SHOULD provide functions for floating-point numbers and integers, consistent with language idioms.")
+    @Test void value_flags() {
         FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
 
         Client c = api.getClient();
@@ -182,13 +162,11 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
         assertEquals(true, c.getBooleanValue(key, false));
         assertEquals(true, c.getBooleanValue(key, false, new ImmutableContext()));
-        assertEquals(true,
-                c.getBooleanValue(key, false, new ImmutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(true, c.getBooleanValue(key, false, new ImmutableContext(), FlagEvaluationOptions.builder().build()));
 
         assertEquals("gnirts-ym", c.getStringValue(key, "my-string"));
         assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new ImmutableContext()));
-        assertEquals("gnirts-ym",
-                c.getStringValue(key, "my-string", new ImmutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new ImmutableContext(), FlagEvaluationOptions.builder().build()));
 
         assertEquals(400, c.getIntegerValue(key, 4));
         assertEquals(400, c.getIntegerValue(key, 4, new ImmutableContext()));
@@ -198,19 +176,18 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(40.0, c.getDoubleValue(key, .4, new ImmutableContext()));
         assertEquals(40.0, c.getDoubleValue(key, .4, new ImmutableContext(), FlagEvaluationOptions.builder().build()));
 
-        assertNull(c.getObjectValue(key, new Value()));
-        assertNull(c.getObjectValue(key, new Value(), new ImmutableContext()));
-        assertNull(c.getObjectValue(key, new Value(), new ImmutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(null, c.getObjectValue(key, new Value()));
+        assertEquals(null, c.getObjectValue(key, new Value(), new ImmutableContext()));
+        assertEquals(null, c.getObjectValue(key, new Value(), new ImmutableContext(), FlagEvaluationOptions.builder().build()));
     }
 
-    @Specification(number = "1.4.1.1", text = "The client MUST provide methods for detailed flag value evaluation with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns an evaluation details structure.")
-    @Specification(number = "1.4.3", text = "The evaluation details structure's value field MUST contain the evaluated flag value.")
-    @Specification(number = "1.4.4.1", text = "The evaluation details structure SHOULD accept a generic argument (or use an equivalent language feature) which indicates the type of the wrapped value field.")
-    @Specification(number = "1.4.5", text = "The evaluation details structure's flag key field MUST contain the flag key argument passed to the detailed flag evaluation method.")
-    @Specification(number = "1.4.6", text = "In cases of normal execution, the evaluation details structure's variant field MUST contain the value of the variant field in the flag resolution structure returned by the configured provider, if the field is set.")
-    @Specification(number = "1.4.7", text = "In cases of normal execution, the `evaluation details` structure's `reason` field MUST contain the value of the `reason` field in the `flag resolution` structure returned by the configured `provider`, if the field is set.")
-    @Test
-    void detail_flags() {
+    @Specification(number="1.4.1.1", text="The client MUST provide methods for detailed flag value evaluation with parameters flag key (string, required), default value (boolean | number | string | structure, required), evaluation context (optional), and evaluation options (optional), which returns an evaluation details structure.")
+    @Specification(number="1.4.3", text="The evaluation details structure's value field MUST contain the evaluated flag value.")
+    @Specification(number="1.4.4.1", text="The evaluation details structure SHOULD accept a generic argument (or use an equivalent language feature) which indicates the type of the wrapped value field.")
+    @Specification(number="1.4.5", text="The evaluation details structure's flag key field MUST contain the flag key argument passed to the detailed flag evaluation method.")
+    @Specification(number="1.4.6", text="In cases of normal execution, the evaluation details structure's variant field MUST contain the value of the variant field in the flag resolution structure returned by the configured provider, if the field is set.")
+    @Specification(number="1.4.7", text="In cases of normal execution, the `evaluation details` structure's `reason` field MUST contain the value of the `reason` field in the `flag resolution` structure returned by the configured `provider`, if the field is set.")
+    @Test void detail_flags() {
         FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
         Client c = api.getClient();
         String key = "key";
@@ -223,8 +200,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 .build();
         assertEquals(bd, c.getBooleanDetails(key, true));
         assertEquals(bd, c.getBooleanDetails(key, true, new ImmutableContext()));
-        assertEquals(bd,
-                c.getBooleanDetails(key, true, new ImmutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(bd, c.getBooleanDetails(key, true, new ImmutableContext(), FlagEvaluationOptions.builder().build()));
 
         FlagEvaluationDetails<String> sd = FlagEvaluationDetails.<String>builder()
                 .flagKey(key)
@@ -234,8 +210,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 .build();
         assertEquals(sd, c.getStringDetails(key, "test"));
         assertEquals(sd, c.getStringDetails(key, "test", new ImmutableContext()));
-        assertEquals(sd,
-                c.getStringDetails(key, "test", new ImmutableContext(), FlagEvaluationOptions.builder().build()));
+        assertEquals(sd, c.getStringDetails(key, "test", new ImmutableContext(), FlagEvaluationOptions.builder().build()));
 
         FlagEvaluationDetails<Integer> id = FlagEvaluationDetails.<Integer>builder()
                 .flagKey(key)
@@ -258,37 +233,54 @@ class FlagEvaluationSpecTest implements HookFixtures {
         // TODO: Structure detail tests.
     }
 
-    @Specification(number = "1.5.1", text = "The evaluation options structure's hooks field denotes an ordered collection of hooks that the client MUST execute for the respective flag evaluation, in addition to those already configured.")
-    @Test
-    void hooks() {
-        Client c = _client();
+    @Specification(number="1.5.1", text="The evaluation options structure's hooks field denotes an ordered collection of hooks that the client MUST execute for the respective flag evaluation, in addition to those already configured.")
+    @SneakyThrows
+    @Test void hooks()  {
+        Client c = _initializedClient();
         Hook<Boolean> clientHook = mockBooleanHook();
         Hook<Boolean> invocationHook = mockBooleanHook();
         c.addHooks(clientHook);
         c.getBooleanValue("key", false, null, FlagEvaluationOptions.builder()
-                .hook(invocationHook)
-                .build());
+            .hook(invocationHook)
+            .build());
         verify(clientHook, times(1)).before(any(), any());
         verify(invocationHook, times(1)).before(any(), any());
     }
 
-    @Specification(number = "1.4.8", text = "In cases of abnormal execution, the `evaluation details` structure's `error code` field **MUST** contain an `error code`.")
-    @Specification(number = "1.4.9", text = "In cases of abnormal execution (network failure, unhandled error, etc) the `reason` field in the `evaluation details` SHOULD indicate an error.")
-    @Specification(number = "1.4.10", text = "Methods, functions, or operations on the client MUST NOT throw exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the `default value` in the event of abnormal execution. Exceptions include functions or methods for the purposes for configuration or setup.")
-    @Specification(number = "1.4.13", text = "In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
-    @Test
-    void broken_provider() {
+    @Specification(number="1.4.8", text="In cases of abnormal execution, the `evaluation details` structure's `error code` field **MUST** contain an `error code`.")
+    @Specification(number="1.4.9", text="In cases of abnormal execution (network failure, unhandled error, etc) the `reason` field in the `evaluation details` SHOULD indicate an error.")
+    @Specification(number="1.4.10", text="Methods, functions, or operations on the client MUST NOT throw exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the `default value` in the event of abnormal execution. Exceptions include functions or methods for the purposes for configuration or setup.")
+    @Specification(number="1.4.13", text="In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
+    @Test void broken_provider() {
         FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
-        assertFalse(c.getBooleanValue("key", false));
-        FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", false);
+        boolean defaultValue = false;
+        assertFalse(c.getBooleanValue("key", defaultValue));
+        FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", defaultValue);
         assertEquals(ErrorCode.FLAG_NOT_FOUND, details.getErrorCode());
         assertEquals(TestConstants.BROKEN_MESSAGE, details.getErrorMessage());
+        assertEquals(Reason.ERROR.toString(), details.getReason());
+        assertEquals(defaultValue, details.getValue());
     }
 
-    @Specification(number = "1.4.11", text = "Methods, functions, or operations on the client SHOULD NOT write log messages.")
-    @Test
-    void log_on_error() throws NotImplementedException {
+    @Specification(number="1.4.8", text="In cases of abnormal execution, the `evaluation details` structure's `error code` field **MUST** contain an `error code`.")
+    @Specification(number="1.4.9", text="In cases of abnormal execution (network failure, unhandled error, etc) the `reason` field in the `evaluation details` SHOULD indicate an error.")
+    @Specification(number="1.4.10", text="Methods, functions, or operations on the client MUST NOT throw exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the `default value` in the event of abnormal execution. Exceptions include functions or methods for the purposes for configuration or setup.")
+    @Specification(number="1.4.13", text="In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
+    @Test void broken_provider_withDetails() {
+        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenWithDetailsProvider());
+        Client c = api.getClient();
+        boolean defaultValue = false;
+        assertFalse(c.getBooleanValue("key", defaultValue));
+        FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", defaultValue);
+        assertEquals(ErrorCode.FLAG_NOT_FOUND, details.getErrorCode());
+        assertEquals(TestConstants.BROKEN_MESSAGE, details.getErrorMessage());
+        assertEquals(Reason.ERROR.toString(), details.getReason());
+        assertEquals(defaultValue, details.getValue());
+    }
+
+    @Specification(number="1.4.11", text="Methods, functions, or operations on the client SHOULD NOT write log messages.")
+    @Test void log_on_error() throws NotImplementedException {
         FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
@@ -300,9 +292,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 any());
     }
 
-    @Specification(number = "1.2.2", text = "The client interface MUST define a metadata member or accessor, containing an immutable domain field or accessor of type string, which corresponds to the domain value supplied during client creation. In previous drafts, this property was called name. For backwards compatibility, implementations should consider name an alias to domain.")
-    @Test
-    void clientMetadata() {
+    @Specification(number="1.2.2", text="The client interface MUST define a metadata member or accessor, containing an immutable domain field or accessor of type string, which corresponds to the domain value supplied during client creation. In previous drafts, this property was called name. For backwards compatibility, implementations should consider name an alias to domain.")
+    @Test void clientMetadata() {
         Client c = _client();
         assertNull(c.getMetadata().getName());
         assertNull(c.getMetadata().getDomain());
@@ -315,30 +306,27 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(domainName, c2.getMetadata().getDomain());
     }
 
-    @Specification(number = "1.4.9", text = "In cases of abnormal execution (network failure, unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")
-    @Test
-    void reason_is_error_when_there_are_errors() {
+    @Specification(number="1.4.9", text="In cases of abnormal execution (network failure, unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")
+    @Test void reason_is_error_when_there_are_errors() {
         FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
         assertEquals(Reason.ERROR.toString(), result.getReason());
     }
 
-    @Specification(number = "1.4.14", text = "If the flag metadata field in the flag resolution structure returned by the configured provider is set, the evaluation details structure's flag metadata field MUST contain that value. Otherwise, it MUST contain an empty record.")
-    @Test
-    void flag_metadata_passed() {
+    @Specification(number="1.4.14", text="If the flag metadata field in the flag resolution structure returned by the configured provider is set, the evaluation details structure's flag metadata field MUST contain that value. Otherwise, it MUST contain an empty record.")
+    @Test void flag_metadata_passed() {
         FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider(null));
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
         assertNotNull(result.getFlagMetadata());
     }
 
-    @Specification(number = "3.2.2.1", text = "The API MUST have a method for setting the global evaluation context.")
-    @Test
-    void api_context() {
+    @Specification(number="3.2.2.1", text="The API MUST have a method for setting the global evaluation context.")
+    @Test void api_context() {
         String contextKey = "some-key";
         String contextValue = "some-value";
-        DoSomethingProvider provider = spy(new DoSomethingProvider());
+        DoSomethingProvider provider = spy( new DoSomethingProvider());
         FeatureProviderTestUtils.setFeatureProvider(provider);
 
         Map<String, Value> attributes = new HashMap<>();
@@ -351,14 +339,12 @@ class FlagEvaluationSpecTest implements HookFixtures {
         client.getBooleanValue("any-flag", false);
 
         // assert that the value from the global context was passed to the provider
-        verify(provider).getBooleanEvaluation(any(), any(),
-                argThat((arg) -> arg.getValue(contextKey).asString().equals(contextValue)));
+        verify(provider).getBooleanEvaluation(any(), any(), argThat((arg) -> arg.getValue(contextKey).asString().equals(contextValue)));
     }
 
-    @Specification(number = "3.2.1.1", text = "The API, Client and invocation MUST have a method for supplying evaluation context.")
-    @Specification(number = "3.2.3", text = "Evaluation context MUST be merged in the order: API (global; lowest precedence) -> transaction -> client -> invocation -> before hooks (highest precedence), with duplicate values being overwritten.")
-    @Test
-    void multi_layer_context_merges_correctly() {
+    @Specification(number="3.2.1.1", text="The API, Client and invocation MUST have a method for supplying evaluation context.")
+    @Specification(number="3.2.3", text="Evaluation context MUST be merged in the order: API (global; lowest precedence) -> transaction -> client -> invocation -> before hooks (highest precedence), with duplicate values being overwritten.")
+    @Test void multi_layer_context_merges_correctly() {
         DoSomethingProvider provider = spy(new DoSomethingProvider());
         FeatureProviderTestUtils.setFeatureProvider(provider);
         TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
@@ -371,10 +357,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 attrs.put("common7", new Value("5"));
                 return Optional.ofNullable(new ImmutableContext(attrs));
             }
-
             @Override
-            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details,
-                    Map<String, Object> hints) {
+            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, Map<String, Object> hints) {
                 Hook.super.after(ctx, details, hints);
             }
         });
@@ -471,9 +455,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
         }), any(), any());
     }
 
-    @Specification(number = "3.3.1.1", text = "The API SHOULD have a method for setting a transaction context propagator.")
-    @Test
-    void setting_transaction_context_propagator() {
+    @Specification(number="3.3.1.1", text="The API SHOULD have a method for setting a transaction context propagator.")
+    @Test void setting_transaction_context_propagator() {
         DoSomethingProvider provider = new DoSomethingProvider();
         FeatureProviderTestUtils.setFeatureProvider(provider);
 
@@ -482,9 +465,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(transactionContextPropagator, api.getTransactionContextPropagator());
     }
 
-    @Specification(number = "3.3.1.2.1", text = "The API MUST have a method for setting the evaluation context of the transaction context propagator for the current transaction.")
-    @Test
-    void setting_transaction_context() {
+    @Specification(number="3.3.1.2.1", text="The API MUST have a method for setting the evaluation context of the transaction context propagator for the current transaction.")
+    @Test void setting_transaction_context() {
         DoSomethingProvider provider = new DoSomethingProvider();
         FeatureProviderTestUtils.setFeatureProvider(provider);
 
@@ -499,10 +481,9 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(transactionContext, transactionContextPropagator.getTransactionContext());
     }
 
-    @Specification(number = "3.3.1.2.2", text = "A transaction context propagator MUST have a method for setting the evaluation context of the current transaction.")
-    @Specification(number = "3.3.1.2.3", text = "A transaction context propagator MUST have a method for getting the evaluation context of the current transaction.")
-    @Test
-    void transaction_context_propagator_setting_context() {
+    @Specification(number="3.3.1.2.2", text="A transaction context propagator MUST have a method for setting the evaluation context of the current transaction.")
+    @Specification(number="3.3.1.2.3", text="A transaction context propagator MUST have a method for getting the evaluation context of the current transaction.")
+    @Test void transaction_context_propagator_setting_context() {
         TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
 
         Map<String, Value> attributes = new HashMap<>();
@@ -513,33 +494,23 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertEquals(transactionContext, transactionContextPropagator.getTransactionContext());
     }
 
-    @Specification(number = "1.3.4", text = "The client SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied default value should be returned.")
-    @Test
-    void type_system_prevents_this() {
-    }
+    @Specification(number="1.3.4", text="The client SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied default value should be returned.")
+    @Test void type_system_prevents_this() {}
 
-    @Specification(number = "1.1.7", text = "The client creation function MUST NOT throw, or otherwise abnormally terminate.")
-    @Test
-    void constructor_does_not_throw() {
-    }
+    @Specification(number="1.1.7", text="The client creation function MUST NOT throw, or otherwise abnormally terminate.")
+    @Test void constructor_does_not_throw() {}
 
-    @Specification(number = "1.4.12", text = "The client SHOULD provide asynchronous or non-blocking mechanisms for flag evaluation.")
-    @Test
-    void one_thread_per_request_model() {
-    }
+    @Specification(number="1.4.12", text="The client SHOULD provide asynchronous or non-blocking mechanisms for flag evaluation.")
+    @Test void one_thread_per_request_model() {}
 
-    @Specification(number = "1.4.14.1", text = "Condition: Flag metadata MUST be immutable.")
-    @Test
-    void compiler_enforced() {
-    }
+    @Specification(number="1.4.14.1", text="Condition: Flag metadata MUST be immutable.")
+    @Test void compiler_enforced() {}
 
-    @Specification(number = "1.4.2.1", text = "The client MUST provide methods for detailed flag value evaluation with parameters flag key (string, required), default value (boolean | number | string | structure, required), and evaluation options (optional), which returns an evaluation details structure.")
-    @Specification(number = "1.3.2.1", text = "The client MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure, with parameters flag key (string, required), default value (boolean | number | string | structure, required), and evaluation options (optional), which returns the flag value.")
-    @Specification(number = "3.2.2.2", text = "The Client and invocation MUST NOT have a method for supplying evaluation context.")
-    @Specification(number = "3.2.4.1", text = "When the global evaluation context is set, the on context changed handler MUST run.")
-    @Specification(number = "3.3.2.1", text = "The API MUST NOT have a method for setting a transaction context propagator.")
-    @Test
-    void not_applicable_for_dynamic_context() {
-    }
+    @Specification(number="1.4.2.1", text="The client MUST provide methods for detailed flag value evaluation with parameters flag key (string, required), default value (boolean | number | string | structure, required), and evaluation options (optional), which returns an evaluation details structure.")
+    @Specification(number="1.3.2.1", text="The client MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure, with parameters flag key (string, required), default value (boolean | number | string | structure, required), and evaluation options (optional), which returns the flag value.")
+    @Specification(number="3.2.2.2", text="The Client and invocation MUST NOT have a method for supplying evaluation context.")
+    @Specification(number="3.2.4.1", text="When the global evaluation context is set, the on context changed handler MUST run.")
+    @Specification(number="3.3.2.1", text="The API MUST NOT have a method for setting a transaction context propagator.")
+    @Test void not_applicable_for_dynamic_context() {}
 
 }

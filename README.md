@@ -18,8 +18,8 @@
   </a>
   <!-- x-release-please-start-version -->
 
-  <a href="https://github.com/open-feature/java-sdk/releases/tag/v1.10.0">
-    <img alt="Release" src="https://img.shields.io/static/v1?label=release&message=v1.10.0&color=blue&style=for-the-badge" />
+  <a href="https://github.com/open-feature/java-sdk/releases/tag/v1.12.0">
+    <img alt="Release" src="https://img.shields.io/static/v1?label=release&message=v1.12.0&color=blue&style=for-the-badge" />
   </a>  
 
   <!-- x-release-please-end -->
@@ -59,7 +59,7 @@ Note that this library is intended to be used in server-side contexts and has no
 <dependency>
     <groupId>dev.openfeature</groupId>
     <artifactId>sdk</artifactId>
-    <version>1.10.0</version>
+    <version>1.12.0</version>
 </dependency>
 ```
 <!-- x-release-please-end-version -->
@@ -84,7 +84,7 @@ If you would like snapshot builds, this is the relevant repository information:
 <!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-    implementation 'dev.openfeature:sdk:1.10.0'
+    implementation 'dev.openfeature:sdk:1.12.0'
 }
 ```
 <!-- x-release-please-end-version -->
@@ -318,11 +318,6 @@ public class MyProvider implements FeatureProvider {
     }
 
     @Override
-    public ProviderState getState() {
-        // optionally indicate your provider's state (assumed to be READY if not implemented)
-    }
-
-    @Override
     public void initialize(EvaluationContext evaluationContext) throws Exception {
         // start up your provider
     }
@@ -369,11 +364,6 @@ class MyEventProvider extends EventProvider {
     }
 
     @Override
-    public ProviderState getState() {
-        // indicate your provider's state (required for EventProviders)
-    }
-
-    @Override
     public void initialize(EvaluationContext evaluationContext) throws Exception {
         // emit events when flags are changed in a hypothetical REST API
         this.restApiClient.onFlagsChanged(() -> {
@@ -389,6 +379,13 @@ class MyEventProvider extends EventProvider {
 
     // remaining provider methods...
 }
+```
+
+Providers no longer need to manage their own state, this is done by the SDK itself. If desired, the state of a provider 
+can be queried through the client that uses the provider.
+
+```java
+OpenFeatureAPI.getInstance().getClient().getProviderState();
 ```
 
 > Built a new provider? [Let us know](https://github.com/open-feature/openfeature.dev/issues/new?assignees=&labels=provider&projects=&template=document-provider.yaml&title=%5BProvider%5D%3A+) so we can add it to the docs!

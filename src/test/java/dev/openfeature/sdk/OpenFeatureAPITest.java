@@ -1,17 +1,17 @@
 package dev.openfeature.sdk;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import dev.openfeature.sdk.testutils.TestEventsProvider;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import dev.openfeature.sdk.providers.memory.InMemoryProvider;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class OpenFeatureAPITest {
 
@@ -86,5 +86,19 @@ class OpenFeatureAPITest {
         EvaluationContext ctx = new ImmutableContext("targeting key", new HashMap<>());
         OpenFeatureClient result = client.setEvaluationContext(ctx);
         assertEquals(client, result);
+    }
+
+    @Test
+    void getStateReturnsTheStateOfTheAppropriateProvider() throws Exception {
+        String domain = "namedProviderOverwrittenTest";
+        FeatureProvider provider1 = new NoOpProvider();
+        FeatureProvider provider2 = new TestEventsProvider();
+        FeatureProviderTestUtils.setFeatureProvider(domain, provider1);
+        FeatureProviderTestUtils.setFeatureProvider(domain, provider2);
+
+        provider2.initialize(null);
+
+        assertThat(OpenFeatureAPI.getInstance().getClient(domain).getProviderState())
+                .isEqualTo(ProviderState.READY);
     }
 }

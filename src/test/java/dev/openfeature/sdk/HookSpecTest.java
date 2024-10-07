@@ -3,34 +3,20 @@ package dev.openfeature.sdk;
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import dev.openfeature.sdk.testutils.TestEventsProvider;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class HookSpecTest implements HookFixtures {
     @AfterEach
@@ -163,7 +149,7 @@ class HookSpecTest implements HookFixtures {
     @Test
     void before_runs_ahead_of_evaluation() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenProvider());
         Client client = api.getClient();
         Hook<Boolean> evalHook = mockBooleanHook();
 
@@ -233,7 +219,7 @@ class HookSpecTest implements HookFixtures {
     void hook_eval_order() {
         List<String> evalOrder = new ArrayList<>();
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new NoOpProvider() {
+        api.setProvider("evalOrder", new TestEventsProvider() {
             public List<Hook> getProviderHooks() {
                 return Collections.singletonList(new BooleanHook() {
 
@@ -269,8 +255,7 @@ class HookSpecTest implements HookFixtures {
             }
 
             @Override
-            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details,
-                    Map<String, Object> hints) {
+            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, Map<String, Object> hints) {
                 evalOrder.add("api after");
                 throw new RuntimeException(); // trigger error flows.
             }
@@ -286,7 +271,7 @@ class HookSpecTest implements HookFixtures {
             }
         });
 
-        Client c = api.getClient();
+        Client c = api.getClient("evalOrder");
         c.addHooks(new BooleanHook() {
             @Override
             public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
@@ -295,8 +280,7 @@ class HookSpecTest implements HookFixtures {
             }
 
             @Override
-            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details,
-                    Map<String, Object> hints) {
+            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, Map<String, Object> hints) {
                 evalOrder.add("client after");
             }
 
@@ -321,8 +305,7 @@ class HookSpecTest implements HookFixtures {
                     }
 
                     @Override
-                    public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details,
-                            Map<String, Object> hints) {
+                    public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, Map<String, Object> hints) {
                         evalOrder.add("invocation after");
                     }
 
@@ -354,25 +337,26 @@ class HookSpecTest implements HookFixtures {
         Hook<Boolean> h2 = mockBooleanHook();
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProvider(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenProvider());
         Client c = api.getClient();
 
         c.getBooleanDetails("key", false, null, FlagEvaluationOptions.builder()
                 .hook(h2)
                 .hook(h)
                 .build());
-        verify(h, times(1)).before(any(), any());
-        verify(h2, times(0)).before(any(), any());
+            verify(h, times(1)).before(any(), any());
+            verify(h2, times(0)).before(any(), any());
     }
 
     @Specification(number = "4.4.6", text = "If an error occurs during the evaluation of before or after hooks, any remaining hooks in the before or after stages MUST NOT be invoked.")
+    @SneakyThrows
     @Test
     void error_stops_after() {
         Hook<Boolean> h = mockBooleanHook();
         doThrow(RuntimeException.class).when(h).after(any(), any(), any());
         Hook<Boolean> h2 = mockBooleanHook();
 
-        Client c = getClient(null);
+        Client c = getClient(TestEventsProvider.newInitializedTestEventsProvider());
 
         c.getBooleanDetails("key", false, null, FlagEvaluationOptions.builder()
                 .hook(h)
@@ -386,6 +370,7 @@ class HookSpecTest implements HookFixtures {
     @Specification(number = "4.5.2", text = "hook hints MUST be passed to each hook.")
     @Specification(number = "4.2.2.1", text = "Condition: Hook hints MUST be immutable.")
     @Specification(number = "4.5.3", text = "The hook MUST NOT alter the hook hints structure.")
+    @SneakyThrows
     @Test
     void hook_hints() {
         String hintKey = "My hint key";
@@ -393,28 +378,23 @@ class HookSpecTest implements HookFixtures {
         Hook<Boolean> mutatingHook = new BooleanHook() {
             @Override
             public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
-                assertThatCode(() -> hints.put(hintKey, "changed value")).isInstanceOf(
-                        UnsupportedOperationException.class);
+                assertThatCode(() -> hints.put(hintKey, "changed value")).isInstanceOf(UnsupportedOperationException.class);
                 return Optional.empty();
             }
 
             @Override
-            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details,
-                    Map<String, Object> hints) {
-                assertThatCode(() -> hints.put(hintKey, "changed value")).isInstanceOf(
-                        UnsupportedOperationException.class);
+            public void after(HookContext<Boolean> ctx, FlagEvaluationDetails<Boolean> details, Map<String, Object> hints) {
+                assertThatCode(() -> hints.put(hintKey, "changed value")).isInstanceOf(UnsupportedOperationException.class);
             }
 
             @Override
             public void error(HookContext<Boolean> ctx, Exception error, Map<String, Object> hints) {
-                assertThatCode(() -> hints.put(hintKey, "changed value")).isInstanceOf(
-                        UnsupportedOperationException.class);
+                assertThatCode(() -> hints.put(hintKey, "changed value")).isInstanceOf(UnsupportedOperationException.class);
             }
 
             @Override
             public void finallyAfter(HookContext<Boolean> ctx, Map<String, Object> hints) {
-                assertThatCode(() -> hints.put(hintKey, "changed value")).isInstanceOf(
-                        UnsupportedOperationException.class);
+                assertThatCode(() -> hints.put(hintKey, "changed value")).isInstanceOf(UnsupportedOperationException.class);
             }
         };
 
@@ -464,7 +444,7 @@ class HookSpecTest implements HookFixtures {
     void error_hooks__before() {
         Hook hook = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).before(any(), any());
-        Client client = getClient(null);
+        Client client = getClient(TestEventsProvider.newInitializedTestEventsProvider());
         Boolean value = client.getBooleanValue("key", false, new ImmutableContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
         verify(hook, times(1)).before(any(), any());
@@ -477,7 +457,7 @@ class HookSpecTest implements HookFixtures {
     void error_hooks__after() {
         Hook hook = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).after(any(), any(), any());
-        Client client = getClient(null);
+        Client client = getClient(TestEventsProvider.newInitializedTestEventsProvider());
         client.getBooleanValue("key", false, new ImmutableContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
         verify(hook, times(1)).after(any(), any(), any());
@@ -540,6 +520,7 @@ class HookSpecTest implements HookFixtures {
         attributes.put("test", new Value("works"));
         attributes.put("another", new Value("exists"));
         EvaluationContext hookCtx = new ImmutableContext(attributes);
+
 
         Map<String, Value> attributes1 = new HashMap<>();
         attributes1.put("something", new Value("here"));
@@ -615,7 +596,7 @@ class HookSpecTest implements HookFixtures {
     private Client getClient(FeatureProvider provider) {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         if (provider == null) {
-            FeatureProviderTestUtils.setFeatureProvider(new NoOpProvider());
+            FeatureProviderTestUtils.setFeatureProvider(TestEventsProvider.newInitializedTestEventsProvider());
         } else {
             FeatureProviderTestUtils.setFeatureProvider(provider);
         }
@@ -624,7 +605,8 @@ class HookSpecTest implements HookFixtures {
 
     @Specification(number = "4.3.1", text = "Hooks MUST specify at least one stage.")
     @Test
-    void default_methods_so_impossible() {}
+    void default_methods_so_impossible() {
+    }
 
     @Specification(number = "4.3.9.1", text = "Instead of finally, finallyAfter SHOULD be used.")
     @SneakyThrows

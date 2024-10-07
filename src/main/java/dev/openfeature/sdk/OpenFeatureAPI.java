@@ -3,13 +3,10 @@ package dev.openfeature.sdk;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * A global singleton which holds base configuration for the OpenFeature
@@ -68,7 +65,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * A factory function for creating new, OpenFeature clients.
+     * A factory function for creating new, OpenFeature client.
      * Clients can contain their own state (e.g. logger, hook, context).
      * Multiple clients can be used to segment feature flag configuration.
      * All un-named or unbound clients use the default provider.
@@ -80,7 +77,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * A factory function for creating new domainless OpenFeature clients.
+     * A factory function for creating new domainless OpenFeature client.
      * Clients can contain their own state (e.g. logger, hook, context).
      * Multiple clients can be used to segment feature flag configuration.
      * If there is already a provider bound to this domain, this provider will be used.
@@ -94,7 +91,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * A factory function for creating new domainless OpenFeature clients.
+     * A factory function for creating new domainless OpenFeature client.
      * Clients can contain their own state (e.g. logger, hook, context).
      * Multiple clients can be used to segment feature flag configuration.
      * If there is already a provider bound to this domain, this provider will be used.
@@ -105,9 +102,11 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @return a new client instance
      */
     public Client getClient(String domain, String version) {
-        return new OpenFeatureClient(this,
+        return new OpenFeatureClient(
+                this,
                 domain,
-                version);
+                version
+        );
     }
 
     /**
@@ -394,12 +393,16 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     void addHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
             // if the provider is in the state associated with event, run immediately
-            if (Optional.ofNullable(this.providerRepository.getProvider(domain).getState())
+            if (Optional.ofNullable(this.providerRepository.getProviderState(domain))
                     .orElse(ProviderState.READY).matchesEvent(event)) {
                 eventSupport.runHandler(handler, EventDetails.builder().domain(domain).build());
             }
             eventSupport.addClientHandler(domain, event, handler);
         }
+    }
+
+    FeatureProviderStateManager getFeatureProviderStateManager(String domain) {
+        return providerRepository.getFeatureProviderStateManager(domain);
     }
 
     /**

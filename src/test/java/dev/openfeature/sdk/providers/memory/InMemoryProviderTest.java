@@ -1,12 +1,9 @@
 package dev.openfeature.sdk.providers.memory;
 
 import com.google.common.collect.ImmutableMap;
-import dev.openfeature.sdk.Client;
-import dev.openfeature.sdk.EventDetails;
-import dev.openfeature.sdk.ImmutableContext;
-import dev.openfeature.sdk.OpenFeatureAPI;
-import dev.openfeature.sdk.Value;
+import dev.openfeature.sdk.*;
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
+import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
 import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import lombok.SneakyThrows;
@@ -19,16 +16,11 @@ import java.util.function.Consumer;
 
 import static dev.openfeature.sdk.Structure.mapToStructure;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 class InMemoryProviderTest {
 
@@ -41,7 +33,8 @@ class InMemoryProviderTest {
     void beforeEach() {
         Map<String, Flag<?>> flags = buildFlags();
         provider = spy(new InMemoryProvider(flags));
-        OpenFeatureAPI.getInstance().onProviderConfigurationChanged(eventDetails -> {});
+        OpenFeatureAPI.getInstance().onProviderConfigurationChanged(eventDetails -> {
+        });
         OpenFeatureAPI.getInstance().setProviderAndWait(provider);
         client = OpenFeatureAPI.getInstance().getClient();
         provider.updateFlags(flags);
@@ -50,12 +43,6 @@ class InMemoryProviderTest {
                 .variant("off", false)
                 .defaultVariant("on")
                 .build());
-    }
-
-    @SneakyThrows
-    @Test
-    void eventsTest() {
-        verify(provider, times(2)).emitProviderConfigurationChanged(any());
     }
 
     @Test
@@ -108,8 +95,7 @@ class InMemoryProviderTest {
         InMemoryProvider inMemoryProvider = new InMemoryProvider(new HashMap<>());
 
         // ErrorCode.PROVIDER_NOT_READY should be returned when evaluated via the client
-        assertThrows(ProviderNotReadyError.class,
-                () -> inMemoryProvider.getBooleanEvaluation("fail_not_initialized", false, new ImmutableContext()));
+        assertThrows(ProviderNotReadyError.class, () -> inMemoryProvider.getBooleanEvaluation("fail_not_initialized", false, new ImmutableContext()));
     }
 
     @SuppressWarnings("unchecked")

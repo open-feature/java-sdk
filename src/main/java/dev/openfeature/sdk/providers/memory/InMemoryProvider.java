@@ -1,27 +1,17 @@
 package dev.openfeature.sdk.providers.memory;
 
-import dev.openfeature.sdk.EvaluationContext;
-import dev.openfeature.sdk.EventProvider;
-import dev.openfeature.sdk.Metadata;
-import dev.openfeature.sdk.ProviderEvaluation;
-import dev.openfeature.sdk.ProviderEventDetails;
-import dev.openfeature.sdk.ProviderState;
-import dev.openfeature.sdk.Reason;
-import dev.openfeature.sdk.Value;
-import dev.openfeature.sdk.exceptions.FlagNotFoundError;
-import dev.openfeature.sdk.exceptions.GeneralError;
-import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
-import dev.openfeature.sdk.exceptions.TypeMismatchError;
+import dev.openfeature.sdk.*;
+import dev.openfeature.sdk.exceptions.*;
+import lombok.Getter;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import lombok.Getter;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * In-memory provider.
@@ -48,7 +38,6 @@ public class InMemoryProvider extends EventProvider {
 
     /**
      * Initializes the provider.
-     *
      * @param evaluationContext evaluation context
      * @throws Exception on error
      */
@@ -71,9 +60,9 @@ public class InMemoryProvider extends EventProvider {
         this.flags.putAll(newFlags);
 
         ProviderEventDetails details = ProviderEventDetails.builder()
-                .flagsChanged(new ArrayList<>(flagsChanged))
-                .message("flags changed")
-                .build();
+            .flagsChanged(new ArrayList<>(flagsChanged))
+            .message("flags changed")
+            .build();
         emitProviderConfigurationChanged(details);
     }
 
@@ -87,40 +76,40 @@ public class InMemoryProvider extends EventProvider {
     public void updateFlag(String flagKey, Flag<?> newFlag) {
         this.flags.put(flagKey, newFlag);
         ProviderEventDetails details = ProviderEventDetails.builder()
-                .flagsChanged(Collections.singletonList(flagKey))
-                .message("flag added/updated")
-                .build();
+            .flagsChanged(Collections.singletonList(flagKey))
+            .message("flag added/updated")
+            .build();
         emitProviderConfigurationChanged(details);
     }
 
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue,
-            EvaluationContext evaluationContext) {
+                                                            EvaluationContext evaluationContext) {
         return getEvaluation(key, evaluationContext, Boolean.class);
     }
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue,
-            EvaluationContext evaluationContext) {
+                                                          EvaluationContext evaluationContext) {
         return getEvaluation(key, evaluationContext, String.class);
     }
 
     @Override
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue,
-            EvaluationContext evaluationContext) {
+                                                            EvaluationContext evaluationContext) {
         return getEvaluation(key, evaluationContext, Integer.class);
     }
 
     @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue,
-            EvaluationContext evaluationContext) {
+                                                          EvaluationContext evaluationContext) {
         return getEvaluation(key, evaluationContext, Double.class);
     }
 
     @SneakyThrows
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue,
-            EvaluationContext evaluationContext) {
+                                                         EvaluationContext evaluationContext) {
         return getEvaluation(key, evaluationContext, Value.class);
     }
 
@@ -130,6 +119,9 @@ public class InMemoryProvider extends EventProvider {
         if (!ProviderState.READY.equals(state)) {
             if (ProviderState.NOT_READY.equals(state)) {
                 throw new ProviderNotReadyError("provider not yet initialized");
+            }
+            if (ProviderState.FATAL.equals(state)) {
+                throw new FatalError("provider in fatal error state");
             }
             throw new GeneralError("unknown error");
         }
@@ -146,10 +138,9 @@ public class InMemoryProvider extends EventProvider {
             value = (T) flag.getVariants().get(flag.getDefaultVariant());
         }
         return ProviderEvaluation.<T>builder()
-                .value(value)
-                .variant(flag.getDefaultVariant())
-                .reason(Reason.STATIC.toString())
-                .build();
+            .value(value)
+            .variant(flag.getDefaultVariant())
+            .reason(Reason.STATIC.toString())
+            .build();
     }
-
 }

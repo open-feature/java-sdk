@@ -1,23 +1,34 @@
 package dev.openfeature.sdk;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
+import dev.openfeature.sdk.exceptions.FatalError;
+import dev.openfeature.sdk.exceptions.GeneralError;
+import dev.openfeature.sdk.internal.TriConsumer;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import dev.openfeature.sdk.internal.TriConsumer;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class EventProviderTest {
+
+    private TestEventProvider eventProvider;
+
+    @BeforeEach
+    @SneakyThrows
+    void setup() {
+        eventProvider = new TestEventProvider();
+        eventProvider.initialize(null);
+    }
 
     @Test
     @DisplayName("should run attached onEmit with emitters")
     void emitsEventsWhenAttached() {
-        TestEventProvider eventProvider = new TestEventProvider();
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = mockOnEmit();
         eventProvider.attach(onEmit);
 
@@ -37,8 +48,6 @@ class EventProviderTest {
     @Test
     @DisplayName("should do nothing with emitters if no onEmit attached")
     void doesNotEmitsEventsWhenNotAttached() {
-        TestEventProvider eventProvider = new TestEventProvider();
-
         // don't attach this emitter
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = mockOnEmit();
 
@@ -56,7 +65,6 @@ class EventProviderTest {
     @Test
     @DisplayName("should throw if second different onEmit attached")
     void throwsWhenOnEmitDifferent() {
-        TestEventProvider eventProvider = new TestEventProvider();
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit1 = mockOnEmit();
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit2 = mockOnEmit();
         eventProvider.attach(onEmit1);
@@ -67,15 +75,13 @@ class EventProviderTest {
     @Test
     @DisplayName("should not throw if second same onEmit attached")
     void doesNotThrowWhenOnEmitSame() {
-        TestEventProvider eventProvider = new TestEventProvider();
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit1 = mockOnEmit();
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit2 = onEmit1;
         eventProvider.attach(onEmit1);
         eventProvider.attach(onEmit2); // should not throw, same instance. noop
     }
 
-
-    class TestEventProvider extends EventProvider {
+    static class TestEventProvider extends EventProvider {
 
         private static final String NAME = "TestEventProvider";
 
@@ -86,42 +92,37 @@ class EventProviderTest {
 
         @Override
         public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue,
-                EvaluationContext ctx) {
-            // TODO Auto-generated method stub
+                                                                EvaluationContext ctx) {
             throw new UnsupportedOperationException("Unimplemented method 'getBooleanEvaluation'");
         }
 
         @Override
         public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue,
-                EvaluationContext ctx) {
-            // TODO Auto-generated method stub
+                                                              EvaluationContext ctx) {
             throw new UnsupportedOperationException("Unimplemented method 'getStringEvaluation'");
         }
 
         @Override
         public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue,
-                EvaluationContext ctx) {
-            // TODO Auto-generated method stub
+                                                                EvaluationContext ctx) {
             throw new UnsupportedOperationException("Unimplemented method 'getIntegerEvaluation'");
         }
 
         @Override
         public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue,
-                EvaluationContext ctx) {
-            // TODO Auto-generated method stub
+                                                              EvaluationContext ctx) {
             throw new UnsupportedOperationException("Unimplemented method 'getDoubleEvaluation'");
         }
 
         @Override
         public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue,
-                EvaluationContext ctx) {
-            // TODO Auto-generated method stub
+                                                             EvaluationContext ctx) {
             throw new UnsupportedOperationException("Unimplemented method 'getObjectEvaluation'");
         }
 
         @Override
-        public ProviderState getState() {
-            return ProviderState.READY;
+        public void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit) {
+            super.attach(onEmit);
         }
     }
 

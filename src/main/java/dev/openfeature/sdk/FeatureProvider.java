@@ -64,7 +64,9 @@ public interface FeatureProvider {
      * <p><i>Providers which do not implement this method are assumed to be ready immediately.</i></p>
      *
      * @return ProviderState
+     * @deprecated The state is handled by the SDK internally. Query the state from the {@link Client} instead.
      */
+    @Deprecated
     default ProviderState getState() {
         return ProviderState.READY;
     }

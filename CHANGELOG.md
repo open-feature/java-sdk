@@ -1,5 +1,52 @@
 # Changelog
 
+## [1.12.0](https://github.com/open-feature/java-sdk/compare/v1.11.0...v1.12.0) (2024-09-23)
+
+
+### ✨ New Features
+
+* make provider interface "stateless"; SDK maintains provider state ([#1096](https://github.com/open-feature/java-sdk/issues/1096)) ([1b1e527](https://github.com/open-feature/java-sdk/commit/1b1e527e780128c9aa3c0686427a8fe8856800b4))
+
+
+### 🧹 Chore
+
+* **deps:** update dependency com.github.spotbugs:spotbugs-maven-plugin to v4.8.6.4 ([#1113](https://github.com/open-feature/java-sdk/issues/1113)) ([dd8ba81](https://github.com/open-feature/java-sdk/commit/dd8ba81f1286a622aec2611f023d03a56a155e89))
+* **deps:** update github/codeql-action digest to 323f5ef ([#1111](https://github.com/open-feature/java-sdk/issues/1111)) ([52e6d2b](https://github.com/open-feature/java-sdk/commit/52e6d2b0ee17124ef2a742fc872a939fde977a27))
+
+## [1.11.0](https://github.com/open-feature/java-sdk/compare/v1.10.0...v1.11.0) (2024-09-20)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.19.0 ([#1110](https://github.com/open-feature/java-sdk/issues/1110)) ([2412f29](https://github.com/open-feature/java-sdk/commit/2412f296b5db43c07dc807390070379e7781dbb3))
+
+
+### ✨ New Features
+
+* error resolution flow control without exceptions ([#1095](https://github.com/open-feature/java-sdk/issues/1095)) ([6fc0b90](https://github.com/open-feature/java-sdk/commit/6fc0b9061079e50cbab52c951149cf600a922671))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/checkout digest to 6d193bf ([#1091](https://github.com/open-feature/java-sdk/issues/1091)) ([9f6a40e](https://github.com/open-feature/java-sdk/commit/9f6a40ec9ba490edf13adc5501a8cb2b93c32447))
+* **deps:** update actions/checkout digest to b684943 ([#1088](https://github.com/open-feature/java-sdk/issues/1088)) ([7e0c70f](https://github.com/open-feature/java-sdk/commit/7e0c70f7c547b6eb14f30ba4e77657a317161c1f))
+* **deps:** update actions/setup-java digest to 0a40ce6 ([#1107](https://github.com/open-feature/java-sdk/issues/1107)) ([37b56ac](https://github.com/open-feature/java-sdk/commit/37b56ac2dad3c24ac1d898a253e936aa2e3d49eb))
+* **deps:** update actions/setup-java digest to 2dfa201 ([#1094](https://github.com/open-feature/java-sdk/issues/1094)) ([082f574](https://github.com/open-feature/java-sdk/commit/082f5746c84f1bb4ff54cae4f525949f29e7b9c4))
+* **deps:** update actions/setup-java digest to 40b9536 ([#1109](https://github.com/open-feature/java-sdk/issues/1109)) ([244f216](https://github.com/open-feature/java-sdk/commit/244f216582eae071885a950712115ce8b1ad0c19))
+* **deps:** update actions/setup-java digest to 7467385 ([#1092](https://github.com/open-feature/java-sdk/issues/1092)) ([58ead7f](https://github.com/open-feature/java-sdk/commit/58ead7fa9153a53ec530e349f16f9e5e183aa0fb))
+* **deps:** update actions/setup-java digest to bcfbca5 ([#1100](https://github.com/open-feature/java-sdk/issues/1100)) ([c68f78e](https://github.com/open-feature/java-sdk/commit/c68f78e17b6125d74644a5735f9d58348edcc383))
+* **deps:** update dependency org.apache.maven.plugins:maven-gpg-plugin to v3.2.6 ([#1103](https://github.com/open-feature/java-sdk/issues/1103)) ([29901b8](https://github.com/open-feature/java-sdk/commit/29901b87ea93757abe5f5d7a8afc6fc4555aef5c))
+* **deps:** update github/codeql-action digest to 4a01ec7 ([#1101](https://github.com/open-feature/java-sdk/issues/1101)) ([b80fd6d](https://github.com/open-feature/java-sdk/commit/b80fd6d307dee87d8b8f148c954c33b8ff6efae2))
+* **deps:** update github/codeql-action digest to 5618c9f ([#1102](https://github.com/open-feature/java-sdk/issues/1102)) ([d1478c0](https://github.com/open-feature/java-sdk/commit/d1478c001a8e88c358d6743ac3d7c9b5523a893e))
+* **deps:** update github/codeql-action digest to 64431c6 ([#1106](https://github.com/open-feature/java-sdk/issues/1106)) ([ce19ac9](https://github.com/open-feature/java-sdk/commit/ce19ac91f62689a0e0e02e53538e1035bf95387f))
+* **deps:** update github/codeql-action digest to 782de45 ([#1104](https://github.com/open-feature/java-sdk/issues/1104)) ([7cb8908](https://github.com/open-feature/java-sdk/commit/7cb89087daa2809d3fd8447388e58e4f73c975b3))
+* **deps:** update github/codeql-action digest to 799e477 ([#1108](https://github.com/open-feature/java-sdk/issues/1108)) ([17a58ef](https://github.com/open-feature/java-sdk/commit/17a58efc7e0244c0db77e77a78f6d0daf948028f))
+* **deps:** update github/codeql-action digest to 8fd294e ([#1097](https://github.com/open-feature/java-sdk/issues/1097)) ([6408261](https://github.com/open-feature/java-sdk/commit/64082617fade3fa7d647302cc0c5b698f7038d81))
+* **deps:** update github/codeql-action digest to 9b41ced ([#1089](https://github.com/open-feature/java-sdk/issues/1089)) ([870fc27](https://github.com/open-feature/java-sdk/commit/870fc27ed7a30cb011080127f7d040c1a3bb209b))
+* **deps:** update github/codeql-action digest to cb28816 ([#1105](https://github.com/open-feature/java-sdk/issues/1105)) ([9d69ebd](https://github.com/open-feature/java-sdk/commit/9d69ebd94a161e6477f2b4f1f5edd0b79f178852))
+* **deps:** update github/codeql-action digest to d8b1697 ([#1093](https://github.com/open-feature/java-sdk/issues/1093)) ([d60593f](https://github.com/open-feature/java-sdk/commit/d60593fa11f39c6587e280633cf6e15965c0960f))
+* **deps:** update github/codeql-action digest to e817992 ([#1099](https://github.com/open-feature/java-sdk/issues/1099)) ([caec6e3](https://github.com/open-feature/java-sdk/commit/caec6e35e9da3ad88a8de105ca170137f42b907c))
+
 ## [1.10.0](https://github.com/open-feature/java-sdk/compare/v1.9.1...v1.10.0) (2024-09-05)
 
 

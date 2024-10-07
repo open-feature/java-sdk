@@ -20,9 +20,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@6d193bf28034eafb982f37bd894289fe649468fc
+    - uses: actions/checkout@6b42224f41ee5dfe5395e27c8b2746f1f9955030
     - name: Set up JDK 8
-      uses: actions/setup-java@2dfa2011c5b2a0f1489bf9e433881c92c1631f88
+      uses: actions/setup-java@292cc14be88d32cccdd768342b8aa1296a4d8d46
       with:
         java-version: '8'
         distribution: 'temurin'
@@ -32,7 +32,7 @@ jobs:
         server-password: ${{ secrets.OSSRH_PASSWORD }}
 
     - name: Cache local Maven repository
-      uses: actions/cache@81382a721fc89d96eca335d0c3ba33144b2baa9d
+      uses: actions/cache@2cdf405574d6ef1f33a1d12acccd3ae82f47b3f2
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -49,7 +49,7 @@ jobs:
       run: mvn --batch-mode --update-snapshots verify
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4.5.0
+      uses: codecov/codecov-action@v4.6.0
       with:
         token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
         flags: unittests # optional
