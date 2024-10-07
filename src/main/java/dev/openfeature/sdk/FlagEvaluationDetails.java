@@ -1,7 +1,6 @@
 package dev.openfeature.sdk;
 
 import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
 import lombok.experimental.UtilityClass;
 
 @SuppressWarnings("checkstyle:MissingJavadocType")

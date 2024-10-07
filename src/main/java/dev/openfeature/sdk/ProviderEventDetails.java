@@ -1,7 +1,6 @@
 package dev.openfeature.sdk;
 
 import java.util.List;
-
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 

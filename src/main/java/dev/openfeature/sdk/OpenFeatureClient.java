@@ -1,18 +1,17 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.exceptions.ExceptionUtils;
+import dev.openfeature.sdk.exceptions.GeneralError;
+import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import dev.openfeature.sdk.internal.AutoCloseableLock;
+import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
+import dev.openfeature.sdk.internal.ObjectUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-
-import dev.openfeature.sdk.exceptions.GeneralError;
-import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import dev.openfeature.sdk.internal.AutoCloseableLock;
-import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
-import dev.openfeature.sdk.exceptions.ExceptionUtils;
-import dev.openfeature.sdk.internal.ObjectUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,15 +1,14 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.exceptions.ValueNotConvertableError;
+import static dev.openfeature.sdk.Value.objectToValue;
 
+import dev.openfeature.sdk.exceptions.ValueNotConvertableError;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static dev.openfeature.sdk.Value.objectToValue;
 
 /**
  * {@link Structure} represents a potentially nested object type which is used to represent

@@ -1,5 +1,7 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.exceptions.GeneralError;
+import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -12,9 +14,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import dev.openfeature.sdk.exceptions.GeneralError;
-import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

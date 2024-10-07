@@ -1,16 +1,15 @@
 package dev.openfeature.sdk;
 
+import static dev.openfeature.sdk.Structure.mapToStructure;
+
+import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import lombok.ToString;
-
-import static dev.openfeature.sdk.Structure.mapToStructure;
 
 /**
  * Values serve as a generic return type for structure data from providers.
@@ -40,7 +39,7 @@ public class Value implements Cloneable {
      *
      * @param value to be wrapped.
      * @throws InstantiationException if value is not a valid type
-     *         (boolean, string, int, double, list, structure, instant)
+     *                                (boolean, string, int, double, list, structure, instant)
      */
     public Value(Object value) throws InstantiationException {
         this.innerObject = value;

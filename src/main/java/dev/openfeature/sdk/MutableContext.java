@@ -1,11 +1,11 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Delegate;
