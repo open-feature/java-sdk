@@ -46,7 +46,7 @@ public class MutableContext implements EvaluationContext {
     public MutableContext(String targetingKey, Map<String, Value> attributes) {
         this.structure = new MutableStructure(attributes);
         if (targetingKey != null && !targetingKey.trim().isEmpty()) {
-            this.structure.attributes.put(TARGETING_KEY, new Value(targetingKey));
+            this.structure.getAttributes().put(TARGETING_KEY, new Value(targetingKey));
         }
     }
 
@@ -114,8 +114,11 @@ public class MutableContext implements EvaluationContext {
      */
     @Override
     public EvaluationContext merge(EvaluationContext overridingContext) {
-        if (overridingContext == null) {
-            return new MutableContext(this.asMap());
+        if (overridingContext == null || overridingContext.isEmpty()) {
+            return this;
+        }
+        if (this.isEmpty()) {
+            return overridingContext;
         }
 
         Map<String, Value> merged = this.merge(

@@ -6,10 +6,15 @@ import java.util.Map;
 @SuppressWarnings({ "PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType" })
 abstract class AbstractStructure implements Structure {
 
-    protected final Map<String, Value> attributes;
+    private Map<String, Value> attributes;
+
+    @Override
+    public boolean isEmpty() {
+        return attributes == null || attributes.size() == 0;
+    }
 
     AbstractStructure() {
-        this.attributes = new HashMap<>();
+        // intentionally don't initialize the attributes - do this lazily
     }
 
     AbstractStructure(Map<String, Value> attributes) {
@@ -31,5 +36,12 @@ abstract class AbstractStructure implements Structure {
                 .collect(HashMap::new,
                         (accumulated, entry) -> accumulated.put(entry.getKey(), convertValue(entry.getValue())),
                         HashMap::putAll);
+    }
+
+    protected Map<String, Value> getAttributes() {
+        if (attributes == null) {
+            attributes = new HashMap<>();
+        }
+        return attributes;
     }
 }
