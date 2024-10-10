@@ -36,8 +36,6 @@ public class AllocationBenchmark {
     private static final int ITERATIONS = 10000;
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 1)
     @BenchmarkMode(Mode.SingleShotTime)
     @Fork(jvmArgsAppend = { "-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC" })
     public void run() {

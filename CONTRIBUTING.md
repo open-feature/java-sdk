@@ -30,6 +30,14 @@ to run alone:
 mvn test -P e2e
 ```
 
+## Benchmarking
+
+There is a small JMH benchmark suite for testing allocations that can be run with:
+
+```sh
+mvn -P benchmark test-compile jmh:benchmark -Djmh.f=1  -Djmh.prof='dev.openfeature.sdk.benchmark.AllocationProfiler'
+```
+
 ## Releasing
 
 See [releasing](./docs/release.md).
