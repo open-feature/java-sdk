@@ -16,13 +16,13 @@ import static dev.openfeature.sdk.Structure.mapToStructure;
 @UtilityClass
 public class TestFlagsUtils {
 
-    public static String BOOLEAN_FLAG_KEY = "boolean-flag";
-    public static String STRING_FLAG_KEY = "string-flag";
-    public static String INT_FLAG_KEY = "integer-flag";
-    public static String FLOAT_FLAG_KEY = "float-flag";
-    public static String OBJECT_FLAG_KEY = "object-flag";
-    public static String CONTEXT_AWARE_FLAG_KEY = "context-aware";
-    public static String WRONG_FLAG_KEY = "wrong-flag";
+    public static final String BOOLEAN_FLAG_KEY = "boolean-flag";
+    public static final String STRING_FLAG_KEY = "string-flag";
+    public static final String INT_FLAG_KEY = "integer-flag";
+    public static final String FLOAT_FLAG_KEY = "float-flag";
+    public static final String OBJECT_FLAG_KEY = "object-flag";
+    public static final String CONTEXT_AWARE_FLAG_KEY = "context-aware";
+    public static final String WRONG_FLAG_KEY = "wrong-flag";
 
     /**
      * Building flags for testing purposes.

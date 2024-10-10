@@ -79,8 +79,9 @@ class HookSupport {
         EvaluationContext context = hookCtx.getCtx();
         for (Hook hook : reversedHooks) {
             if (hook.supportsFlagValueType(flagValueType)) {
-                Optional<EvaluationContext> optional = hook.before(hookCtx, hints);
-                if (optional != null && optional.isPresent()) {
+                Optional<EvaluationContext> optional = Optional.ofNullable(hook.before(hookCtx, hints))
+                        .orElse(Optional.empty());
+                if (optional.isPresent()) {
                     context = context.merge(optional.get());
                 }
             }
