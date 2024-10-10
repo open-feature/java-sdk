@@ -9,7 +9,8 @@ public class ExceptionUtils {
 
     /**
      * Creates an Error for the specific error code.
-     * @param errorCode the ErrorCode to use
+     *
+     * @param errorCode    the ErrorCode to use
      * @param errorMessage the error message to include in the returned error
      * @return the specific OpenFeatureError for the errorCode
      */

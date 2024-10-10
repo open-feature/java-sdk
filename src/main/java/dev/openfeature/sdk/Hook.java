@@ -16,7 +16,7 @@ public interface Hook<T> {
      * @param ctx   Information about the particular flag evaluation
      * @param hints An immutable mapping of data for users to communicate to the hooks.
      * @return An optional {@link EvaluationContext}. If returned, it will be merged with the EvaluationContext
-     *     instances from other hooks, the client and API.
+     *         instances from other hooks, the client and API.
      */
     default Optional<EvaluationContext> before(HookContext<T> ctx, Map<String, Object> hints) {
         return Optional.empty();

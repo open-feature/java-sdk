@@ -1,9 +1,9 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
 import lombok.ToString;
 import lombok.experimental.Delegate;
 
@@ -89,10 +89,10 @@ public final class ImmutableContext implements EvaluationContext {
     @SuppressWarnings("all")
     private static class DelegateExclusions {
         @ExcludeFromGeneratedCoverageReport
-        public <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure, 
+        public <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure,
                 Map<String, Value> base,
                 Map<String, Value> overriding) {
- 
+
             return null;
         }
     }

@@ -10,6 +10,7 @@ public class AutoCloseableReentrantReadWriteLock extends ReentrantReadWriteLock 
 
     /**
      * Get the single write lock as an AutoCloseableLock.
+     *
      * @return unlock method ref
      */
     public AutoCloseableLock writeLockAutoCloseable() {
@@ -19,6 +20,7 @@ public class AutoCloseableReentrantReadWriteLock extends ReentrantReadWriteLock 
 
     /**
      * Get the multi read lock as an AutoCloseableLock.
+     *
      * @return unlock method ref
      */
     public AutoCloseableLock readLockAutoCloseable() {

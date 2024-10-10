@@ -3,7 +3,7 @@ package dev.openfeature.sdk;
 import java.util.HashMap;
 import java.util.Map;
 
-@SuppressWarnings({ "PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType" })
+@SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
 abstract class AbstractStructure implements Structure {
 
     protected final Map<String, Value> attributes;
