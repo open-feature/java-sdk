@@ -18,6 +18,10 @@ import org.openjdk.jmh.results.Result;
 import org.openjdk.jmh.results.ScalarResult;
 import org.openjdk.jmh.util.Utils;
 
+/**
+ * Takes a heap dump (using JMAP from a separate process) after a benchmark;
+ * only useful if GC is disabled during the benchmark.
+ */
 public class AllocationProfiler implements InternalProfiler {
 
     public static class AllocationTotals {

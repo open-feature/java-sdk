@@ -26,7 +26,14 @@ import dev.openfeature.sdk.NoOpProvider;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.Value;
 
+/**
+ * Runs a large volume of flag evaluations on a VM with 1G memory and GC
+ * completely disabled so we can take a heap-dump.
+ */
 public class AllocationBenchmark {
+
+    // 10K iterations works well with Xmx1024m (we don't want to run out of memory)
+    private static final int ITERATIONS = 10000;
 
     @Benchmark
     @Warmup(iterations = 0)
@@ -44,7 +51,7 @@ public class AllocationBenchmark {
             }
         });
 
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < ITERATIONS; i++) {
             client.getBooleanValue(BOOLEAN_FLAG_KEY, false);
             client.getStringValue(STRING_FLAG_KEY, "default");
             client.getIntegerValue(INT_FLAG_KEY, 0);
