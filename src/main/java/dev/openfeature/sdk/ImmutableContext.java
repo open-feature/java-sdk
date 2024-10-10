@@ -78,8 +78,11 @@ public final class ImmutableContext implements EvaluationContext {
      */
     @Override
     public EvaluationContext merge(EvaluationContext overridingContext) {
-        if (overridingContext == null) {
+        if (overridingContext == null || overridingContext.isEmpty()) {
             return new ImmutableContext(this.asMap());
+        }
+        if (this.isEmpty()) {
+            return new ImmutableContext(overridingContext.asMap());
         }
 
         return new ImmutableContext(

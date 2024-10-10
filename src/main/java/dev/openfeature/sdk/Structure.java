@@ -19,6 +19,12 @@ import static dev.openfeature.sdk.Value.objectToValue;
 public interface Structure {
     
     /**
+     * Boolean indicating if this structure is empty.
+     * @return boolean for emptiness
+     */
+    boolean isEmpty();
+
+    /**
      * Get all keys.
      *
      * @return the set of keys
@@ -113,7 +119,14 @@ public interface Structure {
     default <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure,
                                                            Map<String, Value> base,
                                                            Map<String, Value> overriding) {
-
+        
+        if (base.isEmpty()) {
+            return overriding;
+        }
+        if (overriding.isEmpty()) {
+            return base;
+        }
+                                                            
         final Map<String, Value> merged = new HashMap<>(base);
         for (Entry<String, Value> overridingEntry : overriding.entrySet()) {
             String key = overridingEntry.getKey();

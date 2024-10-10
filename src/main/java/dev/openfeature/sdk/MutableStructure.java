@@ -30,13 +30,13 @@ public class MutableStructure extends AbstractStructure {
 
     @Override
     public Set<String> keySet() {
-        return this.attributes.keySet();
+        return attributes.keySet();
     }
 
     // getters
     @Override
     public Value getValue(String key) {
-        return this.attributes.get(key);
+        return attributes.get(key);
     }
 
     // adders
@@ -87,6 +87,6 @@ public class MutableStructure extends AbstractStructure {
      */
     @Override
     public Map<String, Value> asMap() {
-        return new HashMap<>(this.attributes);
+        return new HashMap<>(attributes);
     }
 }

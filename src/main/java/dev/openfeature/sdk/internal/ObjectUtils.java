@@ -1,11 +1,9 @@
 package dev.openfeature.sdk.internal;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import lombok.experimental.UtilityClass;
 
@@ -64,9 +62,10 @@ public class ObjectUtils {
      */
     @SafeVarargs
     public static <T> List<T> merge(List<T>... sources) {
-        return Arrays
-            .stream(sources)
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+        List<T> merged = new ArrayList<>();
+        for (List<T> source : sources) {
+            merged.addAll(source);
+        }
+        return merged;
     }
 }
