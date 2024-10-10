@@ -41,13 +41,13 @@ public final class ImmutableStructure extends AbstractStructure {
 
     @Override
     public Set<String> keySet() {
-        return new HashSet<>(this.getAttributes().keySet());
+        return new HashSet<>(this.attributes.keySet());
     }
 
     // getters
     @Override
     public Value getValue(String key) {
-        Value value = getAttributes().get(key);
+        Value value = attributes.get(key);
         return value != null ? value.clone() : null;
     }
 
@@ -58,7 +58,7 @@ public final class ImmutableStructure extends AbstractStructure {
      */
     @Override
     public Map<String, Value> asMap() {
-        return copyAttributes(getAttributes());
+        return copyAttributes(attributes);
     }
 
     private static Map<String, Value> copyAttributes(Map<String, Value> in) {

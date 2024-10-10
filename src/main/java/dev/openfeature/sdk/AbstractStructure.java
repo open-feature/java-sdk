@@ -6,7 +6,7 @@ import java.util.Map;
 @SuppressWarnings({ "PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType" })
 abstract class AbstractStructure implements Structure {
 
-    private Map<String, Value> attributes;
+    protected final Map<String, Value> attributes;
 
     @Override
     public boolean isEmpty() {
@@ -14,7 +14,7 @@ abstract class AbstractStructure implements Structure {
     }
 
     AbstractStructure() {
-        // intentionally don't initialize the attributes - do this lazily
+        this.attributes = new HashMap<>();
     }
 
     AbstractStructure(Map<String, Value> attributes) {
@@ -38,10 +38,4 @@ abstract class AbstractStructure implements Structure {
                         HashMap::putAll);
     }
 
-    protected Map<String, Value> getAttributes() {
-        if (attributes == null) {
-            attributes = new HashMap<>();
-        }
-        return attributes;
-    }
 }

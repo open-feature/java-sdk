@@ -30,53 +30,53 @@ public class MutableStructure extends AbstractStructure {
 
     @Override
     public Set<String> keySet() {
-        return getAttributes().keySet();
+        return attributes.keySet();
     }
 
     // getters
     @Override
     public Value getValue(String key) {
-        return getAttributes().get(key);
+        return attributes.get(key);
     }
 
     // adders
     public MutableStructure add(String key, Value value) {
-        getAttributes().put(key, value);
+        attributes.put(key, value);
         return this;
     }
 
     public MutableStructure add(String key, Boolean value) {
-        getAttributes().put(key, new Value(value));
+        attributes.put(key, new Value(value));
         return this;
     }
 
     public MutableStructure add(String key, String value) {
-        getAttributes().put(key, new Value(value));
+        attributes.put(key, new Value(value));
         return this;
     }
 
     public MutableStructure add(String key, Integer value) {
-        getAttributes().put(key, new Value(value));
+        attributes.put(key, new Value(value));
         return this;
     }
 
     public MutableStructure add(String key, Double value) {
-        getAttributes().put(key, new Value(value));
+        attributes.put(key, new Value(value));
         return this;
     }
 
     public MutableStructure add(String key, Instant value) {
-        getAttributes().put(key, new Value(value));
+        attributes.put(key, new Value(value));
         return this;
     }
 
     public MutableStructure add(String key, Structure value) {
-        getAttributes().put(key, new Value(value));
+        attributes.put(key, new Value(value));
         return this;
     }
 
     public MutableStructure add(String key, List<Value> value) {
-        getAttributes().put(key, new Value(value));
+        attributes.put(key, new Value(value));
         return this;
     }
 
@@ -87,6 +87,6 @@ public class MutableStructure extends AbstractStructure {
      */
     @Override
     public Map<String, Value> asMap() {
-        return new HashMap<>(getAttributes());
+        return new HashMap<>(attributes);
     }
 }

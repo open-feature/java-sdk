@@ -1,6 +1,4 @@
 [INFO] Scanning for projects...
-Downloading from central: https://repo.maven.apache.org/maven2/org/cyclonedx/cyclonedx-maven-plugin/2.9.0/cyclonedx-maven-plugin-2.9.0.pom
-Progress (1): 1.4/19 kBProgress (1): 2.8/19 kBProgress (1): 4.1/19 kBProgress (1): 5.5/19 kBProgress (1): 6.9/19 kBProgress (1): 8.3/19 kBProgress (1): 9.7/19 kBProgress (1): 11/19 kB Progress (1): 12/19 kBProgress (1): 14/19 kBProgress (1): 15/19 kBProgress (1): 17/19 kBProgress (1): 18/19 kBProgress (1): 19 kB                      Downloaded from central: https://repo.maven.apache.org/maven2/org/cyclonedx/cyclonedx-maven-plugin/2.9.0/cyclonedx-maven-plugin-2.9.0.pom (19 kB at 97 kB/s)
 [INFO] 
 [INFO] ------------------------< dev.openfeature:sdk >-------------------------
 [INFO] Building OpenFeature Java SDK 1.12.0
@@ -22,7 +20,27 @@ Audit done.
 [INFO] skip non existing resourceDirectory /home/todd/git/java-sdk/src/main/resources
 [INFO] 
 [INFO] --- compiler:3.13.0:compile (default-compile) @ sdk ---
-[INFO] Nothing to compile - all classes are up to date.
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 65 source files with javac [debug target 1.8] to target/classes
+[WARNING] bootstrap class path not set in conjunction with -source 8
+[WARNING] source value 8 is obsolete and will be removed in a future release
+[WARNING] target value 8 is obsolete and will be removed in a future release
+[WARNING] To suppress warnings about obsolete options, use -Xlint:-options.
+[INFO] Annotation processing is enabled because one or more processors were found
+  on the class path. A future release of javac may disable annotation processing
+  unless at least one processor is specified by name (-processor), or a search
+  path is specified (--processor-path, --processor-module-path), or annotation
+  processing is enabled explicitly (-proc:only, -proc:full).
+  Use -Xlint:-options to suppress this message.
+  Use -proc:none to disable annotation processing.
+[WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/MutableStructure.java:[19,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/ImmutableStructure.java:[22,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/EventDetails.java:[9,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java:[27,26] finalize() in java.lang.Object has been deprecated and marked for removal
+[INFO] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/NoOpProvider.java: Some input files use or override a deprecated API.
+[INFO] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/NoOpProvider.java: Recompile with -Xlint:deprecation for details.
+[INFO] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java: Some input files use unchecked or unsafe operations.
+[INFO] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java: Recompile with -Xlint:unchecked for details.
 [INFO] 
 [INFO] --- resources:3.3.1:testResources (default-testResources) @ sdk ---
 [INFO] Copying 2 resources from src/test/resources to target/test-classes
@@ -31,7 +49,12 @@ Audit done.
 [INFO] 
 [INFO] 
 [INFO] --- jmh:0.2.2:benchmark (default-cli) @ sdk ---
-[INFO] Nothing to compile - all classes are up to date
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 52 source files to /home/todd/git/java-sdk/target/test-classes
+[INFO] /home/todd/git/java-sdk/src/test/java/dev/openfeature/sdk/LockingTest.java: Some input files use or override a deprecated API.
+[INFO] /home/todd/git/java-sdk/src/test/java/dev/openfeature/sdk/LockingTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] /home/todd/git/java-sdk/src/test/java/dev/openfeature/sdk/internal/TriConsumerTest.java: Some input files use unchecked or unsafe operations.
+[INFO] /home/todd/git/java-sdk/src/test/java/dev/openfeature/sdk/internal/TriConsumerTest.java: Recompile with -Xlint:unchecked for details.
 [INFO] Executing the JMH benchmarks
 # JMH version: 1.37
 # VM version: JDK 21.0.4, OpenJDK 64-Bit Server VM, 21.0.4+7
@@ -51,57 +74,57 @@ Audit done.
 [0.001s][warning][gc,init] Consider enabling -XX:+AlwaysPreTouch to avoid memory commit hiccups
 Iteration   1:  num     #instances         #bytes  class name (module)
 -------------------------------------------------------
-   1:       1146018       55008864  java.util.HashMap (java.base@21.0.4)
+   1:       1146984       55055232  java.util.HashMap (java.base@21.0.4)
    2:        700056       11200896  java.util.HashMap$EntrySet (java.base@21.0.4)
-   3:         47755        9296008  [B (java.base@21.0.4)
-   4:        305988        8105728  [Ljava.lang.Object; (java.base@21.0.4)
-   5:        490930        7854880  dev.openfeature.sdk.ImmutableStructure
-   6:        480930        7694880  dev.openfeature.sdk.ImmutableContext
+   3:         47757        9295888  [B (java.base@21.0.4)
+   4:        305989        8105752  [Ljava.lang.Object; (java.base@21.0.4)
+   5:        482225        7715600  dev.openfeature.sdk.ImmutableStructure
+   6:        472225        7555600  dev.openfeature.sdk.ImmutableContext
    7:        100000        4000000  dev.openfeature.sdk.HookContext
    8:        100000        4000000  dev.openfeature.sdk.HookContext$HookContextBuilder
-   9:        131512        3156288  java.util.ArrayList (java.base@21.0.4)
-  10:         50000        2000000  dev.openfeature.sdk.FlagEvaluationDetails
-  11:         50000        2000000  dev.openfeature.sdk.ProviderEvaluation
-  12:           153        1731448  [Ljdk.internal.vm.FillerElement; (java.base@21.0.4)
-  13:         51675        1653600  java.util.ArrayList$Itr (java.base@21.0.4)
-  14:         50002        1600064  java.util.Collections$UnmodifiableMap (java.base@21.0.4)
-  15:        100001        1600016  dev.openfeature.sdk.NoOpProvider$$Lambda/0x00007b6ff402fa78
-  16:         50000        1600000  [Ljava.util.List; (java.base@21.0.4)
-  17:        100000        1600000  dev.openfeature.sdk.ImmutableMetadata
-  18:        100000        1600000  dev.openfeature.sdk.ImmutableMetadata$ImmutableMetadataBuilder
-  19:        100000        1600000  dev.openfeature.sdk.OpenFeatureClient$$Lambda/0x00007b6ff40821f8
-  20:         75022        1200352  java.util.Optional (java.base@21.0.4)
-  21:         50000        1200000  dev.openfeature.sdk.FlagEvaluationOptions
-  22:         35143         843432  dev.openfeature.sdk.FlagEvaluationOptions$FlagEvaluationOptionsBuilder
+   9:           154        2995712  [Ljdk.internal.vm.FillerElement; (java.base@21.0.4)
+  10:        122807        2947368  java.util.ArrayList (java.base@21.0.4)
+  11:         50000        2000000  dev.openfeature.sdk.FlagEvaluationDetails
+  12:         50000        2000000  dev.openfeature.sdk.ProviderEvaluation
+  13:         50002        1600064  java.util.Collections$UnmodifiableMap (java.base@21.0.4)
+  14:        100001        1600016  dev.openfeature.sdk.NoOpProvider$$Lambda/0x000074760c02fa78
+  15:         50000        1600000  [Ljava.util.List; (java.base@21.0.4)
+  16:        100000        1600000  dev.openfeature.sdk.ImmutableMetadata
+  17:        100000        1600000  dev.openfeature.sdk.ImmutableMetadata$ImmutableMetadataBuilder
+  18:        100000        1600000  dev.openfeature.sdk.OpenFeatureClient$$Lambda/0x000074760c0821f8
+  19:         43808        1401856  java.util.ArrayList$Itr (java.base@21.0.4)
+  20:         50000        1200000  dev.openfeature.sdk.FlagEvaluationOptions
+  21:         56919         910704  java.util.Optional (java.base@21.0.4)
+  22:         34754         834096  dev.openfeature.sdk.FlagEvaluationOptions$FlagEvaluationOptionsBuilder
   23:          4489         679248  [I (java.base@21.0.4)
-  24:         26553         637272  java.lang.String (java.base@21.0.4)
-  25:         13155         631440  dev.openfeature.sdk.FlagEvaluationDetails$FlagEvaluationDetailsBuilder
-  26:         14195         567800  dev.openfeature.sdk.ProviderEvaluation$ProviderEvaluationBuilder
-  27:         30850         493600  dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock$$Lambda/0x00007b6ff402eae8
-  28:         18779         450696  dev.openfeature.sdk.HookSupport$$Lambda/0x00007b6ff4081230
-  29:         18171         436104  dev.openfeature.sdk.HookSupport$$Lambda/0x00007b6ff4081000
-  30:          1461         390008  [J (java.base@21.0.4)
+  24:         26554         637296  java.lang.String (java.base@21.0.4)
+  25:         12462         598176  dev.openfeature.sdk.FlagEvaluationDetails$FlagEvaluationDetailsBuilder
+  26:         13748         549920  dev.openfeature.sdk.ProviderEvaluation$ProviderEvaluationBuilder
+  27:         16418         394032  dev.openfeature.sdk.HookSupport$$Lambda/0x000074760c081230
+  28:          1461         390008  [J (java.base@21.0.4)
+  29:         24033         384528  dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock$$Lambda/0x000074760c02eae8
+  30:         14591         350184  dev.openfeature.sdk.HookSupport$$Lambda/0x000074760c081000
   31:          2355         288104  java.lang.Class (java.base@21.0.4)
-  32:          4610         258160  jdk.internal.org.objectweb.asm.SymbolTable$Entry (java.base@21.0.4)
-  33:         10001         240024  java.lang.Double (java.base@21.0.4)
-  34:          7153         228896  java.util.HashMap$EntryIterator (java.base@21.0.4)
+  32:          8141         260512  java.util.HashMap$EntryIterator (java.base@21.0.4)
+  33:          4610         258160  jdk.internal.org.objectweb.asm.SymbolTable$Entry (java.base@21.0.4)
+  34:         10001         240024  java.lang.Double (java.base@21.0.4)
   35:          2502         180144  java.lang.reflect.Field (java.base@21.0.4)
   36:         10000         160000  dev.openfeature.sdk.Value
-  37:          6003         144072  java.lang.StringBuilder (java.base@21.0.4)
+  37:          6004         144096  java.lang.StringBuilder (java.base@21.0.4)
   38:           179         139928  [Ljdk.internal.org.objectweb.asm.SymbolTable$Entry; (java.base@21.0.4)
-  39:          3821         122272  java.util.concurrent.ConcurrentHashMap$Node (java.base@21.0.4)
+  39:          3824         122368  java.util.concurrent.ConcurrentHashMap$Node (java.base@21.0.4)
   40:            48         122168  [C (java.base@21.0.4)
   41:          1440         113512  [S (java.base@21.0.4)
   42:          1201         105688  java.lang.reflect.Method (java.base@21.0.4)
-  43:          3024          79424  [Ljava.lang.Class; (java.base@21.0.4)
+  43:          3030          79616  [Ljava.lang.Class; (java.base@21.0.4)
   44:          1349          75544  jdk.internal.org.objectweb.asm.Label (java.base@21.0.4)
-  45:           332          74368  jdk.internal.org.objectweb.asm.MethodWriter (java.base@21.0.4)
-  46:          1548          74304  java.lang.invoke.MemberName (java.base@21.0.4)
-  47:          1789          71560  java.lang.invoke.MethodType (java.base@21.0.4)
+  45:          1550          74400  java.lang.invoke.MemberName (java.base@21.0.4)
+  46:           332          74368  jdk.internal.org.objectweb.asm.MethodWriter (java.base@21.0.4)
+  47:          1794          71760  java.lang.invoke.MethodType (java.base@21.0.4)
   48:          1089          69696  java.net.URL (java.base@21.0.4)
   49:          2011          64352  java.util.HashMap$Node (java.base@21.0.4)
   50:           121          50512  [Ljava.util.concurrent.ConcurrentHashMap$Node; (java.base@21.0.4)
-  51:          3131          50096  jdk.internal.util.StrongReferenceKey (java.base@21.0.4)
+  51:          3140          50240  jdk.internal.util.StrongReferenceKey (java.base@21.0.4)
   52:           491          49608  [Ljava.util.HashMap$Node; (java.base@21.0.4)
   53:          1057          42280  java.io.ObjectStreamField (java.base@21.0.4)
   54:          1225          39200  java.io.File (java.base@21.0.4)
@@ -111,7 +134,7 @@ Iteration   1:  num     #instances         #bytes  class name (module)
   58:           622          24880  java.lang.NoSuchFieldException (java.base@21.0.4)
   59:           571          22840  java.util.LinkedHashMap$Entry (java.base@21.0.4)
   60:           473          22704  jdk.internal.ref.CleanerImpl$PhantomCleanableRef (java.base@21.0.4)
-  61:           687          21984  jdk.internal.util.WeakReferenceKey (java.base@21.0.4)
+  61:           689          22048  jdk.internal.util.WeakReferenceKey (java.base@21.0.4)
   62:           824          19776  jdk.internal.org.objectweb.asm.ByteVector (java.base@21.0.4)
   63:           248          18848  [Ljava.lang.ref.SoftReference; (java.base@21.0.4)
   64:           117          17784  jdk.internal.org.objectweb.asm.ClassWriter (java.base@21.0.4)
@@ -170,20 +193,20 @@ Iteration   1:  num     #instances         #bytes  class name (module)
  117:           301           4816  java.util.HashSet (java.base@21.0.4)
  118:            75           4800  java.util.zip.Inflater (java.base@21.0.4)
 truncated...
-Total       4538772      138760912
+Total       4474389      138762960
 
-0.083 s/op
-                 +totalAllocatedBytes:     138760912.000 bytes
-                 +totalAllocatedInstances: 4538772.000 instances
+0.113 s/op
+                 +totalAllocatedBytes:     138762960.000 bytes
+                 +totalAllocatedInstances: 4474389.000 instances
                  +totalHeap:               521412608.000 bytes
 
 
 
 Secondary result "dev.openfeature.sdk.benchmark.AllocationBenchmark.run:+totalAllocatedBytes":
-  138760912.000 bytes
+  138762960.000 bytes
 
 Secondary result "dev.openfeature.sdk.benchmark.AllocationBenchmark.run:+totalAllocatedInstances":
-  4538772.000 instances
+  4474389.000 instances
 
 Secondary result "dev.openfeature.sdk.benchmark.AllocationBenchmark.run:+totalHeap":
   521412608.000 bytes
@@ -204,13 +227,13 @@ different JVMs are already problematic, the performance difference caused by dif
 modes can be very significant. Please make sure you use the consistent Blackhole mode for comparisons.
 
 Benchmark                                         Mode  Cnt          Score   Error      Units
-AllocationBenchmark.run                             ss               0.083               s/op
-AllocationBenchmark.run:+totalAllocatedBytes        ss       138760912.000              bytes
-AllocationBenchmark.run:+totalAllocatedInstances    ss         4538772.000          instances
+AllocationBenchmark.run                             ss               0.113               s/op
+AllocationBenchmark.run:+totalAllocatedBytes        ss       138762960.000              bytes
+AllocationBenchmark.run:+totalAllocatedInstances    ss         4474389.000          instances
 AllocationBenchmark.run:+totalHeap                  ss       521412608.000              bytes
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  3.068 s
-[INFO] Finished at: 2024-10-10T11:49:20-04:00
+[INFO] Total time:  8.073 s
+[INFO] Finished at: 2024-10-10T12:26:18-04:00
 [INFO] ------------------------------------------------------------------------

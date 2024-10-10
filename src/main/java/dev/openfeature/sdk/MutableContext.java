@@ -46,7 +46,7 @@ public class MutableContext implements EvaluationContext {
     public MutableContext(String targetingKey, Map<String, Value> attributes) {
         this.structure = new MutableStructure(attributes);
         if (targetingKey != null && !targetingKey.trim().isEmpty()) {
-            this.structure.getAttributes().put(TARGETING_KEY, new Value(targetingKey));
+            this.structure.attributes.put(TARGETING_KEY, new Value(targetingKey));
         }
     }
 
