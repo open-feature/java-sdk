@@ -190,8 +190,8 @@ class HookSpecTest implements HookFixtures {
                 .build());
 
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        FeatureProviderTestUtils.setFeatureProvider(provider);
-        Client client = api.getClient();
+        FeatureProviderTestUtils.setFeatureProvider("errorHookMustRun", provider);
+        Client client = api.getClient("errorHookMustRun");
         client.getBooleanValue("key", false, invocationCtx,
                 FlagEvaluationOptions.builder()
                         .hook(hook)
