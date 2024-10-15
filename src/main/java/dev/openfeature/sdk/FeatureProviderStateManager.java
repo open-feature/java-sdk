@@ -1,9 +1,8 @@
 package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import lombok.Getter;
-
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.Getter;
 
 class FeatureProviderStateManager implements EventProviderListener {
     private final FeatureProvider delegate;

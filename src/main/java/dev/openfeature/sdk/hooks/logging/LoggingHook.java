@@ -18,7 +18,7 @@ import org.slf4j.spi.LoggingEventBuilder;
  */
 @Slf4j
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED",
-    justification = "we can ignore return values of chainables (builders) here")
+        justification = "we can ignore return values of chainables (builders) here")
 public class LoggingHook implements Hook<Object> {
 
     static final String DOMAIN_KEY = "domain";
@@ -32,7 +32,7 @@ public class LoggingHook implements Hook<Object> {
     static final String VARIANT_KEY = "variant";
     static final String VALUE_KEY = "value";
 
-    private boolean includeEvaluationContext;
+    private final boolean includeEvaluationContext;
 
     /**
      * Construct a new LoggingHook.
@@ -43,7 +43,9 @@ public class LoggingHook implements Hook<Object> {
 
     /**
      * Construct a new LoggingHook.
-     * @param includeEvaluationContext include a serialized evaluation context in the log message (defaults to false)
+     *
+     * @param includeEvaluationContext include a serialized evaluation context in the log message (defaults to
+     *                                 false)
      */
     public LoggingHook(boolean includeEvaluationContext) {
         this.includeEvaluationContext = includeEvaluationContext;

@@ -7,6 +7,7 @@ public class NoOpTransactionContextPropagator implements TransactionContextPropa
 
     /**
      * {@inheritDoc}
+     *
      * @return empty immutable context
      */
     @Override

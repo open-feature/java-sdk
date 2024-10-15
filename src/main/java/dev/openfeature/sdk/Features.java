@@ -16,7 +16,7 @@ public interface Features {
     FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue, EvaluationContext ctx);
 
     FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue, EvaluationContext ctx,
-                                                     FlagEvaluationOptions options);
+            FlagEvaluationOptions options);
 
     String getStringValue(String key, String defaultValue);
 
@@ -29,7 +29,7 @@ public interface Features {
     FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx);
 
     FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx,
-                                                   FlagEvaluationOptions options);
+            FlagEvaluationOptions options);
 
     Integer getIntegerValue(String key, Integer defaultValue);
 
@@ -42,7 +42,7 @@ public interface Features {
     FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx);
 
     FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx,
-                                                     FlagEvaluationOptions options);
+            FlagEvaluationOptions options);
 
     Double getDoubleValue(String key, Double defaultValue);
 
@@ -55,7 +55,7 @@ public interface Features {
     FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx);
 
     FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx,
-                                                   FlagEvaluationOptions options);
+            FlagEvaluationOptions options);
 
     Value getObjectValue(String key, Value defaultValue);
 

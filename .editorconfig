@@ -1,0 +1,72 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+tab_width = 4
+trim_trailing_whitespace = true
+
+ij_continuation_indent_size = 8
+
+[*.md]
+max_line_length = off
+trim_trailing_whitespace = false
+
+# Following the rules of the Google Java Style Guide.
+# See https://google.github.io/styleguide/javaguide.html
+[*.java]
+max_line_length = 120
+
+ij_java_do_not_wrap_after_single_annotation_in_parameter = true
+ij_java_insert_inner_class_imports = false
+ij_java_class_count_to_use_import_on_demand = 999
+ij_java_names_count_to_use_import_on_demand = 999
+ij_java_packages_to_use_import_on_demand = unset
+ij_java_imports_layout = $*,|,*
+ij_java_doc_align_param_comments = true
+ij_java_doc_align_exception_comments = true
+ij_java_doc_add_p_tag_on_empty_lines = false
+ij_java_doc_do_not_wrap_if_one_line = true
+ij_java_doc_keep_empty_parameter_tag = false
+ij_java_doc_keep_empty_throws_tag = false
+ij_java_doc_keep_empty_return_tag = false
+ij_java_doc_preserve_line_breaks = true
+ij_java_doc_indent_on_continuation = true
+ij_java_keep_control_statement_in_one_line = false
+ij_java_keep_blank_lines_in_code = 1
+ij_java_align_multiline_parameters = false
+ij_java_align_multiline_resources = false
+ij_java_align_multiline_for = true
+ij_java_space_before_array_initializer_left_brace = true
+ij_java_call_parameters_wrap = normal
+ij_java_method_parameters_wrap = normal
+ij_java_extends_list_wrap = normal
+ij_java_throws_keyword_wrap = normal
+ij_java_method_call_chain_wrap = normal
+ij_java_binary_operation_wrap = normal
+ij_java_binary_operation_sign_on_next_line = true
+ij_java_ternary_operation_wrap = normal
+ij_java_ternary_operation_signs_on_next_line = true
+ij_java_keep_simple_methods_in_one_line = true
+ij_java_keep_simple_lambdas_in_one_line = true
+ij_java_keep_simple_classes_in_one_line = true
+ij_java_for_statement_wrap = normal
+ij_java_array_initializer_wrap = normal
+ij_java_wrap_comments = true
+ij_java_if_brace_force = always
+ij_java_do_while_brace_force = always
+ij_java_while_brace_force = always
+ij_java_for_brace_force = always
+ij_java_space_after_closing_angle_bracket_in_type_argument = false
+
+[{*.json,*.json5}]
+indent_size = 2
+tab_width = 2
+ij_smart_tabs = false
+
+[*.yaml]
+indent_size = 2
+tab_width = 2

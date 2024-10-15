@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -19,7 +18,7 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-@SuppressWarnings({ "PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType" })
+@SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
 public final class ImmutableStructure extends AbstractStructure {
 
     /**
@@ -40,8 +39,8 @@ public final class ImmutableStructure extends AbstractStructure {
                 .collect(HashMap::new,
                         (accumulated, entry) -> accumulated.put(entry.getKey(),
                                 Optional.ofNullable(entry.getValue())
-                                    .map(Value::clone)
-                                    .orElse(null)),
+                                        .map(Value::clone)
+                                        .orElse(null)),
                         HashMap::putAll)));
     }
 
@@ -70,8 +69,8 @@ public final class ImmutableStructure extends AbstractStructure {
                 .collect(HashMap::new,
                         (accumulated, entry) -> accumulated.put(entry.getKey(),
                                 Optional.ofNullable(entry.getValue())
-                                .map(Value::clone)
-                                .orElse(null)),
+                                        .map(Value::clone)
+                                        .orElse(null)),
                         HashMap::putAll);
     }
 }

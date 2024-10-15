@@ -2,8 +2,6 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,6 +14,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 class ProviderRepository {
@@ -111,11 +110,11 @@ class ProviderRepository {
      * Set the default provider.
      */
     public void setProvider(FeatureProvider provider,
-                            Consumer<FeatureProvider> afterSet,
-                            Consumer<FeatureProvider> afterInit,
-                            Consumer<FeatureProvider> afterShutdown,
-                            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-                            boolean waitForInit) {
+            Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            boolean waitForInit) {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
@@ -131,12 +130,12 @@ class ProviderRepository {
      *                    Otherwise, initialization happens in the background.
      */
     public void setProvider(String domain,
-                            FeatureProvider provider,
-                            Consumer<FeatureProvider> afterSet,
-                            Consumer<FeatureProvider> afterInit,
-                            Consumer<FeatureProvider> afterShutdown,
-                            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-                            boolean waitForInit) {
+            FeatureProvider provider,
+            Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            boolean waitForInit) {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
@@ -147,12 +146,12 @@ class ProviderRepository {
     }
 
     private void prepareAndInitializeProvider(String domain,
-                                              FeatureProvider newProvider,
-                                              Consumer<FeatureProvider> afterSet,
-                                              Consumer<FeatureProvider> afterInit,
-                                              Consumer<FeatureProvider> afterShutdown,
-                                              BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-                                              boolean waitForInit) {
+            FeatureProvider newProvider,
+            Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            boolean waitForInit) {
         final FeatureProviderStateManager newStateManager;
         final FeatureProviderStateManager oldStateManager;
 
@@ -196,10 +195,10 @@ class ProviderRepository {
     }
 
     private void initializeProvider(FeatureProviderStateManager newManager,
-                                    Consumer<FeatureProvider> afterInit,
-                                    Consumer<FeatureProvider> afterShutdown,
-                                    BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-                                    FeatureProviderStateManager oldManager) {
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            FeatureProviderStateManager oldManager) {
         try {
             if (ProviderState.NOT_READY.equals(newManager.getState())) {
                 newManager.initialize(OpenFeatureAPI.getInstance().getEvaluationContext());
