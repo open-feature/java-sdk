@@ -8,6 +8,11 @@ abstract class AbstractStructure implements Structure {
 
     protected final Map<String, Value> attributes;
 
+    @Override
+    public boolean isEmpty() {
+        return attributes == null || attributes.size() == 0;
+    }
+
     AbstractStructure() {
         this.attributes = new HashMap<>();
     }
@@ -32,4 +37,5 @@ abstract class AbstractStructure implements Structure {
                         (accumulated, entry) -> accumulated.put(entry.getKey(), convertValue(entry.getValue())),
                         HashMap::putAll);
     }
+
 }

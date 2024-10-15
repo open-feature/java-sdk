@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>dev.openfeature</groupId>
@@ -11,7 +11,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
     <junit.jupiter.version>5.11.2</junit.jupiter.version>
-     <!-- exclusion expression for e2e tests -->
+    <!-- exclusion expression for e2e tests -->
     <testExclusions>**/e2e/*.java</testExclusions>
     <module-name>${project.groupId}.${project.artifactId}</module-name>
   </properties>
@@ -143,6 +143,13 @@
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
       <version>4.2.2</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-core</artifactId>
+      <version>1.37</version>
       <scope>test</scope>
     </dependency>
 
@@ -473,7 +480,7 @@
             <version>3.10.1</version>
             <configuration>
               <failOnWarnings>true</failOnWarnings>
-              <doclint>all,-missing</doclint>  <!-- ignore missing javadoc, these are enforced with more customizability in the checkstyle plugin -->
+              <doclint>all,-missing</doclint> <!-- ignore missing javadoc, these are enforced with more customizability in the checkstyle plugin -->
             </configuration>
             <executions>
               <execution>
@@ -503,6 +510,19 @@
           </plugin>
           <!-- end sign -->
 
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>benchmark</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>pw.krejci</groupId>
+            <artifactId>jmh-maven-plugin</artifactId>
+            <version>0.2.2</version>
+          </plugin>
         </plugins>
       </build>
     </profile>
