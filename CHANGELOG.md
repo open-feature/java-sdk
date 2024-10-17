@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.12.2](https://github.com/open-feature/java-sdk/compare/v1.12.1...v1.12.2) (2024-10-17)
+
+
+### 🧹 Chore
+
+* **deps:** update dependency net.bytebuddy:byte-buddy to v1.15.5 ([#1165](https://github.com/open-feature/java-sdk/issues/1165)) ([2d3be26](https://github.com/open-feature/java-sdk/commit/2d3be2617b78d200162ce816e829abda80e130a2))
+* **deps:** update dependency net.bytebuddy:byte-buddy-agent to v1.15.5 ([#1166](https://github.com/open-feature/java-sdk/issues/1166)) ([51a3410](https://github.com/open-feature/java-sdk/commit/51a3410d8e8c85bb0b142e6a64b889795742de86))
+* **deps:** update github/codeql-action digest to af56b04 ([#1167](https://github.com/open-feature/java-sdk/issues/1167)) ([432ec43](https://github.com/open-feature/java-sdk/commit/432ec438efdbe54e2300dd78db9fff1ce73fd725))
+* **deps:** update github/codeql-action digest to c470063 ([#1163](https://github.com/open-feature/java-sdk/issues/1163)) ([4e39b55](https://github.com/open-feature/java-sdk/commit/4e39b55bda516bb07ffd7452169dc77b1c0e340f))
+* fix another flaky test ([473a057](https://github.com/open-feature/java-sdk/commit/473a05784cd25dfafdd8f55894b06c8503fb19af))
+* fix flaky test ([457da96](https://github.com/open-feature/java-sdk/commit/457da96e7ba328f572e086c614b6700e9fd1c8c8))
+
 ## [1.12.1](https://github.com/open-feature/java-sdk/compare/v1.12.0...v1.12.1) (2024-10-15)
 
 
