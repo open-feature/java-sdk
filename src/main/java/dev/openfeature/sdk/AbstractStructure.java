@@ -2,6 +2,7 @@ package dev.openfeature.sdk;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collections;
 
 @SuppressWarnings({ "PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType" })
 abstract class AbstractStructure implements Structure {
@@ -26,7 +27,7 @@ abstract class AbstractStructure implements Structure {
      * @return immutable map
      */
     public Map<String, Value> asUnmodifiableMap() {
-        return Map.copyOf(attributes);
+        return Collections.unmodifiableMap(attributes);
     }
 
     /**
