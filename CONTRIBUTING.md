@@ -35,10 +35,13 @@ mvn test -P e2e
 There is a small JMH benchmark suite for testing allocations that can be run with:
 
 ```sh
-mvn -P benchmark test-compile jmh:benchmark -Djmh.f=1  -Djmh.prof='dev.openfeature.sdk.benchmark.AllocationProfiler'
+mvn -P benchmark clean compile test-compile jmh:benchmark -Djmh.f=1  -Djmh.prof='dev.openfeature.sdk.benchmark.AllocationProfiler'
 ```
 
 If you are concerned about the repercussions of a change on memory usage, run this an compare the results to the committed. `benchmark.txt` file.
+Note that the ONLY MEANINGFUL RESULTS of this benchmark are the `totalAllocatedBytes` and the `totalAllocatedInstances`.
+The `run` score, and maven task time are not relevant since this benchmark is purely memory-related and has nothing to do with speed.
+You can also view the heap breakdown to see which objects are taking up the most memory.
 
 ## Releasing
 

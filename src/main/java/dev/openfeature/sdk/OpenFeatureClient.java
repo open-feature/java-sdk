@@ -110,7 +110,6 @@ public class OpenFeatureClient implements Client {
         FlagEvaluationOptions flagOptions = ObjectUtils.defaultIfNull(options,
                 () -> FlagEvaluationOptions.builder().build());
         Map<String, Object> hints = Collections.unmodifiableMap(flagOptions.getHookHints());
-        ctx = ObjectUtils.defaultIfNull(ctx, () -> new ImmutableContext());
 
         FlagEvaluationDetails<T> details = null;
         List<Hook> mergedHooks = null;
@@ -183,17 +182,29 @@ public class OpenFeatureClient implements Client {
      * @return merged evaluation context
      */
     private EvaluationContext mergeEvaluationContext(EvaluationContext invocationContext) {
-        final EvaluationContext apiContext = openfeatureApi.getEvaluationContext() != null
-                ? openfeatureApi.getEvaluationContext()
-                : new ImmutableContext();
-        final EvaluationContext clientContext = this.getEvaluationContext() != null
-                ? this.getEvaluationContext()
-                : new ImmutableContext();
-        final EvaluationContext transactionContext = openfeatureApi.getTransactionContext() != null
-                ? openfeatureApi.getTransactionContext()
-                : new ImmutableContext();
+        // avoid any unnecessary context instantiations and stream usage here; this is call with every evaluation.
+        final EvaluationContext apiContext = openfeatureApi.getEvaluationContext();
+        final EvaluationContext clientContext = this.getEvaluationContext();
+        final EvaluationContext transactionContext = openfeatureApi.getTransactionContext();
+        final List<EvaluationContext> contextsToMerge = new ArrayList<>();
+        if (apiContext != null) {
+            contextsToMerge.add(apiContext);
+        }
+        if (transactionContext != null) {
+            contextsToMerge.add(transactionContext);
+        }
+        if (clientContext != null) {
+            contextsToMerge.add(clientContext);
+        }
+        if (invocationContext != null) {
+            contextsToMerge.add(invocationContext);
+        }
 
-        return apiContext.merge(transactionContext.merge(clientContext.merge(invocationContext)));
+        EvaluationContext merged = new ImmutableContext();
+        for (EvaluationContext evaluationContext : contextsToMerge) {
+            merged = merged.merge(evaluationContext);
+        }
+        return merged;
     }
 
     private <T> ProviderEvaluation<?> createProviderEvaluation(

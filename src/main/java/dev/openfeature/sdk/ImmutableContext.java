@@ -3,6 +3,7 @@ package dev.openfeature.sdk;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
 import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
 import lombok.ToString;
 import lombok.experimental.Delegate;
@@ -42,7 +43,7 @@ public final class ImmutableContext implements EvaluationContext {
      * @param attributes evaluation context attributes
      */
     public ImmutableContext(Map<String, Value> attributes) {
-        this("", attributes);
+        this(null, attributes);
     }
 
     /**
@@ -53,9 +54,7 @@ public final class ImmutableContext implements EvaluationContext {
      */
     public ImmutableContext(String targetingKey, Map<String, Value> attributes) {
         if (targetingKey != null && !targetingKey.trim().isEmpty()) {
-            final Map<String, Value> actualAttribs = new HashMap<>(attributes);
-            actualAttribs.put(TARGETING_KEY, new Value(targetingKey));
-            this.structure = new ImmutableStructure(actualAttribs);
+            this.structure = new ImmutableStructure(targetingKey, attributes);
         } else {
             this.structure = new ImmutableStructure(attributes);
         }
@@ -79,14 +78,14 @@ public final class ImmutableContext implements EvaluationContext {
     @Override
     public EvaluationContext merge(EvaluationContext overridingContext) {
         if (overridingContext == null || overridingContext.isEmpty()) {
-            return new ImmutableContext(this.asMap());
+            return new ImmutableContext(this.asUnmodifiableMap());
         }
         if (this.isEmpty()) {
-            return new ImmutableContext(overridingContext.asMap());
+            return new ImmutableContext(overridingContext.asUnmodifiableMap());
         }
 
         return new ImmutableContext(
-                this.merge(ImmutableStructure::new, this.asMap(), overridingContext.asMap()));
+                this.merge(ImmutableStructure::new, this.asUnmodifiableMap(), overridingContext.asUnmodifiableMap()));
     }
 
     @SuppressWarnings("all")

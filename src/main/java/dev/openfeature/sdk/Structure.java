@@ -47,6 +47,14 @@ public interface Structure {
     Map<String, Value> asMap();
 
     /**
+     * Get all values, as a map of Values.
+     *
+     * @return all attributes on the structure into a Map
+     */
+    Map<String, Value> asUnmodifiableMap();
+
+
+    /**
      * Get all values, with as a map of Object.
      *
      * @return all attributes on the structure into a Map
@@ -95,7 +103,7 @@ public interface Structure {
 
         if (value.isStructure()) {
             Structure s = value.asStructure();
-            return s.asMap()
+            return s.asUnmodifiableMap()
                     .entrySet()
                     .stream()
                     .collect(HashMap::new,
@@ -126,14 +134,15 @@ public interface Structure {
         if (overriding.isEmpty()) {
             return base;
         }
-                                                            
+
         final Map<String, Value> merged = new HashMap<>(base);
         for (Entry<String, Value> overridingEntry : overriding.entrySet()) {
             String key = overridingEntry.getKey();
             if (overridingEntry.getValue().isStructure() && merged.containsKey(key) && merged.get(key).isStructure()) {
                 Structure mergedValue = merged.get(key).asStructure();
                 Structure overridingValue = overridingEntry.getValue().asStructure();
-                Map<String, Value> newMap = this.merge(newStructure, mergedValue.asMap(), overridingValue.asMap());
+                Map<String, Value> newMap = this.merge(newStructure, mergedValue.asUnmodifiableMap(),
+                        overridingValue.asUnmodifiableMap());
                 merged.put(key, new Value(newStructure.apply(newMap)));
             } else {
                 merged.put(key, overridingEntry.getValue());

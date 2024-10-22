@@ -18,7 +18,15 @@ abstract class AbstractStructure implements Structure {
     }
 
     AbstractStructure(Map<String, Value> attributes) {
-        this.attributes = new HashMap<>(attributes);
+        this.attributes = attributes;
+    }
+
+    /**
+     * Returns an unmodifiable representation of the internal attribute map.
+     * @return immutable map
+     */
+    public Map<String, Value> asUnmodifiableMap() {
+        return Map.copyOf(attributes);
     }
 
     /**
