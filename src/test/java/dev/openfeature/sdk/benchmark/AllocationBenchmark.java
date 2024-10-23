@@ -7,6 +7,7 @@ import static dev.openfeature.sdk.testutils.TestFlagsUtils.OBJECT_FLAG_KEY;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.STRING_FLAG_KEY;
 
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Optional;
 
 import org.openjdk.jmh.annotations.Benchmark;
@@ -41,7 +42,16 @@ public class AllocationBenchmark {
     public void run() {
 
         OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
+        Map<String, Value> globalAttrs = new HashMap<>();
+        globalAttrs.put("global", new Value(1));
+        EvaluationContext globalContext = new ImmutableContext(globalAttrs);
+        OpenFeatureAPI.getInstance().setEvaluationContext(globalContext);
+
         Client client = OpenFeatureAPI.getInstance().getClient();
+
+        Map<String, Value> clientAttrs = new HashMap<>();
+        clientAttrs.put("client",  new Value(2)); 
+        client.setEvaluationContext(new ImmutableContext(clientAttrs));
         client.addHooks(new Hook<Object>() {
             @Override
             public Optional<EvaluationContext> before(HookContext<Object> ctx, Map<String, Object> hints) {
@@ -49,12 +59,16 @@ public class AllocationBenchmark {
             }
         });
 
+        Map<String, Value> invocationAttrs = new HashMap<>();
+        invocationAttrs.put("invoke",  new Value(3)); 
+        EvaluationContext invocationContext = new ImmutableContext(invocationAttrs);
+
         for (int i = 0; i < ITERATIONS; i++) {
             client.getBooleanValue(BOOLEAN_FLAG_KEY, false);
             client.getStringValue(STRING_FLAG_KEY, "default");
             client.getIntegerValue(INT_FLAG_KEY, 0);
             client.getDoubleValue(FLOAT_FLAG_KEY, 0.0);
-            client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), new ImmutableContext());
+            client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), invocationContext);
         }
     }
 }
