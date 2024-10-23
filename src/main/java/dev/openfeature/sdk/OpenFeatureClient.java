@@ -203,7 +203,7 @@ public class OpenFeatureClient implements Client {
         Map merged = new HashMap<>();
         for (EvaluationContext evaluationContext : contexts) {
             if (evaluationContext != null && !evaluationContext.isEmpty()) {
-                merged = EvaluationContext.mergeMaps(ImmutableStructure::new, merged,
+                EvaluationContext.mergeMaps(ImmutableStructure::new, merged,
                         evaluationContext.asUnmodifiableMap());
             }
         }

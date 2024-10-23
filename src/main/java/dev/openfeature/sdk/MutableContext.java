@@ -121,9 +121,10 @@ public class MutableContext implements EvaluationContext {
             return overridingContext;
         }
 
-        Map<String, Value> merged = EvaluationContext.mergeMaps(
-                MutableStructure::new, this.asUnmodifiableMap(), overridingContext.asUnmodifiableMap());
-        return new MutableContext(merged);
+        Map<String, Value> attributes = this.asMap();
+        EvaluationContext.mergeMaps(
+                MutableStructure::new, attributes, overridingContext.asUnmodifiableMap());
+        return new MutableContext(attributes);
     }
 
     /**

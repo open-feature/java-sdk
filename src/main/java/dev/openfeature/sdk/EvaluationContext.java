@@ -1,6 +1,5 @@
 package dev.openfeature.sdk;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
@@ -26,38 +25,38 @@ public interface EvaluationContext extends Structure {
     EvaluationContext merge(EvaluationContext overridingContext);
 
     /**
-     * Recursively merges the base Value map with the overriding map.
+     * Recursively merges the overriding map into the base Value map.
+     * The base map is mutated, the overriding map is not.
+     * Null maps will cause no-op.
      * 
-     * @param <T> Structure type
      * @param newStructure function to create the right structure(s) for Values
      * @param base base map to merge
      * @param overriding overriding map to merge
-     * @return resulting merged map
      */
-    static <T extends Structure> Map<String, Value> mergeMaps(Function<Map<String, Value>, Structure> newStructure,
+    static void mergeMaps(Function<Map<String, Value>, Structure> newStructure,
             Map<String, Value> base,
             Map<String, Value> overriding) {
 
-        if (base == null || base.isEmpty()) {
-            return overriding;
+        if (base == null) {
+            return;
         }
         if (overriding == null || overriding.isEmpty()) {
-            return base;
+            return;
         }
 
-        final Map<String, Value> merged = new HashMap<>(base);
         for (Entry<String, Value> overridingEntry : overriding.entrySet()) {
             String key = overridingEntry.getKey();
-            if (overridingEntry.getValue().isStructure() && merged.containsKey(key) && merged.get(key).isStructure()) {
-                Structure mergedValue = merged.get(key).asStructure();
+            if (overridingEntry.getValue().isStructure() && base.containsKey(key) && base.get(key).isStructure()) {
+                Structure mergedValue = base.get(key).asStructure();
                 Structure overridingValue = overridingEntry.getValue().asStructure();
-                Map<String, Value> newMap = mergeMaps(newStructure, mergedValue.asUnmodifiableMap(),
+                Map<String, Value> newMap = mergedValue.asMap();
+                mergeMaps(newStructure, newMap,
                         overridingValue.asUnmodifiableMap());
-                merged.put(key, new Value(newStructure.apply(newMap)));
+                base.put(key, new Value(newStructure.apply(newMap)));
             } else {
-                merged.put(key, overridingEntry.getValue());
+                base.put(key, overridingEntry.getValue());
             }
         }
-        return merged;
+        return;
     }
 }

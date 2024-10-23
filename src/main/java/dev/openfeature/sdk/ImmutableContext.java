@@ -87,9 +87,10 @@ public final class ImmutableContext implements EvaluationContext {
             return new ImmutableContext(overridingContext.asUnmodifiableMap());
         }
 
-        return new ImmutableContext(
-                EvaluationContext.mergeMaps(ImmutableStructure::new, this.asUnmodifiableMap(),
-                        overridingContext.asUnmodifiableMap()));
+        Map<String, Value> attributes = this.asMap();
+        EvaluationContext.mergeMaps(ImmutableStructure::new, attributes,
+                overridingContext.asUnmodifiableMap());
+        return new ImmutableContext(attributes);
     }
 
     @SuppressWarnings("all")
