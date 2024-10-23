@@ -57,6 +57,5 @@ public interface EvaluationContext extends Structure {
                 base.put(key, overridingEntry.getValue());
             }
         }
-        return;
     }
 }
