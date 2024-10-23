@@ -36,9 +36,9 @@ Audit done.
   processing is enabled explicitly (-proc:only, -proc:full).
   Use -Xlint:-options to suppress this message.
   Use -proc:none to disable annotation processing.
-[WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/MutableStructure.java:[19,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
-[WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/ImmutableStructure.java:[22,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
 [WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/EventDetails.java:[9,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/ImmutableStructure.java:[22,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/MutableStructure.java:[19,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
 [WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java:[27,26] finalize() in java.lang.Object has been deprecated and marked for removal
 [INFO] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/NoOpProvider.java: Some input files use or override a deprecated API.
 [INFO] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/NoOpProvider.java: Recompile with -Xlint:deprecation for details.
@@ -129,139 +129,139 @@ Audit done.
 [0.001s][warning][gc,init] Consider enabling -XX:+AlwaysPreTouch to avoid memory commit hiccups
 Iteration   1:  num     #instances         #bytes  class name (module)
 -------------------------------------------------------
-   1:        730464       35062272  java.util.HashMap (java.base@21.0.4)
-   2:        320497       19970088  [Ljava.util.HashMap$Node; (java.base@21.0.4)
-   3:        472017       15104544  java.util.HashMap$Node (java.base@21.0.4)
-   4:        394936       12637952  java.util.HashMap$EntryIterator (java.base@21.0.4)
-   5:        355992       10905888  [Ljava.lang.Object; (java.base@21.0.4)
-   6:        320002       10240064  java.util.Collections$UnmodifiableMap (java.base@21.0.4)
-   7:         47810        9730152  [B (java.base@21.0.4)
-   8:        370062        5920992  java.util.HashMap$EntrySet (java.base@21.0.4)
-   9:        370003        5920048  dev.openfeature.sdk.ImmutableStructure
-  10:        360003        5760048  dev.openfeature.sdk.ImmutableContext
-  11:        350006        5600096  dev.openfeature.sdk.Value
-  12:           164        5212816  [Ljdk.internal.vm.FillerElement; (java.base@21.0.4)
-  13:        299744        4795904  java.util.Optional (java.base@21.0.4)
-  14:        188295        4519080  java.util.ArrayList (java.base@21.0.4)
-  15:        184836        4436064  java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet$1 (java.base@21.0.4)
-  16:        270000        4320000  java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet (java.base@21.0.4)
-  17:        100000        4000000  dev.openfeature.sdk.HookContext
-  18:        100000        4000000  dev.openfeature.sdk.HookContext$HookContextBuilder
-  19:        247118        3953888  java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet$UnmodifiableEntry (java.base@21.0.4)
-  20:        113781        3640992  java.util.ArrayList$Itr (java.base@21.0.4)
+   1:        559671       26864208  java.util.HashMap (java.base@21.0.4)
+   2:        352017       11264544  java.util.HashMap$Node (java.base@21.0.4)
+   3:        210497       11170088  [Ljava.util.HashMap$Node; (java.base@21.0.4)
+   4:         47815        9732672  [B (java.base@21.0.4)
+   5:        279526        8944832  java.util.HashMap$EntryIterator (java.base@21.0.4)
+   6:        305991        8105872  [Ljava.lang.Object; (java.base@21.0.4)
+   7:        445455        7127280  java.util.Optional (java.base@21.0.4)
+   8:        199209        6374688  java.util.Collections$UnmodifiableMap (java.base@21.0.4)
+   9:           154        4368416  [Ljdk.internal.vm.FillerElement; (java.base@21.0.4)
+  10:        100000        4000000  dev.openfeature.sdk.HookContext
+  11:        100000        4000000  dev.openfeature.sdk.HookContext$HookContextBuilder
+  12:        230006        3680096  dev.openfeature.sdk.Value
+  13:        210062        3360992  java.util.HashMap$EntrySet (java.base@21.0.4)
+  14:        139788        3354912  java.util.ArrayList (java.base@21.0.4)
+  15:        199210        3187360  dev.openfeature.sdk.ImmutableStructure
+  16:        130219        3125256  java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet$1 (java.base@21.0.4)
+  17:        189210        3027360  dev.openfeature.sdk.ImmutableContext
+  18:        177267        2836272  java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet$UnmodifiableEntry (java.base@21.0.4)
+  19:         82425        2637600  java.util.ArrayList$Itr (java.base@21.0.4)
+  20:        149207        2387312  java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet (java.base@21.0.4)
   21:         50000        2000000  dev.openfeature.sdk.FlagEvaluationDetails
   22:         50000        2000000  dev.openfeature.sdk.ProviderEvaluation
-  23:        100001        1600016  dev.openfeature.sdk.NoOpProvider$$Lambda/0x0000730fb402fa78
-  24:         50000        1600000  [Ljava.util.List; (java.base@21.0.4)
-  25:        100000        1600000  dev.openfeature.sdk.ImmutableMetadata
-  26:        100000        1600000  dev.openfeature.sdk.ImmutableMetadata$ImmutableMetadataBuilder
-  27:        100000        1600000  dev.openfeature.sdk.OpenFeatureClient$$Lambda/0x0000730fb4082800
-  28:         50000        1200000  dev.openfeature.sdk.FlagEvaluationOptions
-  29:         17443         837264  dev.openfeature.sdk.FlagEvaluationDetails$FlagEvaluationDetailsBuilder
-  30:         34414         825936  dev.openfeature.sdk.FlagEvaluationOptions$FlagEvaluationOptionsBuilder
-  31:          4490         721440  [I (java.base@21.0.4)
-  32:         44679         714864  dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock$$Lambda/0x0000730fb402eae8
-  33:         17203         688120  dev.openfeature.sdk.ProviderEvaluation$ProviderEvaluationBuilder
-  34:         26590         638160  java.lang.String (java.base@21.0.4)
-  35:         18822         451728  dev.openfeature.sdk.HookSupport$$Lambda/0x0000730fb4081748
-  36:         18792         451008  dev.openfeature.sdk.HookSupport$$Lambda/0x0000730fb4081978
-  37:          1461         390008  [J (java.base@21.0.4)
-  38:          2359         288560  java.lang.Class (java.base@21.0.4)
-  39:          4632         259392  jdk.internal.org.objectweb.asm.SymbolTable$Entry (java.base@21.0.4)
-  40:         10001         240024  java.lang.Double (java.base@21.0.4)
-  41:          2502         180144  java.lang.reflect.Field (java.base@21.0.4)
-  42:          6007         144168  java.lang.StringBuilder (java.base@21.0.4)
-  43:           180         140968  [Ljdk.internal.org.objectweb.asm.SymbolTable$Entry; (java.base@21.0.4)
-  44:          3828         122496  java.util.concurrent.ConcurrentHashMap$Node (java.base@21.0.4)
-  45:            48         122168  [C (java.base@21.0.4)
-  46:          1440         113512  [S (java.base@21.0.4)
-  47:          1201         105688  java.lang.reflect.Method (java.base@21.0.4)
-  48:          3031          79600  [Ljava.lang.Class; (java.base@21.0.4)
-  49:          1351          75656  jdk.internal.org.objectweb.asm.Label (java.base@21.0.4)
-  50:          1563          75024  java.lang.invoke.MemberName (java.base@21.0.4)
-  51:           334          74816  jdk.internal.org.objectweb.asm.MethodWriter (java.base@21.0.4)
-  52:          1799          71960  java.lang.invoke.MethodType (java.base@21.0.4)
-  53:          1089          69696  java.net.URL (java.base@21.0.4)
-  54:           121          50512  [Ljava.util.concurrent.ConcurrentHashMap$Node; (java.base@21.0.4)
-  55:          3147          50352  jdk.internal.util.StrongReferenceKey (java.base@21.0.4)
-  56:          1057          42280  java.io.ObjectStreamField (java.base@21.0.4)
-  57:          1225          39200  java.io.File (java.base@21.0.4)
-  58:           779          37392  jdk.internal.org.objectweb.asm.Frame (java.base@21.0.4)
-  59:           243          25272  java.util.jar.JarFile$JarFileEntry (java.base@21.0.4)
-  60:           794          25248  [Ljava.lang.String; (java.base@21.0.4)
-  61:           622          24880  java.lang.NoSuchFieldException (java.base@21.0.4)
-  62:           571          22840  java.util.LinkedHashMap$Entry (java.base@21.0.4)
-  63:           474          22752  jdk.internal.ref.CleanerImpl$PhantomCleanableRef (java.base@21.0.4)
-  64:           690          22080  jdk.internal.util.WeakReferenceKey (java.base@21.0.4)
-  65:           828          19872  jdk.internal.org.objectweb.asm.ByteVector (java.base@21.0.4)
-  66:           248          18848  [Ljava.lang.ref.SoftReference; (java.base@21.0.4)
-  67:           118          17936  jdk.internal.org.objectweb.asm.ClassWriter (java.base@21.0.4)
-  68:           380          16824  [Ljava.lang.invoke.LambdaForm$Name; (java.base@21.0.4)
-  69:           625          15000  java.lang.Long (java.base@21.0.4)
-  70:           463          14816  java.lang.invoke.LambdaForm$Name (java.base@21.0.4)
-  71:           904          14464  java.lang.Object (java.base@21.0.4)
-  72:           198          14256  java.lang.reflect.Constructor (java.base@21.0.4)
-  73:           249          13944  java.util.zip.ZipFile$ZipFileInputStream (java.base@21.0.4)
-  74:           334          13360  jdk.internal.org.objectweb.asm.Handler (java.base@21.0.4)
-  75:           202          12928  java.util.concurrent.ConcurrentHashMap (java.base@21.0.4)
-  76:           201          12864  jdk.internal.org.objectweb.asm.FieldWriter (java.base@21.0.4)
-  77:           316          12640  java.util.WeakHashMap$Entry (java.base@21.0.4)
-  78:           102          12240  java.io.ObjectStreamClass (java.base@21.0.4)
-  79:           249          11952  java.util.zip.ZipFile$ZipFileInflaterInputStream (java.base@21.0.4)
-  80:           359          11488  jdk.internal.org.objectweb.asm.Type (java.base@21.0.4)
-  81:           465          11160  java.lang.invoke.ResolvedMethodName (java.base@21.0.4)
-  82:           464          11136  jdk.internal.org.objectweb.asm.Edge (java.base@21.0.4)
-  83:           341          10912  jdk.internal.math.FDBigInteger (java.base@21.0.4)
-  84:            94          10728  [Ljava.lang.reflect.Field; (java.base@21.0.4)
-  85:           266          10640  java.lang.NoSuchMethodException (java.base@21.0.4)
-  86:           266          10640  java.security.CodeSource (java.base@21.0.4)
-  87:           221          10608  java.lang.invoke.DirectMethodHandle$Constructor (java.base@21.0.4)
-  88:           264          10560  sun.security.util.KnownOIDs (java.base@21.0.4)
-  89:            75          10200  sun.nio.fs.UnixFileAttributes (java.base@21.0.4)
-  90:           245           9800  java.lang.ref.SoftReference (java.base@21.0.4)
-  91:           118           9440  jdk.internal.event.DeserializationEvent (java.base@21.0.4)
-  92:           115           9200  [Ljava.util.WeakHashMap$Entry; (java.base@21.0.4)
-  93:           368           8832  java.lang.module.ModuleDescriptor$Exports (java.base@21.0.4)
-  94:            63           8384  [Ljava.lang.invoke.MethodHandle; (java.base@21.0.4)
-  95:           146           8176  java.io.FileCleanable (java.base@21.0.4)
-  96:           125           8000  java.lang.Class$ReflectionData (java.base@21.0.4)
-  97:           323           7752  java.util.ImmutableCollections$Set12 (java.base@21.0.4)
-  98:           121           7744  jdk.internal.org.objectweb.asm.SymbolTable (java.base@21.0.4)
-  99:            70           7280  java.lang.invoke.InnerClassLambdaMetafactory (java.base@21.0.4)
- 100:           144           6912  jdk.internal.org.objectweb.asm.AnnotationWriter (java.base@21.0.4)
- 101:           167           6680  jdk.internal.loader.URLClassPath$JarLoader$2 (java.base@21.0.4)
- 102:           200           6400  java.lang.invoke.MethodHandles$Lookup (java.base@21.0.4)
- 103:           156           6240  java.util.StringJoiner (java.base@21.0.4)
- 104:           153           6120  java.io.FileDescriptor (java.base@21.0.4)
- 105:           126           6048  java.lang.invoke.LambdaForm (java.base@21.0.4)
- 106:            77           6016  [Ljava.lang.reflect.Method; (java.base@21.0.4)
- 107:           374           5984  java.lang.Byte (java.base@21.0.4)
+  23:         34652        1663296  dev.openfeature.sdk.FlagEvaluationDetails$FlagEvaluationDetailsBuilder
+  24:        100001        1600016  dev.openfeature.sdk.NoOpProvider$$Lambda/0x00007bf8a002fa78
+  25:         50000        1600000  [Ldev.openfeature.sdk.EvaluationContext;
+  26:         50000        1600000  [Ljava.util.List; (java.base@21.0.4)
+  27:        100000        1600000  dev.openfeature.sdk.ImmutableMetadata
+  28:        100000        1600000  dev.openfeature.sdk.ImmutableMetadata$ImmutableMetadataBuilder
+  29:        100000        1600000  dev.openfeature.sdk.OpenFeatureClient$$Lambda/0x00007bf8a0082800
+  30:         50000        1200000  dev.openfeature.sdk.FlagEvaluationOptions
+  31:         44836        1076064  dev.openfeature.sdk.FlagEvaluationOptions$FlagEvaluationOptionsBuilder
+  32:         26278        1051120  dev.openfeature.sdk.ProviderEvaluation$ProviderEvaluationBuilder
+  33:         40785         978840  dev.openfeature.sdk.HookSupport$$Lambda/0x00007bf8a0081da8
+  34:         40423         970152  dev.openfeature.sdk.HookSupport$$Lambda/0x00007bf8a0081b78
+  35:         54212         867392  dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock$$Lambda/0x00007bf8a002eae8
+  36:          4490         721440  [I (java.base@21.0.4)
+  37:         26594         638256  java.lang.String (java.base@21.0.4)
+  38:          1461         390008  [J (java.base@21.0.4)
+  39:          2361         288784  java.lang.Class (java.base@21.0.4)
+  40:          4632         259392  jdk.internal.org.objectweb.asm.SymbolTable$Entry (java.base@21.0.4)
+  41:         10001         240024  java.lang.Double (java.base@21.0.4)
+  42:          2502         180144  java.lang.reflect.Field (java.base@21.0.4)
+  43:          6007         144168  java.lang.StringBuilder (java.base@21.0.4)
+  44:           180         140968  [Ljdk.internal.org.objectweb.asm.SymbolTable$Entry; (java.base@21.0.4)
+  45:          3827         122464  java.util.concurrent.ConcurrentHashMap$Node (java.base@21.0.4)
+  46:            48         122168  [C (java.base@21.0.4)
+  47:          1440         113512  [S (java.base@21.0.4)
+  48:          1201         105688  java.lang.reflect.Method (java.base@21.0.4)
+  49:          3031          79600  [Ljava.lang.Class; (java.base@21.0.4)
+  50:          1351          75656  jdk.internal.org.objectweb.asm.Label (java.base@21.0.4)
+  51:          1561          74928  java.lang.invoke.MemberName (java.base@21.0.4)
+  52:           334          74816  jdk.internal.org.objectweb.asm.MethodWriter (java.base@21.0.4)
+  53:          1799          71960  java.lang.invoke.MethodType (java.base@21.0.4)
+  54:          1089          69696  java.net.URL (java.base@21.0.4)
+  55:           121          50512  [Ljava.util.concurrent.ConcurrentHashMap$Node; (java.base@21.0.4)
+  56:          3147          50352  jdk.internal.util.StrongReferenceKey (java.base@21.0.4)
+  57:          1057          42280  java.io.ObjectStreamField (java.base@21.0.4)
+  58:          1225          39200  java.io.File (java.base@21.0.4)
+  59:           779          37392  jdk.internal.org.objectweb.asm.Frame (java.base@21.0.4)
+  60:           243          25272  java.util.jar.JarFile$JarFileEntry (java.base@21.0.4)
+  61:           794          25248  [Ljava.lang.String; (java.base@21.0.4)
+  62:           622          24880  java.lang.NoSuchFieldException (java.base@21.0.4)
+  63:           571          22840  java.util.LinkedHashMap$Entry (java.base@21.0.4)
+  64:           474          22752  jdk.internal.ref.CleanerImpl$PhantomCleanableRef (java.base@21.0.4)
+  65:           690          22080  jdk.internal.util.WeakReferenceKey (java.base@21.0.4)
+  66:           828          19872  jdk.internal.org.objectweb.asm.ByteVector (java.base@21.0.4)
+  67:           248          18848  [Ljava.lang.ref.SoftReference; (java.base@21.0.4)
+  68:           118          17936  jdk.internal.org.objectweb.asm.ClassWriter (java.base@21.0.4)
+  69:           380          16824  [Ljava.lang.invoke.LambdaForm$Name; (java.base@21.0.4)
+  70:           625          15000  java.lang.Long (java.base@21.0.4)
+  71:           463          14816  java.lang.invoke.LambdaForm$Name (java.base@21.0.4)
+  72:           904          14464  java.lang.Object (java.base@21.0.4)
+  73:           198          14256  java.lang.reflect.Constructor (java.base@21.0.4)
+  74:           249          13944  java.util.zip.ZipFile$ZipFileInputStream (java.base@21.0.4)
+  75:           334          13360  jdk.internal.org.objectweb.asm.Handler (java.base@21.0.4)
+  76:           202          12928  java.util.concurrent.ConcurrentHashMap (java.base@21.0.4)
+  77:           201          12864  jdk.internal.org.objectweb.asm.FieldWriter (java.base@21.0.4)
+  78:           316          12640  java.util.WeakHashMap$Entry (java.base@21.0.4)
+  79:           102          12240  java.io.ObjectStreamClass (java.base@21.0.4)
+  80:           249          11952  java.util.zip.ZipFile$ZipFileInflaterInputStream (java.base@21.0.4)
+  81:           359          11488  jdk.internal.org.objectweb.asm.Type (java.base@21.0.4)
+  82:           465          11160  java.lang.invoke.ResolvedMethodName (java.base@21.0.4)
+  83:           464          11136  jdk.internal.org.objectweb.asm.Edge (java.base@21.0.4)
+  84:           341          10912  jdk.internal.math.FDBigInteger (java.base@21.0.4)
+  85:            94          10728  [Ljava.lang.reflect.Field; (java.base@21.0.4)
+  86:           266          10640  java.lang.NoSuchMethodException (java.base@21.0.4)
+  87:           266          10640  java.security.CodeSource (java.base@21.0.4)
+  88:           221          10608  java.lang.invoke.DirectMethodHandle$Constructor (java.base@21.0.4)
+  89:           264          10560  sun.security.util.KnownOIDs (java.base@21.0.4)
+  90:            75          10200  sun.nio.fs.UnixFileAttributes (java.base@21.0.4)
+  91:           245           9800  java.lang.ref.SoftReference (java.base@21.0.4)
+  92:           118           9440  jdk.internal.event.DeserializationEvent (java.base@21.0.4)
+  93:           115           9200  [Ljava.util.WeakHashMap$Entry; (java.base@21.0.4)
+  94:           368           8832  java.lang.module.ModuleDescriptor$Exports (java.base@21.0.4)
+  95:            63           8384  [Ljava.lang.invoke.MethodHandle; (java.base@21.0.4)
+  96:           146           8176  java.io.FileCleanable (java.base@21.0.4)
+  97:           125           8000  java.lang.Class$ReflectionData (java.base@21.0.4)
+  98:           323           7752  java.util.ImmutableCollections$Set12 (java.base@21.0.4)
+  99:           121           7744  jdk.internal.org.objectweb.asm.SymbolTable (java.base@21.0.4)
+ 100:            70           7280  java.lang.invoke.InnerClassLambdaMetafactory (java.base@21.0.4)
+ 101:           144           6912  jdk.internal.org.objectweb.asm.AnnotationWriter (java.base@21.0.4)
+ 102:           167           6680  jdk.internal.loader.URLClassPath$JarLoader$2 (java.base@21.0.4)
+ 103:           199           6368  java.lang.invoke.MethodHandles$Lookup (java.base@21.0.4)
+ 104:           156           6240  java.util.StringJoiner (java.base@21.0.4)
+ 105:           153           6120  java.io.FileDescriptor (java.base@21.0.4)
+ 106:           126           6048  java.lang.invoke.LambdaForm (java.base@21.0.4)
+ 107:            77           6016  [Ljava.lang.reflect.Method; (java.base@21.0.4)
  108:           249           5976  java.util.zip.ZipFile$InflaterCleanupAction (java.base@21.0.4)
- 109:            74           5920  java.util.zip.ZipFile$Source (java.base@21.0.4)
- 110:            82           5720  [Ljava.io.ObjectStreamField; (java.base@21.0.4)
- 111:            40           5640  [Ljava.lang.ClassValue$Entry; (java.base@21.0.4)
- 112:           234           5616  java.util.jar.Attributes$Name (java.base@21.0.4)
- 113:           174           5568  java.util.concurrent.locks.ReentrantLock$NonfairSync (java.base@21.0.4)
- 114:            98           5488  java.lang.Module (java.base@21.0.4)
- 115:           219           5256  java.lang.PublicMethods$MethodList (java.base@21.0.4)
- 116:            65           5200  java.net.URI (java.base@21.0.4)
- 117:           215           5104  [Ljdk.internal.org.objectweb.asm.Type; (java.base@21.0.4)
- 118:           158           5056  java.lang.invoke.MethodTypeForm (java.base@21.0.4)
+ 109:           373           5968  java.lang.Byte (java.base@21.0.4)
+ 110:            74           5920  java.util.zip.ZipFile$Source (java.base@21.0.4)
+ 111:            82           5720  [Ljava.io.ObjectStreamField; (java.base@21.0.4)
+ 112:            40           5640  [Ljava.lang.ClassValue$Entry; (java.base@21.0.4)
+ 113:           234           5616  java.util.jar.Attributes$Name (java.base@21.0.4)
+ 114:           174           5568  java.util.concurrent.locks.ReentrantLock$NonfairSync (java.base@21.0.4)
+ 115:            98           5488  java.lang.Module (java.base@21.0.4)
+ 116:           219           5256  java.lang.PublicMethods$MethodList (java.base@21.0.4)
+ 117:            65           5200  java.net.URI (java.base@21.0.4)
+ 118:           215           5104  [Ljdk.internal.org.objectweb.asm.Type; (java.base@21.0.4)
 truncated...
-Total       6456040      198081344
+Total       5107873      156138304
 
-0.148 s/op
-                 +totalAllocatedBytes:     198081344.000 bytes
-                 +totalAllocatedInstances: 6456040.000 instances
+0.187 s/op
+                 +totalAllocatedBytes:     156138304.000 bytes
+                 +totalAllocatedInstances: 5107873.000 instances
                  +totalHeap:               521412608.000 bytes
 
 
 
 Secondary result "dev.openfeature.sdk.benchmark.AllocationBenchmark.run:+totalAllocatedBytes":
-  198081344.000 bytes
+  156138304.000 bytes
 
 Secondary result "dev.openfeature.sdk.benchmark.AllocationBenchmark.run:+totalAllocatedInstances":
-  6456040.000 instances
+  5107873.000 instances
 
 Secondary result "dev.openfeature.sdk.benchmark.AllocationBenchmark.run:+totalHeap":
   521412608.000 bytes
@@ -282,13 +282,13 @@ different JVMs are already problematic, the performance difference caused by dif
 modes can be very significant. Please make sure you use the consistent Blackhole mode for comparisons.
 
 Benchmark                                         Mode  Cnt          Score   Error      Units
-AllocationBenchmark.run                             ss               0.148               s/op
-AllocationBenchmark.run:+totalAllocatedBytes        ss       198081344.000              bytes
-AllocationBenchmark.run:+totalAllocatedInstances    ss         6456040.000          instances
+AllocationBenchmark.run                             ss               0.187               s/op
+AllocationBenchmark.run:+totalAllocatedBytes        ss       156138304.000              bytes
+AllocationBenchmark.run:+totalAllocatedInstances    ss         5107873.000          instances
 AllocationBenchmark.run:+totalHeap                  ss       521412608.000              bytes
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  7.987 s
-[INFO] Finished at: 2024-10-23T12:35:58-04:00
+[INFO] Total time:  8.226 s
+[INFO] Finished at: 2024-10-23T12:36:22-04:00
 [INFO] ------------------------------------------------------------------------

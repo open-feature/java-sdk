@@ -5,8 +5,6 @@ import dev.openfeature.sdk.exceptions.ValueNotConvertableError;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static dev.openfeature.sdk.Value.objectToValue;
@@ -113,42 +111,6 @@ public interface Structure {
         }
 
         throw new ValueNotConvertableError();
-    }
-
-    /**
-     * Recursively merges the base map with the overriding map.
-     * 
-     * @param <T> Structure type
-     * @param newStructure function to create the right structure
-     * @param base base map to merge
-     * @param overriding overriding map to merge
-     * @return resulting merged map
-     */
-    default <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure,
-                                                           Map<String, Value> base,
-                                                           Map<String, Value> overriding) {
-        
-        if (base.isEmpty()) {
-            return overriding;
-        }
-        if (overriding.isEmpty()) {
-            return base;
-        }
-
-        final Map<String, Value> merged = new HashMap<>(base);
-        for (Entry<String, Value> overridingEntry : overriding.entrySet()) {
-            String key = overridingEntry.getKey();
-            if (overridingEntry.getValue().isStructure() && merged.containsKey(key) && merged.get(key).isStructure()) {
-                Structure mergedValue = merged.get(key).asStructure();
-                Structure overridingValue = overridingEntry.getValue().asStructure();
-                Map<String, Value> newMap = this.merge(newStructure, mergedValue.asUnmodifiableMap(),
-                        overridingValue.asUnmodifiableMap());
-                merged.put(key, new Value(newStructure.apply(newMap)));
-            } else {
-                merged.put(key, overridingEntry.getValue());
-            }
-        }
-        return merged;
     }
 
     /**

@@ -33,7 +33,7 @@ public class MutableContext implements EvaluationContext {
     }
 
     public MutableContext(Map<String, Value> attributes) {
-        this("", new HashMap<>(attributes));
+        this(null, new HashMap<>(attributes));
     }
 
     /**
@@ -121,7 +121,7 @@ public class MutableContext implements EvaluationContext {
             return overridingContext;
         }
 
-        Map<String, Value> merged = this.merge(
+        Map<String, Value> merged = EvaluationContext.mergeMaps(
                 MutableStructure::new, this.asUnmodifiableMap(), overridingContext.asUnmodifiableMap());
         return new MutableContext(merged);
     }

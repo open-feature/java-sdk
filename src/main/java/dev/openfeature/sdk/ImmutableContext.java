@@ -11,7 +11,8 @@ import lombok.experimental.Delegate;
 /**
  * The EvaluationContext is a container for arbitrary contextual data
  * that can be used as a basis for dynamic evaluation.
- * The ImmutableContext is an EvaluationContext implementation which is threadsafe, and whose attributes can
+ * The ImmutableContext is an EvaluationContext implementation which is
+ * threadsafe, and whose attributes can
  * not be modified after instantiation.
  */
 @ToString
@@ -22,7 +23,8 @@ public final class ImmutableContext implements EvaluationContext {
     private final ImmutableStructure structure;
 
     /**
-     * Create an immutable context with an empty targeting_key and attributes provided.
+     * Create an immutable context with an empty targeting_key and attributes
+     * provided.
      */
     public ImmutableContext() {
         this(new HashMap<>());
@@ -70,7 +72,8 @@ public final class ImmutableContext implements EvaluationContext {
     }
 
     /**
-     * Merges this EvaluationContext object with the passed EvaluationContext, overriding in case of conflict.
+     * Merges this EvaluationContext object with the passed EvaluationContext,
+     * overriding in case of conflict.
      *
      * @param overridingContext overriding context
      * @return new, resulting merged context
@@ -85,16 +88,16 @@ public final class ImmutableContext implements EvaluationContext {
         }
 
         return new ImmutableContext(
-                this.merge(ImmutableStructure::new, this.asUnmodifiableMap(), overridingContext.asUnmodifiableMap()));
+                EvaluationContext.mergeMaps(ImmutableStructure::new, this.asUnmodifiableMap(),
+                        overridingContext.asUnmodifiableMap()));
     }
 
     @SuppressWarnings("all")
     private static class DelegateExclusions {
         @ExcludeFromGeneratedCoverageReport
-        public <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure, 
+        public <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure,
                 Map<String, Value> base,
                 Map<String, Value> overriding) {
- 
             return null;
         }
     }
