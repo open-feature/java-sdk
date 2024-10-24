@@ -33,7 +33,7 @@ public class MutableContext implements EvaluationContext {
     }
 
     public MutableContext(Map<String, Value> attributes) {
-        this("", attributes);
+        this(null, new HashMap<>(attributes));
     }
 
     /**
@@ -44,7 +44,7 @@ public class MutableContext implements EvaluationContext {
      * @param attributes   evaluation context attributes
      */
     public MutableContext(String targetingKey, Map<String, Value> attributes) {
-        this.structure = new MutableStructure(attributes);
+        this.structure = new MutableStructure(new HashMap<>(attributes));
         if (targetingKey != null && !targetingKey.trim().isEmpty()) {
             this.structure.attributes.put(TARGETING_KEY, new Value(targetingKey));
         }
@@ -121,9 +121,10 @@ public class MutableContext implements EvaluationContext {
             return overridingContext;
         }
 
-        Map<String, Value> merged = this.merge(
-                MutableStructure::new, this.asMap(), overridingContext.asMap());
-        return new MutableContext(merged);
+        Map<String, Value> attributes = this.asMap();
+        EvaluationContext.mergeMaps(
+                MutableStructure::new, attributes, overridingContext.asUnmodifiableMap());
+        return new MutableContext(attributes);
     }
 
     /**

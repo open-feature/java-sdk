@@ -274,7 +274,7 @@ public class Value implements Cloneable {
             return new Value(copy);
         }
         if (this.isStructure()) {
-            return new Value(new ImmutableStructure(this.asStructure().asMap()));
+            return new Value(new ImmutableStructure(this.asStructure().asUnmodifiableMap()));
         }
         if (this.isInstant()) {
             Instant copy = Instant.ofEpochMilli(this.asInstant().toEpochMilli());
