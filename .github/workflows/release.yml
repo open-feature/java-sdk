@@ -28,7 +28,7 @@ jobs:
       # These steps are only run if this was a merged release-please PR
       - name: checkout
         if: ${{ steps.release.outputs.release_created }}
-        uses: actions/checkout@3b9b8c884f6b4bb4d5be2779c26374abadae0871
+        uses: actions/checkout@cbb722410c2e876e24abbe8de2cc27693e501dcb
       - name: Set up JDK 8
         if: ${{ steps.release.outputs.release_created }}
         uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b
