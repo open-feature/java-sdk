@@ -71,4 +71,14 @@ public interface FeatureProvider {
         return ProviderState.READY;
     }
 
+    /**
+     * Feature provider implementations can opt in for to support Tracking by implementing this method.
+     *
+     * @param eventName The name of the tracking event
+     * @param context   Evaluation context used in flag evaluation (Optional)
+     * @param details   Data pertinent to a particular tracking event (Optional)
+     */
+    default void track(String eventName, EvaluationContext context, TrackingEventDetails details) {
+
+    }
 }

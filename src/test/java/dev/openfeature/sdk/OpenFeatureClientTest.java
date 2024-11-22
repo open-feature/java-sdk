@@ -5,8 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.*;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -78,6 +77,7 @@ class OpenFeatureClientTest implements HookFixtures {
         OpenFeatureClient result = client.setEvaluationContext(ctx);
         assertEquals(client, result);
     }
+
 
     @Test
     @DisplayName("Should not call evaluation methods when the provider has state FATAL")
