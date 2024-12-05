@@ -23,7 +23,7 @@ If you're adding tests to cover something in the spec, use the `@Specification` 
 
 ## End-to-End Tests
 
-The continuous integration runs a set of [gherkin e2e tests](https://github.com/open-feature/test-harness/blob/main/features/evaluation.feature) using `InMemoryProvider`.
+The continuous integration runs a set of [gherkin e2e tests](https://github.com/open-feature/spec/blob/main/specification/assets/gherkin/evaluation.feature) using `InMemoryProvider`.
 
 to run alone:
 ```
