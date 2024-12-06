@@ -20,12 +20,12 @@ jobs:
           cache: maven
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@f8e782af5670be7b12c0acb5b25c1c5703b931b9
+        uses: github/codeql-action/init@3096afedf9873361b2b2f65e1445b13272c83eb8
         with:
           languages: java
 
       - name: Cache local Maven repository
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -36,7 +36,7 @@ jobs:
         run: mvn --batch-mode --update-snapshots --activate-profiles e2e verify
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5.0.7
+        uses: codecov/codecov-action@v5.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
           flags: unittests # optional
@@ -45,4 +45,4 @@ jobs:
           verbose: true # optional (default = false)
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@f8e782af5670be7b12c0acb5b25c1c5703b931b9
+        uses: github/codeql-action/analyze@3096afedf9873361b2b2f65e1445b13272c83eb8
