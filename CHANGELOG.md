@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.1](https://github.com/open-feature/java-sdk/compare/v1.13.0...v1.13.1) (2024-12-10)
+
+
+### 🧹 Chore
+
+* **deps:** update github/codeql-action digest to 8975792 ([#1241](https://github.com/open-feature/java-sdk/issues/1241)) ([b0abfd0](https://github.com/open-feature/java-sdk/commit/b0abfd02cf9e97f7409df3296818ac990b429058))
+
 ## [1.13.0](https://github.com/open-feature/java-sdk/compare/v1.12.2...v1.13.0) (2024-12-07)
 
 
