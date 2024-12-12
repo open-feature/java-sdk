@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.13.1](https://github.com/open-feature/java-sdk/compare/v1.13.0...v1.13.1) (2024-12-12)
+
+
+### 🧹 Chore
+
+* **deps:** update actions/setup-java digest to 7136edc ([#1244](https://github.com/open-feature/java-sdk/issues/1244)) ([9acc861](https://github.com/open-feature/java-sdk/commit/9acc8612a5fa7ea086da476195154a007cb55b7e))
+* **deps:** update github/codeql-action digest to 4d64ab6 ([#1243](https://github.com/open-feature/java-sdk/issues/1243)) ([884f8fb](https://github.com/open-feature/java-sdk/commit/884f8fbf77c41e070526da0f73e136d4c3e41a4d))
+* **deps:** update github/codeql-action digest to 78d0136 ([#1245](https://github.com/open-feature/java-sdk/issues/1245)) ([fd1c170](https://github.com/open-feature/java-sdk/commit/fd1c1702c6d4067c432c1522143266ddf470d18d))
+* **deps:** update github/codeql-action digest to 8975792 ([#1241](https://github.com/open-feature/java-sdk/issues/1241)) ([b0abfd0](https://github.com/open-feature/java-sdk/commit/b0abfd02cf9e97f7409df3296818ac990b429058))
+
 ## [1.13.0](https://github.com/open-feature/java-sdk/compare/v1.12.2...v1.13.0) (2024-12-07)
 
 
