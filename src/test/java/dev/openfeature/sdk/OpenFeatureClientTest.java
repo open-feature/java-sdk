@@ -1,15 +1,8 @@
 package dev.openfeature.sdk;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import dev.openfeature.sdk.exceptions.FatalError;
+import dev.openfeature.sdk.fixtures.HookFixtures;
+import dev.openfeature.sdk.testutils.TestEventsProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,9 +11,15 @@ import org.mockito.Mockito;
 import org.simplify4u.slf4jmock.LoggerMock;
 import org.slf4j.Logger;
 
-import dev.openfeature.sdk.exceptions.FatalError;
-import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.testutils.TestEventsProvider;
+import java.util.HashMap;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 
 class OpenFeatureClientTest implements HookFixtures {
 
@@ -101,58 +100,5 @@ class OpenFeatureClientTest implements HookFixtures {
         FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);
 
         assertThat(details.getErrorCode()).isEqualTo(ErrorCode.PROVIDER_NOT_READY);
-    }
-
-    private static class MockProvider implements FeatureProvider {
-        private final AtomicBoolean evaluationCalled = new AtomicBoolean();
-        private final ProviderState providerState;
-
-        public MockProvider(ProviderState providerState) {
-            this.providerState = providerState;
-        }
-
-        public boolean isEvaluationCalled() {
-            return evaluationCalled.get();
-        }
-
-        @Override
-        public ProviderState getState() {
-            return providerState;
-        }
-
-        @Override
-        public Metadata getMetadata() {
-            return null;
-        }
-
-        @Override
-        public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
-            evaluationCalled.set(true);
-            return null;
-        }
-
-        @Override
-        public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
-            evaluationCalled.set(true);
-            return null;
-        }
-
-        @Override
-        public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
-            evaluationCalled.set(true);
-            return null;
-        }
-
-        @Override
-        public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
-            evaluationCalled.set(true);
-            return null;
-        }
-
-        @Override
-        public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
-            evaluationCalled.set(true);
-            return null;
-        }
     }
 }

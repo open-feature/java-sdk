@@ -51,12 +51,12 @@ class HookSupportTest implements HookFixtures {
 
         hookSupport.beforeHooks(flagValueType, hookContext, Collections.singletonList(genericHook), Collections.emptyMap());
         hookSupport.afterHooks(flagValueType, hookContext, FlagEvaluationDetails.builder().build(), Collections.singletonList(genericHook), Collections.emptyMap());
-        hookSupport.afterAllHooks(flagValueType, hookContext, Collections.singletonList(genericHook), Collections.emptyMap());
+        hookSupport.afterAllHooks(flagValueType, hookContext, FlagEvaluationDetails.builder().build(), Collections.singletonList(genericHook), Collections.emptyMap());
         hookSupport.errorHooks(flagValueType, hookContext, expectedException, Collections.singletonList(genericHook), Collections.emptyMap());
 
         verify(genericHook).before(any(), any());
         verify(genericHook).after(any(), any(), any());
-        verify(genericHook).finallyAfter(any(), any());
+        verify(genericHook).finallyAfter(any(), any(), any());
         verify(genericHook).error(any(), any(), any());
     }
 
