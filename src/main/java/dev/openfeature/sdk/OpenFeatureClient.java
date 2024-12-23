@@ -218,7 +218,7 @@ public class OpenFeatureClient implements Client {
             enrichDetailsWithErrorDefaults(defaultValue, details);
             hookSupport.errorHooks(type, afterHookContext, e, mergedHooks, hints);
         } finally {
-            hookSupport.afterAllHooks(type, afterHookContext, mergedHooks, hints);
+            hookSupport.afterAllHooks(type, afterHookContext, details, mergedHooks, hints);
         }
 
         return details;
