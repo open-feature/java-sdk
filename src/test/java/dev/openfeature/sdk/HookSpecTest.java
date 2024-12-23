@@ -655,16 +655,6 @@ class HookSpecTest implements HookFixtures {
         return api.getClient();
     }
 
-    private Client getClient(String domain, FeatureProvider provider) {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        if (provider == null) {
-            FeatureProviderTestUtils.setFeatureProvider(domain, TestEventsProvider.newInitializedTestEventsProvider());
-        } else {
-            FeatureProviderTestUtils.setFeatureProvider(domain, provider);
-        }
-        return api.getClient(domain);
-    }
-
     @Specification(number = "4.3.1", text = "Hooks MUST specify at least one stage.")
     @Test
     void default_methods_so_impossible() {
