@@ -1,6 +1,13 @@
 package dev.openfeature.sdk.testutils;
 
-import dev.openfeature.sdk.*;
+import dev.openfeature.sdk.EvaluationContext;
+import dev.openfeature.sdk.EventProvider;
+import dev.openfeature.sdk.Metadata;
+import dev.openfeature.sdk.ProviderEvaluation;
+import dev.openfeature.sdk.ProviderEvent;
+import dev.openfeature.sdk.ProviderEventDetails;
+import dev.openfeature.sdk.Reason;
+import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import lombok.SneakyThrows;
