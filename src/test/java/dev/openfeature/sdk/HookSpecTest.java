@@ -504,7 +504,7 @@ class HookSpecTest implements HookFixtures {
         assertThat(evaluationDetails.getVariant()).isEqualTo("Passed in default");
         assertThat(evaluationDetails.getFlagKey()).isEqualTo(flagKey);
         assertThat(evaluationDetails.getFlagMetadata()).isEqualTo(ImmutableMetadata.builder().build());
-        assertThat(evaluationDetails.getValue()).isEqualTo(true);
+        assertThat(evaluationDetails.getValue()).isTrue();
     }
 
     @Test
@@ -529,7 +529,7 @@ class HookSpecTest implements HookFixtures {
         assertThat(evaluationDetails.getVariant()).isEqualTo("Passed in default");
         assertThat(evaluationDetails.getFlagKey()).isEqualTo(flagKey);
         assertThat(evaluationDetails.getFlagMetadata()).isEqualTo(ImmutableMetadata.builder().build());
-        assertThat(evaluationDetails.getValue()).isEqualTo(true);
+        assertThat(evaluationDetails.getValue()).isTrue();
     }
 
     @Test
