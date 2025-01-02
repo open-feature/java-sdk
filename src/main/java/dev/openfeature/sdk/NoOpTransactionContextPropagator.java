@@ -7,6 +7,7 @@ public class NoOpTransactionContextPropagator implements TransactionContextPropa
 
     /**
      * {@inheritDoc}
+     *
      * @return empty immutable context
      */
     @Override
@@ -18,7 +19,5 @@ public class NoOpTransactionContextPropagator implements TransactionContextPropa
      * {@inheritDoc}
      */
     @Override
-    public void setTransactionContext(EvaluationContext evaluationContext) {
-
-    }
+    public void setTransactionContext(EvaluationContext evaluationContext) {}
 }

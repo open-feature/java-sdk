@@ -20,6 +20,7 @@ public class ProviderEvaluation<T> implements BaseEvaluation<T> {
     private String reason;
     ErrorCode errorCode;
     private String errorMessage;
+
     @Builder.Default
     private ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
 }

@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * Like {@link java.util.function.BiConsumer} but with 3 params.
- * 
+ *
  * @see java.util.function.BiConsumer
  */
 @FunctionalInterface

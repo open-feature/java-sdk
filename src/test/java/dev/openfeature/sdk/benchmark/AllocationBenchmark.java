@@ -6,17 +6,6 @@ import static dev.openfeature.sdk.testutils.TestFlagsUtils.INT_FLAG_KEY;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.OBJECT_FLAG_KEY;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.STRING_FLAG_KEY;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Optional;
-
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.Warmup;
-
 import dev.openfeature.sdk.Client;
 import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.Hook;
@@ -26,6 +15,13 @@ import dev.openfeature.sdk.ImmutableStructure;
 import dev.openfeature.sdk.NoOpProvider;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.Value;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Mode;
 
 /**
  * Runs a large volume of flag evaluations on a VM with 1G memory and GC
@@ -38,7 +34,7 @@ public class AllocationBenchmark {
 
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
-    @Fork(jvmArgsAppend = { "-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC" })
+    @Fork(jvmArgsAppend = {"-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
     public void run() {
 
         OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
@@ -50,7 +46,7 @@ public class AllocationBenchmark {
         Client client = OpenFeatureAPI.getInstance().getClient();
 
         Map<String, Value> clientAttrs = new HashMap<>();
-        clientAttrs.put("client",  new Value(2)); 
+        clientAttrs.put("client", new Value(2));
         client.setEvaluationContext(new ImmutableContext(clientAttrs));
         client.addHooks(new Hook<Object>() {
             @Override
@@ -60,7 +56,7 @@ public class AllocationBenchmark {
         });
 
         Map<String, Value> invocationAttrs = new HashMap<>();
-        invocationAttrs.put("invoke",  new Value(3)); 
+        invocationAttrs.put("invoke", new Value(3));
         EvaluationContext invocationContext = new ImmutableContext(invocationAttrs);
 
         for (int i = 0; i < ITERATIONS; i++) {

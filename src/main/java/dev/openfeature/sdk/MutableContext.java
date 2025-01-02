@@ -1,11 +1,11 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Delegate;
@@ -96,7 +96,6 @@ public class MutableContext implements EvaluationContext {
         return this;
     }
 
-
     /**
      * Retrieve targetingKey from the context.
      */
@@ -122,8 +121,7 @@ public class MutableContext implements EvaluationContext {
         }
 
         Map<String, Value> attributes = this.asMap();
-        EvaluationContext.mergeMaps(
-                MutableStructure::new, attributes, overridingContext.asUnmodifiableMap());
+        EvaluationContext.mergeMaps(MutableStructure::new, attributes, overridingContext.asUnmodifiableMap());
         return new MutableContext(attributes);
     }
 
@@ -134,7 +132,8 @@ public class MutableContext implements EvaluationContext {
     private static class DelegateExclusions {
 
         @ExcludeFromGeneratedCoverageReport
-        public <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure,
+        public <T extends Structure> Map<String, Value> merge(
+                Function<Map<String, Value>, Structure> newStructure,
                 Map<String, Value> base,
                 Map<String, Value> overriding) {
 

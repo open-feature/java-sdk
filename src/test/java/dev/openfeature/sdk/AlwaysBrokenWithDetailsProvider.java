@@ -44,7 +44,8 @@ public class AlwaysBrokenWithDetailsProvider implements FeatureProvider {
     }
 
     @Override
-    public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext invocationContext) {
+    public ProviderEvaluation<Value> getObjectEvaluation(
+            String key, Value defaultValue, EvaluationContext invocationContext) {
         return ProviderEvaluation.<Value>builder()
                 .errorMessage(TestConstants.BROKEN_MESSAGE)
                 .errorCode(ErrorCode.FLAG_NOT_FOUND)

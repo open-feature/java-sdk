@@ -1,7 +1,5 @@
 package dev.openfeature.sdk;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Util class for storing and running handlers.
@@ -35,74 +34,68 @@ class EventSupport {
     /**
      * Run all the event handlers associated with this domain.
      * If the domain is null, handlers attached to unnamed clients will run.
-     * 
+     *
      * @param domain       the domain to run event handlers for, or null
      * @param event        the event type
      * @param eventDetails the event details
      */
     public void runClientHandlers(String domain, ProviderEvent event, EventDetails eventDetails) {
-        domain = Optional.ofNullable(domain)
-                .orElse(defaultClientUuid);
+        domain = Optional.ofNullable(domain).orElse(defaultClientUuid);
 
         // run handlers if they exist
         Optional.ofNullable(handlerStores.get(domain))
                 .filter(store -> Optional.of(store).isPresent())
                 .map(store -> store.handlerMap.get(event))
-                .ifPresent(handlers -> handlers
-                        .forEach(handler -> runHandler(handler, eventDetails)));
+                .ifPresent(handlers -> handlers.forEach(handler -> runHandler(handler, eventDetails)));
     }
 
     /**
      * Run all the API (global) event handlers.
-     * 
+     *
      * @param event        the event type
      * @param eventDetails the event details
      */
     public void runGlobalHandlers(ProviderEvent event, EventDetails eventDetails) {
-        globalHandlerStore.handlerMap.get(event)
-                .forEach(handler -> {
-                    runHandler(handler, eventDetails);
-                });
+        globalHandlerStore.handlerMap.get(event).forEach(handler -> {
+            runHandler(handler, eventDetails);
+        });
     }
 
     /**
      * Add a handler for the specified domain, or all unnamed clients.
-     * 
-     * @param domain     the domain to add handlers for, or else unnamed
-     * @param event      the event type
-     * @param handler    the handler function to run
+     *
+     * @param domain  the domain to add handlers for, or else unnamed
+     * @param event   the event type
+     * @param handler the handler function to run
      */
     public void addClientHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
-        final String name = Optional.ofNullable(domain)
-                .orElse(defaultClientUuid);
+        final String name = Optional.ofNullable(domain).orElse(defaultClientUuid);
 
         // lazily create and cache a HandlerStore if it doesn't exist
-        HandlerStore store = Optional.ofNullable(this.handlerStores.get(name))
-                .orElseGet(() -> {
-                    HandlerStore newStore = new HandlerStore();
-                    this.handlerStores.put(name, newStore);
-                    return newStore;
-                });
+        HandlerStore store = Optional.ofNullable(this.handlerStores.get(name)).orElseGet(() -> {
+            HandlerStore newStore = new HandlerStore();
+            this.handlerStores.put(name, newStore);
+            return newStore;
+        });
         store.addHandler(event, handler);
     }
 
     /**
      * Remove a client event handler for the specified event type.
-     * 
-     * @param domain     the domain of the client handler to remove, or null to remove
-     *                   from unnamed clients
-     * @param event      the event type
-     * @param handler    the handler ref to be removed
+     *
+     * @param domain  the domain of the client handler to remove, or null to remove
+     *                from unnamed clients
+     * @param event   the event type
+     * @param handler the handler ref to be removed
      */
     public void removeClientHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
-        domain = Optional.ofNullable(domain)
-                .orElse(defaultClientUuid);
+        domain = Optional.ofNullable(domain).orElse(defaultClientUuid);
         this.handlerStores.get(domain).removeHandler(event, handler);
     }
 
     /**
      * Add a global event handler of the specified event type.
-     * 
+     *
      * @param event   the event type
      * @param handler the handler to be added
      */
@@ -112,7 +105,7 @@ class EventSupport {
 
     /**
      * Remove a global event handler for the specified event type.
-     * 
+     *
      * @param event   the event type
      * @param handler the handler ref to be removed
      */
@@ -122,7 +115,7 @@ class EventSupport {
 
     /**
      * Get all domain names for which we have event handlers registered.
-     * 
+     *
      * @return set of domain names
      */
     public Set<String> getAllDomainNames() {
@@ -131,7 +124,7 @@ class EventSupport {
 
     /**
      * Run the passed handler on the taskExecutor.
-     * 
+     *
      * @param handler      the handler to run
      * @param eventDetails the event details
      */

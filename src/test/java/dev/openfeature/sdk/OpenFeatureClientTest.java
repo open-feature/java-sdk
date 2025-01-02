@@ -7,9 +7,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+import dev.openfeature.sdk.exceptions.FatalError;
+import dev.openfeature.sdk.fixtures.HookFixtures;
+import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,10 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.simplify4u.slf4jmock.LoggerMock;
 import org.slf4j.Logger;
-
-import dev.openfeature.sdk.exceptions.FatalError;
-import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.testutils.TestEventsProvider;
 
 class OpenFeatureClientTest implements HookFixtures {
 
@@ -41,13 +39,15 @@ class OpenFeatureClientTest implements HookFixtures {
     @DisplayName("should not throw exception if hook has different type argument than hookContext")
     void shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext() {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        api.setProviderAndWait("shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext", new DoSomethingProvider());
+        api.setProviderAndWait(
+                "shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext", new DoSomethingProvider());
         Client client = api.getClient("shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext");
         client.addHooks(mockBooleanHook(), mockStringHook());
         FlagEvaluationDetails<Boolean> actual = client.getBooleanDetails("feature key", Boolean.FALSE);
 
         assertThat(actual.getValue()).isTrue();
-        // I dislike this, but given the mocking tools available, there's no way that I know of to say "no errors were logged"
+        // I dislike this, but given the mocking tools available, there's no way that I know of to say "no errors were
+        // logged"
         Mockito.verify(logger, never()).error(any());
         Mockito.verify(logger, never()).error(anyString(), any(Throwable.class));
         Mockito.verify(logger, never()).error(anyString(), any(Object.class));
@@ -78,7 +78,6 @@ class OpenFeatureClientTest implements HookFixtures {
         assertEquals(client, result);
     }
 
-
     @Test
     @DisplayName("Should not call evaluation methods when the provider has state FATAL")
     void shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState() {
@@ -86,7 +85,10 @@ class OpenFeatureClientTest implements HookFixtures {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         Client client = api.getClient("shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState");
 
-        assertThrows(FatalError.class, () -> api.setProviderAndWait("shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState", provider));
+        assertThrows(
+                FatalError.class,
+                () -> api.setProviderAndWait(
+                        "shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState", provider));
         FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);
         assertThat(details.getErrorCode()).isEqualTo(ErrorCode.PROVIDER_FATAL);
     }
@@ -126,7 +128,8 @@ class OpenFeatureClientTest implements HookFixtures {
         }
 
         @Override
-        public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
+        public ProviderEvaluation<Boolean> getBooleanEvaluation(
+                String key, Boolean defaultValue, EvaluationContext ctx) {
             evaluationCalled.set(true);
             return null;
         }
@@ -138,7 +141,8 @@ class OpenFeatureClientTest implements HookFixtures {
         }
 
         @Override
-        public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
+        public ProviderEvaluation<Integer> getIntegerEvaluation(
+                String key, Integer defaultValue, EvaluationContext ctx) {
             evaluationCalled.set(true);
             return null;
         }

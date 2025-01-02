@@ -32,7 +32,8 @@ public class AlwaysBrokenProvider implements FeatureProvider {
     }
 
     @Override
-    public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext invocationContext) {
+    public ProviderEvaluation<Value> getObjectEvaluation(
+            String key, Value defaultValue, EvaluationContext invocationContext) {
         throw new FlagNotFoundError(TestConstants.BROKEN_MESSAGE);
     }
 }

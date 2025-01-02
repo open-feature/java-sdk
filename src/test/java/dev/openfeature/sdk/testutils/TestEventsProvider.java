@@ -1,6 +1,13 @@
 package dev.openfeature.sdk.testutils;
 
-import dev.openfeature.sdk.*;
+import dev.openfeature.sdk.EvaluationContext;
+import dev.openfeature.sdk.EventProvider;
+import dev.openfeature.sdk.Metadata;
+import dev.openfeature.sdk.ProviderEvaluation;
+import dev.openfeature.sdk.ProviderEvent;
+import dev.openfeature.sdk.ProviderEventDetails;
+import dev.openfeature.sdk.Reason;
+import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import lombok.SneakyThrows;
@@ -16,8 +23,7 @@ public class TestEventsProvider extends EventProvider {
     private Metadata metadata = () -> name;
     private boolean isFatalInitError = false;
 
-    public TestEventsProvider() {
-    }
+    public TestEventsProvider() {}
 
     public TestEventsProvider(int initTimeoutMs) {
         this.initTimeoutMs = initTimeoutMs;
@@ -110,8 +116,8 @@ public class TestEventsProvider extends EventProvider {
     }
 
     @Override
-    public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue,
-                                                         EvaluationContext invocationContext) {
+    public ProviderEvaluation<Value> getObjectEvaluation(
+            String key, Value defaultValue, EvaluationContext invocationContext) {
         return ProviderEvaluation.<Value>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)

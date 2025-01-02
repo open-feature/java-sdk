@@ -2,7 +2,6 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.internal.TriConsumer;
 
-
 /**
  * Abstract EventProvider. Providers must extend this class to support events.
  * Emit events with {@link #emit(ProviderEvent, ProviderEventDetails)}. Please

@@ -1,23 +1,23 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.exceptions.ValueNotConvertableError;
+import static dev.openfeature.sdk.Value.objectToValue;
 
+import dev.openfeature.sdk.exceptions.ValueNotConvertableError;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static dev.openfeature.sdk.Value.objectToValue;
-
 /**
- * {@link Structure} represents a potentially nested object type which is used to represent 
+ * {@link Structure} represents a potentially nested object type which is used to represent
  * structured data.
  */
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public interface Structure {
-    
+
     /**
      * Boolean indicating if this structure is empty.
+     *
      * @return boolean for emptiness
      */
     boolean isEmpty();
@@ -50,7 +50,6 @@ public interface Structure {
      * @return all attributes on the structure into a Map
      */
     Map<String, Value> asUnmodifiableMap();
-
 
     /**
      * Get all values, with as a map of Object.
@@ -93,20 +92,15 @@ public interface Structure {
         }
 
         if (value.isList()) {
-            return value.asList()
-                    .stream()
-                    .map(this::convertValue)
-                    .collect(Collectors.toList());
+            return value.asList().stream().map(this::convertValue).collect(Collectors.toList());
         }
 
         if (value.isStructure()) {
             Structure s = value.asStructure();
-            return s.asUnmodifiableMap()
-                    .entrySet()
-                    .stream()
-                    .collect(HashMap::new,
-                            (accumulated, entry) -> accumulated.put(entry.getKey(),
-                                    convertValue(entry.getValue())),
+            return s.asUnmodifiableMap().entrySet().stream()
+                    .collect(
+                            HashMap::new,
+                            (accumulated, entry) -> accumulated.put(entry.getKey(), convertValue(entry.getValue())),
                             HashMap::putAll);
         }
 
@@ -121,9 +115,9 @@ public interface Structure {
      */
     static Structure mapToStructure(Map<String, Object> map) {
         return new MutableStructure(map.entrySet().stream()
-            .collect(HashMap::new,
-                        (accumulated, entry) -> accumulated.put(entry.getKey(),
-                        objectToValue(entry.getValue())),
+                .collect(
+                        HashMap::new,
+                        (accumulated, entry) -> accumulated.put(entry.getKey(), objectToValue(entry.getValue())),
                         HashMap::putAll));
     }
 }

@@ -28,12 +28,13 @@ public interface EvaluationContext extends Structure {
      * Recursively merges the overriding map into the base Value map.
      * The base map is mutated, the overriding map is not.
      * Null maps will cause no-op.
-     * 
+     *
      * @param newStructure function to create the right structure(s) for Values
-     * @param base base map to merge
-     * @param overriding overriding map to merge
+     * @param base         base map to merge
+     * @param overriding   overriding map to merge
      */
-    static void mergeMaps(Function<Map<String, Value>, Structure> newStructure,
+    static void mergeMaps(
+            Function<Map<String, Value>, Structure> newStructure,
             Map<String, Value> base,
             Map<String, Value> overriding) {
 
@@ -46,12 +47,13 @@ public interface EvaluationContext extends Structure {
 
         for (Entry<String, Value> overridingEntry : overriding.entrySet()) {
             String key = overridingEntry.getKey();
-            if (overridingEntry.getValue().isStructure() && base.containsKey(key) && base.get(key).isStructure()) {
+            if (overridingEntry.getValue().isStructure()
+                    && base.containsKey(key)
+                    && base.get(key).isStructure()) {
                 Structure mergedValue = base.get(key).asStructure();
                 Structure overridingValue = overridingEntry.getValue().asStructure();
                 Map<String, Value> newMap = mergedValue.asMap();
-                mergeMaps(newStructure, newMap,
-                        overridingValue.asUnmodifiableMap());
+                mergeMaps(newStructure, newMap, overridingValue.asUnmodifiableMap());
                 base.put(key, new Value(newStructure.apply(newMap)));
             } else {
                 base.put(key, overridingEntry.getValue());

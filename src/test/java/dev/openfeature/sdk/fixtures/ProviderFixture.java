@@ -7,15 +7,13 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
-import java.io.FileNotFoundException;
-import java.util.concurrent.CountDownLatch;
-
-import org.mockito.stubbing.Answer;
-
 import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.ProviderState;
+import java.io.FileNotFoundException;
+import java.util.concurrent.CountDownLatch;
 import lombok.experimental.UtilityClass;
+import org.mockito.stubbing.Answer;
 
 @UtilityClass
 public class ProviderFixture {
@@ -56,11 +54,12 @@ public class ProviderFixture {
     public static FeatureProvider createUnblockingProvider(CountDownLatch latch) throws Exception {
         FeatureProvider provider = createMockedProvider();
         doAnswer(invocation -> {
-            latch.countDown();
-            return null;
-        }).when(provider).initialize(new ImmutableContext());
+                    latch.countDown();
+                    return null;
+                })
+                .when(provider)
+                .initialize(new ImmutableContext());
         doReturn("unblockingProvider").when(provider).toString();
         return provider;
     }
-
 }

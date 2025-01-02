@@ -1,16 +1,15 @@
 package dev.openfeature.sdk;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import static dev.openfeature.sdk.EvaluationContext.TARGETING_KEY;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class MutableContextTest {
 
@@ -23,7 +22,8 @@ class MutableContextTest {
         // should check the usage of Map.of() which is a more likely use case, but that API isn't available in Java 8
         EvaluationContext ctx = new MutableContext("targeting key", Collections.unmodifiableMap(attributes));
         attributes.put("key3", new Value("val3"));
-        assertArrayEquals(new Object[]{"key1", "key2", TARGETING_KEY}, ctx.keySet().toArray());
+        assertArrayEquals(
+                new Object[] {"key1", "key2", TARGETING_KEY}, ctx.keySet().toArray());
     }
 
     @DisplayName("targeting key should be changed from the overriding context")
@@ -49,6 +49,7 @@ class MutableContextTest {
         EvaluationContext merge = ctx.merge(overriding);
         assertEquals("targeting_key", merge.getTargetingKey());
     }
+
     @DisplayName("missing targeting key should return null")
     @Test
     void missingTargetingKeyShould() {
@@ -65,10 +66,12 @@ class MutableContextTest {
         EvaluationContext ctx = new MutableContext("targeting_key", attributes);
         EvaluationContext merge = ctx.merge(null);
         assertEquals("targeting_key", merge.getTargetingKey());
-        assertArrayEquals(new Object[]{"key1", "key2", TARGETING_KEY}, merge.keySet().toArray());
+        assertArrayEquals(
+                new Object[] {"key1", "key2", TARGETING_KEY}, merge.keySet().toArray());
     }
 
-    @DisplayName("Merge should retain subkeys from the existing context when the overriding context has the same targeting key")
+    @DisplayName(
+            "Merge should retain subkeys from the existing context when the overriding context has the same targeting key")
     @Test
     void mergeShouldRetainItsSubkeysWhenOverridingContextHasTheSameKey() {
         HashMap<String, Value> attributes = new HashMap<>();
@@ -81,21 +84,24 @@ class MutableContextTest {
         attributes.put("key2", new Value("val2"));
         ovKey1Attributes.put("overriding_key1_1", new Value("overriding_val_1_1"));
         overridingAttributes.put("key1", new Value(new ImmutableStructure(ovKey1Attributes)));
-        
+
         EvaluationContext ctx = new MutableContext("targeting_key", attributes);
         EvaluationContext overriding = new MutableContext("targeting_key", overridingAttributes);
         EvaluationContext merge = ctx.merge(overriding);
         assertEquals("targeting_key", merge.getTargetingKey());
-        assertArrayEquals(new Object[]{"key1", "key2", TARGETING_KEY}, merge.keySet().toArray());
-        
+        assertArrayEquals(
+                new Object[] {"key1", "key2", TARGETING_KEY}, merge.keySet().toArray());
+
         Value key1 = merge.getValue("key1");
         assertTrue(key1.isStructure());
-        
+
         Structure value = key1.asStructure();
-        assertArrayEquals(new Object[]{"key1_1","overriding_key1_1"}, value.keySet().toArray());
+        assertArrayEquals(
+                new Object[] {"key1_1", "overriding_key1_1"}, value.keySet().toArray());
     }
-    
-    @DisplayName("Merge should retain subkeys from the existing context when the overriding context doesn't have targeting key")
+
+    @DisplayName(
+            "Merge should retain subkeys from the existing context when the overriding context doesn't have targeting key")
     @Test
     void mergeShouldRetainItsSubkeysWhenOverridingContextHasNoTargetingKey() {
         HashMap<String, Value> attributes = new HashMap<>();
@@ -104,17 +110,17 @@ class MutableContextTest {
         key1Attributes.put("key1_1", new Value("val1_1"));
         attributes.put("key1", new Value(new ImmutableStructure(key1Attributes)));
         attributes.put("key2", new Value("val2"));
-        
+
         EvaluationContext ctx = new MutableContext(attributes);
         EvaluationContext overriding = new MutableContext();
         EvaluationContext merge = ctx.merge(overriding);
-        assertArrayEquals(new Object[]{"key1", "key2"}, merge.keySet().toArray());
-        
+        assertArrayEquals(new Object[] {"key1", "key2"}, merge.keySet().toArray());
+
         Value key1 = merge.getValue("key1");
         assertTrue(key1.isStructure());
-        
+
         Structure value = key1.asStructure();
-        assertArrayEquals(new Object[]{"key1_1"}, value.keySet().toArray());
+        assertArrayEquals(new Object[] {"key1_1"}, value.keySet().toArray());
     }
 
     @DisplayName("Ensure mutations are chainable")
@@ -129,6 +135,6 @@ class MutableContextTest {
         assertEquals("TARGETING_KEY", context.getTargetingKey());
         assertEquals("val1", context.getValue("key1").asString());
         assertEquals(2, context.getValue("key2").asInteger());
-        assertEquals(3.0, context.getValue("key3").asDouble());        
+        assertEquals(3.0, context.getValue("key3").asDouble());
     }
 }

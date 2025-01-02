@@ -11,6 +11,6 @@ import lombok.experimental.StandardException;
 public class TargetingKeyMissingError extends OpenFeatureError {
     private static final long serialVersionUID = 1L;
 
-    @Getter private final ErrorCode errorCode = ErrorCode.TARGETING_KEY_MISSING;
-
+    @Getter
+    private final ErrorCode errorCode = ErrorCode.TARGETING_KEY_MISSING;
 }

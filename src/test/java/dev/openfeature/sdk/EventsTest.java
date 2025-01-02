@@ -1,22 +1,21 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.testutils.TestEventsProvider;
-import io.cucumber.java.AfterAll;
-import lombok.SneakyThrows;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatcher;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Consumer;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
+
+import dev.openfeature.sdk.testutils.TestEventsProvider;
+import io.cucumber.java.AfterAll;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatcher;
 
 class EventsTest {
 
@@ -41,8 +40,10 @@ class EventsTest {
 
                 @Test
                 @DisplayName("should fire initial READY event when provider init succeeds")
-                @Specification(number = "5.3.1", text = "If the provider's initialize function terminates normally," +
-                        " PROVIDER_READY handlers MUST run.")
+                @Specification(
+                        number = "5.3.1",
+                        text = "If the provider's initialize function terminates normally,"
+                                + " PROVIDER_READY handlers MUST run.")
                 void apiInitReady() {
                     final Consumer<EventDetails> handler = mockHandler();
                     final String name = "apiInitReady";
@@ -50,14 +51,15 @@ class EventsTest {
                     TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
                     OpenFeatureAPI.getInstance().onProviderReady(handler);
                     OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
-                    verify(handler, timeout(TIMEOUT).atLeastOnce())
-                            .accept(any());
+                    verify(handler, timeout(TIMEOUT).atLeastOnce()).accept(any());
                 }
 
                 @Test
                 @DisplayName("should fire initial ERROR event when provider init errors")
-                @Specification(number = "5.3.2", text = "If the provider's initialize function terminates abnormally," +
-                        " PROVIDER_ERROR handlers MUST run.")
+                @Specification(
+                        number = "5.3.2",
+                        text = "If the provider's initialize function terminates abnormally,"
+                                + " PROVIDER_ERROR handlers MUST run.")
                 void apiInitError() {
                     final Consumer<EventDetails> handler = mockHandler();
                     final String name = "apiInitError";
@@ -78,9 +80,10 @@ class EventsTest {
 
                 @Test
                 @DisplayName("should propagate events")
-                @Specification(number = "5.1.2", text = "When a provider signals the occurrence of a particular event, "
-                        +
-                        "the associated client and API event handlers MUST run.")
+                @Specification(
+                        number = "5.1.2",
+                        text = "When a provider signals the occurrence of a particular event, "
+                                + "the associated client and API event handlers MUST run.")
                 void apiShouldPropagateEvents() {
                     final Consumer<EventDetails> handler = mockHandler();
                     final String name = "apiShouldPropagateEvents";
@@ -89,18 +92,24 @@ class EventsTest {
                     OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
                     OpenFeatureAPI.getInstance().onProviderConfigurationChanged(handler);
 
-                    provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, EventDetails.builder().build());
+                    provider.mockEvent(
+                            ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
+                            EventDetails.builder().build());
                     verify(handler, timeout(TIMEOUT)).accept(any());
                 }
 
                 @Test
                 @DisplayName("should support all event types")
-                @Specification(number = "5.1.1", text = "The provider MAY define a mechanism for signaling the occurrence "
-                        + "of one of a set of events, including PROVIDER_READY, PROVIDER_ERROR, "
-                        + "PROVIDER_CONFIGURATION_CHANGED and PROVIDER_STALE, with a provider event details payload.")
-                @Specification(number = "5.2.2", text = "The API MUST provide a function for associating handler functions"
-                        +
-                        " with a particular provider event type.")
+                @Specification(
+                        number = "5.1.1",
+                        text =
+                                "The provider MAY define a mechanism for signaling the occurrence "
+                                        + "of one of a set of events, including PROVIDER_READY, PROVIDER_ERROR, "
+                                        + "PROVIDER_CONFIGURATION_CHANGED and PROVIDER_STALE, with a provider event details payload.")
+                @Specification(
+                        number = "5.2.2",
+                        text = "The API MUST provide a function for associating handler functions"
+                                + " with a particular provider event type.")
                 void apiShouldSupportAllEventTypes() {
                     final String name = "apiShouldSupportAllEventTypes";
                     final Consumer<EventDetails> handler1 = mockHandler();
@@ -117,7 +126,8 @@ class EventsTest {
                     OpenFeatureAPI.getInstance().onProviderError(handler4);
 
                     Arrays.asList(ProviderEvent.values()).stream().forEach(eventType -> {
-                        provider.mockEvent(eventType, ProviderEventDetails.builder().build());
+                        provider.mockEvent(
+                                eventType, ProviderEventDetails.builder().build());
                     });
 
                     verify(handler1, timeout(TIMEOUT).atLeastOnce()).accept(any());
@@ -143,7 +153,10 @@ class EventsTest {
 
                 @Test
                 @DisplayName("should propagate events for default provider and anonymous client")
-                @Specification(number = "5.1.2", text = "When a provider signals the occurrence of a particular event, the associated client and API event handlers MUST run.")
+                @Specification(
+                        number = "5.1.2",
+                        text =
+                                "When a provider signals the occurrence of a particular event, the associated client and API event handlers MUST run.")
                 void shouldPropagateDefaultAndAnon() {
                     final Consumer<EventDetails> handler = mockHandler();
 
@@ -153,13 +166,17 @@ class EventsTest {
                     Client client = OpenFeatureAPI.getInstance().getClient();
                     client.onProviderStale(handler);
 
-                    provider.mockEvent(ProviderEvent.PROVIDER_STALE, EventDetails.builder().build());
+                    provider.mockEvent(
+                            ProviderEvent.PROVIDER_STALE, EventDetails.builder().build());
                     verify(handler, timeout(TIMEOUT)).accept(any());
                 }
 
                 @Test
                 @DisplayName("should propagate events for default provider and named client")
-                @Specification(number = "5.1.2", text = "When a provider signals the occurrence of a particular event, the associated client and API event handlers MUST run.")
+                @Specification(
+                        number = "5.1.2",
+                        text =
+                                "When a provider signals the occurrence of a particular event, the associated client and API event handlers MUST run.")
                 void shouldPropagateDefaultAndNamed() {
                     final Consumer<EventDetails> handler = mockHandler();
                     final String name = "shouldPropagateDefaultAndNamed";
@@ -170,7 +187,8 @@ class EventsTest {
                     Client client = OpenFeatureAPI.getInstance().getClient(name);
                     client.onProviderStale(handler);
 
-                    provider.mockEvent(ProviderEvent.PROVIDER_STALE, EventDetails.builder().build());
+                    provider.mockEvent(
+                            ProviderEvent.PROVIDER_STALE, EventDetails.builder().build());
                     verify(handler, timeout(TIMEOUT)).accept(any());
                 }
             }
@@ -186,7 +204,10 @@ class EventsTest {
         class Initialization {
             @Test
             @DisplayName("should fire initial READY event when provider init succeeds after client retrieved")
-            @Specification(number = "5.3.1", text = "If the provider's initialize function terminates normally, PROVIDER_READY handlers MUST run.")
+            @Specification(
+                    number = "5.3.1",
+                    text =
+                            "If the provider's initialize function terminates normally, PROVIDER_READY handlers MUST run.")
             void initReadyProviderBefore() {
                 final Consumer<EventDetails> handler = mockHandler();
                 final String name = "initReadyProviderBefore";
@@ -202,7 +223,10 @@ class EventsTest {
 
             @Test
             @DisplayName("should fire initial READY event when provider init succeeds before client retrieved")
-            @Specification(number = "5.3.1", text = "If the provider's initialize function terminates normally, PROVIDER_READY handlers MUST run.")
+            @Specification(
+                    number = "5.3.1",
+                    text =
+                            "If the provider's initialize function terminates normally, PROVIDER_READY handlers MUST run.")
             void initReadyProviderAfter() {
                 final Consumer<EventDetails> handler = mockHandler();
                 final String name = "initReadyProviderAfter";
@@ -218,7 +242,10 @@ class EventsTest {
 
             @Test
             @DisplayName("should fire initial ERROR event when provider init errors after client retrieved")
-            @Specification(number = "5.3.2", text = "If the provider's initialize function terminates abnormally, PROVIDER_ERROR handlers MUST run.")
+            @Specification(
+                    number = "5.3.2",
+                    text =
+                            "If the provider's initialize function terminates abnormally, PROVIDER_ERROR handlers MUST run.")
             void initErrorProviderAfter() {
                 final Consumer<EventDetails> handler = mockHandler();
                 final String name = "initErrorProviderAfter";
@@ -230,14 +257,16 @@ class EventsTest {
                 // set provider after getting a client
                 OpenFeatureAPI.getInstance().setProvider(name, provider);
                 verify(handler, timeout(TIMEOUT)).accept(argThat(details -> {
-                    return name.equals(details.getDomain())
-                            && errMessage.equals(details.getMessage());
+                    return name.equals(details.getDomain()) && errMessage.equals(details.getMessage());
                 }));
             }
 
             @Test
             @DisplayName("should fire initial ERROR event when provider init errors before client retrieved")
-            @Specification(number = "5.3.2", text = "If the provider's initialize function terminates abnormally, PROVIDER_ERROR handlers MUST run.")
+            @Specification(
+                    number = "5.3.2",
+                    text =
+                            "If the provider's initialize function terminates abnormally, PROVIDER_ERROR handlers MUST run.")
             void initErrorProviderBefore() {
                 final Consumer<EventDetails> handler = mockHandler();
                 final String name = "initErrorProviderBefore";
@@ -249,8 +278,7 @@ class EventsTest {
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
                 client.onProviderError(handler);
                 verify(handler, timeout(TIMEOUT)).accept(argThat(details -> {
-                    return name.equals(details.getDomain())
-                            && errMessage.equals(details.getMessage());
+                    return name.equals(details.getDomain()) && errMessage.equals(details.getMessage());
                 }));
             }
         }
@@ -261,7 +289,10 @@ class EventsTest {
 
             @Test
             @DisplayName("should propagate events when provider set before client retrieved")
-            @Specification(number = "5.1.2", text = "When a provider signals the occurrence of a particular event, the associated client and API event handlers MUST run.")
+            @Specification(
+                    number = "5.1.2",
+                    text =
+                            "When a provider signals the occurrence of a particular event, the associated client and API event handlers MUST run.")
             void shouldPropagateBefore() {
                 final Consumer<EventDetails> handler = mockHandler();
                 final String name = "shouldPropagateBefore";
@@ -272,13 +303,19 @@ class EventsTest {
                 Client client = OpenFeatureAPI.getInstance().getClient(name);
                 client.onProviderConfigurationChanged(handler);
 
-                provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, EventDetails.builder().build());
-                verify(handler, timeout(TIMEOUT)).accept(argThat(details -> details.getDomain().equals(name)));
+                provider.mockEvent(
+                        ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
+                        EventDetails.builder().build());
+                verify(handler, timeout(TIMEOUT))
+                        .accept(argThat(details -> details.getDomain().equals(name)));
             }
 
             @Test
             @DisplayName("should propagate events when provider set after client retrieved")
-            @Specification(number = "5.1.2", text = "When a provider signals the occurrence of a particular event, the associated client and API event handlers MUST run.")
+            @Specification(
+                    number = "5.1.2",
+                    text =
+                            "When a provider signals the occurrence of a particular event, the associated client and API event handlers MUST run.")
             void shouldPropagateAfter() {
 
                 final Consumer<EventDetails> handler = mockHandler();
@@ -290,18 +327,25 @@ class EventsTest {
                 // set provider after getting a client
                 OpenFeatureAPI.getInstance().setProviderAndWait(name, provider);
 
-                provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, EventDetails.builder().build());
-                verify(handler, timeout(TIMEOUT)).accept(argThat(details -> details.getDomain().equals(name)));
+                provider.mockEvent(
+                        ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
+                        EventDetails.builder().build());
+                verify(handler, timeout(TIMEOUT))
+                        .accept(argThat(details -> details.getDomain().equals(name)));
             }
 
             @Test
             @DisplayName("should support all event types")
-            @Specification(number = "5.1.1", text = "The provider MAY define a mechanism for signaling the occurrence "
-                    + "of one of a set of events, including PROVIDER_READY, PROVIDER_ERROR, "
-                    + "PROVIDER_CONFIGURATION_CHANGED and PROVIDER_STALE, with a provider event details payload.")
-            @Specification(number = "5.2.1", text = "The client MUST provide a function for associating handler functions"
-                    +
-                    " with a particular provider event type.")
+            @Specification(
+                    number = "5.1.1",
+                    text =
+                            "The provider MAY define a mechanism for signaling the occurrence "
+                                    + "of one of a set of events, including PROVIDER_READY, PROVIDER_ERROR, "
+                                    + "PROVIDER_CONFIGURATION_CHANGED and PROVIDER_STALE, with a provider event details payload.")
+            @Specification(
+                    number = "5.2.1",
+                    text = "The client MUST provide a function for associating handler functions"
+                            + " with a particular provider event type.")
             void shouldSupportAllEventTypes() {
                 final String name = "shouldSupportAllEventTypes";
                 final Consumer<EventDetails> handler1 = mockHandler();
@@ -321,8 +365,8 @@ class EventsTest {
                 Arrays.asList(ProviderEvent.values()).stream().forEach(eventType -> {
                     provider.mockEvent(eventType, ProviderEventDetails.builder().build());
                 });
-                ArgumentMatcher<EventDetails> nameMatches = (EventDetails details) -> details.getDomain()
-                        .equals(name);
+                ArgumentMatcher<EventDetails> nameMatches =
+                        (EventDetails details) -> details.getDomain().equals(name);
                 verify(handler1, timeout(TIMEOUT).atLeastOnce()).accept(argThat(nameMatches));
                 verify(handler2, timeout(TIMEOUT).atLeastOnce()).accept(argThat(nameMatches));
                 verify(handler3, timeout(TIMEOUT).atLeastOnce()).accept(argThat(nameMatches));
@@ -353,7 +397,9 @@ class EventsTest {
         await().until(() -> provider1.isShutDown());
 
         // fire old event
-        provider1.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, EventDetails.builder().build());
+        provider1.mockEvent(
+                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
+                EventDetails.builder().build());
 
         // a bit of waiting here, but we want to make sure these are indeed never
         // called.
@@ -363,8 +409,10 @@ class EventsTest {
 
     @Test
     @DisplayName("other client handlers should not run")
-    @Specification(number = "5.1.3", text = "When a provider signals the occurrence of a particular event, " +
-            "event handlers on clients which are not associated with that provider MUST NOT run.")
+    @Specification(
+            number = "5.1.3",
+            text = "When a provider signals the occurrence of a particular event, "
+                    + "event handlers on clients which are not associated with that provider MUST NOT run.")
     void otherClientHandlersShouldNotRun() {
         final String name1 = "otherClientHandlersShouldNotRun1";
         final String name2 = "otherClientHandlersShouldNotRun2";
@@ -382,7 +430,9 @@ class EventsTest {
         client1.onProviderConfigurationChanged(handlerToRun);
         client2.onProviderConfigurationChanged(handlerNotToRun);
 
-        provider1.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.builder().build());
+        provider1.mockEvent(
+                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
+                ProviderEventDetails.builder().build());
 
         verify(handlerToRun, timeout(TIMEOUT)).accept(any());
         verify(handlerNotToRun, never()).accept(any());
@@ -390,8 +440,10 @@ class EventsTest {
 
     @Test
     @DisplayName("bound named client handlers should not run with default")
-    @Specification(number = "5.1.3", text = "When a provider signals the occurrence of a particular event, " +
-            "event handlers on clients which are not associated with that provider MUST NOT run.")
+    @Specification(
+            number = "5.1.3",
+            text = "When a provider signals the occurrence of a particular event, "
+                    + "event handlers on clients which are not associated with that provider MUST NOT run.")
     void boundShouldNotRunWithDefault() {
         final String name = "boundShouldNotRunWithDefault";
         final Consumer<EventDetails> handlerNotToRun = mockHandler();
@@ -408,7 +460,9 @@ class EventsTest {
         await().until(() -> namedProvider.getState().equals(ProviderState.READY));
 
         // fire event on default provider
-        defaultProvider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.builder().build());
+        defaultProvider.mockEvent(
+                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
+                ProviderEventDetails.builder().build());
 
         verify(handlerNotToRun, after(TIMEOUT).never()).accept(any());
         OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
@@ -416,8 +470,10 @@ class EventsTest {
 
     @Test
     @DisplayName("unbound named client handlers should run with default")
-    @Specification(number = "5.1.3", text = "When a provider signals the occurrence of a particular event, " +
-            "event handlers on clients which are not associated with that provider MUST NOT run.")
+    @Specification(
+            number = "5.1.3",
+            text = "When a provider signals the occurrence of a particular event, "
+                    + "event handlers on clients which are not associated with that provider MUST NOT run.")
     void unboundShouldRunWithDefault() {
         final String name = "unboundShouldRunWithDefault";
         final Consumer<EventDetails> handlerToRun = mockHandler();
@@ -432,7 +488,9 @@ class EventsTest {
         await().until(() -> defaultProvider.getState().equals(ProviderState.READY));
 
         // fire event on default provider
-        defaultProvider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.builder().build());
+        defaultProvider.mockEvent(
+                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
+                ProviderEventDetails.builder().build());
 
         verify(handlerToRun, timeout(TIMEOUT)).accept(any());
         OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
@@ -440,7 +498,9 @@ class EventsTest {
 
     @Test
     @DisplayName("subsequent handlers run if earlier throws")
-    @Specification(number = "5.2.5", text = "If a handler function terminates abnormally, other handler functions MUST run.")
+    @Specification(
+            number = "5.2.5",
+            text = "If a handler function terminates abnormally, other handler functions MUST run.")
     void handlersRunIfOneThrows() {
         final String name = "handlersRunIfOneThrows";
         final Consumer<EventDetails> errorHandler = mockHandler();
@@ -457,7 +517,9 @@ class EventsTest {
         client1.onProviderConfigurationChanged(nextHandler);
         client1.onProviderConfigurationChanged(lastHandler);
 
-        provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.builder().build());
+        provider.mockEvent(
+                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
+                ProviderEventDetails.builder().build());
         verify(errorHandler, timeout(TIMEOUT)).accept(any());
         verify(nextHandler, timeout(TIMEOUT)).accept(any());
         verify(lastHandler, timeout(TIMEOUT)).accept(any());
@@ -466,7 +528,9 @@ class EventsTest {
     @Test
     @DisplayName("should have all properties")
     @Specification(number = "5.2.4", text = "The handler function MUST accept a event details parameter.")
-    @Specification(number = "5.2.3", text = "The `event details` MUST contain the `provider name` associated with the event.")
+    @Specification(
+            number = "5.2.3",
+            text = "The `event details` MUST contain the `provider name` associated with the event.")
     void shouldHaveAllProperties() {
         final Consumer<EventDetails> handler1 = mockHandler();
         final Consumer<EventDetails> handler2 = mockHandler();
@@ -481,7 +545,8 @@ class EventsTest {
         client.onProviderConfigurationChanged(handler2);
 
         List<String> flagsChanged = Arrays.asList("flag");
-        ImmutableMetadata metadata = ImmutableMetadata.builder().addInteger("int", 1).build();
+        ImmutableMetadata metadata =
+                ImmutableMetadata.builder().addInteger("int", 1).build();
         String message = "a message";
         ProviderEventDetails details = ProviderEventDetails.builder()
                 .eventMetadata(metadata)
@@ -492,25 +557,25 @@ class EventsTest {
         provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, details);
 
         // both global and client handler should have all the fields.
-        verify(handler1, timeout(TIMEOUT))
-                .accept(argThat((EventDetails eventDetails) -> {
-                    return metadata.equals(eventDetails.getEventMetadata())
-                            // TODO: issue for client name in events
-                            && flagsChanged.equals(eventDetails.getFlagsChanged())
-                            && message.equals(eventDetails.getMessage());
-                }));
-        verify(handler2, timeout(TIMEOUT))
-                .accept(argThat((EventDetails eventDetails) -> {
-                    return metadata.equals(eventDetails.getEventMetadata())
-                            && flagsChanged.equals(eventDetails.getFlagsChanged())
-                            && message.equals(eventDetails.getMessage())
-                            && name.equals(eventDetails.getDomain());
-                }));
+        verify(handler1, timeout(TIMEOUT)).accept(argThat((EventDetails eventDetails) -> {
+            return metadata.equals(eventDetails.getEventMetadata())
+                    // TODO: issue for client name in events
+                    && flagsChanged.equals(eventDetails.getFlagsChanged())
+                    && message.equals(eventDetails.getMessage());
+        }));
+        verify(handler2, timeout(TIMEOUT)).accept(argThat((EventDetails eventDetails) -> {
+            return metadata.equals(eventDetails.getEventMetadata())
+                    && flagsChanged.equals(eventDetails.getFlagsChanged())
+                    && message.equals(eventDetails.getMessage())
+                    && name.equals(eventDetails.getDomain());
+        }));
     }
 
     @Test
     @DisplayName("if the provider is ready handlers must run immediately")
-    @Specification(number = "5.3.3", text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
+    @Specification(
+            number = "5.3.3",
+            text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
     void matchingReadyEventsMustRunImmediately() {
         final String name = "matchingEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
@@ -527,7 +592,9 @@ class EventsTest {
 
     @Test
     @DisplayName("if the provider is ready handlers must run immediately")
-    @Specification(number = "5.3.3", text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
+    @Specification(
+            number = "5.3.3",
+            text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
     void matchingStaleEventsMustRunImmediately() {
         final String name = "matchingEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
@@ -547,7 +614,9 @@ class EventsTest {
 
     @Test
     @DisplayName("if the provider is ready handlers must run immediately")
-    @Specification(number = "5.3.3", text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
+    @Specification(
+            number = "5.3.3",
+            text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
     void matchingErrorEventsMustRunImmediately() {
         final String name = "matchingEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
@@ -559,7 +628,6 @@ class EventsTest {
         api.setProviderAndWait(name, provider);
         provider.emitProviderError(ProviderEventDetails.builder().build());
         assertThat(client.getProviderState()).isEqualTo(ProviderState.ERROR);
-
 
         // should run even thought handler was added after error
         client.onProviderError(handler);
@@ -580,8 +648,11 @@ class EventsTest {
         Client client = OpenFeatureAPI.getInstance().getClient(name);
         client.onProviderConfigurationChanged(handler);
 
-        provider1.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.builder().build());
-        ArgumentMatcher<EventDetails> nameMatches = (EventDetails details) -> details.getDomain().equals(name);
+        provider1.mockEvent(
+                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
+                ProviderEventDetails.builder().build());
+        ArgumentMatcher<EventDetails> nameMatches =
+                (EventDetails details) -> details.getDomain().equals(name);
 
         verify(handler, timeout(TIMEOUT).times(1)).accept(argThat(nameMatches));
 
@@ -590,13 +661,17 @@ class EventsTest {
 
         // verify that with the new provider under the same name, the handler is called
         // again.
-        provider2.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.builder().build());
+        provider2.mockEvent(
+                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
+                ProviderEventDetails.builder().build());
         verify(handler, timeout(TIMEOUT).times(2)).accept(argThat(nameMatches));
     }
 
     @Nested
     class HandlerRemoval {
-        @Specification(number = "5.2.7", text = "The API and client MUST provide a function allowing the removal of event handlers.")
+        @Specification(
+                number = "5.2.7",
+                text = "The API and client MUST provide a function allowing the removal of event handlers.")
         @Test
         @DisplayName("should not run removed events")
         @SneakyThrows
@@ -617,18 +692,21 @@ class EventsTest {
             client.removeHandler(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, handler2);
 
             // emit event
-            provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.builder().build());
-            
+            provider.mockEvent(
+                    ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
+                    ProviderEventDetails.builder().build());
+
             // both global and client handlers should not run.
             verify(handler1, after(TIMEOUT).never()).accept(any());
             verify(handler2, never()).accept(any());
         }
     }
 
-    @Specification(number = "5.1.4", text = "PROVIDER_ERROR events SHOULD populate the provider event details's error message field.")
+    @Specification(
+            number = "5.1.4",
+            text = "PROVIDER_ERROR events SHOULD populate the provider event details's error message field.")
     @Test
-    void thisIsAProviderRequirement() {
-    }
+    void thisIsAProviderRequirement() {}
 
     @SuppressWarnings("unchecked")
     private static Consumer<EventDetails> mockHandler() {

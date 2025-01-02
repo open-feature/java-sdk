@@ -1,10 +1,9 @@
 package dev.openfeature.sdk;
 
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.HashMap;
 import java.util.Map;
+import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Immutable Flag Metadata representation. Implementation is backed by a {@link Map} and immutability is provided
@@ -98,7 +97,6 @@ public class ImmutableMetadata {
         }
     }
 
-
     /**
      * Obtain a builder for {@link ImmutableMetadata}.
      */
@@ -188,6 +186,5 @@ public class ImmutableMetadata {
         public ImmutableMetadata build() {
             return new ImmutableMetadata(this.metadata);
         }
-
     }
 }

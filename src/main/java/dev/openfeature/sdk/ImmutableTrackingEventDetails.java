@@ -1,12 +1,10 @@
 package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
-import lombok.experimental.Delegate;
-
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-
+import lombok.experimental.Delegate;
 
 /**
  * ImmutableTrackingEventDetails represents data pertinent to a particular tracking event.
@@ -40,13 +38,13 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
         return Optional.ofNullable(value);
     }
 
-
     @SuppressWarnings("all")
     private static class DelegateExclusions {
         @ExcludeFromGeneratedCoverageReport
-        public <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure,
-                                                              Map<String, Value> base,
-                                                              Map<String, Value> overriding) {
+        public <T extends Structure> Map<String, Value> merge(
+                Function<Map<String, Value>, Structure> newStructure,
+                Map<String, Value> base,
+                Map<String, Value> overriding) {
             return null;
         }
     }

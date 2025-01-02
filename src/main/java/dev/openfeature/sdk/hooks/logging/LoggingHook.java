@@ -17,8 +17,9 @@ import org.slf4j.spi.LoggingEventBuilder;
  * Flag evaluation data is logged at debug and error in before/after stages and error stages, respectively.
  */
 @Slf4j
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED",
-    justification = "we can ignore return values of chainables (builders) here")
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+        value = "RV_RETURN_VALUE_IGNORED",
+        justification = "we can ignore return values of chainables (builders) here")
 public class LoggingHook implements Hook<Object> {
 
     static final String DOMAIN_KEY = "domain";
@@ -43,6 +44,7 @@ public class LoggingHook implements Hook<Object> {
 
     /**
      * Construct a new LoggingHook.
+     *
      * @param includeEvaluationContext include a serialized evaluation context in the log message (defaults to false)
      */
     public LoggingHook(boolean includeEvaluationContext) {
@@ -59,8 +61,8 @@ public class LoggingHook implements Hook<Object> {
     }
 
     @Override
-    public void after(HookContext<Object> hookContext, FlagEvaluationDetails<Object> details,
-            Map<String, Object> hints) {
+    public void after(
+            HookContext<Object> hookContext, FlagEvaluationDetails<Object> details, Map<String, Object> hints) {
         LoggingEventBuilder builder = log.atDebug()
                 .addKeyValue(REASON_KEY, details.getReason())
                 .addKeyValue(VARIANT_KEY, details.getVariant())
@@ -71,8 +73,7 @@ public class LoggingHook implements Hook<Object> {
 
     @Override
     public void error(HookContext<Object> hookContext, Exception error, Map<String, Object> hints) {
-        LoggingEventBuilder builder = log.atError()
-                .addKeyValue(ERROR_MESSAGE_KEY, error.getMessage());
+        LoggingEventBuilder builder = log.atError().addKeyValue(ERROR_MESSAGE_KEY, error.getMessage());
         addCommonProps(builder, hookContext);
         ErrorCode errorCode = error instanceof OpenFeatureError ? ((OpenFeatureError) error).getErrorCode() : null;
         builder.addKeyValue(ERROR_CODE_KEY, errorCode);
@@ -81,7 +82,8 @@ public class LoggingHook implements Hook<Object> {
 
     private void addCommonProps(LoggingEventBuilder builder, HookContext<Object> hookContext) {
         builder.addKeyValue(DOMAIN_KEY, hookContext.getClientMetadata().getDomain())
-                .addKeyValue(PROVIDER_NAME_KEY, hookContext.getProviderMetadata().getName())
+                .addKeyValue(
+                        PROVIDER_NAME_KEY, hookContext.getProviderMetadata().getName())
                 .addKeyValue(FLAG_KEY_KEY, hookContext.getFlagKey())
                 .addKeyValue(DEFAULT_VALUE_KEY, hookContext.getDefaultValue());
 

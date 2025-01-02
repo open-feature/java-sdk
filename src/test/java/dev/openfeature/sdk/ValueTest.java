@@ -9,16 +9,17 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
 public class ValueTest {
-    @Test public void noArgShouldContainNull() {
+    @Test
+    public void noArgShouldContainNull() {
         Value value = new Value();
         assertTrue(value.isNull());
     }
 
-    @Test public void objectArgShouldContainObject() {
+    @Test
+    public void objectArgShouldContainObject() {
         try {
             // int is a special case, see intObjectArgShouldConvertToInt()
             List<Object> list = new ArrayList<>();
@@ -30,7 +31,7 @@ public class ValueTest {
             list.add(Instant.now());
 
             int i = 0;
-            for (Object l: list) {
+            for (Object l : list) {
                 Value value = new Value(l);
                 assertEquals(list.get(i), value.asObject());
                 i++;
@@ -40,7 +41,8 @@ public class ValueTest {
         }
     }
 
-    @Test public void intObjectArgShouldConvertToInt() {
+    @Test
+    public void intObjectArgShouldConvertToInt() {
         try {
             Object innerValue = 1;
             Value value = new Value(innerValue);
@@ -50,7 +52,8 @@ public class ValueTest {
         }
     }
 
-    @Test public void invalidObjectArgShouldThrow() {
+    @Test
+    public void invalidObjectArgShouldThrow() {
 
         class Something {}
 
@@ -59,18 +62,20 @@ public class ValueTest {
         });
     }
 
-    @Test public void boolArgShouldContainBool() {
+    @Test
+    public void boolArgShouldContainBool() {
         boolean innerValue = true;
         Value value = new Value(innerValue);
         assertTrue(value.isBoolean());
         assertEquals(innerValue, value.asBoolean());
     }
 
-    @Test public void numericArgShouldReturnDoubleOrInt() {
+    @Test
+    public void numericArgShouldReturnDoubleOrInt() {
         double innerDoubleValue = 1.75;
         Value doubleValue = new Value(innerDoubleValue);
         assertTrue(doubleValue.isNumber());
-        assertEquals(1, doubleValue.asInteger());     // the double value represented by this object converted to type int
+        assertEquals(1, doubleValue.asInteger()); // the double value represented by this object converted to type int
         assertEquals(1.75, doubleValue.asDouble());
 
         int innerIntValue = 100;
@@ -80,21 +85,24 @@ public class ValueTest {
         assertEquals(innerIntValue, intValue.asDouble());
     }
 
-    @Test public void stringArgShouldContainString() {
+    @Test
+    public void stringArgShouldContainString() {
         String innerValue = "hi!";
         Value value = new Value(innerValue);
         assertTrue(value.isString());
         assertEquals(innerValue, value.asString());
     }
 
-    @Test public void dateShouldContainDate() {
+    @Test
+    public void dateShouldContainDate() {
         Instant innerValue = Instant.now();
         Value value = new Value(innerValue);
         assertTrue(value.isInstant());
         assertEquals(innerValue, value.asInstant());
     }
 
-    @Test public void structureShouldContainStructure() {
+    @Test
+    public void structureShouldContainStructure() {
         String INNER_KEY = "key";
         String INNER_VALUE = "val";
         MutableStructure innerValue = new MutableStructure().add(INNER_KEY, INNER_VALUE);
@@ -103,7 +111,8 @@ public class ValueTest {
         assertEquals(INNER_VALUE, value.asStructure().getValue(INNER_KEY).asString());
     }
 
-    @Test public void listArgShouldContainList() {
+    @Test
+    public void listArgShouldContainList() {
         String ITEM_VALUE = "val";
         List<Value> innerValue = new ArrayList<Value>();
         innerValue.add(new Value(ITEM_VALUE));
@@ -112,7 +121,8 @@ public class ValueTest {
         assertEquals(ITEM_VALUE, value.asList().get(0).asString());
     }
 
-    @Test public void listMustBeOfValues() {
+    @Test
+    public void listMustBeOfValues() {
         String item = "item";
         List<String> list = new ArrayList<>();
         list.add(item);
@@ -124,7 +134,8 @@ public class ValueTest {
         }
     }
 
-    @Test public void emptyListAllowed() {
+    @Test
+    public void emptyListAllowed() {
         List<String> list = new ArrayList<>();
         try {
             Value value = new Value((Object) list);
@@ -136,15 +147,17 @@ public class ValueTest {
         }
     }
 
-    @Test public void valueConstructorValidateListInternals() {
+    @Test
+    public void valueConstructorValidateListInternals() {
         List<Object> list = new ArrayList<>();
         list.add(new Value("item"));
         list.add("item");
 
-        assertThrows(InstantiationException.class, ()-> new Value(list));
+        assertThrows(InstantiationException.class, () -> new Value(list));
     }
 
-    @Test public void noOpFinalize() {
+    @Test
+    public void noOpFinalize() {
         Value val = new Value();
         assertDoesNotThrow(val::finalize); // does nothing, but we want to defined in and make it final.
     }

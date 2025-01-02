@@ -4,7 +4,8 @@ class DoSomethingProvider implements FeatureProvider {
 
     static final String name = "Something";
     // Flag evaluation metadata
-    static final ImmutableMetadata DEFAULT_METADATA = ImmutableMetadata.builder().build();
+    static final ImmutableMetadata DEFAULT_METADATA =
+            ImmutableMetadata.builder().build();
     private ImmutableMetadata flagMetadata;
 
     public DoSomethingProvider() {
@@ -53,7 +54,8 @@ class DoSomethingProvider implements FeatureProvider {
     }
 
     @Override
-    public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext invocationContext) {
+    public ProviderEvaluation<Value> getObjectEvaluation(
+            String key, Value defaultValue, EvaluationContext invocationContext) {
         return ProviderEvaluation.<Value>builder()
                 .value(null)
                 .flagMetadata(flagMetadata)

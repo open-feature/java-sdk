@@ -1,7 +1,6 @@
 package dev.openfeature.sdk;
 
 import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,6 +24,7 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
     private String reason;
     private ErrorCode errorCode;
     private String errorMessage;
+
     @Builder.Default
     private ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
 
@@ -44,8 +44,8 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
                 .reason(providerEval.getReason())
                 .errorMessage(providerEval.getErrorMessage())
                 .errorCode(providerEval.getErrorCode())
-                .flagMetadata(
-                        Optional.ofNullable(providerEval.getFlagMetadata()).orElse(ImmutableMetadata.builder().build()))
+                .flagMetadata(Optional.ofNullable(providerEval.getFlagMetadata())
+                        .orElse(ImmutableMetadata.builder().build()))
                 .build();
     }
 }

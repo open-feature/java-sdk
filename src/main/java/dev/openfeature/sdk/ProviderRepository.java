@@ -2,8 +2,6 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,14 +14,14 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 class ProviderRepository {
 
     private final Map<String, FeatureProviderStateManager> stateManagers = new ConcurrentHashMap<>();
-    private final AtomicReference<FeatureProviderStateManager> defaultStateManger = new AtomicReference<>(
-            new FeatureProviderStateManager(new NoOpProvider())
-    );
+    private final AtomicReference<FeatureProviderStateManager> defaultStateManger =
+            new AtomicReference<>(new FeatureProviderStateManager(new NoOpProvider()));
     private final ExecutorService taskExecutor = Executors.newCachedThreadPool(runnable -> {
         final Thread thread = new Thread(runnable);
         thread.setDaemon(true);
@@ -96,7 +94,8 @@ class ProviderRepository {
     public List<String> getDomainsForProvider(FeatureProvider provider) {
         return stateManagers.entrySet().stream()
                 .filter(entry -> entry.getValue().hasSameProvider(provider))
-                .map(Map.Entry::getKey).collect(Collectors.toList());
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 
     public Set<String> getAllBoundDomains() {
@@ -110,12 +109,13 @@ class ProviderRepository {
     /**
      * Set the default provider.
      */
-    public void setProvider(FeatureProvider provider,
-                            Consumer<FeatureProvider> afterSet,
-                            Consumer<FeatureProvider> afterInit,
-                            Consumer<FeatureProvider> afterShutdown,
-                            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-                            boolean waitForInit) {
+    public void setProvider(
+            FeatureProvider provider,
+            Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            boolean waitForInit) {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
@@ -130,13 +130,14 @@ class ProviderRepository {
      * @param waitForInit When true, wait for initialization to finish, then returns.
      *                    Otherwise, initialization happens in the background.
      */
-    public void setProvider(String domain,
-                            FeatureProvider provider,
-                            Consumer<FeatureProvider> afterSet,
-                            Consumer<FeatureProvider> afterInit,
-                            Consumer<FeatureProvider> afterShutdown,
-                            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-                            boolean waitForInit) {
+    public void setProvider(
+            String domain,
+            FeatureProvider provider,
+            Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            boolean waitForInit) {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
         }
@@ -146,13 +147,14 @@ class ProviderRepository {
         prepareAndInitializeProvider(domain, provider, afterSet, afterInit, afterShutdown, afterError, waitForInit);
     }
 
-    private void prepareAndInitializeProvider(String domain,
-                                              FeatureProvider newProvider,
-                                              Consumer<FeatureProvider> afterSet,
-                                              Consumer<FeatureProvider> afterInit,
-                                              Consumer<FeatureProvider> afterShutdown,
-                                              BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-                                              boolean waitForInit) {
+    private void prepareAndInitializeProvider(
+            String domain,
+            FeatureProvider newProvider,
+            Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            boolean waitForInit) {
         final FeatureProviderStateManager newStateManager;
         final FeatureProviderStateManager oldStateManager;
 
@@ -195,11 +197,12 @@ class ProviderRepository {
         return null;
     }
 
-    private void initializeProvider(FeatureProviderStateManager newManager,
-                                    Consumer<FeatureProvider> afterInit,
-                                    Consumer<FeatureProvider> afterShutdown,
-                                    BiConsumer<FeatureProvider, OpenFeatureError> afterError,
-                                    FeatureProviderStateManager oldManager) {
+    private void initializeProvider(
+            FeatureProviderStateManager newManager,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            FeatureProviderStateManager oldManager) {
         try {
             if (ProviderState.NOT_READY.equals(newManager.getState())) {
                 newManager.initialize(OpenFeatureAPI.getInstance().getEvaluationContext());
@@ -210,15 +213,13 @@ class ProviderRepository {
             log.error(
                     "Exception when initializing feature provider {}",
                     newManager.getProvider().getClass().getName(),
-                    e
-            );
+                    e);
             afterError.accept(newManager.getProvider(), e);
         } catch (Exception e) {
             log.error(
                     "Exception when initializing feature provider {}",
                     newManager.getProvider().getClass().getName(),
-                    e
-            );
+                    e);
             afterError.accept(newManager.getProvider(), new GeneralError(e));
         }
     }
@@ -238,7 +239,8 @@ class ProviderRepository {
      */
     private boolean isStateManagerRegistered(FeatureProviderStateManager manager) {
         return manager != null
-                && (this.stateManagers.containsValue(manager) || this.defaultStateManger.get().equals(manager));
+                && (this.stateManagers.containsValue(manager)
+                        || this.defaultStateManger.get().equals(manager));
     }
 
     private void shutdownProvider(FeatureProviderStateManager manager) {
@@ -253,7 +255,10 @@ class ProviderRepository {
             try {
                 provider.shutdown();
             } catch (Exception e) {
-                log.error("Exception when shutting down feature provider {}", provider.getClass().getName(), e);
+                log.error(
+                        "Exception when shutting down feature provider {}",
+                        provider.getClass().getName(),
+                        e);
             }
         });
     }
@@ -264,8 +269,7 @@ class ProviderRepository {
      * including the default feature provider.
      */
     public void shutdown() {
-        Stream
-                .concat(Stream.of(this.defaultStateManger.get()), this.stateManagers.values().stream())
+        Stream.concat(Stream.of(this.defaultStateManger.get()), this.stateManagers.values().stream())
                 .distinct()
                 .forEach(this::shutdownProvider);
         this.stateManagers.clear();

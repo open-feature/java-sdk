@@ -1,20 +1,19 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.providers.memory.InMemoryProvider;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
-import dev.openfeature.sdk.testutils.TestEventsProvider;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-import java.util.HashMap;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import dev.openfeature.sdk.testutils.TestEventsProvider;
+import java.util.Collections;
+import java.util.HashMap;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class OpenFeatureAPITest {
 
@@ -36,7 +35,10 @@ class OpenFeatureAPITest {
                 .isEqualTo(api.getProviderMetadata("namedProviderTest").getName());
     }
 
-    @Specification(number = "1.1.3", text = "The API MUST provide a function to bind a given provider to one or more clients using a domain. If the domain already has a bound provider, it is overwritten with the new mapping.")
+    @Specification(
+            number = "1.1.3",
+            text =
+                    "The API MUST provide a function to bind a given provider to one or more clients using a domain. If the domain already has a bound provider, it is overwritten with the new mapping.")
     @Test
     void namedProviderOverwrittenTest() {
         String domain = "namedProviderOverwrittenTest";
@@ -45,7 +47,10 @@ class OpenFeatureAPITest {
         FeatureProviderTestUtils.setFeatureProvider(domain, provider1);
         FeatureProviderTestUtils.setFeatureProvider(domain, provider2);
 
-        assertThat(OpenFeatureAPI.getInstance().getProvider(domain).getMetadata().getName())
+        assertThat(OpenFeatureAPI.getInstance()
+                        .getProvider(domain)
+                        .getMetadata()
+                        .getName())
                 .isEqualTo(DoSomethingProvider.name);
     }
 
@@ -105,7 +110,6 @@ class OpenFeatureAPITest {
                 .isEqualTo(ProviderState.READY);
     }
 
-
     @Test
     void featureProviderTrackIsCalled() throws Exception {
         FeatureProvider featureProvider = mock(FeatureProvider.class);
@@ -113,9 +117,7 @@ class OpenFeatureAPITest {
 
         OpenFeatureAPI.getInstance()
                 .getClient()
-                .track("track-event",
-                        new ImmutableContext(),
-                        new MutableTrackingEventDetails(22.2f));
+                .track("track-event", new ImmutableContext(), new MutableTrackingEventDetails(22.2f));
 
         verify(featureProvider).initialize(any());
         verify(featureProvider).getMetadata();

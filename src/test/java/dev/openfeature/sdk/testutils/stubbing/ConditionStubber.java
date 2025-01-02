@@ -1,13 +1,13 @@
 package dev.openfeature.sdk.testutils.stubbing;
 
-import java.time.Duration;
-import java.util.concurrent.CountDownLatch;
-
-import lombok.experimental.UtilityClass;
-import org.mockito.stubbing.*;
-
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mockito.Mockito.doAnswer;
+
+import java.time.Duration;
+import java.util.concurrent.CountDownLatch;
+import lombok.experimental.UtilityClass;
+import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.Stubber;
 
 @UtilityClass
 public class ConditionStubber {
@@ -33,5 +33,4 @@ public class ConditionStubber {
             return answer.answer(invocation);
         });
     }
-
 }

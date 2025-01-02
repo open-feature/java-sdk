@@ -5,26 +5,24 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Isolated;
 
-import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
-
 @Isolated()
 class LockingTest {
-    
+
     private static OpenFeatureAPI api;
     private OpenFeatureClient client;
     private AutoCloseableReentrantReadWriteLock apiLock;
     private AutoCloseableReentrantReadWriteLock clientContextLock;
     private AutoCloseableReentrantReadWriteLock clientHooksLock;
-    
+
     @BeforeAll
     static void beforeAll() {
         api = OpenFeatureAPI.getInstance();
@@ -34,7 +32,7 @@ class LockingTest {
     @BeforeEach
     void beforeEach() {
         client = (OpenFeatureClient) api.getClient("LockingTest");
-        
+
         apiLock = setupLock(apiLock, mockInnerReadLock(), mockInnerWriteLock());
         OpenFeatureAPI.lock = apiLock;
 
@@ -93,8 +91,9 @@ class LockingTest {
 
         @Nested
         class Client {
-            
-            // Note that the API lock is used for adding client handlers, they are all added (indirectly) on the API object.
+
+            // Note that the API lock is used for adding client handlers, they are all added (indirectly) on the API
+            // object.
 
             @Test
             void onShouldApiWriteLockAndUnlock() {
@@ -138,16 +137,13 @@ class LockingTest {
         }
     }
 
-
     @Test
     void addHooksShouldWriteLockAndUnlock() {
-        client.addHooks(new Hook() {
-        });
+        client.addHooks(new Hook() {});
         verify(clientHooksLock.writeLock()).lock();
         verify(clientHooksLock.writeLock()).unlock();
 
-        api.addHooks(new Hook() {
-        });
+        api.addHooks(new Hook() {});
         verify(apiLock.writeLock()).lock();
         verify(apiLock.writeLock()).unlock();
     }
@@ -199,7 +195,6 @@ class LockingTest {
         verify(apiLock.readLock()).unlock();
     }
 
-
     @Test
     void clearHooksShouldWriteLockAndUnlock() {
         api.clearHooks();
@@ -221,7 +216,8 @@ class LockingTest {
         return writeLockMock;
     }
 
-    private AutoCloseableReentrantReadWriteLock setupLock(AutoCloseableReentrantReadWriteLock lock,
+    private AutoCloseableReentrantReadWriteLock setupLock(
+            AutoCloseableReentrantReadWriteLock lock,
             AutoCloseableReentrantReadWriteLock.ReadLock readlock,
             AutoCloseableReentrantReadWriteLock.WriteLock writeLock) {
         lock = mock(AutoCloseableReentrantReadWriteLock.class);

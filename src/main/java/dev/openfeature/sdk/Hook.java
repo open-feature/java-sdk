@@ -16,7 +16,7 @@ public interface Hook<T> {
      * @param ctx   Information about the particular flag evaluation
      * @param hints An immutable mapping of data for users to communicate to the hooks.
      * @return An optional {@link EvaluationContext}. If returned, it will be merged with the EvaluationContext
-     *     instances from other hooks, the client and API.
+     *         instances from other hooks, the client and API.
      */
     default Optional<EvaluationContext> before(HookContext<T> ctx, Map<String, Object> hints) {
         return Optional.empty();
@@ -29,8 +29,7 @@ public interface Hook<T> {
      * @param details Information about how the flag was resolved, including any resolved values.
      * @param hints   An immutable mapping of data for users to communicate to the hooks.
      */
-    default void after(HookContext<T> ctx, FlagEvaluationDetails<T> details, Map<String, Object> hints) {
-    }
+    default void after(HookContext<T> ctx, FlagEvaluationDetails<T> details, Map<String, Object> hints) {}
 
     /**
      * Run when evaluation encounters an error. This will always run. Errors thrown will be swallowed.
@@ -39,8 +38,7 @@ public interface Hook<T> {
      * @param error The exception that was thrown.
      * @param hints An immutable mapping of data for users to communicate to the hooks.
      */
-    default void error(HookContext<T> ctx, Exception error, Map<String, Object> hints) {
-    }
+    default void error(HookContext<T> ctx, Exception error, Map<String, Object> hints) {}
 
     /**
      * Run after flag evaluation, including any error processing. This will always run. Errors will be swallowed.
@@ -48,8 +46,7 @@ public interface Hook<T> {
      * @param ctx   Information about the particular flag evaluation
      * @param hints An immutable mapping of data for users to communicate to the hooks.
      */
-    default void finallyAfter(HookContext<T> ctx, Map<String, Object> hints) {
-    }
+    default void finallyAfter(HookContext<T> ctx, Map<String, Object> hints) {}
 
     default boolean supportsFlagValueType(FlagValueType flagValueType) {
         return true;
