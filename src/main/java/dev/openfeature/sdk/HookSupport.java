@@ -1,13 +1,11 @@
 package dev.openfeature.sdk;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,11 +17,7 @@ class HookSupport {
 
     public EvaluationContext beforeHooks(FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks,
             Map<String, Object> hints) {
-        Stream<EvaluationContext> result = callBeforeHooks(flagValueType, hookCtx, hooks, hints);
-        return hookCtx.getCtx().merge(
-                result.reduce(hookCtx.getCtx(), (EvaluationContext accumulated, EvaluationContext current) -> {
-                    return accumulated.merge(current);
-                }));
+        return callBeforeHooks(flagValueType, hookCtx, hooks, hints);
     }
 
     public void afterHooks(FlagValueType flagValueType, HookContext hookContext, FlagEvaluationDetails details,
@@ -46,10 +40,11 @@ class HookSupport {
             String hookMethod,
             Consumer<Hook<T>> hookCode) {
         if (hooks != null) {
-            hooks
-                    .stream()
-                    .filter(hook -> hook.supportsFlagValueType(flagValueType))
-                    .forEach(hook -> executeChecked(hook, hookCode, hookMethod));
+            for (Hook hook : hooks) {
+                if (hook.supportsFlagValueType(flagValueType)) {
+                    executeChecked(hook, hookCode, hookMethod);
+                }
+            }
         }
     }
 
@@ -68,29 +63,29 @@ class HookSupport {
             FlagValueType flagValueType, List<Hook> hooks,
             Consumer<Hook<T>> hookCode) {
         if (hooks != null) {
-            hooks
-                    .stream()
-                    .filter(hook -> hook.supportsFlagValueType(flagValueType))
-                    .forEach(hookCode::accept);
+            for (Hook hook : hooks) {
+                if (hook.supportsFlagValueType(flagValueType)) {
+                    hookCode.accept(hook);
+                }
+            }
         }
     }
 
-    private Stream<EvaluationContext> callBeforeHooks(FlagValueType flagValueType, HookContext hookCtx,
+    private EvaluationContext callBeforeHooks(FlagValueType flagValueType, HookContext hookCtx,
             List<Hook> hooks, Map<String, Object> hints) {
         // These traverse backwards from normal.
-        List<Hook> reversedHooks = IntStream
-                .range(0, hooks.size())
-                .map(i -> hooks.size() - 1 - i)
-                .mapToObj(hooks::get)
-                .collect(Collectors.toList());
-
-        return reversedHooks
-                .stream()
-                .filter(hook -> hook.supportsFlagValueType(flagValueType))
-                .map(hook -> hook.before(hookCtx, hints))
-                .filter(Objects::nonNull)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(EvaluationContext.class::cast);
+        List<Hook> reversedHooks = new ArrayList<>(hooks);
+        Collections.reverse(reversedHooks);
+        EvaluationContext context = hookCtx.getCtx();
+        for (Hook hook : reversedHooks) {
+            if (hook.supportsFlagValueType(flagValueType)) {
+                Optional<EvaluationContext> optional = Optional.ofNullable(hook.before(hookCtx, hints))
+                        .orElse(Optional.empty());
+                if (optional.isPresent()) {
+                    context = context.merge(optional.get());
+                }
+            }
+        }
+        return context;
     }
 }

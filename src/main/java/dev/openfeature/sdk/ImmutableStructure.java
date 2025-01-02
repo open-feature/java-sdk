@@ -3,6 +3,7 @@ package dev.openfeature.sdk;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
@@ -35,14 +36,11 @@ public final class ImmutableStructure extends AbstractStructure {
      * @param attributes attributes.
      */
     public ImmutableStructure(Map<String, Value> attributes) {
-        super(new HashMap<>(attributes.entrySet()
-                .stream()
-                .collect(HashMap::new,
-                        (accumulated, entry) -> accumulated.put(entry.getKey(),
-                                Optional.ofNullable(entry.getValue())
-                                    .map(Value::clone)
-                                    .orElse(null)),
-                        HashMap::putAll)));
+        super(copyAttributes(attributes, null));
+    }
+
+    protected ImmutableStructure(String targetingKey, Map<String, Value> attributes) {
+        super(copyAttributes(attributes, targetingKey));
     }
 
     @Override
@@ -53,7 +51,7 @@ public final class ImmutableStructure extends AbstractStructure {
     // getters
     @Override
     public Value getValue(String key) {
-        Value value = this.attributes.get(key);
+        Value value = attributes.get(key);
         return value != null ? value.clone() : null;
     }
 
@@ -64,14 +62,23 @@ public final class ImmutableStructure extends AbstractStructure {
      */
     @Override
     public Map<String, Value> asMap() {
-        return attributes
-                .entrySet()
-                .stream()
-                .collect(HashMap::new,
-                        (accumulated, entry) -> accumulated.put(entry.getKey(),
-                                Optional.ofNullable(entry.getValue())
-                                .map(Value::clone)
-                                .orElse(null)),
-                        HashMap::putAll);
+        return copyAttributes(attributes);
     }
+
+    private static Map<String, Value> copyAttributes(Map<String, Value> in) {
+        return copyAttributes(in, null);
+    }
+
+    private static Map<String, Value> copyAttributes(Map<String, Value> in, String targetingKey) {
+        Map<String, Value> copy = new HashMap<>();
+        for (Entry<String, Value> entry : in.entrySet()) {
+            copy.put(entry.getKey(),
+                    Optional.ofNullable(entry.getValue()).map((Value val) -> val.clone()).orElse(null));
+        }
+        if (targetingKey != null) {
+            copy.put(EvaluationContext.TARGETING_KEY, new Value(targetingKey));
+        }
+        return copy;
+    }
+
 }

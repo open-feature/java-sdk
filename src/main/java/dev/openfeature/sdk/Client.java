@@ -5,17 +5,19 @@ import java.util.List;
 /**
  * Interface used to resolve flags of varying types.
  */
-public interface Client extends Features, EventBus<Client> {
+public interface Client extends Features, Tracking, EventBus<Client> {
     ClientMetadata getMetadata();
 
     /**
      * Return an optional client-level evaluation context.
+     *
      * @return {@link EvaluationContext}
      */
     EvaluationContext getEvaluationContext();
 
     /**
      * Set the client-level evaluation context.
+     *
      * @param ctx Client level context.
      */
     Client setEvaluationContext(EvaluationContext ctx);
@@ -30,7 +32,15 @@ public interface Client extends Features, EventBus<Client> {
 
     /**
      * Fetch the hooks associated to this client.
+     *
      * @return A list of {@link Hook}s.
      */
     List<Hook> getHooks();
+
+    /**
+     * Returns the current state of the associated provider.
+     *
+     * @return the provider state
+     */
+    ProviderState getProviderState();
 }

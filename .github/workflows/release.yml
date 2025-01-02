@@ -28,10 +28,10 @@ jobs:
       # These steps are only run if this was a merged release-please PR
       - name: checkout
         if: ${{ steps.release.outputs.release_created }}
-        uses: actions/checkout@6d193bf28034eafb982f37bd894289fe649468fc
+        uses: actions/checkout@cbb722410c2e876e24abbe8de2cc27693e501dcb
       - name: Set up JDK 8
         if: ${{ steps.release.outputs.release_created }}
-        uses: actions/setup-java@2dfa2011c5b2a0f1489bf9e433881c92c1631f88
+        uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b
         with:
           java-version: '8'
           distribution: 'temurin'

@@ -12,6 +12,9 @@ Any contributions you make are expected to be tested with unit tests. You can va
 Further, it is recommended to verify code styling and static code analysis with `mvn verify -P !deploy`.
 Regardless, the automation itself will run them for you when you open a PR.
 
+> [!TIP]
+> For easier usage maven wrapper is available. Example usage: `./mvnw verify`
+
 Your code is supposed to work with Java 8+.
 
 If you think we might be out of date with the spec, you can check that by invoking `python spec_finder.py` in the root of the repository. This will validate we have tests defined for all of the specification entries we know about.
@@ -20,12 +23,25 @@ If you're adding tests to cover something in the spec, use the `@Specification` 
 
 ## End-to-End Tests
 
-The continuous integration runs a set of [gherkin e2e tests](https://github.com/open-feature/test-harness/blob/main/features/evaluation.feature) using `InMemoryProvider`.
+The continuous integration runs a set of [gherkin e2e tests](https://github.com/open-feature/spec/blob/main/specification/assets/gherkin/evaluation.feature) using `InMemoryProvider`.
 
 to run alone:
 ```
 mvn test -P e2e
 ```
+
+## Benchmarking
+
+There is a small JMH benchmark suite for testing allocations that can be run with:
+
+```sh
+mvn -P benchmark clean compile test-compile jmh:benchmark -Djmh.f=1  -Djmh.prof='dev.openfeature.sdk.benchmark.AllocationProfiler'
+```
+
+If you are concerned about the repercussions of a change on memory usage, run this an compare the results to the committed. `benchmark.txt` file.
+Note that the ONLY MEANINGFUL RESULTS of this benchmark are the `totalAllocatedBytes` and the `totalAllocatedInstances`.
+The `run` score, and maven task time are not relevant since this benchmark is purely memory-related and has nothing to do with speed.
+You can also view the heap breakdown to see which objects are taking up the most memory.
 
 ## Releasing
 

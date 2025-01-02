@@ -1,17 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>dev.openfeature</groupId>
   <artifactId>sdk</artifactId>
-  <version>1.10.0</version> <!--x-release-please-version -->
+  <version>1.13.0</version> <!--x-release-please-version -->
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
-    <junit.jupiter.version>5.11.0</junit.jupiter.version>
-     <!-- exclusion expression for e2e tests -->
+    <junit.jupiter.version>5.11.4</junit.jupiter.version>
+    <!-- exclusion expression for e2e tests -->
     <testExclusions>**/e2e/*.java</testExclusions>
     <module-name>${project.groupId}.${project.artifactId}</module-name>
   </properties>
@@ -45,7 +45,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.34</version>
+      <version>1.18.36</version>
       <scope>provided</scope>
     </dependency>
 
@@ -74,7 +74,7 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.26.3</version>
+      <version>3.27.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -109,7 +109,7 @@
     <dependency>
       <groupId>org.junit.platform</groupId>
       <artifactId>junit-platform-suite</artifactId>
-      <version>1.11.0</version>
+      <version>1.11.4</version>
       <scope>test</scope>
     </dependency>
 
@@ -128,14 +128,14 @@
     <dependency>
       <groupId>org.simplify4u</groupId>
       <artifactId>slf4j2-mock</artifactId>
-      <version>2.3.0</version>
+      <version>2.4.0</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.3.0-jre</version>
+      <version>33.4.0-jre</version>
       <scope>test</scope>
     </dependency>
 
@@ -143,6 +143,13 @@
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
       <version>4.2.2</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-core</artifactId>
+      <version>1.37</version>
       <scope>test</scope>
     </dependency>
 
@@ -157,14 +164,14 @@
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
-        <version>1.15.1</version>
+        <version>1.15.11</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy-agent</artifactId>
-        <version>1.15.1</version>
+        <version>1.15.11</version>
         <scope>test</scope>
       </dependency>
       <!-- End mockito workaround-->
@@ -172,7 +179,7 @@
       <dependency>
         <groupId>io.cucumber</groupId>
         <artifactId>cucumber-bom</artifactId>
-        <version>7.18.1</version>
+        <version>7.20.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -180,7 +187,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.11.0</version>
+        <version>5.11.4</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -193,7 +200,7 @@
       <plugin>
         <groupId>org.cyclonedx</groupId>
         <artifactId>cyclonedx-maven-plugin</artifactId>
-        <version>2.8.1</version>
+        <version>2.9.1</version>
         <configuration>
           <projectType>library</projectType>
           <schemaVersion>1.3</schemaVersion>
@@ -218,7 +225,7 @@
 
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.8.0</version>
+        <version>3.8.1</version>
         <executions>
           <execution>
             <phase>verify</phase>
@@ -253,7 +260,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.5.2</version>
         <configuration>
           <argLine>
             ${surefireArgLine}
@@ -268,7 +275,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.5.2</version>
         <configuration>
           <argLine>
             ${surefireArgLine}
@@ -352,7 +359,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.25.0</version>
+        <version>3.26.0</version>
         <executions>
           <execution>
             <id>run-pmd</id>
@@ -367,7 +374,7 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>4.8.6.3</version>
+        <version>4.8.6.6</version>
         <configuration>
           <excludeFilterFile>spotbugs-exclusions.xml</excludeFilterFile>
           <plugins>
@@ -400,7 +407,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.6.0</version>
         <configuration>
           <configLocation>checkstyle.xml</configLocation>
           <encoding>UTF-8</encoding>
@@ -470,10 +477,10 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.10.0</version>
+            <version>3.11.2</version>
             <configuration>
               <failOnWarnings>true</failOnWarnings>
-              <doclint>all,-missing</doclint>  <!-- ignore missing javadoc, these are enforced with more customizability in the checkstyle plugin -->
+              <doclint>all,-missing</doclint> <!-- ignore missing javadoc, these are enforced with more customizability in the checkstyle plugin -->
             </configuration>
             <executions>
               <execution>
@@ -490,7 +497,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.2.5</version>
+            <version>3.2.7</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -547,6 +554,19 @@
     </profile>
 
     <profile>
+      <id>benchmark</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>pw.krejci</groupId>
+            <artifactId>jmh-maven-plugin</artifactId>
+            <version>0.2.2</version>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
       <id>e2e</id>
       <properties>
         <!-- run the e2e tests by clearing the exclusions -->
@@ -558,7 +578,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>3.4.1</version>
+            <version>3.5.0</version>
             <executions>
               <execution>
                 <id>update-test-harness-submodule</id>
@@ -573,22 +593,21 @@
                     <argument>submodule</argument>
                     <argument>update</argument>
                     <argument>--init</argument>
-                    <argument>test-harness</argument>
+                    <argument>spec</argument>
                   </arguments>
                 </configuration>
               </execution>
               <execution>
-                <id>copy-gherkin-tests</id>
+                <id>copy-evaluation-gherkin-tests</id>
                 <phase>validate</phase>
                 <goals>
                   <goal>exec</goal>
                 </goals>
                 <configuration>
                   <!-- copy the feature spec we want to test into resources so them can be easily loaded -->
-                  <!-- run: cp test-harness/features/evaluation.feature src/test/resources/features/ -->
                   <executable>cp</executable>
                   <arguments>
-                    <argument>test-harness/features/evaluation.feature</argument>
+                    <argument>spec/specification/assets/gherkin/evaluation.feature</argument>
                     <argument>src/test/resources/features/</argument>
                   </arguments>
                 </configuration>

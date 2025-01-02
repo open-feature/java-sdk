@@ -18,8 +18,8 @@
   </a>
   <!-- x-release-please-start-version -->
 
-  <a href="https://github.com/open-feature/java-sdk/releases/tag/v1.10.0">
-    <img alt="Release" src="https://img.shields.io/static/v1?label=release&message=v1.10.0&color=blue&style=for-the-badge" />
+  <a href="https://github.com/open-feature/java-sdk/releases/tag/v1.13.0">
+    <img alt="Release" src="https://img.shields.io/static/v1?label=release&message=v1.13.0&color=blue&style=for-the-badge" />
   </a>  
 
   <!-- x-release-please-end -->
@@ -59,7 +59,7 @@ Note that this library is intended to be used in server-side contexts and has no
 <dependency>
     <groupId>dev.openfeature</groupId>
     <artifactId>sdk</artifactId>
-    <version>1.10.0</version>
+    <version>1.13.0</version>
 </dependency>
 ```
 <!-- x-release-please-end-version -->
@@ -84,7 +84,7 @@ If you would like snapshot builds, this is the relevant repository information:
 <!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-    implementation 'dev.openfeature:sdk:1.10.0'
+    implementation 'dev.openfeature:sdk:1.13.0'
 }
 ```
 <!-- x-release-please-end-version -->
@@ -120,17 +120,18 @@ See [here](https://javadoc.io/doc/dev.openfeature/sdk/latest/) for the Javadocs.
 
 ## 🌟 Features
 
-| Status | Features                                                              | Description                                                                                                                                                   |
-| ------ |-----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ✅     | [Providers](#providers)                                               | Integrate with a commercial, open source, or in-house feature management tool.                                                                                |
-| ✅     | [Targeting](#targeting)                                               | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context).                            |
-| ✅     | [Hooks](#hooks)                                                       | Add functionality to various stages of the flag evaluation life-cycle.                                                                                        |
-| ✅     | [Logging](#logging)                                                   | Integrate with popular logging packages.                                                                                                                      |
-| ✅     | [Domains](#domains)                                                   | Logically bind clients with providers.                                                                                                                        |
-| ✅     | [Eventing](#eventing)                                                 | React to state changes in the provider or flag management system.                                                                                             |
-| ✅     | [Shutdown](#shutdown)                                                 | Gracefully clean up a provider during application shutdown.                                                                                                   |
-| ✅     | [Transaction Context Propagation](#transaction-context-propagation)   | Set a specific [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context) for a transaction (e.g. an HTTP request or a thread). |   
-| ✅     | [Extending](#extending)                                               | Extend OpenFeature with custom providers and hooks.                                                                                                           |
+| Status | Features                                                            | Description                                                                                                                                                   |
+| ------ |---------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ✅     | [Providers](#providers)                                             | Integrate with a commercial, open source, or in-house feature management tool.                                                                                |
+| ✅     | [Targeting](#targeting)                                             | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context).                            |
+| ✅     | [Hooks](#hooks)                                                     | Add functionality to various stages of the flag evaluation life-cycle.                                                                                        |
+| ✅     | [Tracking](#tracking)                                               | Associate user actions with feature flag evaluations.                                                                                                         |
+| ✅     | [Logging](#logging)                                                 | Integrate with popular logging packages.                                                                                                                      |
+| ✅     | [Domains](#domains)                                                 | Logically bind clients with providers.                                                                                                                        |
+| ✅     | [Eventing](#eventing)                                               | React to state changes in the provider or flag management system.                                                                                             |
+| ✅     | [Shutdown](#shutdown)                                               | Gracefully clean up a provider during application shutdown.                                                                                                   |
+| ✅     | [Transaction Context Propagation](#transaction-context-propagation) | Set a specific [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context) for a transaction (e.g. an HTTP request or a thread). |   
+| ✅     | [Extending](#extending)                                             | Extend OpenFeature with custom providers and hooks.                                                                                                           |
 
 <sub>Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌</sub>
 
@@ -213,6 +214,16 @@ Once you've added a hook as a dependency, it can be registered at the global, cl
   // add a hook for this evaluation only
   Boolean retval = client.getBooleanValue(flagKey, false, null,
           FlagEvaluationOptions.builder().hook(new ExampleHook()).build());
+```
+
+### Tracking
+
+The [tracking API](https://openfeature.dev/specification/sections/tracking/) allows you to use OpenFeature abstractions to associate user actions with feature flag evaluations.
+This is essential for robust experimentation powered by feature flags. Note that, unlike methods that handle feature flag evaluations, calling `track(...)` may throw an `IllegalArgumentException` if an empty string is passed as the `trackingEventName`.
+
+```java
+OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+api.getClient().track("visited-promo-page", new MutableTrackingEventDetails(99.77).add("currency", "USD"));
 ```
 
 ### Logging
@@ -318,11 +329,6 @@ public class MyProvider implements FeatureProvider {
     }
 
     @Override
-    public ProviderState getState() {
-        // optionally indicate your provider's state (assumed to be READY if not implemented)
-    }
-
-    @Override
     public void initialize(EvaluationContext evaluationContext) throws Exception {
         // start up your provider
     }
@@ -369,11 +375,6 @@ class MyEventProvider extends EventProvider {
     }
 
     @Override
-    public ProviderState getState() {
-        // indicate your provider's state (required for EventProviders)
-    }
-
-    @Override
     public void initialize(EvaluationContext evaluationContext) throws Exception {
         // emit events when flags are changed in a hypothetical REST API
         this.restApiClient.onFlagsChanged(() -> {
@@ -389,6 +390,13 @@ class MyEventProvider extends EventProvider {
 
     // remaining provider methods...
 }
+```
+
+Providers no longer need to manage their own state, this is done by the SDK itself. If desired, the state of a provider 
+can be queried through the client that uses the provider.
+
+```java
+OpenFeatureAPI.getInstance().getClient().getProviderState();
 ```
 
 > Built a new provider? [Let us know](https://github.com/open-feature/openfeature.dev/issues/new?assignees=&labels=provider&projects=&template=document-provider.yaml&title=%5BProvider%5D%3A+) so we can add it to the docs!

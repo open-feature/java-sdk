@@ -2,18 +2,32 @@ package dev.openfeature.sdk;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collections;
 
 @SuppressWarnings({ "PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType" })
 abstract class AbstractStructure implements Structure {
 
     protected final Map<String, Value> attributes;
 
+    @Override
+    public boolean isEmpty() {
+        return attributes == null || attributes.size() == 0;
+    }
+
     AbstractStructure() {
         this.attributes = new HashMap<>();
     }
 
     AbstractStructure(Map<String, Value> attributes) {
-        this.attributes = new HashMap<>(attributes);
+        this.attributes = attributes;
+    }
+
+    /**
+     * Returns an unmodifiable representation of the internal attribute map.
+     * @return immutable map
+     */
+    public Map<String, Value> asUnmodifiableMap() {
+        return Collections.unmodifiableMap(attributes);
     }
 
     /**
@@ -32,4 +46,5 @@ abstract class AbstractStructure implements Structure {
                         (accumulated, entry) -> accumulated.put(entry.getKey(), convertValue(entry.getValue())),
                         HashMap::putAll);
     }
+
 }

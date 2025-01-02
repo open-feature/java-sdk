@@ -16,33 +16,41 @@ import static dev.openfeature.sdk.Structure.mapToStructure;
 @UtilityClass
 public class TestFlagsUtils {
 
+    public static final String BOOLEAN_FLAG_KEY = "boolean-flag";
+    public static final String STRING_FLAG_KEY = "string-flag";
+    public static final String INT_FLAG_KEY = "integer-flag";
+    public static final String FLOAT_FLAG_KEY = "float-flag";
+    public static final String OBJECT_FLAG_KEY = "object-flag";
+    public static final String CONTEXT_AWARE_FLAG_KEY = "context-aware";
+    public static final String WRONG_FLAG_KEY = "wrong-flag";
+
     /**
      * Building flags for testing purposes.
      * @return map of flags
      */
     public static Map<String, Flag<?>> buildFlags() {
         Map<String, Flag<?>> flags = new HashMap<>();
-        flags.put("boolean-flag", Flag.builder()
+        flags.put(BOOLEAN_FLAG_KEY, Flag.builder()
             .variant("on", true)
             .variant("off", false)
             .defaultVariant("on")
             .build());
-        flags.put("string-flag", Flag.builder()
+        flags.put(STRING_FLAG_KEY, Flag.builder()
             .variant("greeting", "hi")
             .variant("parting", "bye")
             .defaultVariant("greeting")
             .build());
-        flags.put("integer-flag", Flag.builder()
+        flags.put(INT_FLAG_KEY, Flag.builder()
             .variant("one", 1)
             .variant("ten", 10)
             .defaultVariant("ten")
             .build());
-        flags.put("float-flag", Flag.builder()
+        flags.put(FLOAT_FLAG_KEY, Flag.builder()
             .variant("tenth", 0.1)
             .variant("half", 0.5)
             .defaultVariant("half")
             .build());
-        flags.put("object-flag", Flag.builder()
+        flags.put(OBJECT_FLAG_KEY, Flag.builder()
             .variant("empty", new HashMap<>())
             .variant("template", new Value(mapToStructure(ImmutableMap.of(
                 "showImages", new Value(true),
@@ -51,7 +59,7 @@ public class TestFlagsUtils {
             ))))
             .defaultVariant("template")
             .build());
-        flags.put("context-aware", Flag.<String>builder()
+        flags.put(CONTEXT_AWARE_FLAG_KEY, Flag.<String>builder()
             .variant("internal", "INTERNAL")
             .variant("external", "EXTERNAL")
             .defaultVariant("external")
@@ -63,7 +71,7 @@ public class TestFlagsUtils {
                 }
             })
             .build());
-        flags.put("wrong-flag", Flag.builder()
+        flags.put(WRONG_FLAG_KEY, Flag.builder()
             .variant("one", "uno")
             .variant("two", "dos")
             .defaultVariant("one")

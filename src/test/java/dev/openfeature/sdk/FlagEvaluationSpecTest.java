@@ -1,28 +1,11 @@
 package dev.openfeature.sdk;
 
-import static dev.openfeature.sdk.DoSomethingProvider.DEFAULT_METADATA;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.awaitility.Awaitility;
+import dev.openfeature.sdk.exceptions.GeneralError;
+import dev.openfeature.sdk.fixtures.HookFixtures;
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import dev.openfeature.sdk.testutils.TestEventsProvider;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,12 +13,17 @@ import org.mockito.Mockito;
 import org.simplify4u.slf4jmock.LoggerMock;
 import org.slf4j.Logger;
 
-import dev.openfeature.sdk.exceptions.GeneralError;
-import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.providers.memory.InMemoryProvider;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
-import dev.openfeature.sdk.testutils.TestEventsProvider;
-import lombok.SneakyThrows;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static dev.openfeature.sdk.DoSomethingProvider.DEFAULT_METADATA;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.*;
 
 class FlagEvaluationSpecTest implements HookFixtures {
 
@@ -44,6 +32,14 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     private Client _client() {
         FeatureProviderTestUtils.setFeatureProvider(new NoOpProvider());
+        return api.getClient();
+    }
+
+    @SneakyThrows
+    private Client _initializedClient() {
+        TestEventsProvider provider = new TestEventsProvider();
+        provider.initialize(null);
+        FeatureProviderTestUtils.setFeatureProvider(provider);
         return api.getClient();
     }
 
@@ -82,12 +78,14 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test void providerAndWait() {
         FeatureProvider provider = new TestEventsProvider(500);
         OpenFeatureAPI.getInstance().setProviderAndWait(provider);
-        assertThat(api.getProvider().getState()).isEqualTo(ProviderState.READY);
+        Client client = api.getClient();
+        assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
 
         provider = new TestEventsProvider(500);
         String providerName = "providerAndWait";
         OpenFeatureAPI.getInstance().setProviderAndWait(providerName, provider);
-        assertThat(api.getProvider(providerName).getState()).isEqualTo(ProviderState.READY);
+        Client client2 = api.getClient(providerName);
+        assertThat(client2.getProviderState()).isEqualTo(ProviderState.READY);
     }
 
     @SneakyThrows
@@ -103,17 +101,13 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @Specification(number="2.4.5", text="The provider SHOULD indicate an error if flag resolution is attempted before the provider is ready.")
     @Test void shouldReturnNotReadyIfNotInitialized() {
-        FeatureProvider provider = new InMemoryProvider(new HashMap<>()) {
-            @Override
-            public void initialize(EvaluationContext evaluationContext) throws Exception {
-                Awaitility.await().wait(3000);
-            }
-        };
+        FeatureProvider provider = new TestEventsProvider(100);
         String providerName = "shouldReturnNotReadyIfNotInitialized";
         OpenFeatureAPI.getInstance().setProvider(providerName, provider);
-        assertThat(api.getProvider(providerName).getState()).isEqualTo(ProviderState.NOT_READY);
         Client client = OpenFeatureAPI.getInstance().getClient(providerName);
-        assertEquals(ErrorCode.PROVIDER_NOT_READY, client.getBooleanDetails("return_error_when_not_initialized", false).getErrorCode());
+        FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("return_error_when_not_initialized", false);
+        assertEquals(ErrorCode.PROVIDER_NOT_READY, details.getErrorCode());
+        assertEquals(Reason.ERROR.toString(), details.getReason());
     }
 
     @Specification(number="1.1.5", text="The API MUST provide a function for retrieving the metadata field of the configured provider.")
@@ -240,8 +234,9 @@ class FlagEvaluationSpecTest implements HookFixtures {
     }
 
     @Specification(number="1.5.1", text="The evaluation options structure's hooks field denotes an ordered collection of hooks that the client MUST execute for the respective flag evaluation, in addition to those already configured.")
-    @Test void hooks() {
-        Client c = _client();
+    @SneakyThrows
+    @Test void hooks()  {
+        Client c = _initializedClient();
         Hook<Boolean> clientHook = mockBooleanHook();
         Hook<Boolean> invocationHook = mockBooleanHook();
         c.addHooks(clientHook);
@@ -259,10 +254,29 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test void broken_provider() {
         FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
         Client c = api.getClient();
-        assertFalse(c.getBooleanValue("key", false));
-        FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", false);
+        boolean defaultValue = false;
+        assertFalse(c.getBooleanValue("key", defaultValue));
+        FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", defaultValue);
         assertEquals(ErrorCode.FLAG_NOT_FOUND, details.getErrorCode());
         assertEquals(TestConstants.BROKEN_MESSAGE, details.getErrorMessage());
+        assertEquals(Reason.ERROR.toString(), details.getReason());
+        assertEquals(defaultValue, details.getValue());
+    }
+
+    @Specification(number="1.4.8", text="In cases of abnormal execution, the `evaluation details` structure's `error code` field **MUST** contain an `error code`.")
+    @Specification(number="1.4.9", text="In cases of abnormal execution (network failure, unhandled error, etc) the `reason` field in the `evaluation details` SHOULD indicate an error.")
+    @Specification(number="1.4.10", text="Methods, functions, or operations on the client MUST NOT throw exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the `default value` in the event of abnormal execution. Exceptions include functions or methods for the purposes for configuration or setup.")
+    @Specification(number="1.4.13", text="In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
+    @Test void broken_provider_withDetails() {
+        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenWithDetailsProvider());
+        Client c = api.getClient();
+        boolean defaultValue = false;
+        assertFalse(c.getBooleanValue("key", defaultValue));
+        FlagEvaluationDetails<Boolean> details = c.getBooleanDetails("key", defaultValue);
+        assertEquals(ErrorCode.FLAG_NOT_FOUND, details.getErrorCode());
+        assertEquals(TestConstants.BROKEN_MESSAGE, details.getErrorMessage());
+        assertEquals(Reason.ERROR.toString(), details.getReason());
+        assertEquals(defaultValue, details.getValue());
     }
 
     @Specification(number="1.4.11", text="Methods, functions, or operations on the client SHOULD NOT write log messages.")

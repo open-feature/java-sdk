@@ -21,7 +21,7 @@ public class FeatureProviderTestUtils {
         await()
             .pollDelay(Duration.ofMillis(1))
             .atMost(Duration.ofSeconds(1))
-            .until(() -> extractor.apply(OpenFeatureAPI.getInstance()) == provider);
+            .until(() -> extractor.apply(OpenFeatureAPI.getInstance()).equals(provider));
     }
 
     public static void setFeatureProvider(String domain, FeatureProvider provider) {
