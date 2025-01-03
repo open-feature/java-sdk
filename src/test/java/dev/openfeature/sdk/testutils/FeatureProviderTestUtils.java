@@ -2,10 +2,10 @@ package dev.openfeature.sdk.testutils;
 
 import static org.awaitility.Awaitility.await;
 
-import java.time.Duration;
-import java.util.function.Function;
 import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.OpenFeatureAPI;
+import java.time.Duration;
+import java.util.function.Function;
 import lombok.experimental.UtilityClass;
 
 // todo check the need of this utility class as we now have setProviderAndWait capability

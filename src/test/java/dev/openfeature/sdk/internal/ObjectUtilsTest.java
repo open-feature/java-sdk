@@ -1,16 +1,15 @@
 package dev.openfeature.sdk.internal;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import static dev.openfeature.sdk.internal.ObjectUtils.defaultIfNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static dev.openfeature.sdk.internal.ObjectUtils.defaultIfNull;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 class ObjectUtilsTest {
 

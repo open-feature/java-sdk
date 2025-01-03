@@ -10,13 +10,13 @@ import static org.mockito.Mockito.verify;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
-import lombok.SneakyThrows;
-import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.Test;
 
 class DeveloperExperienceTest implements HookFixtures {
     transient String flagKey = "mykey";
