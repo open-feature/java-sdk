@@ -1,17 +1,15 @@
 package dev.openfeature.sdk;
 
-import java.util.Collections;
-import java.util.Map;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
-
 import static dev.openfeature.sdk.EvaluationContext.TARGETING_KEY;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class ImmutableContextTest {
     @DisplayName("attributes unable to allow mutation should not affect the immutable context")
@@ -23,7 +21,8 @@ class ImmutableContextTest {
         // should check the usage of Map.of() which is a more likely use case, but that API isn't available in Java 8
         EvaluationContext ctx = new ImmutableContext("targeting key", Collections.unmodifiableMap(attributes));
         attributes.put("key3", new Value("val3"));
-        assertArrayEquals(new Object[]{"key1", "key2", TARGETING_KEY}, ctx.keySet().toArray());
+        assertArrayEquals(
+                new Object[] {"key1", "key2", TARGETING_KEY}, ctx.keySet().toArray());
     }
 
     @DisplayName("attributes mutation should not affect the immutable context")
@@ -34,7 +33,8 @@ class ImmutableContextTest {
         attributes.put("key2", new Value("val2"));
         EvaluationContext ctx = new ImmutableContext("targeting key", attributes);
         attributes.put("key3", new Value("val3"));
-        assertArrayEquals(new Object[]{"key1", "key2", TARGETING_KEY}, ctx.keySet().toArray());
+        assertArrayEquals(
+                new Object[] {"key1", "key2", TARGETING_KEY}, ctx.keySet().toArray());
     }
 
     @DisplayName("targeting key should be changed from the overriding context")
@@ -60,6 +60,7 @@ class ImmutableContextTest {
         EvaluationContext merge = ctx.merge(overriding);
         assertEquals("targeting_key", merge.getTargetingKey());
     }
+
     @DisplayName("missing targeting key should return null")
     @Test
     void missingTargetingKeyShould() {
@@ -76,10 +77,12 @@ class ImmutableContextTest {
         EvaluationContext ctx = new ImmutableContext("targeting_key", attributes);
         EvaluationContext merge = ctx.merge(null);
         assertEquals("targeting_key", merge.getTargetingKey());
-        assertArrayEquals(new Object[]{"key1", "key2", TARGETING_KEY}, merge.keySet().toArray());
+        assertArrayEquals(
+                new Object[] {"key1", "key2", TARGETING_KEY}, merge.keySet().toArray());
     }
 
-    @DisplayName("Merge should retain subkeys from the existing context when the overriding context has the same targeting key")
+    @DisplayName(
+            "Merge should retain subkeys from the existing context when the overriding context has the same targeting key")
     @Test
     void mergeShouldRetainItsSubkeysWhenOverridingContextHasTheSameKey() {
         HashMap<String, Value> attributes = new HashMap<>();
@@ -92,21 +95,24 @@ class ImmutableContextTest {
         attributes.put("key2", new Value("val2"));
         ovKey1Attributes.put("overriding_key1_1", new Value("overriding_val_1_1"));
         overridingAttributes.put("key1", new Value(new ImmutableStructure(ovKey1Attributes)));
-        
+
         EvaluationContext ctx = new ImmutableContext("targeting_key", attributes);
         EvaluationContext overriding = new ImmutableContext("targeting_key", overridingAttributes);
         EvaluationContext merge = ctx.merge(overriding);
         assertEquals("targeting_key", merge.getTargetingKey());
-        assertArrayEquals(new Object[]{"key1", "key2", TARGETING_KEY}, merge.keySet().toArray());
-        
+        assertArrayEquals(
+                new Object[] {"key1", "key2", TARGETING_KEY}, merge.keySet().toArray());
+
         Value key1 = merge.getValue("key1");
         assertTrue(key1.isStructure());
-        
+
         Structure value = key1.asStructure();
-        assertArrayEquals(new Object[]{"key1_1","overriding_key1_1"}, value.keySet().toArray());
+        assertArrayEquals(
+                new Object[] {"key1_1", "overriding_key1_1"}, value.keySet().toArray());
     }
-    
-    @DisplayName("Merge should retain subkeys from the existing context when the overriding context doesn't have targeting key")
+
+    @DisplayName(
+            "Merge should retain subkeys from the existing context when the overriding context doesn't have targeting key")
     @Test
     void mergeShouldRetainItsSubkeysWhenOverridingContextHasNoTargetingKey() {
         HashMap<String, Value> attributes = new HashMap<>();
@@ -115,16 +121,16 @@ class ImmutableContextTest {
         key1Attributes.put("key1_1", new Value("val1_1"));
         attributes.put("key1", new Value(new ImmutableStructure(key1Attributes)));
         attributes.put("key2", new Value("val2"));
-        
+
         EvaluationContext ctx = new ImmutableContext(attributes);
         EvaluationContext overriding = new ImmutableContext();
         EvaluationContext merge = ctx.merge(overriding);
-        assertArrayEquals(new Object[]{"key1", "key2"}, merge.keySet().toArray());
-        
+        assertArrayEquals(new Object[] {"key1", "key2"}, merge.keySet().toArray());
+
         Value key1 = merge.getValue("key1");
         assertTrue(key1.isStructure());
-        
+
         Structure value = key1.asStructure();
-        assertArrayEquals(new Object[]{"key1_1"}, value.keySet().toArray());
+        assertArrayEquals(new Object[] {"key1_1"}, value.keySet().toArray());
     }
 }

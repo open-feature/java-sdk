@@ -1,19 +1,14 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.exceptions.FatalError;
-import dev.openfeature.sdk.exceptions.GeneralError;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import dev.openfeature.sdk.internal.TriConsumer;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 class EventProviderTest {
 
@@ -71,7 +66,6 @@ class EventProviderTest {
         assertThrows(IllegalStateException.class, () -> eventProvider.attach(onEmit2));
     }
 
-
     @Test
     @DisplayName("should not throw if second same onEmit attached")
     void doesNotThrowWhenOnEmitSame() {
@@ -91,32 +85,29 @@ class EventProviderTest {
         }
 
         @Override
-        public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue,
-                                                                EvaluationContext ctx) {
+        public ProviderEvaluation<Boolean> getBooleanEvaluation(
+                String key, Boolean defaultValue, EvaluationContext ctx) {
             throw new UnsupportedOperationException("Unimplemented method 'getBooleanEvaluation'");
         }
 
         @Override
-        public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue,
-                                                              EvaluationContext ctx) {
+        public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
             throw new UnsupportedOperationException("Unimplemented method 'getStringEvaluation'");
         }
 
         @Override
-        public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue,
-                                                                EvaluationContext ctx) {
+        public ProviderEvaluation<Integer> getIntegerEvaluation(
+                String key, Integer defaultValue, EvaluationContext ctx) {
             throw new UnsupportedOperationException("Unimplemented method 'getIntegerEvaluation'");
         }
 
         @Override
-        public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue,
-                                                              EvaluationContext ctx) {
+        public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
             throw new UnsupportedOperationException("Unimplemented method 'getDoubleEvaluation'");
         }
 
         @Override
-        public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue,
-                                                             EvaluationContext ctx) {
+        public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
             throw new UnsupportedOperationException("Unimplemented method 'getObjectEvaluation'");
         }
 

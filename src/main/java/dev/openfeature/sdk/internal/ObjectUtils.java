@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-
 import lombok.experimental.UtilityClass;
 
 @SuppressWarnings("checkstyle:MissingJavadocType")
@@ -13,9 +12,10 @@ public class ObjectUtils {
 
     /**
      * If the source param is null, return the default value.
-     * @param source maybe null object
+     *
+     * @param source       maybe null object
      * @param defaultValue thing to use if source is null
-     * @param <T> list type
+     * @param <T>          list type
      * @return resulting object
      */
     public static <T> List<T> defaultIfNull(List<T> source, Supplier<List<T>> defaultValue) {
@@ -27,10 +27,11 @@ public class ObjectUtils {
 
     /**
      * If the source param is null, return the default value.
-     * @param source maybe null object
+     *
+     * @param source       maybe null object
      * @param defaultValue thing to use if source is null
-     * @param <K> map key type
-     * @param <V> map value type
+     * @param <K>          map key type
+     * @param <V>          map value type
      * @return resulting map
      */
     public static <K, V> Map<K, V> defaultIfNull(Map<K, V> source, Supplier<Map<K, V>> defaultValue) {
@@ -42,9 +43,10 @@ public class ObjectUtils {
 
     /**
      * If the source param is null, return the default value.
-     * @param source maybe null object
+     *
+     * @param source       maybe null object
      * @param defaultValue thing to use if source is null
-     * @param <T> type
+     * @param <T>          type
      * @return resulting object
      */
     public static <T> T defaultIfNull(T source, Supplier<T> defaultValue) {
@@ -56,8 +58,9 @@ public class ObjectUtils {
 
     /**
      * Concatenate a bunch of lists.
+     *
      * @param sources bunch of lists.
-     * @param <T> list type
+     * @param <T>     list type
      * @return resulting object
      */
     @SafeVarargs

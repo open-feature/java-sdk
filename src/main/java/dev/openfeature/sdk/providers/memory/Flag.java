@@ -1,11 +1,10 @@
 package dev.openfeature.sdk.providers.memory;
 
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
 import lombok.ToString;
-
-import java.util.Map;
 
 /**
  * Flag representation for the in-memory provider.
@@ -16,6 +15,7 @@ import java.util.Map;
 public class Flag<T> {
     @Singular
     private Map<String, Object> variants;
+
     private String defaultVariant;
     private ContextEvaluator<T> contextEvaluator;
 }

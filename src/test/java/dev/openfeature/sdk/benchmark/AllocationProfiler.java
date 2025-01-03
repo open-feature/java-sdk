@@ -8,7 +8,6 @@ import java.io.LineNumberReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
-
 import org.openjdk.jmh.infra.BenchmarkParams;
 import org.openjdk.jmh.infra.IterationParams;
 import org.openjdk.jmh.profile.InternalProfiler;
@@ -45,16 +44,16 @@ public class AllocationProfiler implements InternalProfiler {
     }
 
     @Override
-    public Collection<? extends Result> afterIteration(BenchmarkParams benchmarkParams, IterationParams iterationParams,
-            IterationResult result) {
+    public Collection<? extends Result> afterIteration(
+            BenchmarkParams benchmarkParams, IterationParams iterationParams, IterationResult result) {
 
         long totalHeap = Runtime.getRuntime().totalMemory();
         AllocationTotals allocationTotals = AllocationProfiler.printHeapHistogram(System.out, 120);
 
         Collection<ScalarResult> results = new ArrayList<>();
         results.add(new ScalarResult("+totalHeap", totalHeap, "bytes", AggregationPolicy.MAX));
-        results.add(new ScalarResult("+totalAllocatedInstances", allocationTotals.instances, "instances",
-                AggregationPolicy.MAX));
+        results.add(new ScalarResult(
+                "+totalAllocatedInstances", allocationTotals.instances, "instances", AggregationPolicy.MAX));
         results.add(new ScalarResult("+totalAllocatedBytes", allocationTotals.bytes, "bytes", AggregationPolicy.MAX));
 
         return results;
@@ -66,25 +65,19 @@ public class AllocationProfiler implements InternalProfiler {
         if (javaHome.endsWith(jreDir)) {
             javaHome = javaHome.substring(0, javaHome.length() - jreDir.length());
         }
-        return (javaHome +
-                File.separator +
-                "bin" +
-                File.separator +
-                "jmap" +
-                (Utils.isWindows() ? ".exe" : ""));
+        return (javaHome + File.separator + "bin" + File.separator + "jmap" + (Utils.isWindows() ? ".exe" : ""));
     }
 
     // runs JMAP executable in a new process to collect a heap dump
-    // heavily inspired by: https://github.com/cache2k/cache2k-benchmark/blob/master/jmh-suite/src/main/java/org/cache2k/benchmark/jmh/HeapProfiler.java
+    // heavily inspired by:
+    // https://github.com/cache2k/cache2k-benchmark/blob/master/jmh-suite/src/main/java/org/cache2k/benchmark/jmh/HeapProfiler.java
     private static AllocationTotals printHeapHistogram(PrintStream out, int maxLines) {
         long totalBytes = 0;
         long totalInstances = 0;
         boolean partial = false;
         try {
-            Process jmapProcess = Runtime.getRuntime().exec(new String[] {
-                    getJmapExcutable(),
-                    "-histo:live",
-                    Long.toString(Utils.getPid()) });
+            Process jmapProcess = Runtime.getRuntime()
+                    .exec(new String[] {getJmapExcutable(), "-histo:live", Long.toString(Utils.getPid())});
             InputStream in = jmapProcess.getInputStream();
             LineNumberReader r = new LineNumberReader(new InputStreamReader(in));
             String line;

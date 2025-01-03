@@ -8,5 +8,7 @@ import lombok.experimental.StandardException;
 @StandardException
 public class ProviderNotReadyError extends OpenFeatureErrorWithoutStacktrace {
     private static final long serialVersionUID = 1L;
-    @Getter private final ErrorCode errorCode = ErrorCode.PROVIDER_NOT_READY;
+
+    @Getter
+    private final ErrorCode errorCode = ErrorCode.PROVIDER_NOT_READY;
 }

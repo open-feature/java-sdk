@@ -1,17 +1,15 @@
 package dev.openfeature.sdk;
 
-import com.google.common.collect.Lists;
-import org.junit.jupiter.api.Test;
-
-import java.time.Instant;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-class MutableTrackingEventDetailsTest {
+import com.google.common.collect.Lists;
+import java.time.Instant;
+import org.junit.jupiter.api.Test;
 
+class MutableTrackingEventDetailsTest {
 
     @Test
     void hasDefaultValue() {
@@ -46,6 +44,8 @@ class MutableTrackingEventDetailsTest {
         assertEquals(new Value(Instant.parse("2023-12-03T10:15:30Z")), track.getValue("key5"));
         assertEquals(new Value(new MutableContext()), track.getValue("key6"));
         assertEquals(new Value(7), track.getValue("key7"));
-        assertArrayEquals(new Object[]{new Value(8), new Value(9)}, track.getValue("key8").asList().toArray());
+        assertArrayEquals(
+                new Object[] {new Value(8), new Value(9)},
+                track.getValue("key8").asList().toArray());
     }
 }

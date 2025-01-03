@@ -1,20 +1,5 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import dev.openfeature.sdk.testutils.exception.TestException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
-import java.time.Duration;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import static dev.openfeature.sdk.fixtures.ProviderFixture.*;
 import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doDelayResponse;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,6 +8,20 @@ import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+
+import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import dev.openfeature.sdk.testutils.exception.TestException;
+import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 class ProviderRepositoryTest {
 
@@ -48,8 +47,9 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should reject null as default provider")
             void shouldRejectNullAsDefaultProvider() {
-                assertThatCode(() -> providerRepository.setProvider(null, mockAfterSet(), mockAfterInit(),
-                        mockAfterShutdown(), mockAfterError(), false)).isInstanceOf(IllegalArgumentException.class);
+                assertThatCode(() -> providerRepository.setProvider(
+                                null, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false))
+                        .isInstanceOf(IllegalArgumentException.class);
             }
 
             @Test
@@ -64,13 +64,17 @@ class ProviderRepositoryTest {
                 FeatureProvider featureProvider = createMockedProvider();
                 doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(new ImmutableContext());
 
-                await()
-                        .alias("wait for provider mutator to return")
+                await().alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .until(() -> {
-                            providerRepository.setProvider(featureProvider, mockAfterSet(), mockAfterInit(),
-                                    mockAfterShutdown(), mockAfterError(), false);
+                            providerRepository.setProvider(
+                                    featureProvider,
+                                    mockAfterSet(),
+                                    mockAfterInit(),
+                                    mockAfterShutdown(),
+                                    mockAfterError(),
+                                    false);
                             verify(featureProvider, timeout(TIMEOUT)).initialize(any());
                             return true;
                         });
@@ -85,8 +89,14 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should reject null as named provider")
             void shouldRejectNullAsNamedProvider() {
-                assertThatCode(() -> providerRepository.setProvider(DOMAIN_NAME, null, mockAfterSet(), mockAfterInit(),
-                        mockAfterShutdown(), mockAfterError(), false))
+                assertThatCode(() -> providerRepository.setProvider(
+                                DOMAIN_NAME,
+                                null,
+                                mockAfterSet(),
+                                mockAfterInit(),
+                                mockAfterShutdown(),
+                                mockAfterError(),
+                                false))
                         .isInstanceOf(IllegalArgumentException.class);
             }
 
@@ -94,8 +104,14 @@ class ProviderRepositoryTest {
             @DisplayName("should reject null as domain name")
             void shouldRejectNullAsDefaultProvider() {
                 NoOpProvider provider = new NoOpProvider();
-                assertThatCode(() -> providerRepository.setProvider(null, provider, mockAfterSet(), mockAfterInit(),
-                        mockAfterShutdown(), mockAfterError(), false))
+                assertThatCode(() -> providerRepository.setProvider(
+                                null,
+                                provider,
+                                mockAfterSet(),
+                                mockAfterInit(),
+                                mockAfterShutdown(),
+                                mockAfterError(),
+                                false))
                         .isInstanceOf(IllegalArgumentException.class);
             }
 
@@ -105,13 +121,18 @@ class ProviderRepositoryTest {
                 FeatureProvider featureProvider = createMockedProvider();
                 doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(any());
 
-                await()
-                        .alias("wait for provider mutator to return")
+                await().alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .until(() -> {
-                            providerRepository.setProvider("a domain", featureProvider, mockAfterSet(),
-                                    mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
+                            providerRepository.setProvider(
+                                    "a domain",
+                                    featureProvider,
+                                    mockAfterSet(),
+                                    mockAfterInit(),
+                                    mockAfterShutdown(),
+                                    mockAfterError(),
+                                    false);
                             verify(featureProvider, timeout(TIMEOUT)).initialize(any());
                             return true;
                         });
@@ -131,13 +152,17 @@ class ProviderRepositoryTest {
                 FeatureProvider newProvider = createMockedProvider();
                 doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any());
 
-                await()
-                        .alias("wait for provider mutator to return")
+                await().alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .until(() -> {
-                            providerRepository.setProvider(newProvider, mockAfterSet(), mockAfterInit(),
-                                    mockAfterShutdown(), mockAfterError(), false);
+                            providerRepository.setProvider(
+                                    newProvider,
+                                    mockAfterSet(),
+                                    mockAfterInit(),
+                                    mockAfterShutdown(),
+                                    mockAfterError(),
+                                    false);
                             verify(newProvider, timeout(TIMEOUT)).initialize(any());
                             return true;
                         });
@@ -168,12 +193,16 @@ class ProviderRepositoryTest {
                 FeatureProvider newProvider = createMockedProvider();
                 doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any());
 
-                Future<?> providerMutation = executorService
-                        .submit(() -> providerRepository.setProvider(DOMAIN_NAME, newProvider, mockAfterSet(),
-                                mockAfterInit(), mockAfterShutdown(), mockAfterError(), false));
+                Future<?> providerMutation = executorService.submit(() -> providerRepository.setProvider(
+                        DOMAIN_NAME,
+                        newProvider,
+                        mockAfterSet(),
+                        mockAfterInit(),
+                        mockAfterShutdown(),
+                        mockAfterError(),
+                        false));
 
-                await()
-                        .alias("wait for provider mutator to return")
+                await().alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))
                         .atMost(Duration.ofSeconds(1))
                         .until(providerMutation::isDone);
@@ -278,55 +307,47 @@ class ProviderRepositoryTest {
     }
 
     private void setFeatureProvider(FeatureProvider provider) {
-        providerRepository.setProvider(provider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(),
-                mockAfterError(), false);
+        providerRepository.setProvider(
+                provider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
         waitForSettingProviderHasBeenCompleted(ProviderRepository::getProvider, provider);
     }
 
-
-    private void setFeatureProvider(FeatureProvider provider, Consumer<FeatureProvider> afterSet,
-                                    Consumer<FeatureProvider> afterInit, Consumer<FeatureProvider> afterShutdown,
-                                    BiConsumer<FeatureProvider, OpenFeatureError> afterError) {
-        providerRepository.setProvider(provider, afterSet, afterInit, afterShutdown,
-                afterError, false);
+    private void setFeatureProvider(
+            FeatureProvider provider,
+            Consumer<FeatureProvider> afterSet,
+            Consumer<FeatureProvider> afterInit,
+            Consumer<FeatureProvider> afterShutdown,
+            BiConsumer<FeatureProvider, OpenFeatureError> afterError) {
+        providerRepository.setProvider(provider, afterSet, afterInit, afterShutdown, afterError, false);
         waitForSettingProviderHasBeenCompleted(ProviderRepository::getProvider, provider);
     }
 
     private void setFeatureProvider(String namedProvider, FeatureProvider provider) {
-        providerRepository.setProvider(namedProvider, provider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(),
-                mockAfterError(), false);
+        providerRepository.setProvider(
+                namedProvider, provider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
         waitForSettingProviderHasBeenCompleted(repository -> repository.getProvider(namedProvider), provider);
     }
 
     private void waitForSettingProviderHasBeenCompleted(
-            Function<ProviderRepository, FeatureProvider> extractor,
-            FeatureProvider provider) {
-        await()
-                .pollDelay(Duration.ofMillis(1))
-                .atMost(Duration.ofSeconds(5))
-                .until(() -> {
-                    return extractor.apply(providerRepository).equals(provider);
-                });
+            Function<ProviderRepository, FeatureProvider> extractor, FeatureProvider provider) {
+        await().pollDelay(Duration.ofMillis(1)).atMost(Duration.ofSeconds(5)).until(() -> {
+            return extractor.apply(providerRepository).equals(provider);
+        });
     }
 
     private Consumer<FeatureProvider> mockAfterSet() {
-        return fp -> {
-        };
+        return fp -> {};
     }
 
     private Consumer<FeatureProvider> mockAfterInit() {
-        return fp -> {
-        };
+        return fp -> {};
     }
 
     private Consumer<FeatureProvider> mockAfterShutdown() {
-        return fp -> {
-        };
+        return fp -> {};
     }
 
     private BiConsumer<FeatureProvider, OpenFeatureError> mockAfterError() {
-        return (fp, ex) -> {
-        };
+        return (fp, ex) -> {};
     }
-
 }

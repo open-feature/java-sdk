@@ -1,15 +1,14 @@
 package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.experimental.Delegate;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Delegate;
 
 /**
  * MutableTrackingEventDetails represents data pertinent to a particular tracking event.
@@ -19,6 +18,7 @@ import java.util.function.Function;
 public class MutableTrackingEventDetails implements TrackingEventDetails {
 
     private final Number value;
+
     @Delegate(excludes = MutableTrackingEventDetails.DelegateExclusions.class)
     private final MutableStructure structure;
 
@@ -81,13 +81,13 @@ public class MutableTrackingEventDetails implements TrackingEventDetails {
         return this;
     }
 
-
     @SuppressWarnings("all")
     private static class DelegateExclusions {
         @ExcludeFromGeneratedCoverageReport
-        public <T extends Structure> Map<String, Value> merge(Function<Map<String, Value>, Structure> newStructure,
-                                                              Map<String, Value> base,
-                                                              Map<String, Value> overriding) {
+        public <T extends Structure> Map<String, Value> merge(
+                Function<Map<String, Value>, Structure> newStructure,
+                Map<String, Value> base,
+                Map<String, Value> overriding) {
             return null;
         }
     }

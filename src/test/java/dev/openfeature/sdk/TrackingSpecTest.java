@@ -1,16 +1,5 @@
 package dev.openfeature.sdk;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import dev.openfeature.sdk.fixtures.ProviderFixture;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
-import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,6 +12,16 @@ import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import dev.openfeature.sdk.fixtures.ProviderFixture;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 class TrackingSpecTest {
 
     private OpenFeatureAPI api;
@@ -34,13 +33,16 @@ class TrackingSpecTest {
         client = api.getClient();
     }
 
-
-    @Specification(number = "6.1.1.1", text = "The `client` MUST define a function for tracking the occurrence of " +
-            "a particular action or application state, with parameters `tracking event name` (string, required), " +
-            "`evaluation context` (optional) and `tracking event details` (optional), which returns nothing.")
-    @Specification(number = "6.1.2.1", text = "The `client` MUST define a function for tracking the occurrence of a " +
-            "particular action or application state, with parameters `tracking event name` (string, required) and " +
-            "`tracking event details` (optional), which returns nothing.")
+    @Specification(
+            number = "6.1.1.1",
+            text = "The `client` MUST define a function for tracking the occurrence of "
+                    + "a particular action or application state, with parameters `tracking event name` (string, required), "
+                    + "`evaluation context` (optional) and `tracking event details` (optional), which returns nothing.")
+    @Specification(
+            number = "6.1.2.1",
+            text = "The `client` MUST define a function for tracking the occurrence of a "
+                    + "particular action or application state, with parameters `tracking event name` (string, required) and "
+                    + "`tracking event details` (optional), which returns nothing.")
     @Test
     @SneakyThrows
     void trackMethodFulfillsSpec() {
@@ -65,7 +67,6 @@ class TrackingSpecTest {
         assertThrows(IllegalArgumentException.class, () -> client.track("", ctx));
         assertThrows(IllegalArgumentException.class, () -> client.track("", ctx, details));
 
-
         Class<OpenFeatureClient> clientClass = OpenFeatureClient.class;
         assertEquals(
                 void.class,
@@ -73,20 +74,24 @@ class TrackingSpecTest {
                 "The method should return void.");
         assertEquals(
                 void.class,
-                clientClass.getMethod("track", String.class, EvaluationContext.class).getReturnType(),
+                clientClass
+                        .getMethod("track", String.class, EvaluationContext.class)
+                        .getReturnType(),
                 "The method should return void.");
 
         assertEquals(
                 void.class,
-                clientClass.getMethod("track", String.class, EvaluationContext.class, TrackingEventDetails.class).getReturnType(),
+                clientClass
+                        .getMethod("track", String.class, EvaluationContext.class, TrackingEventDetails.class)
+                        .getReturnType(),
                 "The method should return void.");
-
-
     }
 
-    @Specification(number = "6.1.3", text = "The evaluation context passed to the provider's track function " +
-            "MUST be merged in the order: API (global; lowest precedence) -> transaction -> client -> " +
-            "invocation (highest precedence), with duplicate values being overwritten.")
+    @Specification(
+            number = "6.1.3",
+            text = "The evaluation context passed to the provider's track function "
+                    + "MUST be merged in the order: API (global; lowest precedence) -> transaction -> client -> "
+                    + "invocation (highest precedence), with duplicate values being overwritten.")
     @Test
     void contextsGetMerged() {
 
@@ -123,8 +128,10 @@ class TrackingSpecTest {
         verify(provider).track(eq("event"), argThat(ctx -> ctx.asMap().equals(expectedMap)), notNull());
     }
 
-    @Specification(number = "6.1.4", text = "If the client's `track` function is called and the associated provider " +
-            "does not implement tracking, the client's `track` function MUST no-op.")
+    @Specification(
+            number = "6.1.4",
+            text = "If the client's `track` function is called and the associated provider "
+                    + "does not implement tracking, the client's `track` function MUST no-op.")
     @Test
     void noopProvider() {
         FeatureProvider provider = spy(FeatureProvider.class);
@@ -133,17 +140,21 @@ class TrackingSpecTest {
         verify(provider).track(any(), any(), any());
     }
 
-    @Specification(number = "6.2.1", text = "The `tracking event details` structure MUST define an optional numeric " +
-            "`value`, associating a scalar quality with an `tracking event`.")
-    @Specification(number = "6.2.2", text = "The `tracking event details` MUST support the inclusion of custom " +
-            "fields, having keys of type `string`, and values of type `boolean | string | number | structure`.")
+    @Specification(
+            number = "6.2.1",
+            text = "The `tracking event details` structure MUST define an optional numeric "
+                    + "`value`, associating a scalar quality with an `tracking event`.")
+    @Specification(
+            number = "6.2.2",
+            text =
+                    "The `tracking event details` MUST support the inclusion of custom "
+                            + "fields, having keys of type `string`, and values of type `boolean | string | number | structure`.")
     @Test
     void eventDetails() {
         assertFalse(new MutableTrackingEventDetails().getValue().isPresent());
         assertFalse(new ImmutableTrackingEventDetails().getValue().isPresent());
         assertThat(new ImmutableTrackingEventDetails(2).getValue()).hasValue(2);
         assertThat(new MutableTrackingEventDetails(9.87f).getValue()).hasValue(9.87f);
-
 
         // using mutable tracking event details
         Map<String, Value> expectedMap = Maps.newHashMap();
@@ -159,31 +170,27 @@ class TrackingSpecTest {
                 .add("my-struct", new Value(new MutableTrackingEventDetails()));
 
         assertEquals(expectedMap, details.asMap());
-        assertThatCode(() -> OpenFeatureAPI.getInstance().getClient().
-                track(
-                        "tracking-event-name",
-                        new ImmutableContext(),
-                        new MutableTrackingEventDetails()))
+        assertThatCode(() -> OpenFeatureAPI.getInstance()
+                        .getClient()
+                        .track("tracking-event-name", new ImmutableContext(), new MutableTrackingEventDetails()))
                 .doesNotThrowAnyException();
 
-
         // using immutable tracking event details
-        ImmutableMap<String, Value> expectedImmutable = ImmutableMap.of("my-str", new Value("str"),
-                "my-num", new Value(1),
-                "my-bool", new Value(true),
-                "my-struct", new Value(new ImmutableStructure())
-        );
+        ImmutableMap<String, Value> expectedImmutable = ImmutableMap.of(
+                "my-str",
+                new Value("str"),
+                "my-num",
+                new Value(1),
+                "my-bool",
+                new Value(true),
+                "my-struct",
+                new Value(new ImmutableStructure()));
 
         ImmutableTrackingEventDetails immutableDetails = new ImmutableTrackingEventDetails(2, expectedMap);
         assertEquals(expectedImmutable, immutableDetails.asMap());
-        assertThatCode(() -> OpenFeatureAPI.getInstance().getClient().
-                track(
-                        "tracking-event-name",
-                        new ImmutableContext(),
-                        new ImmutableTrackingEventDetails()))
+        assertThatCode(() -> OpenFeatureAPI.getInstance()
+                        .getClient()
+                        .track("tracking-event-name", new ImmutableContext(), new ImmutableTrackingEventDetails()))
                 .doesNotThrowAnyException();
-
-
     }
-
 }

@@ -1,12 +1,11 @@
 package dev.openfeature.sdk;
 
-import lombok.SneakyThrows;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
-
-import static org.junit.jupiter.api.Assertions.*;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.Test;
 
 public class ThreadLocalTransactionContextPropagatorTest {
 

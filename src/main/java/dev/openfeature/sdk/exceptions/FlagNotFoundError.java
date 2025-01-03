@@ -8,7 +8,7 @@ import lombok.experimental.StandardException;
 @StandardException
 public class FlagNotFoundError extends OpenFeatureErrorWithoutStacktrace {
     private static final long serialVersionUID = 1L;
+
     @Getter
     private final ErrorCode errorCode = ErrorCode.FLAG_NOT_FOUND;
-
 }

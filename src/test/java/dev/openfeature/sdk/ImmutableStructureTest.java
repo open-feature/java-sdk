@@ -1,6 +1,6 @@
 package dev.openfeature.sdk;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -9,16 +9,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class ImmutableStructureTest {
-    @Test void noArgShouldContainEmptyAttributes() {
+    @Test
+    void noArgShouldContainEmptyAttributes() {
         ImmutableStructure structure = new ImmutableStructure();
         assertEquals(0, structure.asMap().keySet().size());
     }
 
-    @Test void mapArgShouldContainNewMap() {
+    @Test
+    void mapArgShouldContainNewMap() {
         String KEY = "key";
         Map<String, Value> map = new HashMap<String, Value>() {
             {
@@ -30,7 +31,8 @@ class ImmutableStructureTest {
         assertNotSame(structure.asMap(), map); // should be a copy
     }
 
-    @Test void MutatingGetValueShouldNotChangeOriginalValue() {
+    @Test
+    void MutatingGetValueShouldNotChangeOriginalValue() {
         String KEY = "key";
         List<Value> lists = new ArrayList<>();
         lists.add(new Value(KEY));
@@ -47,7 +49,8 @@ class ImmutableStructureTest {
         assertNotSame(structure.asMap(), map); // should be a copy
     }
 
-    @Test void MutatingGetInstantValueShouldNotChangeOriginalValue() {
+    @Test
+    void MutatingGetInstantValueShouldNotChangeOriginalValue() {
         String KEY = "key";
         Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
         Map<String, Value> map = new HashMap<String, Value>() {
@@ -56,39 +59,60 @@ class ImmutableStructureTest {
             }
         };
         ImmutableStructure structure = new ImmutableStructure(map);
-        //mutate the original value
+        // mutate the original value
         Instant tomorrow = now.plus(1, ChronoUnit.DAYS);
-        //mutate the getValue
+        // mutate the getValue
         structure.getValue(KEY).asInstant().plus(1, ChronoUnit.DAYS);
 
         assertNotEquals(tomorrow, structure.getValue(KEY).asInstant());
         assertEquals(now, structure.getValue(KEY).asInstant());
     }
 
-    @Test void MutatingGetStructureValueShouldNotChangeOriginalValue() {
+    @Test
+    void MutatingGetStructureValueShouldNotChangeOriginalValue() {
         String KEY = "key";
         List<Value> lists = new ArrayList<>();
         lists.add(new Value("dummy_list_1"));
-        MutableStructure mutableStructure = new MutableStructure().add("key1","val1").add("list", lists);
+        MutableStructure mutableStructure =
+                new MutableStructure().add("key1", "val1").add("list", lists);
         Map<String, Value> map = new HashMap<String, Value>() {
             {
                 put(KEY, new Value(mutableStructure));
             }
         };
         ImmutableStructure structure = new ImmutableStructure(map);
-        //mutate the original structure
+        // mutate the original structure
         mutableStructure.add("key2", "val2");
-        //mutate the return value
+        // mutate the return value
         structure.getValue(KEY).asStructure().asMap().put("key3", new Value("val3"));
         assertEquals(2, structure.getValue(KEY).asStructure().asMap().size());
-        assertArrayEquals(new Object[]{"key1", "list"}, structure.getValue(KEY).asStructure().keySet().toArray());
+        assertArrayEquals(
+                new Object[] {"key1", "list"},
+                structure.getValue(KEY).asStructure().keySet().toArray());
         assertTrue(structure.getValue(KEY).asStructure() instanceof ImmutableStructure);
-        //mutate list value
+        // mutate list value
         lists.add(new Value("dummy_list_2"));
-        //mutate the return list value
+        // mutate the return list value
         structure.getValue(KEY).asStructure().asMap().get("list").asList().add(new Value("dummy_list_3"));
-        assertEquals(1, structure.getValue(KEY).asStructure().asMap().get("list").asList().size());
-        assertEquals("dummy_list_1", structure.getValue(KEY).asStructure().asMap().get("list").asList().get(0).asString());
+        assertEquals(
+                1,
+                structure
+                        .getValue(KEY)
+                        .asStructure()
+                        .asMap()
+                        .get("list")
+                        .asList()
+                        .size());
+        assertEquals(
+                "dummy_list_1",
+                structure
+                        .getValue(KEY)
+                        .asStructure()
+                        .asMap()
+                        .get("list")
+                        .asList()
+                        .get(0)
+                        .asString());
     }
 
     @Test
@@ -112,7 +136,8 @@ class ImmutableStructureTest {
         assertNull(value);
     }
 
-    @Test void objectMapTest() {
+    @Test
+    void objectMapTest() {
         Map<String, Value> attrs = new HashMap<>();
         attrs.put("test", new Value(45));
         ImmutableStructure structure = new ImmutableStructure(attrs);

@@ -1,9 +1,9 @@
 package dev.openfeature.sdk;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ClientProviderMappingTest {
 

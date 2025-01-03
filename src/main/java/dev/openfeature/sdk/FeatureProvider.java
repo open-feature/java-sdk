@@ -78,7 +78,5 @@ public interface FeatureProvider {
      * @param context   Evaluation context used in flag evaluation (Optional)
      * @param details   Data pertinent to a particular tracking event (Optional)
      */
-    default void track(String eventName, EvaluationContext context, TrackingEventDetails details) {
-
-    }
+    default void track(String eventName, EvaluationContext context, TrackingEventDetails details) {}
 }

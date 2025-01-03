@@ -1,9 +1,9 @@
 package dev.openfeature.sdk;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class FlagMetadataTest {
 
@@ -44,9 +44,8 @@ class FlagMetadataTest {
     @DisplayName("Value type mismatch returns a null")
     public void value_type_validation() {
         // given
-        ImmutableMetadata flagMetadata = ImmutableMetadata.builder()
-                .addString("string", "string")
-                .build();
+        ImmutableMetadata flagMetadata =
+                ImmutableMetadata.builder().addString("string", "string").build();
 
         // then
         assertThat(flagMetadata.getBoolean("string")).isNull();

@@ -1,10 +1,10 @@
 package dev.openfeature.sdk;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collections;
 
-@SuppressWarnings({ "PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType" })
+@SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
 abstract class AbstractStructure implements Structure {
 
     protected final Map<String, Value> attributes;
@@ -24,6 +24,7 @@ abstract class AbstractStructure implements Structure {
 
     /**
      * Returns an unmodifiable representation of the internal attribute map.
+     *
      * @return immutable map
      */
     public Map<String, Value> asUnmodifiableMap() {
@@ -37,14 +38,12 @@ abstract class AbstractStructure implements Structure {
      */
     @Override
     public Map<String, Object> asObjectMap() {
-        return attributes
-                .entrySet()
-                .stream()
+        return attributes.entrySet().stream()
                 // custom collector, workaround for Collectors.toMap in JDK8
                 // https://bugs.openjdk.org/browse/JDK-8148463
-                .collect(HashMap::new,
+                .collect(
+                        HashMap::new,
                         (accumulated, entry) -> accumulated.put(entry.getKey(), convertValue(entry.getValue())),
                         HashMap::putAll);
     }
-
 }

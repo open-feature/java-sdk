@@ -17,9 +17,7 @@ public class EventDetails extends ProviderEventDetails {
     }
 
     static EventDetails fromProviderEventDetails(
-            ProviderEventDetails providerEventDetails,
-            String providerName,
-            String domain) {
+            ProviderEventDetails providerEventDetails, String providerName, String domain) {
         return builder()
                 .domain(domain)
                 .providerName(providerName)

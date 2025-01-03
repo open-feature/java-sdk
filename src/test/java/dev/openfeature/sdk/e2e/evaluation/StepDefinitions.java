@@ -1,27 +1,26 @@
 package dev.openfeature.sdk.e2e.evaluation;
 
-import dev.openfeature.sdk.Value;
-import dev.openfeature.sdk.EvaluationContext;
-import dev.openfeature.sdk.Reason;
+import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import dev.openfeature.sdk.Client;
-import dev.openfeature.sdk.OpenFeatureAPI;
-import dev.openfeature.sdk.Structure;
-import dev.openfeature.sdk.ImmutableContext;
+import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.FlagEvaluationDetails;
+import dev.openfeature.sdk.ImmutableContext;
+import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.Reason;
+import dev.openfeature.sdk.Structure;
+import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import io.cucumber.java.BeforeAll;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import lombok.SneakyThrows;
-
 import java.util.HashMap;
 import java.util.Map;
-
-import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import lombok.SneakyThrows;
 
 public class StepDefinitions {
 
@@ -66,8 +65,8 @@ public class StepDefinitions {
 
     // boolean value
     @When("a boolean flag with key {string} is evaluated with default value {string}")
-    public void a_boolean_flag_with_key_boolean_flag_is_evaluated_with_default_value_false(String flagKey,
-                                                                                           String defaultValue) {
+    public void a_boolean_flag_with_key_boolean_flag_is_evaluated_with_default_value_false(
+            String flagKey, String defaultValue) {
         this.booleanFlagValue = client.getBooleanValue(flagKey, Boolean.valueOf(defaultValue));
     }
 
@@ -115,12 +114,19 @@ public class StepDefinitions {
         this.objectFlagValue = client.getObjectValue(flagKey, new Value());
     }
 
-    @Then("the resolved object value should be contain fields {string}, {string}, and {string}, with values {string}, {string} and {int}, respectively")
-    public void the_resolved_object_value_should_be_contain_fields_and_with_values_and_respectively(String boolField,
-                                                                                                    String stringField, String numberField, String boolValue, String stringValue, int numberValue) {
+    @Then(
+            "the resolved object value should be contain fields {string}, {string}, and {string}, with values {string}, {string} and {int}, respectively")
+    public void the_resolved_object_value_should_be_contain_fields_and_with_values_and_respectively(
+            String boolField,
+            String stringField,
+            String numberField,
+            String boolValue,
+            String stringValue,
+            int numberValue) {
         Structure structure = this.objectFlagValue.asStructure();
 
-        assertEquals(Boolean.valueOf(boolValue), structure.asMap().get(boolField).asBoolean());
+        assertEquals(
+                Boolean.valueOf(boolValue), structure.asMap().get(boolField).asBoolean());
         assertEquals(stringValue, structure.asMap().get(stringField).asString());
         assertEquals(numberValue, structure.asMap().get(numberField).asInteger());
     }
@@ -131,15 +137,15 @@ public class StepDefinitions {
 
     // boolean details
     @When("a boolean flag with key {string} is evaluated with details and default value {string}")
-    public void a_boolean_flag_with_key_is_evaluated_with_details_and_default_value(String flagKey,
-                                                                                    String defaultValue) {
+    public void a_boolean_flag_with_key_is_evaluated_with_details_and_default_value(
+            String flagKey, String defaultValue) {
         this.booleanFlagDetails = client.getBooleanDetails(flagKey, Boolean.valueOf(defaultValue));
     }
 
-    @Then("the resolved boolean details value should be {string}, the variant should be {string}, and the reason should be {string}")
+    @Then(
+            "the resolved boolean details value should be {string}, the variant should be {string}, and the reason should be {string}")
     public void the_resolved_boolean_value_should_be_the_variant_should_be_and_the_reason_should_be(
-            String expectedValue,
-            String expectedVariant, String expectedReason) {
+            String expectedValue, String expectedVariant, String expectedReason) {
         assertEquals(Boolean.valueOf(expectedValue), booleanFlagDetails.getValue());
         assertEquals(expectedVariant, booleanFlagDetails.getVariant());
         assertEquals(expectedReason, booleanFlagDetails.getReason());
@@ -147,14 +153,15 @@ public class StepDefinitions {
 
     // string details
     @When("a string flag with key {string} is evaluated with details and default value {string}")
-    public void a_string_flag_with_key_is_evaluated_with_details_and_default_value(String flagKey,
-                                                                                   String defaultValue) {
+    public void a_string_flag_with_key_is_evaluated_with_details_and_default_value(
+            String flagKey, String defaultValue) {
         this.stringFlagDetails = client.getStringDetails(flagKey, defaultValue);
     }
 
-    @Then("the resolved string details value should be {string}, the variant should be {string}, and the reason should be {string}")
-    public void the_resolved_string_value_should_be_the_variant_should_be_and_the_reason_should_be(String expectedValue,
-                                                                                                   String expectedVariant, String expectedReason) {
+    @Then(
+            "the resolved string details value should be {string}, the variant should be {string}, and the reason should be {string}")
+    public void the_resolved_string_value_should_be_the_variant_should_be_and_the_reason_should_be(
+            String expectedValue, String expectedVariant, String expectedReason) {
         assertEquals(expectedValue, this.stringFlagDetails.getValue());
         assertEquals(expectedVariant, this.stringFlagDetails.getVariant());
         assertEquals(expectedReason, this.stringFlagDetails.getReason());
@@ -166,9 +173,10 @@ public class StepDefinitions {
         this.intFlagDetails = client.getIntegerDetails(flagKey, defaultValue);
     }
 
-    @Then("the resolved integer details value should be {int}, the variant should be {string}, and the reason should be {string}")
-    public void the_resolved_integer_value_should_be_the_variant_should_be_and_the_reason_should_be(int expectedValue,
-                                                                                                    String expectedVariant, String expectedReason) {
+    @Then(
+            "the resolved integer details value should be {int}, the variant should be {string}, and the reason should be {string}")
+    public void the_resolved_integer_value_should_be_the_variant_should_be_and_the_reason_should_be(
+            int expectedValue, String expectedVariant, String expectedReason) {
         assertEquals(expectedValue, this.intFlagDetails.getValue());
         assertEquals(expectedVariant, this.intFlagDetails.getVariant());
         assertEquals(expectedReason, this.intFlagDetails.getReason());
@@ -180,9 +188,10 @@ public class StepDefinitions {
         this.doubleFlagDetails = client.getDoubleDetails(flagKey, defaultValue);
     }
 
-    @Then("the resolved float details value should be {double}, the variant should be {string}, and the reason should be {string}")
-    public void the_resolved_float_value_should_be_the_variant_should_be_and_the_reason_should_be(double expectedValue,
-                                                                                                  String expectedVariant, String expectedReason) {
+    @Then(
+            "the resolved float details value should be {double}, the variant should be {string}, and the reason should be {string}")
+    public void the_resolved_float_value_should_be_the_variant_should_be_and_the_reason_should_be(
+            double expectedValue, String expectedVariant, String expectedReason) {
         assertEquals(expectedValue, this.doubleFlagDetails.getValue());
         assertEquals(expectedVariant, this.doubleFlagDetails.getVariant());
         assertEquals(expectedReason, this.doubleFlagDetails.getReason());
@@ -194,13 +203,19 @@ public class StepDefinitions {
         this.objectFlagDetails = client.getObjectDetails(flagKey, new Value());
     }
 
-    @Then("the resolved object details value should be contain fields {string}, {string}, and {string}, with values {string}, {string} and {int}, respectively")
+    @Then(
+            "the resolved object details value should be contain fields {string}, {string}, and {string}, with values {string}, {string} and {int}, respectively")
     public void the_resolved_object_value_should_be_contain_fields_and_with_values_and_respectively_again(
             String boolField,
-            String stringField, String numberField, String boolValue, String stringValue, int numberValue) {
+            String stringField,
+            String numberField,
+            String boolValue,
+            String stringValue,
+            int numberValue) {
         Structure structure = this.objectFlagDetails.getValue().asStructure();
 
-        assertEquals(Boolean.valueOf(boolValue), structure.asMap().get(boolField).asBoolean());
+        assertEquals(
+                Boolean.valueOf(boolValue), structure.asMap().get(boolField).asBoolean());
         assertEquals(stringValue, structure.asMap().get(stringField).asString());
         assertEquals(numberValue, structure.asMap().get(numberField).asInteger());
     }
@@ -215,9 +230,17 @@ public class StepDefinitions {
      * Context-aware evaluation
      */
 
-    @When("context contains keys {string}, {string}, {string}, {string} with values {string}, {string}, {int}, {string}")
-    public void context_contains_keys_with_values(String field1, String field2, String field3, String field4,
-                                                  String value1, String value2, Integer value3, String value4) {
+    @When(
+            "context contains keys {string}, {string}, {string}, {string} with values {string}, {string}, {int}, {string}")
+    public void context_contains_keys_with_values(
+            String field1,
+            String field2,
+            String field3,
+            String field4,
+            String value1,
+            String value2,
+            Integer value3,
+            String value4) {
         Map<String, Value> attributes = new HashMap<>();
         attributes.put(field1, new Value(value1));
         attributes.put(field2, new Value(value2));
@@ -231,7 +254,6 @@ public class StepDefinitions {
         contextAwareFlagKey = flagKey;
         contextAwareDefaultValue = defaultValue;
         contextAwareValue = client.getStringValue(flagKey, contextAwareDefaultValue, context);
-
     }
 
     @Then("the resolved string response should be {string}")
@@ -241,8 +263,8 @@ public class StepDefinitions {
 
     @Then("the resolved flag value is {string} when the context is empty")
     public void the_resolved_flag_value_is_when_the_context_is_empty(String expected) {
-        String emptyContextValue = client.getStringValue(contextAwareFlagKey, contextAwareDefaultValue,
-                new ImmutableContext());
+        String emptyContextValue =
+                client.getStringValue(contextAwareFlagKey, contextAwareDefaultValue, new ImmutableContext());
         assertEquals(expected, emptyContextValue);
     }
 
@@ -252,8 +274,8 @@ public class StepDefinitions {
 
     // not found
     @When("a non-existent string flag with key {string} is evaluated with details and a default value {string}")
-    public void a_non_existent_string_flag_with_key_is_evaluated_with_details_and_a_default_value(String flagKey,
-                                                                                                  String defaultValue) {
+    public void a_non_existent_string_flag_with_key_is_evaluated_with_details_and_a_default_value(
+            String flagKey, String defaultValue) {
         notFoundFlagKey = flagKey;
         notFoundDefaultValue = defaultValue;
         notFoundDetails = client.getStringDetails(notFoundFlagKey, notFoundDefaultValue);
@@ -272,8 +294,8 @@ public class StepDefinitions {
 
     // type mismatch
     @When("a string flag with key {string} is evaluated as an integer, with details and a default value {int}")
-    public void a_string_flag_with_key_is_evaluated_as_an_integer_with_details_and_a_default_value(String flagKey,
-                                                                                                   int defaultValue) {
+    public void a_string_flag_with_key_is_evaluated_as_an_integer_with_details_and_a_default_value(
+            String flagKey, int defaultValue) {
         typeErrorFlagKey = flagKey;
         typeErrorDefaultValue = defaultValue;
         typeErrorDetails = client.getIntegerDetails(typeErrorFlagKey, typeErrorDefaultValue);
@@ -289,5 +311,4 @@ public class StepDefinitions {
         assertEquals(Reason.ERROR.toString(), typeErrorDetails.getReason());
         assertTrue(typeErrorDetails.getErrorCode().name().equals(errorCode));
     }
-
 }

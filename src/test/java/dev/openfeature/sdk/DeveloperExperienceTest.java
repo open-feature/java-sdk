@@ -1,19 +1,22 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
-import dev.openfeature.sdk.testutils.TestEventsProvider;
-import lombok.SneakyThrows;
-import org.junit.jupiter.api.Test;
-
-import java.util.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
+import dev.openfeature.sdk.fixtures.HookFixtures;
+import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
+import dev.openfeature.sdk.testutils.TestEventsProvider;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.Test;
 
 class DeveloperExperienceTest implements HookFixtures {
     transient String flagKey = "mykey";
@@ -49,7 +52,10 @@ class DeveloperExperienceTest implements HookFixtures {
         api.setProviderAndWait(new TestEventsProvider());
         Client client = api.getClient();
         client.addHooks(clientHook);
-        Boolean retval = client.getBooleanValue(flagKey, false, null,
+        Boolean retval = client.getBooleanValue(
+                flagKey,
+                false,
+                null,
                 FlagEvaluationOptions.builder().hook(evalHook).build());
         verify(clientHook, times(1)).finallyAfter(any(), any());
         verify(evalHook, times(1)).finallyAfter(any(), any());
@@ -132,7 +138,10 @@ class DeveloperExperienceTest implements HookFixtures {
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
     }
 
-    @Specification(number = "5.3.5", text = "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")
+    @Specification(
+            number = "5.3.5",
+            text =
+                    "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")
     @Test
     void shouldPutTheProviderInStateErrorAfterEmittingErrorEvent() {
         String domain = "domain";
@@ -145,7 +154,10 @@ class DeveloperExperienceTest implements HookFixtures {
         assertThat(client.getProviderState()).isEqualTo(ProviderState.ERROR);
     }
 
-    @Specification(number = "5.3.5", text = "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")
+    @Specification(
+            number = "5.3.5",
+            text =
+                    "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")
     @Test
     void shouldPutTheProviderInStateStaleAfterEmittingStaleEvent() {
         String domain = "domain";
@@ -158,7 +170,10 @@ class DeveloperExperienceTest implements HookFixtures {
         assertThat(client.getProviderState()).isEqualTo(ProviderState.STALE);
     }
 
-    @Specification(number = "5.3.5", text = "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")
+    @Specification(
+            number = "5.3.5",
+            text =
+                    "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")
     @Test
     void shouldPutTheProviderInStateReadyAfterEmittingReadyEvent() {
         String domain = "domain";

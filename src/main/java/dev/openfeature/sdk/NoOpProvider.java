@@ -7,6 +7,7 @@ import lombok.Getter;
  */
 public class NoOpProvider implements FeatureProvider {
     public static final String PASSED_IN_DEFAULT = "Passed in default";
+
     @Getter
     private final String name = "No-op Provider";
 
@@ -58,8 +59,8 @@ public class NoOpProvider implements FeatureProvider {
     }
 
     @Override
-    public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue,
-                                                         EvaluationContext invocationContext) {
+    public ProviderEvaluation<Value> getObjectEvaluation(
+            String key, Value defaultValue, EvaluationContext invocationContext) {
         return ProviderEvaluation.<Value>builder()
                 .value(defaultValue)
                 .variant(PASSED_IN_DEFAULT)
