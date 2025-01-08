@@ -426,7 +426,7 @@ class MyHook implements Hook {
     }
 
     @Override
-    public void finallyAfter(HookContext ctx, Map hints) {
+    public void finallyAfter(HookContext ctx, FlagEvaluationDetails details, Map hints) {
         // code that runs regardless of success or error
     }
 };

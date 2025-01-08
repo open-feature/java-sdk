@@ -46,7 +46,7 @@ public interface Hook<T> {
      * @param ctx   Information about the particular flag evaluation
      * @param hints An immutable mapping of data for users to communicate to the hooks.
      */
-    default void finallyAfter(HookContext<T> ctx, Map<String, Object> hints) {}
+    default void finallyAfter(HookContext<T> ctx, FlagEvaluationDetails<T> details, Map<String, Object> hints) {}
 
     default boolean supportsFlagValueType(FlagValueType flagValueType) {
         return true;
