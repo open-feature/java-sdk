@@ -39,7 +39,7 @@ class DeveloperExperienceTest implements HookFixtures {
         Client client = api.getClient();
         client.addHooks(exampleHook);
         Boolean retval = client.getBooleanValue(flagKey, false);
-        verify(exampleHook, times(1)).finallyAfter(any(), any());
+        verify(exampleHook, times(1)).finallyAfter(any(), any(), any());
         assertFalse(retval);
     }
 
@@ -57,8 +57,8 @@ class DeveloperExperienceTest implements HookFixtures {
                 false,
                 null,
                 FlagEvaluationOptions.builder().hook(evalHook).build());
-        verify(clientHook, times(1)).finallyAfter(any(), any());
-        verify(evalHook, times(1)).finallyAfter(any(), any());
+        verify(clientHook, times(1)).finallyAfter(any(), any(), any());
+        verify(evalHook, times(1)).finallyAfter(any(), any(), any());
         assertFalse(retval);
     }
 

@@ -29,8 +29,12 @@ class HookSupport {
     }
 
     public void afterAllHooks(
-            FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks, Map<String, Object> hints) {
-        executeHooks(flagValueType, hooks, "finally", hook -> hook.finallyAfter(hookCtx, hints));
+            FlagValueType flagValueType,
+            HookContext hookCtx,
+            FlagEvaluationDetails details,
+            List<Hook> hooks,
+            Map<String, Object> hints) {
+        executeHooks(flagValueType, hooks, "finally", hook -> hook.finallyAfter(hookCtx, details, hints));
     }
 
     public void errorHooks(
