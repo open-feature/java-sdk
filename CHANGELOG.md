@@ -3,6 +3,13 @@
 ## [1.14.0](https://github.com/open-feature/java-sdk/compare/v1.13.0...v1.14.0) (2025-01-10)
 
 
+### ⚠ BREAKING CHANGES
+
+The signature of the `finallyAfter` hook stage has been changed. The signature now includes the `evaluation details`, as per the [OpenFeature specification](https://openfeature.dev/specification/sections/hooks#requirement-438). Note that since hooks are still `experimental,` this does not constitute a change requiring a new major version. To migrate, update any hook that implements the `finallyAfter` stage to accept `evaluation details` as the second argument.
+
+* Add evaluation details to finally hook stage [#1246](https://github.com/open-feature/java-sdk/issues/1246) ([#1262](https://github.com/open-feature/java-sdk/issues/1262)) ([ae85278](https://github.com/open-feature/java-sdk/commit/ae85278c30eb5279b80ea73ec6b92db040ad0bb7))
+
+
 ### 🐛 Bug Fixes
 
 * **deps:** update junit5 monorepo ([#1251](https://github.com/open-feature/java-sdk/issues/1251)) ([834f720](https://github.com/open-feature/java-sdk/commit/834f72071806680353f42c750b04e36956736a9e))
