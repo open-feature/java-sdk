@@ -1,5 +1,9 @@
 package dev.openfeature.sdk.e2e.steps;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import dev.openfeature.sdk.FlagEvaluationDetails;
 import dev.openfeature.sdk.e2e.MockHook;
 import dev.openfeature.sdk.e2e.State;
@@ -8,13 +12,8 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
-
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HookSteps {
     private final State state;
@@ -53,7 +52,8 @@ public class HookSteps {
     public void theHooksShouldBeCalledWithEvaluationDetails(String hookNames, DataTable data) {
         for (String hookName : hookNames.split(", ")) {
             assertHookCalled(hookName);
-            FlagEvaluationDetails evaluationDetails = state.hook.getEvaluationDetails().get(hookName);
+            FlagEvaluationDetails evaluationDetails =
+                    state.hook.getEvaluationDetails().get(hookName);
             assertNotNull(evaluationDetails);
             List<Map<String, String>> dataEntries = data.asMaps();
             for (Map<String, String> line : dataEntries) {
