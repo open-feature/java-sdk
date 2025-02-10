@@ -2,10 +2,7 @@ package dev.openfeature.sdk;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import dev.openfeature.sdk.internal.TriConsumer;
 import dev.openfeature.sdk.testutils.TestStackedEmitCallsProvider;
@@ -15,8 +12,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.mockito.Mockito;
 
 class EventProviderTest {
+
+    private static final int TIMEOUT = 300;
 
     private TestEventProvider eventProvider;
 
@@ -45,10 +45,10 @@ class EventProviderTest {
         eventProvider.emitProviderStale(details);
         eventProvider.emitProviderError(details);
 
-        verify(onEmit, times(2)).accept(eventProvider, ProviderEvent.PROVIDER_READY, details);
-        verify(onEmit, times(1)).accept(eventProvider, ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, details);
-        verify(onEmit, times(1)).accept(eventProvider, ProviderEvent.PROVIDER_STALE, details);
-        verify(onEmit, times(1)).accept(eventProvider, ProviderEvent.PROVIDER_ERROR, details);
+        verify(onEmit, timeout(TIMEOUT).times(2)).accept(eventProvider, ProviderEvent.PROVIDER_READY, details);
+        verify(onEmit, timeout(TIMEOUT)).accept(eventProvider, ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, details);
+        verify(onEmit, timeout(TIMEOUT)).accept(eventProvider, ProviderEvent.PROVIDER_STALE, details);
+        verify(onEmit, timeout(TIMEOUT)).accept(eventProvider, ProviderEvent.PROVIDER_ERROR, details);
     }
 
     @Test
