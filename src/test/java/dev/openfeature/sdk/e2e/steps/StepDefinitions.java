@@ -1,4 +1,4 @@
-package dev.openfeature.sdk.e2e.evaluation;
+package dev.openfeature.sdk.e2e.steps;
 
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
 import static org.junit.jupiter.api.Assertions.assertEquals;

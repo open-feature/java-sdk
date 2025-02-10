@@ -152,6 +152,7 @@ public class InMemoryProvider extends EventProvider {
                 .value(value)
                 .variant(flag.getDefaultVariant())
                 .reason(Reason.STATIC.toString())
+                .flagMetadata(flag.getFlagMetadata())
                 .build();
     }
 }
