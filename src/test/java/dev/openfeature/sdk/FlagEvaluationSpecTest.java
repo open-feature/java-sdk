@@ -487,7 +487,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         String contextKey = "some-key";
         String contextValue = "some-value";
         DoSomethingProvider provider = spy(new DoSomethingProvider());
-        FeatureProviderTestUtils.setFeatureProvider(provider);
+        api.setProviderAndWait(provider);
 
         Map<String, Value> attributes = new HashMap<>();
         attributes.put(contextKey, new Value(contextValue));
