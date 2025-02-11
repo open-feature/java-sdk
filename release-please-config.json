@@ -8,7 +8,8 @@
       "include-component-in-tag": false,
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
-      "versioning": "default",
+      "versioning": "prerelease",
+      "prerelease-type": "beta",
       "extra-files": [
         "pom.xml",
         "README.md"

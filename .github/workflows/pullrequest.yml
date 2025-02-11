@@ -7,7 +7,16 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+        matrix:
+            os: [ubuntu-latest]
+            build:
+                - java: 17
+                  profile: codequality
+                - java: 8
+                  profile: java8
+    name: with Java ${{ matrix.build.java }}
+    runs-on: ${{ matrix.os}}
     steps:
       - name: Check out the code
         uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2
@@ -15,9 +24,9 @@ jobs:
       - name: Set up JDK 8
         uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12
         with:
-          java-version: '8'
-          distribution: 'temurin'
-          cache: maven
+            java-version: ${{ matrix.build.java }}
+            distribution: 'temurin'
+            cache: maven
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@0a35e8f6866a39b001e5f7ad1d0daf9836786896
@@ -27,15 +36,16 @@ jobs:
       - name: Cache local Maven repository
         uses: actions/cache@36f1e144e1c8edb0a652766b484448563d8baf46
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+            path: ~/.m2/repository
+            key: ${{ runner.os }}${{ matrix.build.java }}-maven-${{ hashFiles('**/pom.xml') }}
+            restore-keys: |
+                ${{ runner.os }}${{ matrix.build.java }}-maven-
 
       - name: Verify with Maven
-        run: mvn --batch-mode --update-snapshots --activate-profiles e2e verify
+        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify
 
-      - name: Upload coverage to Codecov
+      - if: matrix.build.java == '17'
+        name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5.3.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
