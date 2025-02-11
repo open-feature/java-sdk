@@ -1,6 +1,8 @@
 package dev.openfeature.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,7 +11,7 @@ class FlagMetadataTest {
 
     @Test
     @DisplayName("Test metadata payload construction and retrieval")
-    public void builder_validation() {
+    void builder_validation() {
         // given
         ImmutableMetadata flagMetadata = ImmutableMetadata.builder()
                 .addString("string", "string")
@@ -42,7 +44,7 @@ class FlagMetadataTest {
 
     @Test
     @DisplayName("Value type mismatch returns a null")
-    public void value_type_validation() {
+    void value_type_validation() {
         // given
         ImmutableMetadata flagMetadata =
                 ImmutableMetadata.builder().addString("string", "string").build();
@@ -53,11 +55,31 @@ class FlagMetadataTest {
 
     @Test
     @DisplayName("A null is returned if key does not exist")
-    public void notfound_error_validation() {
+    void notfound_error_validation() {
         // given
         ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
 
         // then
         assertThat(flagMetadata.getBoolean("string")).isNull();
+    }
+
+    @Test
+    @DisplayName("isEmpty returns true iff the metadata is empty")
+    void isEmpty_returns_true_if_metadata_is_empty() {
+        // given
+        ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
+
+        // then
+        assertTrue(flagMetadata.isEmpty());
+    }
+
+    @Test
+    @DisplayName("isEmpty returns false iff the metadata is not empty")
+    void isEmpty_returns_false_if_metadata_is_not_empty() {
+        // given
+        ImmutableMetadata flagMetadata = ImmutableMetadata.builder().addString("a","b").build();
+
+        // then
+        assertFalse(flagMetadata.isEmpty());
     }
 }
