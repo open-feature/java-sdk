@@ -77,7 +77,8 @@ class FlagMetadataTest {
     @DisplayName("isEmpty returns false iff the metadata is not empty")
     void isEmpty_returns_false_if_metadata_is_not_empty() {
         // given
-        ImmutableMetadata flagMetadata = ImmutableMetadata.builder().addString("a","b").build();
+        ImmutableMetadata flagMetadata =
+                ImmutableMetadata.builder().addString("a", "b").build();
 
         // then
         assertFalse(flagMetadata.isEmpty());
