@@ -5,7 +5,7 @@
 on:
   push:
     branches:
-      - beta/new_java_build
+      - main
 name: Run Release Please
 permissions:  # added using https://github.com/step-security/secure-workflows
   contents: read
@@ -23,7 +23,7 @@ jobs:
         id: release
         with:
           token: ${{secrets.GITHUB_TOKEN}}
-          target-branch: beta/new_java_build
+          target-branch: main
 
       # These steps are only run if this was a merged release-please PR
       - name: checkout
