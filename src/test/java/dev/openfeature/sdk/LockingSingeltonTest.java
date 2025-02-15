@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Isolated;
 
 @Isolated()
-class LockingTest {
+class LockingSingeltonTest {
 
     private static OpenFeatureAPI api;
     private OpenFeatureClient client;

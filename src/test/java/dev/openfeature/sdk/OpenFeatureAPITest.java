@@ -8,7 +8,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,13 +22,13 @@ class OpenFeatureAPITest {
 
     @BeforeEach
     void setupTest() {
-        api = OpenFeatureAPI.getInstance();
+        api = new OpenFeatureAPI();
     }
 
     @Test
     void namedProviderTest() {
         FeatureProvider provider = new NoOpProvider();
-        FeatureProviderTestUtils.setFeatureProvider("namedProviderTest", provider);
+        api.setProviderAndWait("namedProviderTest", provider);
 
         assertThat(provider.getMetadata().getName())
                 .isEqualTo(api.getProviderMetadata("namedProviderTest").getName());
@@ -44,14 +43,10 @@ class OpenFeatureAPITest {
         String domain = "namedProviderOverwrittenTest";
         FeatureProvider provider1 = new NoOpProvider();
         FeatureProvider provider2 = new DoSomethingProvider();
-        FeatureProviderTestUtils.setFeatureProvider(domain, provider1);
-        FeatureProviderTestUtils.setFeatureProvider(domain, provider2);
+        api.setProviderAndWait(domain, provider1);
+        api.setProviderAndWait(domain, provider2);
 
-        assertThat(OpenFeatureAPI.getInstance()
-                        .getProvider(domain)
-                        .getMetadata()
-                        .getName())
-                .isEqualTo(DoSomethingProvider.name);
+        assertThat(api.getProvider(domain).getMetadata().getName()).isEqualTo(DoSomethingProvider.name);
     }
 
     @Test
@@ -60,17 +55,17 @@ class OpenFeatureAPITest {
         FeatureProvider noOpAsNonEventingProvider = new NoOpProvider();
 
         // register same provider for multiple names & as default provider
-        OpenFeatureAPI.getInstance().setProviderAndWait(inMemAsEventingProvider);
-        OpenFeatureAPI.getInstance().setProviderAndWait("clientA", inMemAsEventingProvider);
-        OpenFeatureAPI.getInstance().setProviderAndWait("clientB", inMemAsEventingProvider);
-        OpenFeatureAPI.getInstance().setProviderAndWait("clientC", noOpAsNonEventingProvider);
-        OpenFeatureAPI.getInstance().setProviderAndWait("clientD", noOpAsNonEventingProvider);
+        api.setProviderAndWait(inMemAsEventingProvider);
+        api.setProviderAndWait("clientA", inMemAsEventingProvider);
+        api.setProviderAndWait("clientB", inMemAsEventingProvider);
+        api.setProviderAndWait("clientC", noOpAsNonEventingProvider);
+        api.setProviderAndWait("clientD", noOpAsNonEventingProvider);
 
-        assertEquals(inMemAsEventingProvider, OpenFeatureAPI.getInstance().getProvider());
-        assertEquals(inMemAsEventingProvider, OpenFeatureAPI.getInstance().getProvider("clientA"));
-        assertEquals(inMemAsEventingProvider, OpenFeatureAPI.getInstance().getProvider("clientB"));
-        assertEquals(noOpAsNonEventingProvider, OpenFeatureAPI.getInstance().getProvider("clientC"));
-        assertEquals(noOpAsNonEventingProvider, OpenFeatureAPI.getInstance().getProvider("clientD"));
+        assertEquals(inMemAsEventingProvider, api.getProvider());
+        assertEquals(inMemAsEventingProvider, api.getProvider("clientA"));
+        assertEquals(inMemAsEventingProvider, api.getProvider("clientB"));
+        assertEquals(noOpAsNonEventingProvider, api.getProvider("clientC"));
+        assertEquals(noOpAsNonEventingProvider, api.getProvider("clientD"));
     }
 
     @Test
@@ -101,23 +96,20 @@ class OpenFeatureAPITest {
         String domain = "namedProviderOverwrittenTest";
         FeatureProvider provider1 = new NoOpProvider();
         FeatureProvider provider2 = new TestEventsProvider();
-        FeatureProviderTestUtils.setFeatureProvider(domain, provider1);
-        FeatureProviderTestUtils.setFeatureProvider(domain, provider2);
+        api.setProviderAndWait(domain, provider1);
+        api.setProviderAndWait(domain, provider2);
 
         provider2.initialize(null);
 
-        assertThat(OpenFeatureAPI.getInstance().getClient(domain).getProviderState())
-                .isEqualTo(ProviderState.READY);
+        assertThat(api.getClient(domain).getProviderState()).isEqualTo(ProviderState.READY);
     }
 
     @Test
     void featureProviderTrackIsCalled() throws Exception {
         FeatureProvider featureProvider = mock(FeatureProvider.class);
-        FeatureProviderTestUtils.setFeatureProvider(featureProvider);
+        api.setProviderAndWait(featureProvider);
 
-        OpenFeatureAPI.getInstance()
-                .getClient()
-                .track("track-event", new ImmutableContext(), new MutableTrackingEventDetails(22.2f));
+        api.getClient().track("track-event", new ImmutableContext(), new MutableTrackingEventDetails(22.2f));
 
         verify(featureProvider).initialize(any());
         verify(featureProvider).getMetadata();

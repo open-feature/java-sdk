@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,16 +27,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
 class HookSpecTest implements HookFixtures {
-    @AfterEach
-    void emptyApiHooks() {
-        // it's a singleton. Don't pollute each test.
-        OpenFeatureAPI.getInstance().clearHooks();
+
+    private OpenFeatureAPI api;
+
+    @BeforeEach
+    void setUp() {
+        this.api = new OpenFeatureAPI();
     }
 
     @Specification(
@@ -163,7 +164,7 @@ class HookSpecTest implements HookFixtures {
                 .type(FlagValueType.INTEGER)
                 .ctx(new ImmutableContext())
                 .defaultValue(1)
-                .clientMetadata(OpenFeatureAPI.getInstance().getClient().getMetadata())
+                .clientMetadata(api.getClient().getMetadata())
                 .build();
     }
 
@@ -173,7 +174,7 @@ class HookSpecTest implements HookFixtures {
                     "The before stage MUST run before flag resolution occurs. It accepts a hook context (required) and hook hints (optional) as parameters and returns either an evaluation context or nothing.")
     @Test
     void before_runs_ahead_of_evaluation() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+
         api.setProviderAndWait(new AlwaysBrokenProvider());
         Client client = api.getClient();
         Hook<Boolean> evalHook = mockBooleanHook();
@@ -216,8 +217,7 @@ class HookSpecTest implements HookFixtures {
                         .errorMessage(errorMessage)
                         .build());
 
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        FeatureProviderTestUtils.setFeatureProvider("errorHookMustRun", provider);
+        api.setProviderAndWait("errorHookMustRun", provider);
         Client client = api.getClient("errorHookMustRun");
         client.getBooleanValue(
                 "key",
@@ -259,7 +259,7 @@ class HookSpecTest implements HookFixtures {
     @Test
     void hook_eval_order() {
         List<String> evalOrder = new ArrayList<>();
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+
         api.setProviderAndWait("evalOrder", new TestEventsProvider() {
             public List<Hook> getProviderHooks() {
                 return Collections.singletonList(new BooleanHook() {
@@ -411,7 +411,6 @@ class HookSpecTest implements HookFixtures {
         doThrow(RuntimeException.class).when(h).before(any(), any());
         Hook<Boolean> h2 = mockBooleanHook();
 
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProviderAndWait(new AlwaysBrokenProvider());
         Client c = api.getClient();
 
@@ -516,8 +515,7 @@ class HookSpecTest implements HookFixtures {
                 .thenReturn(ProviderEvaluation.<Boolean>builder().value(true).build());
         InOrder order = inOrder(hook, provider);
 
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        FeatureProviderTestUtils.setFeatureProvider(provider);
+        api.setProviderAndWait(provider);
         Client client = api.getClient();
         client.getBooleanValue(
                 "key",
@@ -695,8 +693,7 @@ class HookSpecTest implements HookFixtures {
         when(provider.getBooleanEvaluation(any(), any(), any()))
                 .thenReturn(ProviderEvaluation.<Boolean>builder().value(true).build());
 
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        FeatureProviderTestUtils.setFeatureProvider(provider);
+        api.setProviderAndWait(provider);
         Client client = api.getClient();
         client.getBooleanValue(
                 "key",
@@ -761,11 +758,10 @@ class HookSpecTest implements HookFixtures {
     }
 
     private Client getClient(FeatureProvider provider) {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         if (provider == null) {
-            FeatureProviderTestUtils.setFeatureProvider(TestEventsProvider.newInitializedTestEventsProvider());
+            api.setProviderAndWait(TestEventsProvider.newInitializedTestEventsProvider());
         } else {
-            FeatureProviderTestUtils.setFeatureProvider(provider);
+            api.setProviderAndWait(provider);
         }
         return api.getClient();
     }

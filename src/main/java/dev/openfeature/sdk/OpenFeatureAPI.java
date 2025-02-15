@@ -29,7 +29,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
 
     protected OpenFeatureAPI() {
         apiHooks = new ArrayList<>();
-        providerRepository = new ProviderRepository();
+        providerRepository = new ProviderRepository(this);
         eventSupport = new EventSupport();
         transactionContextPropagator = new NoOpTransactionContextPropagator();
     }
@@ -333,7 +333,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
             providerRepository.shutdown();
             eventSupport.shutdown();
 
-            providerRepository = new ProviderRepository();
+            providerRepository = new ProviderRepository(this);
             eventSupport = new EventSupport();
         }
     }

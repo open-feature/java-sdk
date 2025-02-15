@@ -38,7 +38,7 @@ class OpenFeatureClientTest implements HookFixtures {
     @Test
     @DisplayName("should not throw exception if hook has different type argument than hookContext")
     void shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        OpenFeatureAPI api = new OpenFeatureAPI();
         api.setProviderAndWait(
                 "shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext", new DoSomethingProvider());
         Client client = api.getClient("shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext");
@@ -82,7 +82,7 @@ class OpenFeatureClientTest implements HookFixtures {
     @DisplayName("Should not call evaluation methods when the provider has state FATAL")
     void shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState() {
         FeatureProvider provider = new TestEventsProvider(100, true, "fake fatal", true);
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        OpenFeatureAPI api = new OpenFeatureAPI();
         Client client = api.getClient("shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState");
 
         assertThrows(
@@ -97,7 +97,7 @@ class OpenFeatureClientTest implements HookFixtures {
     @DisplayName("Should not call evaluation methods when the provider has state NOT_READY")
     void shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState() {
         FeatureProvider provider = new TestEventsProvider(5000);
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        OpenFeatureAPI api = new OpenFeatureAPI();
         api.setProvider("shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState", provider);
         Client client = api.getClient("shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState");
         FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);
