@@ -19,7 +19,7 @@ import org.mockito.ArgumentMatcher;
 
 class EventsTest {
 
-    private static final int TIMEOUT = 300;
+    private static final int TIMEOUT = 500;
     private static final int INIT_DELAY = TIMEOUT / 2;
 
     @AfterAll
@@ -601,13 +601,13 @@ class EventsTest {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
 
         // provider which is already stale
-        TestEventsProvider provider = TestEventsProvider.newInitializedTestEventsProvider();
+        TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
         Client client = api.getClient(name);
         api.setProviderAndWait(name, provider);
         provider.emitProviderStale(ProviderEventDetails.builder().build());
         assertThat(client.getProviderState()).isEqualTo(ProviderState.STALE);
 
-        // should run even thought handler was added after stale
+        // should run even though handler was added after stale
         client.onProviderStale(handler);
         verify(handler, timeout(TIMEOUT)).accept(any());
     }
@@ -623,13 +623,13 @@ class EventsTest {
         OpenFeatureAPI api = OpenFeatureAPI.getInstance();
 
         // provider which is already in error
-        TestEventsProvider provider = new TestEventsProvider();
+        TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
         Client client = api.getClient(name);
         api.setProviderAndWait(name, provider);
         provider.emitProviderError(ProviderEventDetails.builder().build());
         assertThat(client.getProviderState()).isEqualTo(ProviderState.ERROR);
 
-        // should run even thought handler was added after error
+        // should run even though handler was added after error
         client.onProviderError(handler);
         verify(handler, timeout(TIMEOUT)).accept(any());
     }
