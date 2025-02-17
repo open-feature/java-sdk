@@ -45,11 +45,6 @@ class FlagEvaluationSpecTest implements HookFixtures {
         api = new OpenFeatureAPI();
     }
 
-    @AfterEach
-    void reset_ctx() {
-        api.setEvaluationContext(null);
-    }
-
     @BeforeEach
     void set_logger() {
         logger = Mockito.mock(Logger.class);
