@@ -376,7 +376,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
     @Test
     void broken_provider() {
-        api.setProviderAndWait(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
         Client c = api.getClient();
         boolean defaultValue = false;
         assertFalse(c.getBooleanValue("key", defaultValue));
@@ -405,8 +405,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
     @Test
     void broken_provider_withDetails() throws InterruptedException {
-        api.setProvider(new AlwaysBrokenWithDetailsProvider());
-        Thread.sleep(50);
+        api.setProviderAndWait(new AlwaysBrokenWithDetailsProvider());
         Client c = api.getClient();
         boolean defaultValue = false;
         assertFalse(c.getBooleanValue("key", defaultValue));
@@ -422,7 +421,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
             text = "Methods, functions, or operations on the client SHOULD NOT write log messages.")
     @Test
     void log_on_error() throws NotImplementedException {
-        api.setProviderAndWait(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
 
@@ -441,7 +440,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertNull(c.getMetadata().getDomain());
 
         String domainName = "test domain";
-        api.setProviderAndWait(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
         Client c2 = api.getClient(domainName);
 
         assertEquals(domainName, c2.getMetadata().getName());
@@ -454,7 +453,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "In cases of abnormal execution (network failure, unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")
     @Test
     void reason_is_error_when_there_are_errors() {
-        api.setProviderAndWait(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
         assertEquals(Reason.ERROR.toString(), result.getReason());

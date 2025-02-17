@@ -175,7 +175,7 @@ class HookSpecTest implements HookFixtures {
     @Test
     void before_runs_ahead_of_evaluation() {
 
-        api.setProviderAndWait(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
         Client client = api.getClient();
         Hook<Boolean> evalHook = mockBooleanHook();
 
@@ -411,7 +411,7 @@ class HookSpecTest implements HookFixtures {
         doThrow(RuntimeException.class).when(h).before(any(), any());
         Hook<Boolean> h2 = mockBooleanHook();
 
-        api.setProviderAndWait(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
         Client c = api.getClient();
 
         c.getBooleanDetails(
