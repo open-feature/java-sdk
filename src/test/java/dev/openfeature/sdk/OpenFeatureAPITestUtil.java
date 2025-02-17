@@ -7,5 +7,4 @@ public class OpenFeatureAPITestUtil {
     public static OpenFeatureAPI createAPI() {
         return new OpenFeatureAPI();
     }
-    ;
 }
