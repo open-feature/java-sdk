@@ -28,6 +28,11 @@ class ProviderRepository {
         return thread;
     });
     private final Object registerStateManagerLock = new Object();
+    private final OpenFeatureAPI openFeatureAPI;
+
+    public ProviderRepository(OpenFeatureAPI openFeatureAPI) {
+        this.openFeatureAPI = openFeatureAPI;
+    }
 
     FeatureProviderStateManager getFeatureProviderStateManager() {
         return defaultStateManger.get();
@@ -205,7 +210,7 @@ class ProviderRepository {
             FeatureProviderStateManager oldManager) {
         try {
             if (ProviderState.NOT_READY.equals(newManager.getState())) {
-                newManager.initialize(OpenFeatureAPI.getInstance().getEvaluationContext());
+                newManager.initialize(openFeatureAPI.getEvaluationContext());
                 afterInit.accept(newManager.getProvider());
             }
             shutDownOld(oldManager, afterShutdown);

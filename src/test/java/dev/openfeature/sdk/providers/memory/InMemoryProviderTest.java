@@ -12,6 +12,7 @@ import dev.openfeature.sdk.Client;
 import dev.openfeature.sdk.EventDetails;
 import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.OpenFeatureAPITestUtil;
 import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
@@ -25,18 +26,20 @@ import org.junit.jupiter.api.Test;
 
 class InMemoryProviderTest {
 
-    private static Client client;
+    private Client client;
 
-    private static InMemoryProvider provider;
+    private InMemoryProvider provider;
+    private OpenFeatureAPI api;
 
     @SneakyThrows
     @BeforeEach
     void beforeEach() {
         Map<String, Flag<?>> flags = buildFlags();
         provider = spy(new InMemoryProvider(flags));
-        OpenFeatureAPI.getInstance().onProviderConfigurationChanged(eventDetails -> {});
-        OpenFeatureAPI.getInstance().setProviderAndWait(provider);
-        client = OpenFeatureAPI.getInstance().getClient();
+        api = OpenFeatureAPITestUtil.createAPI();
+        api.onProviderConfigurationChanged(eventDetails -> {});
+        api.setProviderAndWait(provider);
+        client = api.getClient();
         provider.updateFlags(flags);
         provider.updateFlag(
                 "addedFlag",
@@ -107,8 +110,8 @@ class InMemoryProviderTest {
         Consumer<EventDetails> handler = mock(Consumer.class);
         Map<String, Flag<?>> flags = buildFlags();
 
-        OpenFeatureAPI.getInstance().onProviderConfigurationChanged(handler);
-        OpenFeatureAPI.getInstance().setProviderAndWait(provider);
+        api.onProviderConfigurationChanged(handler);
+        api.setProviderAndWait(provider);
 
         provider.updateFlags(flags);
 

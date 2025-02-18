@@ -8,7 +8,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,14 +15,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class DeveloperExperienceTest implements HookFixtures {
     transient String flagKey = "mykey";
+    private OpenFeatureAPI api;
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        api = new OpenFeatureAPI();
+    }
 
     @Test
     void simpleBooleanFlag() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProviderAndWait(new TestEventsProvider());
         Client client = api.getClient();
         Boolean retval = client.getBooleanValue(flagKey, false);
@@ -34,7 +39,6 @@ class DeveloperExperienceTest implements HookFixtures {
     void clientHooks() {
         Hook<Boolean> exampleHook = mockBooleanHook();
 
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProviderAndWait(new TestEventsProvider());
         Client client = api.getClient();
         client.addHooks(exampleHook);
@@ -48,7 +52,6 @@ class DeveloperExperienceTest implements HookFixtures {
         Hook<Boolean> clientHook = mockBooleanHook();
         Hook<Boolean> evalHook = mockBooleanHook();
 
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProviderAndWait(new TestEventsProvider());
         Client client = api.getClient();
         client.addHooks(clientHook);
@@ -69,7 +72,6 @@ class DeveloperExperienceTest implements HookFixtures {
     @Test
     void providingContext() {
 
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProviderAndWait(new TestEventsProvider());
         Client client = api.getClient();
         Map<String, Value> attributes = new HashMap<>();
@@ -86,8 +88,7 @@ class DeveloperExperienceTest implements HookFixtures {
 
     @Test
     void brokenProvider() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
         Client client = api.getClient();
         FlagEvaluationDetails<Boolean> retval = client.getBooleanDetails(flagKey, false);
         assertEquals(ErrorCode.FLAG_NOT_FOUND, retval.getErrorCode());
@@ -99,6 +100,9 @@ class DeveloperExperienceTest implements HookFixtures {
     @Test
     void providerLockedPerTransaction() {
 
+        final String defaultValue = "string-value";
+        final OpenFeatureAPI api = new OpenFeatureAPI();
+
         class MutatingHook implements Hook {
 
             @Override
@@ -106,16 +110,14 @@ class DeveloperExperienceTest implements HookFixtures {
             // change the provider during a before hook - this should not impact the evaluation in progress
             public Optional before(HookContext ctx, Map hints) {
 
-                FeatureProviderTestUtils.setFeatureProvider(TestEventsProvider.newInitializedTestEventsProvider());
+                api.setProviderAndWait(TestEventsProvider.newInitializedTestEventsProvider());
 
                 return Optional.empty();
             }
         }
 
-        final String defaultValue = "string-value";
-        final OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         final Client client = api.getClient();
-        FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
+        api.setProviderAndWait(new DoSomethingProvider());
         api.addHooks(new MutatingHook());
 
         // if provider is changed during an evaluation transaction it should proceed with the original provider
@@ -132,7 +134,6 @@ class DeveloperExperienceTest implements HookFixtures {
     @Test
     void setProviderAndWaitShouldPutTheProviderInReadyState() {
         String domain = "domain";
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         api.setProviderAndWait(domain, new TestEventsProvider());
         Client client = api.getClient(domain);
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
@@ -145,7 +146,6 @@ class DeveloperExperienceTest implements HookFixtures {
     @Test
     void shouldPutTheProviderInStateErrorAfterEmittingErrorEvent() {
         String domain = "domain";
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         TestEventsProvider provider = new TestEventsProvider();
         api.setProviderAndWait(domain, provider);
         Client client = api.getClient(domain);
@@ -161,7 +161,6 @@ class DeveloperExperienceTest implements HookFixtures {
     @Test
     void shouldPutTheProviderInStateStaleAfterEmittingStaleEvent() {
         String domain = "domain";
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         TestEventsProvider provider = new TestEventsProvider();
         api.setProviderAndWait(domain, provider);
         Client client = api.getClient(domain);
@@ -177,7 +176,6 @@ class DeveloperExperienceTest implements HookFixtures {
     @Test
     void shouldPutTheProviderInStateReadyAfterEmittingReadyEvent() {
         String domain = "domain";
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         TestEventsProvider provider = new TestEventsProvider();
         api.setProviderAndWait(domain, provider);
         Client client = api.getClient(domain);

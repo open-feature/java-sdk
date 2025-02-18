@@ -1,14 +1,12 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.exceptions.FlagNotFoundError;
-
 public class AlwaysBrokenWithDetailsProvider implements FeatureProvider {
+
+    private final String name = "always broken with details";
 
     @Override
     public Metadata getMetadata() {
-        return () -> {
-            throw new FlagNotFoundError(TestConstants.BROKEN_MESSAGE);
-        };
+        return () -> name;
     }
 
     @Override

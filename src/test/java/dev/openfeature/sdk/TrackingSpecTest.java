@@ -15,7 +15,6 @@ import static org.mockito.Mockito.verify;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import dev.openfeature.sdk.fixtures.ProviderFixture;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.SneakyThrows;
@@ -29,7 +28,7 @@ class TrackingSpecTest {
 
     @BeforeEach
     void getApiInstance() {
-        api = OpenFeatureAPI.getInstance();
+        api = new OpenFeatureAPI();
         client = api.getClient();
     }
 
@@ -116,7 +115,7 @@ class TrackingSpecTest {
         client.setEvaluationContext(clCtx);
 
         FeatureProvider provider = ProviderFixture.createMockedProvider();
-        FeatureProviderTestUtils.setFeatureProvider(provider);
+        api.setProviderAndWait(provider);
 
         client.track("event", new MutableContext().add("my-key", "final"), new MutableTrackingEventDetails(0.0f));
 
@@ -170,8 +169,7 @@ class TrackingSpecTest {
                 .add("my-struct", new Value(new MutableTrackingEventDetails()));
 
         assertEquals(expectedMap, details.asMap());
-        assertThatCode(() -> OpenFeatureAPI.getInstance()
-                        .getClient()
+        assertThatCode(() -> api.getClient()
                         .track("tracking-event-name", new ImmutableContext(), new MutableTrackingEventDetails()))
                 .doesNotThrowAnyException();
 
@@ -188,8 +186,7 @@ class TrackingSpecTest {
 
         ImmutableTrackingEventDetails immutableDetails = new ImmutableTrackingEventDetails(2, expectedMap);
         assertEquals(expectedImmutable, immutableDetails.asMap());
-        assertThatCode(() -> OpenFeatureAPI.getInstance()
-                        .getClient()
+        assertThatCode(() -> api.getClient()
                         .track("tracking-event-name", new ImmutableContext(), new ImmutableTrackingEventDetails()))
                 .doesNotThrowAnyException();
     }

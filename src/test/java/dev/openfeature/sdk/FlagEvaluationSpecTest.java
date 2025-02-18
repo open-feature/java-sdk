@@ -9,7 +9,6 @@ import static org.mockito.Mockito.*;
 
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +28,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     private OpenFeatureAPI api;
 
     private Client _client() {
-        FeatureProviderTestUtils.setFeatureProvider(new NoOpProvider());
+        api.setProviderAndWait(new NoOpProvider());
         return api.getClient();
     }
 
@@ -37,18 +36,13 @@ class FlagEvaluationSpecTest implements HookFixtures {
     private Client _initializedClient() {
         TestEventsProvider provider = new TestEventsProvider();
         provider.initialize(null);
-        FeatureProviderTestUtils.setFeatureProvider(provider);
+        api.setProviderAndWait(provider);
         return api.getClient();
     }
 
     @BeforeEach
     void getApiInstance() {
-        api = OpenFeatureAPI.getInstance();
-    }
-
-    @AfterEach
-    void reset_ctx() {
-        api.setEvaluationContext(null);
+        api = new OpenFeatureAPI();
     }
 
     @BeforeEach
@@ -63,22 +57,13 @@ class FlagEvaluationSpecTest implements HookFixtures {
     }
 
     @Specification(
-            number = "1.1.1",
-            text =
-                    "The API, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the API are present at runtime.")
-    @Test
-    void global_singleton() {
-        assertSame(OpenFeatureAPI.getInstance(), OpenFeatureAPI.getInstance());
-    }
-
-    @Specification(
             number = "1.1.2.1",
             text =
                     "The API MUST define a provider mutator, a function to set the default provider, which accepts an API-conformant provider implementation.")
     @Test
     void provider() {
         FeatureProvider mockProvider = mock(FeatureProvider.class);
-        FeatureProviderTestUtils.setFeatureProvider(mockProvider);
+        api.setProviderAndWait(mockProvider);
         assertThat(api.getProvider()).isEqualTo(mockProvider);
     }
 
@@ -90,13 +75,13 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test
     void providerAndWait() {
         FeatureProvider provider = new TestEventsProvider(500);
-        OpenFeatureAPI.getInstance().setProviderAndWait(provider);
+        api.setProviderAndWait(provider);
         Client client = api.getClient();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
 
         provider = new TestEventsProvider(500);
         String providerName = "providerAndWait";
-        OpenFeatureAPI.getInstance().setProviderAndWait(providerName, provider);
+        api.setProviderAndWait(providerName, provider);
         Client client2 = api.getClient(providerName);
         assertThat(client2.getProviderState()).isEqualTo(ProviderState.READY);
     }
@@ -124,8 +109,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
     void shouldReturnNotReadyIfNotInitialized() {
         FeatureProvider provider = new TestEventsProvider(100);
         String providerName = "shouldReturnNotReadyIfNotInitialized";
-        OpenFeatureAPI.getInstance().setProvider(providerName, provider);
-        Client client = OpenFeatureAPI.getInstance().getClient(providerName);
+        api.setProvider(providerName, provider);
+        Client client = api.getClient(providerName);
         FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("return_error_when_not_initialized", false);
         assertEquals(ErrorCode.PROVIDER_NOT_READY, details.getErrorCode());
         assertEquals(Reason.ERROR.toString(), details.getReason());
@@ -136,7 +121,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
             text = "The API MUST provide a function for retrieving the metadata field of the configured provider.")
     @Test
     void provider_metadata() {
-        FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
+        api.setProviderAndWait(new DoSomethingProvider());
         assertThat(api.getProviderMetadata().getName()).isEqualTo(DoSomethingProvider.name);
     }
 
@@ -198,7 +183,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "The client SHOULD provide functions for floating-point numbers and integers, consistent with language idioms.")
     @Test
     void value_flags() {
-        FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
+        api.setProviderAndWait(new DoSomethingProvider());
 
         Client c = api.getClient();
         String key = "key";
@@ -279,7 +264,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "In cases of normal execution, the `evaluation details` structure's `reason` field MUST contain the value of the `reason` field in the `flag resolution` structure returned by the configured `provider`, if the field is set.")
     @Test
     void detail_flags() {
-        FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider());
+        api.setProviderAndWait(new DoSomethingProvider());
         Client c = api.getClient();
         String key = "key";
 
@@ -386,7 +371,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
     @Test
     void broken_provider() {
-        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
         Client c = api.getClient();
         boolean defaultValue = false;
         assertFalse(c.getBooleanValue("key", defaultValue));
@@ -414,8 +399,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
             text =
                     "In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
     @Test
-    void broken_provider_withDetails() {
-        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenWithDetailsProvider());
+    void broken_provider_withDetails() throws InterruptedException {
+        api.setProviderAndWait(new AlwaysBrokenWithDetailsProvider());
         Client c = api.getClient();
         boolean defaultValue = false;
         assertFalse(c.getBooleanValue("key", defaultValue));
@@ -431,7 +416,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
             text = "Methods, functions, or operations on the client SHOULD NOT write log messages.")
     @Test
     void log_on_error() throws NotImplementedException {
-        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
 
@@ -450,7 +435,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertNull(c.getMetadata().getDomain());
 
         String domainName = "test domain";
-        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
         Client c2 = api.getClient(domainName);
 
         assertEquals(domainName, c2.getMetadata().getName());
@@ -463,7 +448,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "In cases of abnormal execution (network failure, unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")
     @Test
     void reason_is_error_when_there_are_errors() {
-        FeatureProviderTestUtils.setFeatureProvider(new AlwaysBrokenProvider());
+        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
         assertEquals(Reason.ERROR.toString(), result.getReason());
@@ -475,7 +460,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "If the flag metadata field in the flag resolution structure returned by the configured provider is set, the evaluation details structure's flag metadata field MUST contain that value. Otherwise, it MUST contain an empty record.")
     @Test
     void flag_metadata_passed() {
-        FeatureProviderTestUtils.setFeatureProvider(new DoSomethingProvider(null));
+        api.setProviderAndWait(new DoSomethingProvider(null));
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
         assertNotNull(result.getFlagMetadata());
@@ -514,7 +499,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test
     void multi_layer_context_merges_correctly() {
         DoSomethingProvider provider = spy(new DoSomethingProvider());
-        FeatureProviderTestUtils.setFeatureProvider(provider);
+        api.setProviderAndWait(provider);
         TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
         api.setTransactionContextPropagator(transactionContextPropagator);
         Hook<Boolean> hook = spy(new Hook<Boolean>() {
@@ -702,7 +687,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test
     void setting_transaction_context_propagator() {
         DoSomethingProvider provider = new DoSomethingProvider();
-        FeatureProviderTestUtils.setFeatureProvider(provider);
+        api.setProviderAndWait(provider);
 
         TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
         api.setTransactionContextPropagator(transactionContextPropagator);
@@ -716,7 +701,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test
     void setting_transaction_context() {
         DoSomethingProvider provider = new DoSomethingProvider();
-        FeatureProviderTestUtils.setFeatureProvider(provider);
+        api.setProviderAndWait(provider);
 
         TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
         api.setTransactionContextPropagator(transactionContextPropagator);

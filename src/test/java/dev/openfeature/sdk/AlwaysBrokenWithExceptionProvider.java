@@ -2,7 +2,7 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 
-public class AlwaysBrokenProvider implements FeatureProvider {
+public class AlwaysBrokenWithExceptionProvider implements FeatureProvider {
 
     private final String name = "always broken";
 
