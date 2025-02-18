@@ -7,7 +7,16 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+        matrix:
+            os: [ubuntu-latest]
+            build:
+                - java: 17
+                  profile: codequality
+                - java: 8
+                  profile: java8
+    name: with Java ${{ matrix.build.java }}
+    runs-on: ${{ matrix.os}}
     steps:
       - name: Check out the code
         uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2
@@ -15,27 +24,28 @@ jobs:
       - name: Set up JDK 8
         uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12
         with:
-          java-version: '8'
-          distribution: 'temurin'
-          cache: maven
+            java-version: ${{ matrix.build.java }}
+            distribution: 'temurin'
+            cache: maven
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@8c1551cdd4accfcf33820b75a096d845a88e8642
+        uses: github/codeql-action/init@1bb15d06a6fbb5d9d9ffd228746bf8ee208caec8
         with:
           languages: java
 
       - name: Cache local Maven repository
         uses: actions/cache@9fa7e61ec7e1f44ac75218e7aaea81da8856fd11
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+            path: ~/.m2/repository
+            key: ${{ runner.os }}${{ matrix.build.java }}-maven-${{ hashFiles('**/pom.xml') }}
+            restore-keys: |
+                ${{ runner.os }}${{ matrix.build.java }}-maven-
 
       - name: Verify with Maven
-        run: mvn --batch-mode --update-snapshots --activate-profiles e2e verify
+        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify
 
-      - name: Upload coverage to Codecov
+      - if: matrix.build.java == '17'
+        name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5.3.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
@@ -45,4 +55,4 @@ jobs:
           verbose: true # optional (default = false)
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@8c1551cdd4accfcf33820b75a096d845a88e8642
+        uses: github/codeql-action/analyze@1bb15d06a6fbb5d9d9ffd228746bf8ee208caec8
