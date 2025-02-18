@@ -68,6 +68,13 @@
 
         <!-- test -->
         <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+            <version>1.4.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>4.11.0</version>
@@ -242,12 +249,14 @@
                     <ignoredUnusedDeclaredDependencies>
                         <ignoredUnusedDeclaredDependency>com.github.spotbugs:*</ignoredUnusedDeclaredDependency>
                         <ignoredUnusedDeclaredDependency>org.junit*</ignoredUnusedDeclaredDependency>
+                        <ignoredUnusedDeclaredDependency>com.tngtech.archunit*</ignoredUnusedDeclaredDependency>
                         <ignoredUnusedDeclaredDependency>org.simplify4u:slf4j2-mock*</ignoredUnusedDeclaredDependency>
                     </ignoredUnusedDeclaredDependencies>
                     <ignoredDependencies>
                         <ignoredDependency>com.google.guava*</ignoredDependency>
                         <ignoredDependency>io.cucumber*</ignoredDependency>
                         <ignoredDependency>org.junit*</ignoredDependency>
+                        <ignoredDependency>com.tngtech.archunit*</ignoredDependency>
                         <ignoredDependency>com.google.code.findbugs*</ignoredDependency>
                         <ignoredDependency>com.github.spotbugs*</ignoredDependency>
                         <ignoredDependency>org.simplify4u:slf4j-mock-common:*</ignoredDependency>

@@ -35,7 +35,7 @@ class ProviderRepositoryTest {
 
     @BeforeEach
     void setupTest() {
-        providerRepository = new ProviderRepository();
+        providerRepository = new ProviderRepository(new OpenFeatureAPI());
     }
 
     @Nested

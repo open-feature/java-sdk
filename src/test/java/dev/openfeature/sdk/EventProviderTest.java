@@ -28,7 +28,7 @@ class EventProviderTest {
 
     @AfterAll
     public static void resetDefaultProvider() {
-        OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
+        new OpenFeatureAPI().setProviderAndWait(new NoOpProvider());
     }
 
     @Test
@@ -91,7 +91,7 @@ class EventProviderTest {
     @DisplayName("should not deadlock on emit called during emit")
     void doesNotDeadlockOnEmitStackedCalls() {
         TestStackedEmitCallsProvider provider = new TestStackedEmitCallsProvider();
-        OpenFeatureAPI.getInstance().setProviderAndWait(provider);
+        new OpenFeatureAPI().setProviderAndWait(provider);
     }
 
     static class TestEventProvider extends EventProvider {

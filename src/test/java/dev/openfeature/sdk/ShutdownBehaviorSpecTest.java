@@ -1,6 +1,5 @@
 package dev.openfeature.sdk;
 
-import static dev.openfeature.sdk.testutils.FeatureProviderTestUtils.setFeatureProvider;
 import static org.mockito.Mockito.*;
 
 import dev.openfeature.sdk.fixtures.ProviderFixture;
@@ -15,9 +14,19 @@ import org.junit.jupiter.api.Test;
 class ShutdownBehaviorSpecTest {
 
     private String DOMAIN = "myDomain";
+    private OpenFeatureAPI api;
+
+    void setFeatureProvider(FeatureProvider featureProvider) {
+        api.setProviderAndWait(featureProvider);
+    }
+
+    void setFeatureProvider(String domain, FeatureProvider featureProvider) {
+        api.setProviderAndWait(domain, featureProvider);
+    }
 
     @BeforeEach
     void resetFeatureProvider() {
+        api = new OpenFeatureAPI();
         setFeatureProvider(new NoOpProvider());
     }
 
@@ -110,7 +119,6 @@ class ShutdownBehaviorSpecTest {
             FeatureProvider namedProvider = ProviderFixture.createMockedProvider();
             setFeatureProvider(defaultProvider);
             setFeatureProvider(DOMAIN, namedProvider);
-            OpenFeatureAPI api = OpenFeatureAPI.getInstance();
 
             synchronized (OpenFeatureAPI.class) {
                 api.shutdown();
@@ -125,15 +133,14 @@ class ShutdownBehaviorSpecTest {
         @Test
         @DisplayName("once shutdown is complete, api must be ready to use again")
         void apiIsReadyToUseAfterShutdown() {
-            final OpenFeatureAPI openFeatureAPI = OpenFeatureAPI.getInstance();
 
             NoOpProvider p1 = new NoOpProvider();
-            openFeatureAPI.setProvider(p1);
+            api.setProvider(p1);
 
-            openFeatureAPI.shutdown();
+            api.shutdown();
 
             NoOpProvider p2 = new NoOpProvider();
-            openFeatureAPI.setProvider(p2);
+            api.setProvider(p2);
         }
     }
 }

@@ -507,7 +507,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public Client on(ProviderEvent event, Consumer<EventDetails> handler) {
-        OpenFeatureAPI.getInstance().addHandler(domain, event, handler);
+        openfeatureApi.addHandler(domain, event, handler);
         return this;
     }
 
@@ -516,7 +516,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public Client removeHandler(ProviderEvent event, Consumer<EventDetails> handler) {
-        OpenFeatureAPI.getInstance().removeHandler(domain, event, handler);
+        openfeatureApi.removeHandler(domain, event, handler);
         return this;
     }
 }

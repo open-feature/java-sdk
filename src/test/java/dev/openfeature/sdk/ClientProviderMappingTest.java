@@ -2,17 +2,16 @@ package dev.openfeature.sdk;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import dev.openfeature.sdk.testutils.FeatureProviderTestUtils;
 import org.junit.jupiter.api.Test;
 
 class ClientProviderMappingTest {
 
     @Test
     void clientProviderTest() {
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        OpenFeatureAPI api = new OpenFeatureAPI();
 
-        FeatureProviderTestUtils.setFeatureProvider("client1", new DoSomethingProvider());
-        FeatureProviderTestUtils.setFeatureProvider("client2", new NoOpProvider());
+        api.setProviderAndWait("client1", new DoSomethingProvider());
+        api.setProviderAndWait("client2", new NoOpProvider());
 
         Client c1 = api.getClient("client1");
         Client c2 = api.getClient("client2");
