@@ -146,6 +146,7 @@
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-picocontainer</artifactId>
+            <version>${io.cucumber.version}</version>
             <scope>test</scope>
         </dependency>
 
