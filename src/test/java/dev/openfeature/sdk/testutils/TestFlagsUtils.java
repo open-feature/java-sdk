@@ -3,6 +3,7 @@ package dev.openfeature.sdk.testutils;
 import static dev.openfeature.sdk.Structure.mapToStructure;
 
 import com.google.common.collect.ImmutableMap;
+import dev.openfeature.sdk.ImmutableMetadata;
 import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.providers.memory.Flag;
 import java.util.HashMap;
@@ -22,9 +23,11 @@ public class TestFlagsUtils {
     public static final String OBJECT_FLAG_KEY = "object-flag";
     public static final String CONTEXT_AWARE_FLAG_KEY = "context-aware";
     public static final String WRONG_FLAG_KEY = "wrong-flag";
+    public static final String METADATA_FLAG_KEY = "metadata-flag";
 
     /**
      * Building flags for testing purposes.
+     *
      * @return map of flags
      */
     public static Map<String, Flag<?>> buildFlags() {
@@ -89,6 +92,19 @@ public class TestFlagsUtils {
                         .variant("one", "uno")
                         .variant("two", "dos")
                         .defaultVariant("one")
+                        .build());
+        flags.put(
+                METADATA_FLAG_KEY,
+                Flag.builder()
+                        .variant("on", true)
+                        .variant("off", false)
+                        .defaultVariant("on")
+                        .flagMetadata(ImmutableMetadata.builder()
+                                .addString("string", "1.0.2")
+                                .addInteger("integer", 2)
+                                .addBoolean("boolean", true)
+                                .addDouble("float", 0.1d)
+                                .build())
                         .build());
         return flags;
     }
