@@ -12,7 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
-        <junit.jupiter.version>5.11.4</junit.jupiter.version>
+        <junit.jupiter.version>5.12.0</junit.jupiter.version>
         <io.cucumber.version>7.21.1</io.cucumber.version>
         <org.mockito.version>5.15.2</org.mockito.version>
         <!-- exclusion expression for e2e tests -->
@@ -125,7 +125,7 @@
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
-            <version>1.11.4</version>
+            <version>1.12.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -212,7 +212,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.11.4</version>
+                <version>5.12.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
