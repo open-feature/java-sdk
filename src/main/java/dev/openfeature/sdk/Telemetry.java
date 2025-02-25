@@ -6,6 +6,8 @@ package dev.openfeature.sdk;
  */
 public class Telemetry {
 
+    private Telemetry() {}
+
     /*
     The OpenTelemetry compliant event attributes for flag evaluation.
     Specification: https://opentelemetry.io/docs/specs/semconv/feature-flags/feature-flags-logs/
@@ -40,17 +42,19 @@ public class Telemetry {
      *
      * @return an EvaluationEvent populated with telemetry data
      */
-    public static EvaluationEvent createEvaluationEvent(HookContext hookContext,
-            ProviderEvaluation<?> providerEvaluation) {
+    public static EvaluationEvent createEvaluationEvent(
+            HookContext<?> hookContext, ProviderEvaluation<?> providerEvaluation) {
         EvaluationEvent.EvaluationEventBuilder evaluationEventBuilder = EvaluationEvent.builder()
-            .name(FLAG_EVALUATION_EVENT_NAME)
-            .attribute(TELEMETRY_KEY, hookContext.getFlagKey())
-            .attribute(TELEMETRY_PROVIDER, hookContext.getProviderMetadata().getName());
+                .name(FLAG_EVALUATION_EVENT_NAME)
+                .attribute(TELEMETRY_KEY, hookContext.getFlagKey())
+                .attribute(TELEMETRY_PROVIDER, hookContext.getProviderMetadata().getName());
 
         if (providerEvaluation.getReason() != null) {
-            evaluationEventBuilder.attribute(TELEMETRY_REASON, providerEvaluation.getReason().toLowerCase());
+            evaluationEventBuilder.attribute(
+                    TELEMETRY_REASON, providerEvaluation.getReason().toLowerCase());
         } else {
-            evaluationEventBuilder.attribute(TELEMETRY_REASON, Reason.UNKNOWN.name().toLowerCase());
+            evaluationEventBuilder.attribute(
+                    TELEMETRY_REASON, Reason.UNKNOWN.name().toLowerCase());
         }
 
         if (providerEvaluation.getVariant() != null) {
@@ -63,7 +67,8 @@ public class Telemetry {
         if (contextId != null) {
             evaluationEventBuilder.attribute(TELEMETRY_CONTEXT_ID, contextId);
         } else {
-            evaluationEventBuilder.attribute(TELEMETRY_CONTEXT_ID, hookContext.getCtx().getTargetingKey());
+            evaluationEventBuilder.attribute(
+                    TELEMETRY_CONTEXT_ID, hookContext.getCtx().getTargetingKey());
         }
 
         String setID = providerEvaluation.getFlagMetadata().getString(TELEMETRY_FLAG_META_FLAG_SET_ID);

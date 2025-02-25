@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 public class TelemetryTest {
 
     @Test
-    public void testCreatesEvaluationEventWithMandatoryFields() {
+    void testCreatesEvaluationEventWithMandatoryFields() {
         // Arrange
         String flagKey = "test-flag";
         String providerName = "test-provider";
@@ -20,17 +20,15 @@ public class TelemetryTest {
         when(providerMetadata.getName()).thenReturn(providerName);
 
         HookContext<Boolean> hookContext = HookContext.<Boolean>builder()
-            .flagKey(flagKey)
-            .providerMetadata(providerMetadata)
-            .type(FlagValueType.BOOLEAN)
-            .defaultValue(false)
-            .ctx(new ImmutableContext())
-            .build();
+                .flagKey(flagKey)
+                .providerMetadata(providerMetadata)
+                .type(FlagValueType.BOOLEAN)
+                .defaultValue(false)
+                .ctx(new ImmutableContext())
+                .build();
 
-        ProviderEvaluation<Boolean> evaluation = ProviderEvaluation.<Boolean>builder()
-            .reason(reason)
-            .value(true)
-            .build();
+        ProviderEvaluation<Boolean> evaluation =
+                ProviderEvaluation.<Boolean>builder().reason(reason).value(true).build();
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, evaluation);
 
@@ -41,7 +39,7 @@ public class TelemetryTest {
     }
 
     @Test
-    public void testHandlesNullReason() {
+    void testHandlesNullReason() {
         // Arrange
         String flagKey = "test-flag";
         String providerName = "test-provider";
@@ -50,17 +48,15 @@ public class TelemetryTest {
         when(providerMetadata.getName()).thenReturn(providerName);
 
         HookContext<Boolean> hookContext = HookContext.<Boolean>builder()
-            .flagKey(flagKey)
-            .providerMetadata(providerMetadata)
-            .type(FlagValueType.BOOLEAN)
-            .defaultValue(false)
-            .ctx(new ImmutableContext())
-            .build();
+                .flagKey(flagKey)
+                .providerMetadata(providerMetadata)
+                .type(FlagValueType.BOOLEAN)
+                .defaultValue(false)
+                .ctx(new ImmutableContext())
+                .build();
 
-        ProviderEvaluation<Boolean> evaluation = ProviderEvaluation.<Boolean>builder()
-            .reason(null)
-            .value(true)
-            .build();
+        ProviderEvaluation<Boolean> evaluation =
+                ProviderEvaluation.<Boolean>builder().reason(null).value(true).build();
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, evaluation);
 
@@ -68,20 +64,20 @@ public class TelemetryTest {
     }
 
     @Test
-    public void testSetsVariantAttributeWhenVariantExists() {
+    void testSetsVariantAttributeWhenVariantExists() {
         HookContext<String> hookContext = HookContext.<String>builder()
-            .flagKey("testFlag")
-            .type(FlagValueType.STRING)
-            .defaultValue("default")
-            .ctx(mock(EvaluationContext.class))
-            .clientMetadata(mock(ClientMetadata.class))
-            .providerMetadata(mock(Metadata.class))
-            .build();
+                .flagKey("testFlag")
+                .type(FlagValueType.STRING)
+                .defaultValue("default")
+                .ctx(mock(EvaluationContext.class))
+                .clientMetadata(mock(ClientMetadata.class))
+                .providerMetadata(mock(Metadata.class))
+                .build();
 
         ProviderEvaluation<String> providerEvaluation = ProviderEvaluation.<String>builder()
-            .variant("testVariant")
-            .flagMetadata(ImmutableMetadata.builder().build())
-            .build();
+                .variant("testVariant")
+                .flagMetadata(ImmutableMetadata.builder().build())
+                .build();
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, providerEvaluation);
 
@@ -89,20 +85,20 @@ public class TelemetryTest {
     }
 
     @Test
-    public void test_sets_value_in_body_when_variant_is_null() {
+    void test_sets_value_in_body_when_variant_is_null() {
         HookContext<String> hookContext = HookContext.<String>builder()
-            .flagKey("testFlag")
-            .type(FlagValueType.STRING)
-            .defaultValue("default")
-            .ctx(mock(EvaluationContext.class))
-            .clientMetadata(mock(ClientMetadata.class))
-            .providerMetadata(mock(Metadata.class))
-            .build();
+                .flagKey("testFlag")
+                .type(FlagValueType.STRING)
+                .defaultValue("default")
+                .ctx(mock(EvaluationContext.class))
+                .clientMetadata(mock(ClientMetadata.class))
+                .providerMetadata(mock(Metadata.class))
+                .build();
 
         ProviderEvaluation<String> providerEvaluation = ProviderEvaluation.<String>builder()
-            .value("testValue")
-            .flagMetadata(ImmutableMetadata.builder().build())
-            .build();
+                .value("testValue")
+                .flagMetadata(ImmutableMetadata.builder().build())
+                .build();
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, providerEvaluation);
 
@@ -110,7 +106,7 @@ public class TelemetryTest {
     }
 
     @Test
-    public void testAllFieldsPopulated() {
+    void testAllFieldsPopulated() {
         EvaluationContext evaluationContext = mock(EvaluationContext.class);
         when(evaluationContext.getTargetingKey()).thenReturn("realTargetingKey");
 
@@ -118,20 +114,20 @@ public class TelemetryTest {
         when(providerMetadata.getName()).thenReturn("realProviderName");
 
         HookContext<String> hookContext = HookContext.<String>builder()
-            .flagKey("realFlag")
-            .type(FlagValueType.STRING)
-            .defaultValue("realDefault")
-            .ctx(evaluationContext)
-            .clientMetadata(mock(ClientMetadata.class))
-            .providerMetadata(providerMetadata)
-            .build();
+                .flagKey("realFlag")
+                .type(FlagValueType.STRING)
+                .defaultValue("realDefault")
+                .ctx(evaluationContext)
+                .clientMetadata(mock(ClientMetadata.class))
+                .providerMetadata(providerMetadata)
+                .build();
 
         ProviderEvaluation<String> providerEvaluation = ProviderEvaluation.<String>builder()
                 .flagMetadata(ImmutableMetadata.builder()
-                    .addString("contextId", "realContextId")
-                    .addString("flagSetId", "realFlagSetId")
-                    .addString("version", "realVersion")
-                    .build())
+                        .addString("contextId", "realContextId")
+                        .addString("flagSetId", "realFlagSetId")
+                        .addString("version", "realVersion")
+                        .build())
                 .reason(Reason.DEFAULT.name())
                 .variant("realVariant")
                 .build();
@@ -146,11 +142,10 @@ public class TelemetryTest {
         assertEquals("realVersion", event.getAttributes().get(Telemetry.TELEMETRY_VERSION));
         assertNull(event.getAttributes().get(Telemetry.TELEMETRY_ERROR_CODE));
         assertEquals("realVariant", event.getAttributes().get(Telemetry.TELEMETRY_VARIANT));
-
     }
 
     @Test
-    public void testErrorEvaluation() {
+    void testErrorEvaluation() {
         EvaluationContext evaluationContext = mock(EvaluationContext.class);
         when(evaluationContext.getTargetingKey()).thenReturn("realTargetingKey");
 
@@ -187,11 +182,10 @@ public class TelemetryTest {
         assertEquals(ErrorCode.GENERAL, event.getAttributes().get(Telemetry.TELEMETRY_ERROR_CODE));
         assertEquals("realErrorMessage", event.getAttributes().get(Telemetry.TELEMETRY_ERROR_MSG));
         assertNull(event.getAttributes().get(Telemetry.TELEMETRY_VARIANT));
-
     }
 
     @Test
-    public void testErrorCodeEvaluation() {
+    void testErrorCodeEvaluation() {
         EvaluationContext evaluationContext = mock(EvaluationContext.class);
         when(evaluationContext.getTargetingKey()).thenReturn("realTargetingKey");
 
@@ -229,7 +223,5 @@ public class TelemetryTest {
         assertEquals(ErrorCode.INVALID_CONTEXT, event.getAttributes().get(Telemetry.TELEMETRY_ERROR_CODE));
         assertEquals("realErrorMessage", event.getAttributes().get(Telemetry.TELEMETRY_ERROR_MSG));
         assertNull(event.getAttributes().get(Telemetry.TELEMETRY_VARIANT));
-
     }
-
 }
