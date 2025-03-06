@@ -2,24 +2,26 @@ package dev.openfeature.sdk;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.lang.reflect.Modifier;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class ValueTest {
+class ValueTest {
     @Test
-    public void noArgShouldContainNull() {
+    void noArgShouldContainNull() {
         Value value = new Value();
         assertTrue(value.isNull());
     }
 
     @Test
-    public void objectArgShouldContainObject() {
+    void objectArgShouldContainObject() {
         try {
             // int is a special case, see intObjectArgShouldConvertToInt()
             List<Object> list = new ArrayList<>();
@@ -42,7 +44,7 @@ public class ValueTest {
     }
 
     @Test
-    public void intObjectArgShouldConvertToInt() {
+    void intObjectArgShouldConvertToInt() {
         try {
             Object innerValue = 1;
             Value value = new Value(innerValue);
@@ -53,7 +55,7 @@ public class ValueTest {
     }
 
     @Test
-    public void invalidObjectArgShouldThrow() {
+    void invalidObjectArgShouldThrow() {
 
         class Something {}
 
@@ -63,7 +65,7 @@ public class ValueTest {
     }
 
     @Test
-    public void boolArgShouldContainBool() {
+    void boolArgShouldContainBool() {
         boolean innerValue = true;
         Value value = new Value(innerValue);
         assertTrue(value.isBoolean());
@@ -71,7 +73,7 @@ public class ValueTest {
     }
 
     @Test
-    public void numericArgShouldReturnDoubleOrInt() {
+    void numericArgShouldReturnDoubleOrInt() {
         double innerDoubleValue = 1.75;
         Value doubleValue = new Value(innerDoubleValue);
         assertTrue(doubleValue.isNumber());
@@ -86,7 +88,7 @@ public class ValueTest {
     }
 
     @Test
-    public void stringArgShouldContainString() {
+    void stringArgShouldContainString() {
         String innerValue = "hi!";
         Value value = new Value(innerValue);
         assertTrue(value.isString());
@@ -94,7 +96,7 @@ public class ValueTest {
     }
 
     @Test
-    public void dateShouldContainDate() {
+    void dateShouldContainDate() {
         Instant innerValue = Instant.now();
         Value value = new Value(innerValue);
         assertTrue(value.isInstant());
@@ -102,7 +104,7 @@ public class ValueTest {
     }
 
     @Test
-    public void structureShouldContainStructure() {
+    void structureShouldContainStructure() {
         String INNER_KEY = "key";
         String INNER_VALUE = "val";
         MutableStructure innerValue = new MutableStructure().add(INNER_KEY, INNER_VALUE);
@@ -112,7 +114,7 @@ public class ValueTest {
     }
 
     @Test
-    public void listArgShouldContainList() {
+    void listArgShouldContainList() {
         String ITEM_VALUE = "val";
         List<Value> innerValue = new ArrayList<Value>();
         innerValue.add(new Value(ITEM_VALUE));
@@ -122,7 +124,7 @@ public class ValueTest {
     }
 
     @Test
-    public void listMustBeOfValues() {
+    void listMustBeOfValues() {
         String item = "item";
         List<String> list = new ArrayList<>();
         list.add(item);
@@ -135,7 +137,7 @@ public class ValueTest {
     }
 
     @Test
-    public void emptyListAllowed() {
+    void emptyListAllowed() {
         List<String> list = new ArrayList<>();
         try {
             Value value = new Value((Object) list);
@@ -148,7 +150,7 @@ public class ValueTest {
     }
 
     @Test
-    public void valueConstructorValidateListInternals() {
+    void valueConstructorValidateListInternals() {
         List<Object> list = new ArrayList<>();
         list.add(new Value("item"));
         list.add("item");
@@ -157,8 +159,30 @@ public class ValueTest {
     }
 
     @Test
-    public void noOpFinalize() {
+    void noOpFinalize() {
         Value val = new Value();
         assertDoesNotThrow(val::finalize); // does nothing, but we want to defined in and make it final.
+    }
+
+    @Test
+    void equalValuesShouldBeEqual() {
+        Value val1 = new Value(12312312);
+        Value val2 = new Value(12312312);
+        assertEquals(val1, val2);
+    }
+
+    @Test
+    void unequalValuesShouldNotBeEqual() {
+        Value val1 = new Value("a");
+        Value val2 = new Value("b");
+        assertNotEquals(val1, val2);
+    }
+
+    @Test
+    void hashCodeShouldGiveHashCodeOfInnerObject() {
+        String innerValue = "val";
+        Value val1 = new Value(innerValue);
+
+        assertEquals(innerValue.hashCode(), val1.hashCode());
     }
 }

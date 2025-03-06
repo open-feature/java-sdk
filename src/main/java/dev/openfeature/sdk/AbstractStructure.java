@@ -11,7 +11,7 @@ abstract class AbstractStructure implements Structure {
 
     @Override
     public boolean isEmpty() {
-        return attributes == null || attributes.size() == 0;
+        return attributes == null || attributes.isEmpty();
     }
 
     AbstractStructure() {
@@ -45,5 +45,47 @@ abstract class AbstractStructure implements Structure {
                         HashMap::new,
                         (accumulated, entry) -> accumulated.put(entry.getKey(), convertValue(entry.getValue())),
                         HashMap::putAll);
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof AbstractStructure)) {
+            return false;
+        }
+        final AbstractStructure other = (AbstractStructure) o;
+        if (other.attributes == attributes) {
+            return true;
+        }
+        if (attributes == null || other.attributes == null) {
+            return false;
+        }
+        if (other.attributes.size() != attributes.size()) {
+            return false;
+        }
+
+        for (Map.Entry<String, Value> thisEntry : attributes.entrySet()) {
+            Value thisValue = thisEntry.getValue();
+            Value otherValue = other.attributes.get(thisEntry.getKey());
+            if (thisValue == null && otherValue == null) {
+                continue;
+            }
+            if (thisValue == null || otherValue == null) {
+                return false;
+            }
+            if (!thisValue.equals(otherValue)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public int hashCode() {
+        if (attributes == null) {
+            return 0;
+        }
+        return attributes.hashCode();
     }
 }

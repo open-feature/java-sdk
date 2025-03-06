@@ -3,6 +3,7 @@ package dev.openfeature.sdk;
 import static dev.openfeature.sdk.EvaluationContext.TARGETING_KEY;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
@@ -132,5 +133,32 @@ class ImmutableContextTest {
 
         Structure value = key1.asStructure();
         assertArrayEquals(new Object[] {"key1_1"}, value.keySet().toArray());
+    }
+
+    @DisplayName("Two different MutableContext objects with the different contents are not considered equal")
+    @Test
+    void unequalImmutableContextsAreNotEqual() {
+        final Map<String, Value> attributes = new HashMap<>();
+        attributes.put("key1", new Value("val1"));
+        final ImmutableContext ctx = new ImmutableContext(attributes);
+
+        final Map<String, Value> attributes2 = new HashMap<>();
+        final ImmutableContext ctx2 = new ImmutableContext(attributes2);
+
+        assertNotEquals(ctx, ctx2);
+    }
+
+    @DisplayName("Two different MutableContext objects with the same content are considered equal")
+    @Test
+    void equalImmutableContextsAreEqual() {
+        final Map<String, Value> attributes = new HashMap<>();
+        attributes.put("key1", new Value("val1"));
+        final ImmutableContext ctx = new ImmutableContext(attributes);
+
+        final Map<String, Value> attributes2 = new HashMap<>();
+        attributes2.put("key1", new Value("val1"));
+        final ImmutableContext ctx2 = new ImmutableContext(attributes2);
+
+        assertEquals(ctx, ctx2);
     }
 }

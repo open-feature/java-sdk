@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
@@ -18,7 +17,6 @@ import lombok.ToString;
  * not be modified after instantiation. All references are clones.
  */
 @ToString
-@EqualsAndHashCode
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
 public final class ImmutableStructure extends AbstractStructure {
 
@@ -38,7 +36,7 @@ public final class ImmutableStructure extends AbstractStructure {
         super(copyAttributes(attributes, null));
     }
 
-    protected ImmutableStructure(String targetingKey, Map<String, Value> attributes) {
+    ImmutableStructure(String targetingKey, Map<String, Value> attributes) {
         super(copyAttributes(attributes, targetingKey));
     }
 

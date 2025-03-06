@@ -101,6 +101,43 @@ public class ImmutableMetadata {
         return metadata.isEmpty();
     }
 
+
+    public boolean equals(final Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof ImmutableMetadata)) {
+            return false;
+        }
+        final ImmutableMetadata other = (ImmutableMetadata) o;
+        if (other.metadata == metadata) {
+            return true;
+        }
+        if (other.metadata.size() != metadata.size()) {
+            return false;
+        }
+
+        for (Map.Entry<String, Object> thisEntry : metadata.entrySet()) {
+            Object thisValue = thisEntry.getValue();
+            Object otherValue = other.metadata.get(thisEntry.getKey());
+            if (thisValue == null && otherValue == null) {
+                continue;
+            }
+            if (thisValue == null || otherValue == null) {
+                return false;
+            }
+            if (!thisValue.equals(otherValue)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public int hashCode() {
+        return metadata.hashCode();
+    }
+
     /**
      * Obtain a builder for {@link ImmutableMetadata}.
      */

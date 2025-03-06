@@ -1,6 +1,11 @@
 package dev.openfeature.sdk;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -153,5 +158,75 @@ class ImmutableStructureTest {
         HashMap<String, Value> attrs = new HashMap<>();
         attrs.put("null", null);
         new ImmutableStructure(attrs);
+    }
+
+    @Test
+    void unequalImmutableStructuresAreNotEqual() {
+        Map<String, Value> attrs1 = new HashMap<>();
+        attrs1.put("test", new Value(45));
+        ImmutableStructure structure1 = new ImmutableStructure(attrs1);
+
+        Map<String, Value> attrs2 = new HashMap<>();
+        attrs2.put("test", new Value(2));
+        ImmutableStructure structure2 = new ImmutableStructure(attrs2);
+
+        assertNotEquals(structure1, structure2);
+    }
+
+    @Test
+    void equalImmutableStructuresAreEqual() {
+        Map<String, Value> attrs1 = new HashMap<>();
+        attrs1.put("test", new Value(45));
+        ImmutableStructure structure1 = new ImmutableStructure(attrs1);
+
+        Map<String, Value> attrs2 = new HashMap<>();
+        attrs2.put("test", new Value(45));
+        ImmutableStructure structure2 = new ImmutableStructure(attrs2);
+
+        assertEquals(structure1, structure2);
+    }
+
+    @Test
+    void unequalMutableStructuresAreNotEqual() {
+        MutableStructure m1 = new MutableStructure();
+        m1.add("key1", "val1");
+        MutableStructure m2 = new MutableStructure();
+        m2.add("key2", "val2");
+        assertNotEquals(m1, m2);
+    }
+
+    @Test
+    void equalMutableStructuresAreEqual() {
+        MutableStructure m1 = new MutableStructure();
+        m1.add("key1", "val1");
+        MutableStructure m2 = new MutableStructure();
+        m2.add("key1", "val1");
+        assertEquals(m1, m2);
+    }
+
+    @Test
+    void equalAbstractStructuresOfDifferentTypesAreEqual() {
+        MutableStructure m1 = new MutableStructure();
+        m1.add("key1", "val1");
+        HashMap<String, Value> map = new HashMap<>();
+        map.put("key1", new Value("val1"));
+        AbstractStructure m2 = new AbstractStructure(map) {
+            @Override
+            public Set<String> keySet() {
+                return attributes.keySet();
+            }
+
+            @Override
+            public Value getValue(String key) {
+                return attributes.get(key);
+            }
+
+            @Override
+            public Map<String, Value> asMap() {
+                return attributes;
+            }
+        };
+
+        assertEquals(m1, m2);
     }
 }

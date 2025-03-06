@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
@@ -15,7 +14,6 @@ import lombok.ToString;
  * be modified after instantiation.
  */
 @ToString
-@EqualsAndHashCode
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
 public class MutableStructure extends AbstractStructure {
 
