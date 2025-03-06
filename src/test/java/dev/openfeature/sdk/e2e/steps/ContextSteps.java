@@ -74,7 +74,9 @@ public class ContextSteps {
 
     @Then("The merged context contains an entry with key {string} and value {string}")
     public void theMergedContextContainsAnEntryWithKeyAndValue(String contextKey, String contextValue) {
-        assertInstanceOf(ContextStoringProvider.class, state.provider,
+        assertInstanceOf(
+                ContextStoringProvider.class,
+                state.provider,
                 "In order to use this step, you need to set a ContextStoringProvider");
         EvaluationContext ctx = ((ContextStoringProvider) state.provider).getEvaluationContext();
         assertNotNull(ctx);
@@ -88,9 +90,10 @@ public class ContextSteps {
         state.levels = levelsTable.asList();
     }
 
-    @And("Context entries for each level from API level down to the {string} level, with key {string} and value {string}")
-    public void contextEntriesForEachLevelFromAPILevelDownToTheLevelWithKeyAndValue(String maxLevel, String key,
-            String value) {
+    @And(
+            "Context entries for each level from API level down to the {string} level, with key {string} and value {string}")
+    public void contextEntriesForEachLevelFromAPILevelDownToTheLevelWithKeyAndValue(
+            String maxLevel, String key, String value) {
         for (String level : state.levels) {
             addContextEntry(key, value, level);
             if (level.equals(maxLevel)) {
