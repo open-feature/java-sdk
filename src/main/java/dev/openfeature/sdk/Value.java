@@ -315,6 +315,11 @@ public class Value implements Cloneable {
         }
     }
 
+    /**
+     * Returns true iff {@code this} is equal to {@code o}, or if both objects represent the same data.
+     * @param o the other object
+     * @return true iff both objects are equal or represent the same data
+     */
     public boolean equals(final Object o) {
         if (o == this) {
             return true;
@@ -326,6 +331,10 @@ public class Value implements Cloneable {
         return innerObject.equals(other.innerObject);
     }
 
+    /**
+     * Returns the `hashCode` of the underlying data, or 0 if {@link Value#isNull()} returns true.
+     * @return the hash code
+     */
     public int hashCode() {
         if (innerObject == null) {
             return 0;
