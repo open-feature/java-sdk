@@ -91,6 +91,23 @@ public final class ImmutableContext implements EvaluationContext {
         return new ImmutableContext(attributes);
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof ImmutableContext)) {
+            return false;
+        }
+        ImmutableContext other = (ImmutableContext) object;
+        return this.structure.equals(other.structure);
+    }
+
+    @Override
+    public int hashCode() {
+        return structure.hashCode();
+    }
+
     @SuppressWarnings("all")
     private static class DelegateExclusions {
         @ExcludeFromGeneratedCoverageReport
