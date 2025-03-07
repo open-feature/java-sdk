@@ -101,6 +101,10 @@ public class ImmutableMetadata {
         return metadata.isEmpty();
     }
 
+    public boolean isNotEmpty() {
+        return !metadata.isEmpty();
+    }
+
     /**
      * Obtain a builder for {@link ImmutableMetadata}.
      */
