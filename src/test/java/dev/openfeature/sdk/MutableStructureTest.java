@@ -1,14 +1,25 @@
 package dev.openfeature.sdk;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 class MutableStructureTest {
+
+    @Test
+    void emptyMutableStructureIsEmpty() {
+        MutableStructure m1 = new MutableStructure();
+        assertTrue(m1.isEmpty());
+    }
+
+    @Test
+    void mutableStructureWithNullBackingStructureIsEmpty() {
+        MutableStructure m1 = new MutableStructure(null);
+        assertTrue(m1.isEmpty());
+    }
 
     @Test
     void unequalMutableStructuresAreNotEqual() {

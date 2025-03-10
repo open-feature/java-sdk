@@ -185,4 +185,16 @@ class ImmutableStructureTest {
 
         assertEquals(structure1, structure2);
     }
+
+    @Test
+    void emptyImmutableStructureIsEmpty() {
+        ImmutableStructure m1 = new ImmutableStructure();
+        assertTrue(m1.isEmpty());
+    }
+
+    @Test
+    void immutableStructureWithNullAttributesIsEmpty() {
+        ImmutableStructure m1 = new ImmutableStructure(null);
+        assertTrue(m1.isEmpty());
+    }
 }
