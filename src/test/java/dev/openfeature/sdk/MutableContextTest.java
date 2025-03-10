@@ -3,6 +3,7 @@ package dev.openfeature.sdk;
 import static dev.openfeature.sdk.EvaluationContext.TARGETING_KEY;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
@@ -136,5 +137,32 @@ class MutableContextTest {
         assertEquals("val1", context.getValue("key1").asString());
         assertEquals(2, context.getValue("key2").asInteger());
         assertEquals(3.0, context.getValue("key3").asDouble());
+    }
+
+    @DisplayName("Two different MutableContext objects with the different contents are not considered equal")
+    @Test
+    void unequalMutableContextsAreNotEqual() {
+        final Map<String, Value> attributes = new HashMap<>();
+        attributes.put("key1", new Value("val1"));
+        final MutableContext ctx = new MutableContext(attributes);
+
+        final Map<String, Value> attributes2 = new HashMap<>();
+        final MutableContext ctx2 = new MutableContext(attributes2);
+
+        assertNotEquals(ctx, ctx2);
+    }
+
+    @DisplayName("Two different MutableContext objects with the same content are considered equal")
+    @Test
+    void equalMutableContextsAreEqual() {
+        final Map<String, Value> attributes = new HashMap<>();
+        attributes.put("key1", new Value("val1"));
+        final MutableContext ctx = new MutableContext(attributes);
+
+        final Map<String, Value> attributes2 = new HashMap<>();
+        attributes2.put("key1", new Value("val1"));
+        final MutableContext ctx2 = new MutableContext(attributes2);
+
+        assertEquals(ctx, ctx2);
     }
 }

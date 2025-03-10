@@ -4,6 +4,7 @@ import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Delegate;
 
@@ -15,6 +16,7 @@ import lombok.experimental.Delegate;
  * not be modified after instantiation.
  */
 @ToString
+@EqualsAndHashCode
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public final class ImmutableContext implements EvaluationContext {
 

@@ -3,15 +3,17 @@ package dev.openfeature.sdk;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.EqualsAndHashCode;
 
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
+@EqualsAndHashCode
 abstract class AbstractStructure implements Structure {
 
     protected final Map<String, Value> attributes;
 
     @Override
     public boolean isEmpty() {
-        return attributes == null || attributes.size() == 0;
+        return attributes == null || attributes.isEmpty();
     }
 
     AbstractStructure() {
