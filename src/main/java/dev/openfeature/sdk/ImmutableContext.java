@@ -4,6 +4,7 @@ import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Delegate;
 
@@ -15,6 +16,7 @@ import lombok.experimental.Delegate;
  * not be modified after instantiation.
  */
 @ToString
+@EqualsAndHashCode
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public final class ImmutableContext implements EvaluationContext {
 
@@ -89,23 +91,6 @@ public final class ImmutableContext implements EvaluationContext {
         Map<String, Value> attributes = this.asMap();
         EvaluationContext.mergeMaps(ImmutableStructure::new, attributes, overridingContext.asUnmodifiableMap());
         return new ImmutableContext(attributes);
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object == this) {
-            return true;
-        }
-        if (!(object instanceof ImmutableContext)) {
-            return false;
-        }
-        ImmutableContext other = (ImmutableContext) object;
-        return this.structure.equals(other.structure);
-    }
-
-    @Override
-    public int hashCode() {
-        return structure.hashCode();
     }
 
     @SuppressWarnings("all")

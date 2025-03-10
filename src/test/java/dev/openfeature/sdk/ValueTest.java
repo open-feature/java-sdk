@@ -176,12 +176,4 @@ class ValueTest {
         Value val2 = new Value("b");
         assertNotEquals(val1, val2);
     }
-
-    @Test
-    void hashCodeShouldGiveHashCodeOfInnerObject() {
-        String innerValue = "val";
-        Value val1 = new Value(innerValue);
-
-        assertEquals(innerValue.hashCode(), val1.hashCode());
-    }
 }

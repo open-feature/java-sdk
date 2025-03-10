@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import lombok.ToString;
 
@@ -16,6 +17,7 @@ import lombok.ToString;
  * This intermediate representation provides a good medium of exchange.
  */
 @ToString
+@EqualsAndHashCode
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType", "checkstyle:NoFinalizer"})
 public class Value implements Cloneable {
 
@@ -313,32 +315,5 @@ public class Value implements Cloneable {
         } else {
             throw new TypeMismatchError("Flag value " + object + " had unexpected type " + object.getClass() + ".");
         }
-    }
-
-    /**
-     * Returns true iff {@code this} is equal to {@code o}, or if both objects represent the same data.
-     * @param o the other object
-     * @return true iff both objects are equal or represent the same data
-     */
-    public boolean equals(final Object o) {
-        if (o == this) {
-            return true;
-        }
-        if (!(o instanceof Value)) {
-            return false;
-        }
-        final Value other = (Value) o;
-        return innerObject.equals(other.innerObject);
-    }
-
-    /**
-     * Returns the `hashCode` of the underlying data, or 0 if {@link Value#isNull()} returns true.
-     * @return the hash code
-     */
-    public int hashCode() {
-        if (innerObject == null) {
-            return 0;
-        }
-        return innerObject.hashCode();
     }
 }

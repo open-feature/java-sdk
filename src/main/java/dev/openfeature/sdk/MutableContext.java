@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Delegate;
 
@@ -16,6 +17,7 @@ import lombok.experimental.Delegate;
  * be modified after instantiation.
  */
 @ToString
+@EqualsAndHashCode
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class MutableContext implements EvaluationContext {
 
@@ -121,23 +123,6 @@ public class MutableContext implements EvaluationContext {
         Map<String, Value> attributes = this.asMap();
         EvaluationContext.mergeMaps(MutableStructure::new, attributes, overridingContext.asUnmodifiableMap());
         return new MutableContext(attributes);
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object == this) {
-            return true;
-        }
-        if (!(object instanceof MutableContext)) {
-            return false;
-        }
-        MutableContext other = (MutableContext) object;
-        return this.structure.equals(other.structure);
-    }
-
-    @Override
-    public int hashCode() {
-        return structure.hashCode();
     }
 
     /**
