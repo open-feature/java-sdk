@@ -101,6 +101,10 @@ public class ImmutableMetadata {
         return metadata.isEmpty();
     }
 
+    public boolean isNotEmpty() {
+        return !metadata.isEmpty();
+    }
+
     public boolean equals(final Object o) {
         if (o == this) {
             return true;

@@ -2,7 +2,6 @@ package dev.openfeature.sdk.e2e.steps;
 
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import dev.openfeature.sdk.Client;
 import dev.openfeature.sdk.EvaluationContext;
@@ -289,7 +288,7 @@ public class StepDefinitions {
     @Then("the reason should indicate an error and the error code should indicate a missing flag with {string}")
     public void the_reason_should_indicate_an_error_and_the_error_code_should_be_flag_not_found(String errorCode) {
         assertEquals(Reason.ERROR.toString(), notFoundDetails.getReason());
-        assertTrue(notFoundDetails.getErrorCode().name().equals(errorCode));
+        assertEquals(errorCode, notFoundDetails.getErrorCode().name());
     }
 
     // type mismatch
@@ -309,6 +308,23 @@ public class StepDefinitions {
     @Then("the reason should indicate an error and the error code should indicate a type mismatch with {string}")
     public void the_reason_should_indicate_an_error_and_the_error_code_should_be_type_mismatch(String errorCode) {
         assertEquals(Reason.ERROR.toString(), typeErrorDetails.getReason());
-        assertTrue(typeErrorDetails.getErrorCode().name().equals(errorCode));
+        assertEquals(errorCode, typeErrorDetails.getErrorCode().name());
+    }
+
+    @SuppressWarnings("java:S2925")
+    @When("sleep for {int} milliseconds")
+    public void sleepForMilliseconds(int millis) {
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime + millis;
+        long now;
+        while ((now = System.currentTimeMillis()) < endTime) {
+            long remainingTime = endTime - now;
+            try {
+                //noinspection BusyWait
+                Thread.sleep(remainingTime);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

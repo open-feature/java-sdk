@@ -64,23 +64,25 @@ class FlagMetadataTest {
     }
 
     @Test
-    @DisplayName("isEmpty returns true iff the metadata is empty")
-    void isEmpty_returns_true_if_metadata_is_empty() {
+    @DisplayName("isEmpty and isNotEmpty return correctly when the metadata is empty")
+    void isEmpty_isNotEmpty_return_correctly_when_metadata_is_empty() {
         // given
         ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
 
         // then
         assertTrue(flagMetadata.isEmpty());
+        assertFalse(flagMetadata.isNotEmpty());
     }
 
     @Test
-    @DisplayName("isEmpty returns false iff the metadata is not empty")
-    void isEmpty_returns_false_if_metadata_is_not_empty() {
+    @DisplayName("isEmpty and isNotEmpty return correctly when the metadata is not empty")
+    void isEmpty_isNotEmpty_return_correctly_when_metadata_is_not_empty() {
         // given
         ImmutableMetadata flagMetadata =
                 ImmutableMetadata.builder().addString("a", "b").build();
 
         // then
         assertFalse(flagMetadata.isEmpty());
+        assertTrue(flagMetadata.isNotEmpty());
     }
 }
