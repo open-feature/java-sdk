@@ -1,6 +1,11 @@
 package dev.openfeature.sdk;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -153,5 +158,43 @@ class ImmutableStructureTest {
         HashMap<String, Value> attrs = new HashMap<>();
         attrs.put("null", null);
         new ImmutableStructure(attrs);
+    }
+
+    @Test
+    void unequalImmutableStructuresAreNotEqual() {
+        Map<String, Value> attrs1 = new HashMap<>();
+        attrs1.put("test", new Value(45));
+        ImmutableStructure structure1 = new ImmutableStructure(attrs1);
+
+        Map<String, Value> attrs2 = new HashMap<>();
+        attrs2.put("test", new Value(2));
+        ImmutableStructure structure2 = new ImmutableStructure(attrs2);
+
+        assertNotEquals(structure1, structure2);
+    }
+
+    @Test
+    void equalImmutableStructuresAreEqual() {
+        Map<String, Value> attrs1 = new HashMap<>();
+        attrs1.put("test", new Value(45));
+        ImmutableStructure structure1 = new ImmutableStructure(attrs1);
+
+        Map<String, Value> attrs2 = new HashMap<>();
+        attrs2.put("test", new Value(45));
+        ImmutableStructure structure2 = new ImmutableStructure(attrs2);
+
+        assertEquals(structure1, structure2);
+    }
+
+    @Test
+    void emptyImmutableStructureIsEmpty() {
+        ImmutableStructure m1 = new ImmutableStructure();
+        assertTrue(m1.isEmpty());
+    }
+
+    @Test
+    void immutableStructureWithNullAttributesIsEmpty() {
+        ImmutableStructure m1 = new ImmutableStructure(null);
+        assertTrue(m1.isEmpty());
     }
 }
