@@ -596,8 +596,6 @@ class HookSpecTest implements HookFixtures {
 
     @Test
     void shortCircuit_flagResolution_runsHooksWithAllFields() {
-
-        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
         String domain = "shortCircuit_flagResolution_setsAppropriateFieldsInFlagEvaluationDetails";
         api.setProvider(domain, new FatalErrorProvider());
 
