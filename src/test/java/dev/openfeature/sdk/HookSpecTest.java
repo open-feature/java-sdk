@@ -595,6 +595,27 @@ class HookSpecTest implements HookFixtures {
     }
 
     @Test
+    void shortCircuit_flagResolution_runsHooksWithAllFields() {
+
+        OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+        String domain = "shortCircuit_flagResolution_setsAppropriateFieldsInFlagEvaluationDetails";
+        api.setProvider(domain, new FatalErrorProvider());
+
+        Hook hook = mockBooleanHook();
+        String flagKey = "test-flag-key";
+        Client client = api.getClient(domain);
+        client.getBooleanValue(
+                flagKey,
+                true,
+                new ImmutableContext(),
+                FlagEvaluationOptions.builder().hook(hook).build());
+
+        verify(hook).before(any(), any());
+        verify(hook).error(any(HookContext.class), any(Exception.class), any(Map.class));
+        verify(hook).finallyAfter(any(HookContext.class), any(FlagEvaluationDetails.class), any(Map.class));
+    }
+
+    @Test
     void successful_flagResolution_setsAppropriateFieldsInFlagEvaluationDetails() {
         Hook hook = mockBooleanHook();
         String flagKey = "test-flag-key";
