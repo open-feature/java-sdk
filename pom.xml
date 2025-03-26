@@ -653,7 +653,7 @@
             <!-- with the next block we can define a set of sdks which still support java 8, if any of the sdks is not supporting java 8 anymore -->
             <!--<modules><module></module></modules>-->
             <properties>
-                <toolchain.jdk.version>(11)</toolchain.jdk.version>
+                <toolchain.jdk.version>[11,)</toolchain.jdk.version>
                 <skip.tests>true</skip.tests>
             </properties>
 
