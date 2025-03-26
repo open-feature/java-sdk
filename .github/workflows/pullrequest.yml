@@ -22,14 +22,15 @@ jobs:
         uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2
 
       - name: Set up JDK 11
-        uses: actions/setup-java@b8ebb8ba1d9655f7f159c0a8b8135606ae11b5c9
+        uses: actions/setup-java@3b6c050358614dd082e53cdbc55580431fc4e437
+
         with:
             java-version: ${{ matrix.build.java }}
             distribution: 'temurin'
             cache: maven
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@e0ea141027937784e3c10ed1679e503fcc2245bc
+        uses: github/codeql-action/init@486ab5a2922b634015408a83e10f6867efb5922c
         with:
           languages: java
 
@@ -55,4 +56,4 @@ jobs:
           verbose: true # optional (default = false)
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@e0ea141027937784e3c10ed1679e503fcc2245bc
+        uses: github/codeql-action/analyze@486ab5a2922b634015408a83e10f6867efb5922c
