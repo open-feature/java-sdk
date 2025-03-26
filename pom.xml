@@ -10,7 +10,7 @@
     <properties>
         <toolchain.jdk.version>[17,)</toolchain.jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <junit.jupiter.version>5.12.1</junit.jupiter.version>
         <io.cucumber.version>7.21.1</io.cucumber.version>
@@ -20,7 +20,7 @@
         <module-name>${project.groupId}.${project.artifactId}</module-name>
         <skip.tests>false</skip.tests>
         <!-- this will throw an error if we use wrong apis -->
-        <maven.compiler.release>8</maven.compiler.release>
+        <maven.compiler.release>11</maven.compiler.release>
     </properties>
 
     <name>OpenFeature Java SDK</name>
