@@ -178,12 +178,6 @@ public class OpenFeatureClient implements Client {
             // provider must be accessed once to maintain a consistent reference
             provider = stateManager.getProvider();
             ProviderState state = stateManager.getState();
-            if (ProviderState.NOT_READY.equals(state)) {
-                throw new ProviderNotReadyError("provider not yet initialized");
-            }
-            if (ProviderState.FATAL.equals(state)) {
-                throw new FatalError("provider is in an irrecoverable error state");
-            }
 
             mergedHooks = ObjectUtils.merge(
                     provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getHooks());
@@ -202,6 +196,14 @@ public class OpenFeatureClient implements Client {
 
             afterHookContext =
                     HookContext.from(key, type, this.getMetadata(), provider.getMetadata(), mergedCtx, defaultValue);
+
+            // "short circuit" if the provider is in NOT_READY or FATAL state
+            if (ProviderState.NOT_READY.equals(state)) {
+                throw new ProviderNotReadyError("Provider not yet initialized");
+            }
+            if (ProviderState.FATAL.equals(state)) {
+                throw new FatalError("Provider is in an irrecoverable error state");
+            }
 
             ProviderEvaluation<T> providerEval =
                     (ProviderEvaluation<T>) createProviderEvaluation(type, key, defaultValue, provider, mergedCtx);
