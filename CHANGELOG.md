@@ -13,13 +13,6 @@
 * hooks not run in NOT_READY/FATAL ([#1392](https://github.com/open-feature/java-sdk/issues/1392)) ([24ef9dd](https://github.com/open-feature/java-sdk/commit/24ef9dd2903d01ec029b70cd1e39e71ffe327499))
 
 
-### ✨ New Features
-
-* implement gherkin tests for context merging ([#1363](https://github.com/open-feature/java-sdk/issues/1363)) ([c37d249](https://github.com/open-feature/java-sdk/commit/c37d2497764889710ff9cde70cc456712088fe68))
-* implement gherkin tests for context merging ([#1363](https://github.com/open-feature/java-sdk/issues/1363)) ([c37d249](https://github.com/open-feature/java-sdk/commit/c37d2497764889710ff9cde70cc456712088fe68))
-* update test harness with metadata assertions [#1467](https://github.com/open-feature/java-sdk/issues/1467) ([#1319](https://github.com/open-feature/java-sdk/issues/1319)) ([dd9227a](https://github.com/open-feature/java-sdk/commit/dd9227a9242451c57250de85701c10ddcc75dc71))
-
-
 ### 🧹 Chore
 
 * **deps:** update actions/cache digest to 5a3ec84 ([#1380](https://github.com/open-feature/java-sdk/issues/1380)) ([8359ef1](https://github.com/open-feature/java-sdk/commit/8359ef13bb935ac1d144787cfd7181814a0b286c))
