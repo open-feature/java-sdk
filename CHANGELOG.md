@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.15.0](https://github.com/open-feature/java-sdk/compare/v1.14.1...v1.15.0) (2025-03-27)
+## [1.14.2](https://github.com/open-feature/java-sdk/compare/v1.14.1...v1.14.2) (2025-03-27)
 
 
 ### 🐛 Bug Fixes
