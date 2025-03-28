@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.14.3](https://github.com/open-feature/java-sdk/compare/v1.14.2...v1.14.3) (2025-03-28)
+
+
+### 🧹 Chore
+
+* **deps:** update github/codeql-action digest to 9bd18b4 ([#1394](https://github.com/open-feature/java-sdk/issues/1394)) ([d7b591c](https://github.com/open-feature/java-sdk/commit/d7b591c9f910afad303d6d814f65c7f9dab33b89))
+* **deps:** update github/codeql-action digest to 9f45e74 ([#1396](https://github.com/open-feature/java-sdk/issues/1396)) ([37d76be](https://github.com/open-feature/java-sdk/commit/37d76be697e83f524250a82b2a67cdb4a953d7bc))
+
 ## [1.14.2](https://github.com/open-feature/java-sdk/compare/v1.14.1...v1.14.2) (2025-03-27)
 
 
