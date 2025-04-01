@@ -5,7 +5,6 @@ import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
-import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import dev.openfeature.sdk.internal.ObjectUtils;
 import java.util.ArrayList;
@@ -125,7 +124,8 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public OpenFeatureClient addHooks(Hook... hooks) {
-        try (AutoCloseableLock __ = this.hooksLock.writeLockAutoCloseable()) {
+        var autoCloseableLock = this.hooksLock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             this.clientHooks.addAll(Arrays.asList(hooks));
         }
         return this;
@@ -136,7 +136,8 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public List<Hook> getHooks() {
-        try (AutoCloseableLock __ = this.hooksLock.readLockAutoCloseable()) {
+        var autoCloseableLock = this.hooksLock.readLockAutoCloseable();
+        try (autoCloseableLock) {
             return this.clientHooks;
         }
     }
@@ -146,7 +147,8 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public OpenFeatureClient setEvaluationContext(EvaluationContext evaluationContext) {
-        try (AutoCloseableLock __ = contextLock.writeLockAutoCloseable()) {
+        var autoCloseableLock = contextLock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             this.evaluationContext = evaluationContext;
         }
         return this;
@@ -157,7 +159,8 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public EvaluationContext getEvaluationContext() {
-        try (AutoCloseableLock __ = contextLock.readLockAutoCloseable()) {
+        var autoCloseableLock = contextLock.readLockAutoCloseable();
+        try (autoCloseableLock) {
             return this.evaluationContext;
         }
     }

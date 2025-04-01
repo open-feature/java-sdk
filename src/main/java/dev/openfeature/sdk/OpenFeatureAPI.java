@@ -1,7 +1,6 @@
 package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
-import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,7 +114,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @return api instance
      */
     public OpenFeatureAPI setEvaluationContext(EvaluationContext evaluationContext) {
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+        var autoCloseableLock = lock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             this.evaluationContext = evaluationContext;
         }
         return this;
@@ -127,7 +127,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @return evaluation context
      */
     public EvaluationContext getEvaluationContext() {
-        try (AutoCloseableLock __ = lock.readLockAutoCloseable()) {
+        var autoCloseableLock = lock.readLockAutoCloseable();
+        try (autoCloseableLock) {
             return this.evaluationContext;
         }
     }
@@ -136,7 +137,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * Return the transaction context propagator.
      */
     public TransactionContextPropagator getTransactionContextPropagator() {
-        try (AutoCloseableLock __ = lock.readLockAutoCloseable()) {
+        var autoCloseableLock = lock.readLockAutoCloseable();
+        try (autoCloseableLock) {
             return this.transactionContextPropagator;
         }
     }
@@ -150,7 +152,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         if (transactionContextPropagator == null) {
             throw new IllegalArgumentException("Transaction context propagator cannot be null");
         }
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+        var autoCloseableLock = lock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             this.transactionContextPropagator = transactionContextPropagator;
         }
     }
@@ -176,7 +179,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * Set the default provider.
      */
     public void setProvider(FeatureProvider provider) {
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+        var autoCloseableLock = lock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             providerRepository.setProvider(
                     provider,
                     this::attachEventProvider,
@@ -194,7 +198,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @param provider The provider to set.
      */
     public void setProvider(String domain, FeatureProvider provider) {
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+        var autoCloseableLock = lock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             providerRepository.setProvider(
                     domain,
                     provider,
@@ -210,7 +215,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * Set the default provider and wait for initialization to finish.
      */
     public void setProviderAndWait(FeatureProvider provider) throws OpenFeatureError {
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+        var autoCloseableLock = lock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             providerRepository.setProvider(
                     provider,
                     this::attachEventProvider,
@@ -228,7 +234,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @param provider The provider to set.
      */
     public void setProviderAndWait(String domain, FeatureProvider provider) throws OpenFeatureError {
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+        var autoCloseableLock = lock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             providerRepository.setProvider(
                     domain,
                     provider,
@@ -297,7 +304,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @param hooks The hook to add.
      */
     public void addHooks(Hook... hooks) {
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+        var autoCloseableLock = lock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             this.apiHooks.addAll(Arrays.asList(hooks));
         }
     }
@@ -308,7 +316,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @return A list of {@link Hook}s.
      */
     public List<Hook> getHooks() {
-        try (AutoCloseableLock __ = lock.readLockAutoCloseable()) {
+        var autoCloseableLock = lock.readLockAutoCloseable();
+        try (autoCloseableLock) {
             return this.apiHooks;
         }
     }
@@ -317,7 +326,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * Removes all hooks.
      */
     public void clearHooks() {
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+        var autoCloseableLock = lock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             this.apiHooks.clear();
         }
     }
@@ -329,7 +339,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * Once shut down is complete, API is reset and ready to use again.
      */
     public void shutdown() {
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+        var autoCloseableLock = lock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             providerRepository.shutdown();
             eventSupport.shutdown();
 
@@ -375,7 +386,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      */
     @Override
     public OpenFeatureAPI on(ProviderEvent event, Consumer<EventDetails> handler) {
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+        var autoCloseableLock = lock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             this.eventSupport.addGlobalHandler(event, handler);
             return this;
         }
@@ -391,13 +403,15 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     void removeHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+        var autoCloseableLock = lock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             eventSupport.removeClientHandler(domain, event, handler);
         }
     }
 
     void addHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
-        try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
+        var autoCloseableLock = lock.writeLockAutoCloseable();
+        try (autoCloseableLock) {
             // if the provider is in the state associated with event, run immediately
             if (Optional.ofNullable(this.providerRepository.getProviderState(domain))
                     .orElse(ProviderState.READY)
@@ -421,7 +435,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @param details  the event details
      */
     private void runHandlersForProvider(FeatureProvider provider, ProviderEvent event, ProviderEventDetails details) {
-        try (AutoCloseableLock __ = lock.readLockAutoCloseable()) {
+        var autoCloseableLock = lock.readLockAutoCloseable();
+        try (autoCloseableLock) {
 
             List<String> domainsForProvider = providerRepository.getDomainsForProvider(provider);
 
