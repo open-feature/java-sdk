@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.14.3](https://github.com/open-feature/java-sdk/compare/v1.14.2...v1.14.3) (2025-04-05)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.22.0 ([#1411](https://github.com/open-feature/java-sdk/issues/1411)) ([e251819](https://github.com/open-feature/java-sdk/commit/e25181982af8e5d37be4876b71b337ca86e8454b))
+* **deps:** update dependency org.projectlombok:lombok to v1.18.38 ([#1403](https://github.com/open-feature/java-sdk/issues/1403)) ([ef32f11](https://github.com/open-feature/java-sdk/commit/ef32f11571de4d3a981efec4f61113eb8b0d7d9d))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/setup-java digest to 148017a ([#1404](https://github.com/open-feature/java-sdk/issues/1404)) ([f834e11](https://github.com/open-feature/java-sdk/commit/f834e11acc7ecf903e972d80e9dab324be97847e))
+* **deps:** update dependency net.bytebuddy:byte-buddy to v1.17.5 ([#1400](https://github.com/open-feature/java-sdk/issues/1400)) ([1f2d071](https://github.com/open-feature/java-sdk/commit/1f2d0715087ebd4554826d8552b250e4b8b950c8))
+* **deps:** update dependency net.bytebuddy:byte-buddy-agent to v1.17.5 ([#1401](https://github.com/open-feature/java-sdk/issues/1401)) ([07301bd](https://github.com/open-feature/java-sdk/commit/07301bda3f5b65550eff1e025fc9c0bec3c25275))
+* **deps:** update dependency org.apache.maven.plugins:maven-failsafe-plugin to v3.5.3 ([#1398](https://github.com/open-feature/java-sdk/issues/1398)) ([1fcf0e7](https://github.com/open-feature/java-sdk/commit/1fcf0e77d956c88c54e10942d96d2afd4d79315c))
+* **deps:** update dependency org.apache.maven.plugins:maven-surefire-plugin to v3.5.3 ([#1399](https://github.com/open-feature/java-sdk/issues/1399)) ([d6ebc16](https://github.com/open-feature/java-sdk/commit/d6ebc161a93ad703e25592abdb0bf0fd9e281bbc))
+* **deps:** update dependency org.mockito:mockito-core to v5.17.0 ([#1409](https://github.com/open-feature/java-sdk/issues/1409)) ([345cdcf](https://github.com/open-feature/java-sdk/commit/345cdcfa10da64c61d769746f335f38ac564e9ad))
+* **deps:** update github/codeql-action digest to 362ef4c ([#1408](https://github.com/open-feature/java-sdk/issues/1408)) ([ca160ca](https://github.com/open-feature/java-sdk/commit/ca160cab7ccd71527e06a0851502353ac50b8d0d))
+* **deps:** update github/codeql-action digest to 9bd18b4 ([#1394](https://github.com/open-feature/java-sdk/issues/1394)) ([d7b591c](https://github.com/open-feature/java-sdk/commit/d7b591c9f910afad303d6d814f65c7f9dab33b89))
+* **deps:** update github/codeql-action digest to 9f45e74 ([#1396](https://github.com/open-feature/java-sdk/issues/1396)) ([37d76be](https://github.com/open-feature/java-sdk/commit/37d76be697e83f524250a82b2a67cdb4a953d7bc))
+* **deps:** update github/codeql-action digest to dab8a02 ([#1405](https://github.com/open-feature/java-sdk/issues/1405)) ([5b2f151](https://github.com/open-feature/java-sdk/commit/5b2f1513ab75ef6692978830e59eba87ffa494d5))
+* **deps:** update github/codeql-action digest to e13fe0d ([#1406](https://github.com/open-feature/java-sdk/issues/1406)) ([e211397](https://github.com/open-feature/java-sdk/commit/e211397d517e1263e1251f9c99093bf05cecd93f))
+* **deps:** update github/codeql-action digest to efffb48 ([#1402](https://github.com/open-feature/java-sdk/issues/1402)) ([384953d](https://github.com/open-feature/java-sdk/commit/384953d30ecff83d60a2e5b9790e8228d1a52ac7))
+* **deps:** update io.cucumber.version to v7.22.0 ([#1410](https://github.com/open-feature/java-sdk/issues/1410)) ([3c69f2f](https://github.com/open-feature/java-sdk/commit/3c69f2f36c4e975d690ecc2e790df632a33001ba))
+
 ## [1.14.2](https://github.com/open-feature/java-sdk/compare/v1.14.1...v1.14.2) (2025-03-27)
 
 
