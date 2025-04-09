@@ -21,6 +21,7 @@
         <skip.tests>false</skip.tests>
         <!-- this will throw an error if we use wrong apis -->
         <maven.compiler.release>11</maven.compiler.release>
+        <lombok.version>1.18.38</lombok.version>
     </properties>
 
     <name>OpenFeature Java SDK</name>
@@ -54,7 +55,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.38</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -263,6 +264,15 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.0</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <annotationProcessorPath>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </annotationProcessorPath>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
 
             <plugin>

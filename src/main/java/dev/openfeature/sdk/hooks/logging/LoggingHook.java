@@ -17,9 +17,6 @@ import org.slf4j.spi.LoggingEventBuilder;
  * Flag evaluation data is logged at debug and error in before/after stages and error stages, respectively.
  */
 @Slf4j
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
-        value = "RV_RETURN_VALUE_IGNORED",
-        justification = "we can ignore return values of chainables (builders) here")
 public class LoggingHook implements Hook<Object> {
 
     static final String DOMAIN_KEY = "domain";
