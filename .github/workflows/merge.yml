@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   build:
+    environment: publish
     runs-on: ubuntu-latest
 
     steps:
