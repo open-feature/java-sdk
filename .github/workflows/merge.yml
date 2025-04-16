@@ -9,7 +9,8 @@ name: on-merge
 
 on:
   push:
-    branches: [ master, main ]
+    branches:
+      - main
 
 permissions:
   contents: read
