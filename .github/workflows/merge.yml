@@ -9,13 +9,15 @@ name: on-merge
 
 on:
   push:
-    branches: [ master, main ]
+    branches:
+      - main
 
 permissions:
   contents: read
 
 jobs:
   build:
+    environment: publish
     runs-on: ubuntu-latest
 
     steps:

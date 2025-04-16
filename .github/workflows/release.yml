@@ -12,6 +12,7 @@ permissions:  # added using https://github.com/step-security/secure-workflows
 
 jobs:
   release-please:
+    environment: publish
     permissions:
       contents: write  # for google-github-actions/release-please-action to create release commit
       pull-requests: write  # for google-github-actions/release-please-action to create release PR
