@@ -46,7 +46,7 @@
 
 ### Requirements
 
-- Java 8+ (compiler target is 1.8)
+- Java 11+ (compiler target is 11)
 
 Note that this library is intended to be used in server-side contexts and has not been evaluated for use on mobile devices.
 
