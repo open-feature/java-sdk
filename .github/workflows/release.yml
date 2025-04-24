@@ -23,7 +23,7 @@ jobs:
       - uses: google-github-actions/release-please-action@e4dc86ba9405554aeba3c6bb2d169500e7d3b4ee
         id: release
         with:
-          token: ${{secrets.GITHUB_TOKEN}}
+          token: ${{secrets.RELEASE_PLEASE_ACTION_TOKEN}}
           target-branch: main
 
       # These steps are only run if this was a merged release-please PR
