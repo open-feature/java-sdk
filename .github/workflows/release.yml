@@ -25,7 +25,6 @@ jobs:
         with:
           token: ${{secrets.RELEASE_PLEASE_ACTION_TOKEN}}
           target-branch: main
-          signoff: "OpenFeature Bot <109696520+openfeaturebot@users.noreply.github.com>"
 
       # These steps are only run if this was a merged release-please PR
       - name: checkout
