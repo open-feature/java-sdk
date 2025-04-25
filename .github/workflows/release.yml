@@ -20,11 +20,10 @@ jobs:
 
     # Release-please creates a PR that tracks all changes
     steps:
-      - uses: google-github-actions/release-please-action@e4dc86ba9405554aeba3c6bb2d169500e7d3b4ee
+      - uses: googleapis/release-please-action@v4
         id: release
         with:
           token: ${{secrets.RELEASE_PLEASE_ACTION_TOKEN}}
-          target-branch: main
 
       # These steps are only run if this was a merged release-please PR
       - name: checkout
