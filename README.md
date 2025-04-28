@@ -104,7 +104,12 @@ public void example(){
 
     // configure a provider
     OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-    api.setProviderAndWait(new InMemoryProvider(myFlags));
+    try {
+        api.setProviderAndWait(new InMemoryProvider(myFlags));
+    } catch (Exception e) {
+        // handle initialization failure
+        e.printStackTrace();
+    }
 
     // create a client
     Client client = api.getClient();
@@ -149,7 +154,12 @@ To register a provider in a blocking manner to ensure it is ready before further
   
 ```java
     OpenFeatureAPI api = OpenFeatureAPI.getInstance();
-    api.setProviderAndWait(new MyProvider());
+    try {
+        api.setProviderAndWait(new MyProvider());
+    }  catch (Exception e) {
+        // handle initialization failure
+        e.printStackTrace();
+    }
 ```  
   
 #### Asynchronous    
