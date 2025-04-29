@@ -207,7 +207,13 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * Set the default provider and wait for initialization to finish.
+     * Sets the default provider and waits for its initialization to complete.
+     *
+     * <p>Note: If the provider fails during initialization, an {@link OpenFeatureError} will be thrown.
+     * It is recommended to wrap this call in a try-catch block to handle potential initialization failures gracefully.
+     *
+     * @param provider the {@link FeatureProvider} to set as the default.
+     * @throws OpenFeatureError if the provider fails during initialization.
      */
     public void setProviderAndWait(FeatureProvider provider) throws OpenFeatureError {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
@@ -224,8 +230,12 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     /**
      * Add a provider for a domain and wait for initialization to finish.
      *
+     * <p>Note: If the provider fails during initialization, an {@link OpenFeatureError} will be thrown.
+     * It is recommended to wrap this call in a try-catch block to handle potential initialization failures gracefully.
+     *
      * @param domain   The domain to bind the provider to.
      * @param provider The provider to set.
+     * @throws OpenFeatureError if the provider fails during initialization.
      */
     public void setProviderAndWait(String domain, FeatureProvider provider) throws OpenFeatureError {
         try (AutoCloseableLock __ = lock.writeLockAutoCloseable()) {
