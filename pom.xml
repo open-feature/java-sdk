@@ -10,7 +10,7 @@
     <properties>
         <toolchain.jdk.version>[17,)</toolchain.jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <junit.jupiter.version>5.12.2</junit.jupiter.version>
         <io.cucumber.version>7.22.1</io.cucumber.version>
@@ -20,7 +20,7 @@
         <module-name>${project.groupId}.${project.artifactId}</module-name>
         <skip.tests>false</skip.tests>
         <!-- this will throw an error if we use wrong apis -->
-        <maven.compiler.release>8</maven.compiler.release>
+        <maven.compiler.release>11</maven.compiler.release>
     </properties>
 
     <name>OpenFeature Java SDK</name>
@@ -646,14 +646,14 @@
                 </plugins>
             </build>
         </profile>
-        <!-- profile for running tests under java 8 (used mostly in CI) -->
-        <!-- selected automatically by JDK activeation (see https://maven.apache.org/guides/introduction/introduction-to-profiles.html#implicit-profile-activation) -->
+        <!-- profile for running tests under java 11 (used mostly in CI) -->
+        <!-- selected automatically by JDK activation (see https://maven.apache.org/guides/introduction/introduction-to-profiles.html#implicit-profile-activation) -->
         <profile>
-            <id>java8</id>
+            <id>java11</id>
             <!-- with the next block we can define a set of sdks which still support java 8, if any of the sdks is not supporting java 8 anymore -->
             <!--<modules><module></module></modules>-->
             <properties>
-                <toolchain.jdk.version>(1.8,9)</toolchain.jdk.version>
+                <toolchain.jdk.version>[11,)</toolchain.jdk.version>
                 <skip.tests>true</skip.tests>
             </properties>
 
