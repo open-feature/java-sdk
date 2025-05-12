@@ -18,14 +18,7 @@ public class EvaluationEvent {
     @Singular("attribute")
     private Map<String, Object> attributes;
 
-    @Singular("bodyElement")
-    private Map<String, Object> body;
-
     public Map<String, Object> getAttributes() {
         return new HashMap<>(attributes);
-    }
-
-    public Map<String, Object> getBody() {
-        return new HashMap<>(body);
     }
 }
