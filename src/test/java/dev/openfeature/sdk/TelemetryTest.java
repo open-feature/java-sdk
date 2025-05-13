@@ -27,8 +27,8 @@ public class TelemetryTest {
                 .ctx(new ImmutableContext())
                 .build();
 
-        ProviderEvaluation<Boolean> evaluation =
-                ProviderEvaluation.<Boolean>builder().reason(reason).value(true).build();
+        FlagEvaluationDetails<Boolean> evaluation =
+                FlagEvaluationDetails.<Boolean>builder().reason(reason).value(true).build();
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, evaluation);
 
@@ -55,8 +55,8 @@ public class TelemetryTest {
                 .ctx(new ImmutableContext())
                 .build();
 
-        ProviderEvaluation<Boolean> evaluation =
-                ProviderEvaluation.<Boolean>builder().reason(null).value(true).build();
+        FlagEvaluationDetails<Boolean> evaluation =
+                FlagEvaluationDetails.<Boolean>builder().reason(null).value(true).build();
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, evaluation);
 
@@ -74,7 +74,7 @@ public class TelemetryTest {
                 .providerMetadata(mock(Metadata.class))
                 .build();
 
-        ProviderEvaluation<String> providerEvaluation = ProviderEvaluation.<String>builder()
+        FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
                 .variant("testVariant")
                 .flagMetadata(ImmutableMetadata.builder().build())
                 .build();
@@ -95,14 +95,14 @@ public class TelemetryTest {
                 .providerMetadata(mock(Metadata.class))
                 .build();
 
-        ProviderEvaluation<String> providerEvaluation = ProviderEvaluation.<String>builder()
+        FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
                 .value("testValue")
                 .flagMetadata(ImmutableMetadata.builder().build())
                 .build();
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, providerEvaluation);
 
-        assertEquals("testValue", event.getBody().get(Telemetry.TELEMETRY_BODY));
+        assertEquals("testValue", event.getAttributes().get(Telemetry.TELEMETRY_VALUE));
     }
 
     @Test
@@ -122,7 +122,7 @@ public class TelemetryTest {
                 .providerMetadata(providerMetadata)
                 .build();
 
-        ProviderEvaluation<String> providerEvaluation = ProviderEvaluation.<String>builder()
+        FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
                 .flagMetadata(ImmutableMetadata.builder()
                         .addString("contextId", "realContextId")
                         .addString("flagSetId", "realFlagSetId")
@@ -161,7 +161,7 @@ public class TelemetryTest {
                 .providerMetadata(providerMetadata)
                 .build();
 
-        ProviderEvaluation<String> providerEvaluation = ProviderEvaluation.<String>builder()
+        FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
                 .flagMetadata(ImmutableMetadata.builder()
                         .addString("contextId", "realContextId")
                         .addString("flagSetId", "realFlagSetId")
@@ -201,7 +201,7 @@ public class TelemetryTest {
                 .providerMetadata(providerMetadata)
                 .build();
 
-        ProviderEvaluation<String> providerEvaluation = ProviderEvaluation.<String>builder()
+        FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
                 .flagMetadata(ImmutableMetadata.builder()
                         .addString("contextId", "realContextId")
                         .addString("flagSetId", "realFlagSetId")
