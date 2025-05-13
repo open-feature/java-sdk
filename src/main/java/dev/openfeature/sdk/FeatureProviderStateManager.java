@@ -64,9 +64,15 @@ class FeatureProviderStateManager implements EventProviderListener {
     private void setState(ProviderState state) {
         ProviderState oldState = this.state.getAndSet(state);
         if (oldState != state) {
+            String providerName;
+            if (delegate.getMetadata() == null || delegate.getMetadata().getName() == null) {
+                providerName = "unknown";
+            } else {
+                providerName = delegate.getMetadata().getName();
+            }
             log.info(
                     "Provider {} transitioned from state {} to state {}",
-                    delegate.getMetadata().getName(),
+                    providerName,
                     oldState,
                     state);
         }
