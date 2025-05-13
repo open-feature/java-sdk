@@ -12,6 +12,7 @@ permissions:  # added using https://github.com/step-security/secure-workflows
 
 jobs:
   release-please:
+    environment: publish
     permissions:
       contents: write  # for google-github-actions/release-please-action to create release commit
       pull-requests: write  # for google-github-actions/release-please-action to create release PR
@@ -19,11 +20,10 @@ jobs:
 
     # Release-please creates a PR that tracks all changes
     steps:
-      - uses: google-github-actions/release-please-action@e4dc86ba9405554aeba3c6bb2d169500e7d3b4ee
+      - uses: googleapis/release-please-action@v4
         id: release
         with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          target-branch: main
+          token: ${{secrets.RELEASE_PLEASE_ACTION_TOKEN}}
 
       # These steps are only run if this was a merged release-please PR
       - name: checkout
@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2
       - name: Set up JDK 17
         if: ${{ steps.release.outputs.release_created }}
-        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12
+        uses: actions/setup-java@f4f1212c880fdec8162ea9a6493f4495191887b4
         with:
           java-version: '17'
           distribution: 'temurin'

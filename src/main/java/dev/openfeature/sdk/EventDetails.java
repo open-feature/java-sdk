@@ -1,11 +1,13 @@
 package dev.openfeature.sdk;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 
 /**
  * The details of a particular event.
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder(toBuilder = true)
 public class EventDetails extends ProviderEventDetails {

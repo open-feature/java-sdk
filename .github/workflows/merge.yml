@@ -9,19 +9,21 @@ name: on-merge
 
 on:
   push:
-    branches: [ master, main ]
+    branches:
+      - main
 
 permissions:
   contents: read
 
 jobs:
   build:
+    environment: publish
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2
     - name: Set up JDK 17
-      uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12
+      uses: actions/setup-java@f4f1212c880fdec8162ea9a6493f4495191887b4
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -31,7 +33,7 @@ jobs:
         server-password: ${{ secrets.OSSRH_PASSWORD }}
 
     - name: Cache local Maven repository
-      uses: actions/cache@7921ae235bdcb376cc8f22558dc5f8ddc3c3c2f9
+      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-17-maven-${{ hashFiles('**/pom.xml') }}
@@ -48,7 +50,7 @@ jobs:
       run: mvn --batch-mode --update-snapshots verify
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5.3.1
+      uses: codecov/codecov-action@v5.4.2
       with:
         token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
         flags: unittests # optional

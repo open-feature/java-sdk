@@ -18,7 +18,7 @@ import lombok.ToString;
  * not be modified after instantiation. All references are clones.
  */
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
 public final class ImmutableStructure extends AbstractStructure {
 
@@ -38,7 +38,7 @@ public final class ImmutableStructure extends AbstractStructure {
         super(copyAttributes(attributes, null));
     }
 
-    protected ImmutableStructure(String targetingKey, Map<String, Value> attributes) {
+    ImmutableStructure(String targetingKey, Map<String, Value> attributes) {
         super(copyAttributes(attributes, targetingKey));
     }
 
@@ -70,12 +70,14 @@ public final class ImmutableStructure extends AbstractStructure {
 
     private static Map<String, Value> copyAttributes(Map<String, Value> in, String targetingKey) {
         Map<String, Value> copy = new HashMap<>();
-        for (Entry<String, Value> entry : in.entrySet()) {
-            copy.put(
-                    entry.getKey(),
-                    Optional.ofNullable(entry.getValue())
-                            .map((Value val) -> val.clone())
-                            .orElse(null));
+        if (in != null) {
+            for (Entry<String, Value> entry : in.entrySet()) {
+                copy.put(
+                        entry.getKey(),
+                        Optional.ofNullable(entry.getValue())
+                                .map((Value val) -> val.clone())
+                                .orElse(null));
+            }
         }
         if (targetingKey != null) {
             copy.put(EvaluationContext.TARGETING_KEY, new Value(targetingKey));

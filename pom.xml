@@ -5,22 +5,22 @@
 
     <groupId>dev.openfeature</groupId>
     <artifactId>sdk</artifactId>
-    <version>1.14.1</version> <!--x-release-please-version -->
+    <version>1.14.2</version> <!--x-release-please-version -->
 
     <properties>
         <toolchain.jdk.version>[17,)</toolchain.jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
-        <junit.jupiter.version>5.12.0</junit.jupiter.version>
-        <io.cucumber.version>7.21.1</io.cucumber.version>
-        <org.mockito.version>5.15.2</org.mockito.version>
+        <junit.jupiter.version>5.12.2</junit.jupiter.version>
+        <io.cucumber.version>7.22.2</io.cucumber.version>
+        <org.mockito.version>5.17.0</org.mockito.version>
         <!-- exclusion expression for e2e tests -->
         <testExclusions>**/e2e/*.java</testExclusions>
         <module-name>${project.groupId}.${project.artifactId}</module-name>
         <skip.tests>false</skip.tests>
         <!-- this will throw an error if we use wrong apis -->
-        <maven.compiler.release>8</maven.compiler.release>
+        <maven.compiler.release>11</maven.compiler.release>
     </properties>
 
     <name>OpenFeature Java SDK</name>
@@ -54,7 +54,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.36</version>
+            <version>1.18.38</version>
             <scope>provided</scope>
         </dependency>
 
@@ -76,7 +76,7 @@
         <dependency>
             <groupId>com.tngtech.archunit</groupId>
             <artifactId>archunit-junit5</artifactId>
-            <version>1.4.0</version>
+            <version>1.4.1</version>
             <scope>test</scope>
         </dependency>
 
@@ -125,7 +125,7 @@
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
-            <version>1.12.0</version>
+            <version>1.12.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -189,14 +189,14 @@
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.17.1</version>
+                <version>1.17.5</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy-agent</artifactId>
-                <version>1.17.1</version>
+                <version>1.17.5</version>
                 <scope>test</scope>
             </dependency>
             <!-- End mockito workaround-->
@@ -204,7 +204,7 @@
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>
-                <version>7.21.1</version>
+                <version>7.22.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -212,7 +212,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.12.0</version>
+                <version>5.12.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -268,7 +268,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>3.5.3</version>
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
@@ -287,7 +287,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>3.5.3</version>
                 <configuration>
                     <argLine>
                         ${surefireArgLine}
@@ -354,7 +354,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.12</version>
+                        <version>0.8.13</version>
 
                         <executions>
                             <execution>
@@ -413,14 +413,14 @@
                     <plugin>
                         <groupId>com.github.spotbugs</groupId>
                         <artifactId>spotbugs-maven-plugin</artifactId>
-                        <version>4.9.1.0</version>
+                        <version>4.9.3.0</version>
                         <configuration>
                             <excludeFilterFile>spotbugs-exclusions.xml</excludeFilterFile>
                             <plugins>
                                 <plugin>
                                     <groupId>com.h3xstream.findsecbugs</groupId>
                                     <artifactId>findsecbugs-plugin</artifactId>
-                                    <version>1.13.0</version>
+                                    <version>1.14.0</version>
                                 </plugin>
                             </plugins>
                         </configuration>
@@ -457,7 +457,7 @@
                             <dependency>
                                 <groupId>com.puppycrawl.tools</groupId>
                                 <artifactId>checkstyle</artifactId>
-                                <version>9.3</version>
+                                <version>10.23.1</version>
                             </dependency>
                         </dependencies>
                         <executions>
@@ -473,7 +473,7 @@
                     <plugin>
                         <groupId>com.diffplug.spotless</groupId>
                         <artifactId>spotless-maven-plugin</artifactId>
-                        <version>2.44.3</version>
+                        <version>2.44.4</version>
                         <configuration>
                             <!-- optional: limit format enforcement to just the files changed by this feature branch -->
                             <!--                <ratchetFrom>origin/main</ratchetFrom>-->
@@ -646,14 +646,14 @@
                 </plugins>
             </build>
         </profile>
-        <!-- profile for running tests under java 8 (used mostly in CI) -->
-        <!-- selected automatically by JDK activeation (see https://maven.apache.org/guides/introduction/introduction-to-profiles.html#implicit-profile-activation) -->
+        <!-- profile for running tests under java 11 (used mostly in CI) -->
+        <!-- selected automatically by JDK activation (see https://maven.apache.org/guides/introduction/introduction-to-profiles.html#implicit-profile-activation) -->
         <profile>
-            <id>java8</id>
+            <id>java11</id>
             <!-- with the next block we can define a set of sdks which still support java 8, if any of the sdks is not supporting java 8 anymore -->
             <!--<modules><module></module></modules>-->
             <properties>
-                <toolchain.jdk.version>(1.8,9)</toolchain.jdk.version>
+                <toolchain.jdk.version>[11,)</toolchain.jdk.version>
                 <skip.tests>true</skip.tests>
             </properties>
 
@@ -674,7 +674,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.5.2</version>
+                        <version>3.5.3</version>
                         <configuration>
                             <argLine>
                                 ${surefireArgLine}
@@ -690,7 +690,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>3.5.2</version>
+                        <version>3.5.3</version>
                         <configuration>
                             <argLine>
                                 ${surefireArgLine}

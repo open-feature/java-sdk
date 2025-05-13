@@ -15,8 +15,8 @@ import lombok.ToString;
  * be modified after instantiation.
  */
 @ToString
-@EqualsAndHashCode
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
+@EqualsAndHashCode(callSuper = true)
 public class MutableStructure extends AbstractStructure {
 
     public MutableStructure() {
