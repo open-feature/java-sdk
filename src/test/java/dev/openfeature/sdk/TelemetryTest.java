@@ -27,8 +27,10 @@ public class TelemetryTest {
                 .ctx(new ImmutableContext())
                 .build();
 
-        FlagEvaluationDetails<Boolean> evaluation =
-                FlagEvaluationDetails.<Boolean>builder().reason(reason).value(true).build();
+        FlagEvaluationDetails<Boolean> evaluation = FlagEvaluationDetails.<Boolean>builder()
+                .reason(reason)
+                .value(true)
+                .build();
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, evaluation);
 
@@ -55,8 +57,10 @@ public class TelemetryTest {
                 .ctx(new ImmutableContext())
                 .build();
 
-        FlagEvaluationDetails<Boolean> evaluation =
-                FlagEvaluationDetails.<Boolean>builder().reason(null).value(true).build();
+        FlagEvaluationDetails<Boolean> evaluation = FlagEvaluationDetails.<Boolean>builder()
+                .reason(null)
+                .value(true)
+                .build();
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, evaluation);
 
