@@ -70,11 +70,7 @@ class FeatureProviderStateManager implements EventProviderListener {
             } else {
                 providerName = delegate.getMetadata().getName();
             }
-            log.info(
-                    "Provider {} transitioned from state {} to state {}",
-                    providerName,
-                    oldState,
-                    state);
+            log.info("Provider {} transitioned from state {} to state {}", providerName, oldState, state);
         }
     }
 
