@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.15.0](https://github.com/open-feature/java-sdk/compare/v1.14.2...v1.15.0) (2025-05-13)
+## [1.15.1](https://github.com/open-feature/java-sdk/compare/v1.14.2...v1.15.1) (2025-05-14)
 
 
 ### NOTABLE CHANGES
@@ -18,6 +18,7 @@
 
 ### ✨ New Features
 
+* add logging on provider state transitions ([#1444](https://github.com/open-feature/java-sdk/issues/1444)) ([e2813b2](https://github.com/open-feature/java-sdk/commit/e2813b2e5df8e548caf16e3e425b35962045ca6c))
 * add telemetry helper utils ([#1346](https://github.com/open-feature/java-sdk/issues/1346)) ([d0ae548](https://github.com/open-feature/java-sdk/commit/d0ae5482771f4d1701bce25381cdf4e92e2d4882))
 * Raise required Java version to 11 ([#1393](https://github.com/open-feature/java-sdk/issues/1393)) ([4dc988b](https://github.com/open-feature/java-sdk/commit/4dc988b637a9e9c377edf7df7b29bf6407319f16))
 
@@ -42,6 +43,7 @@
 * **deps:** update dependency org.apache.maven.plugins:maven-surefire-plugin to v3.5.3 ([#1399](https://github.com/open-feature/java-sdk/issues/1399)) ([d6ebc16](https://github.com/open-feature/java-sdk/commit/d6ebc161a93ad703e25592abdb0bf0fd9e281bbc))
 * **deps:** update dependency org.jacoco:jacoco-maven-plugin to v0.8.13 ([#1407](https://github.com/open-feature/java-sdk/issues/1407)) ([e19ccaa](https://github.com/open-feature/java-sdk/commit/e19ccaa35d9ac4d89d72ea58a70d416d202078db))
 * **deps:** update dependency org.mockito:mockito-core to v5.17.0 ([#1409](https://github.com/open-feature/java-sdk/issues/1409)) ([345cdcf](https://github.com/open-feature/java-sdk/commit/345cdcfa10da64c61d769746f335f38ac564e9ad))
+* **deps:** update github/codeql-action digest to 15bce5b ([#1443](https://github.com/open-feature/java-sdk/issues/1443)) ([bc10bac](https://github.com/open-feature/java-sdk/commit/bc10bacb5a68d0d2e498cb41c087505490f19de8))
 * **deps:** update github/codeql-action digest to 2a8cbad ([#1423](https://github.com/open-feature/java-sdk/issues/1423)) ([6b6849f](https://github.com/open-feature/java-sdk/commit/6b6849f3a3ee8a7b66d859c8e522bc101d1ccd44))
 * **deps:** update github/codeql-action digest to 362ef4c ([#1408](https://github.com/open-feature/java-sdk/issues/1408)) ([ca160ca](https://github.com/open-feature/java-sdk/commit/ca160cab7ccd71527e06a0851502353ac50b8d0d))
 * **deps:** update github/codeql-action digest to 40e16ed ([#1437](https://github.com/open-feature/java-sdk/issues/1437)) ([f965cbc](https://github.com/open-feature/java-sdk/commit/f965cbcb37d20724e15b76c15842a88574810b1a))
@@ -51,7 +53,6 @@
 * **deps:** update github/codeql-action digest to 5eb3ed6 ([#1439](https://github.com/open-feature/java-sdk/issues/1439)) ([f2348ea](https://github.com/open-feature/java-sdk/commit/f2348ea370412351389c60eef390f36edbea68b0))
 * **deps:** update github/codeql-action digest to 83605b3 ([#1435](https://github.com/open-feature/java-sdk/issues/1435)) ([7e74f2a](https://github.com/open-feature/java-sdk/commit/7e74f2aa3ad2dc8f7a3e4ad398e7705b3e3db364))
 * **deps:** update github/codeql-action digest to 97a2bfd ([#1438](https://github.com/open-feature/java-sdk/issues/1438)) ([85b200a](https://github.com/open-feature/java-sdk/commit/85b200a08b9f8a71de3b5a19eaa057ec04e0801e))
-* **deps:** update github/codeql-action digest to 9bd18b4 ([#1394](https://github.com/open-feature/java-sdk/issues/1394)) ([d7b591c](https://github.com/open-feature/java-sdk/commit/d7b591c9f910afad303d6d814f65c7f9dab33b89))
 * **deps:** update github/codeql-action digest to 9f45e74 ([#1396](https://github.com/open-feature/java-sdk/issues/1396)) ([37d76be](https://github.com/open-feature/java-sdk/commit/37d76be697e83f524250a82b2a67cdb4a953d7bc))
 * **deps:** update github/codeql-action digest to d26c46a ([#1413](https://github.com/open-feature/java-sdk/issues/1413)) ([5b327ee](https://github.com/open-feature/java-sdk/commit/5b327eeb770d0a4222f3599be79543b7bed9abc2))
 * **deps:** update github/codeql-action digest to dab8a02 ([#1405](https://github.com/open-feature/java-sdk/issues/1405)) ([5b2f151](https://github.com/open-feature/java-sdk/commit/5b2f1513ab75ef6692978830e59eba87ffa494d5))
@@ -62,6 +63,8 @@
 * **deps:** update io.cucumber.version to v7.22.0 ([#1410](https://github.com/open-feature/java-sdk/issues/1410)) ([3c69f2f](https://github.com/open-feature/java-sdk/commit/3c69f2f36c4e975d690ecc2e790df632a33001ba))
 * **deps:** update io.cucumber.version to v7.22.1 ([#1426](https://github.com/open-feature/java-sdk/issues/1426)) ([844374a](https://github.com/open-feature/java-sdk/commit/844374a42b94deffab6856e978766354a6f46576))
 * **deps:** update io.cucumber.version to v7.22.2 ([#1441](https://github.com/open-feature/java-sdk/issues/1441)) ([58454b4](https://github.com/open-feature/java-sdk/commit/58454b4eaabfd3327f7ceaff4bf335a5a839ed41))
+* **main:** release 1.15.0 ([#1431](https://github.com/open-feature/java-sdk/issues/1431)) ([7182a7f](https://github.com/open-feature/java-sdk/commit/7182a7fc4197e70218e829971dae2cff09f948c9))
+* update boostrap sha for release please ([f6bd30d](https://github.com/open-feature/java-sdk/commit/f6bd30db93e37e596d211d899315a62d9f810199))
 * update codeowners to give global maintainers code ownership ([#1412](https://github.com/open-feature/java-sdk/issues/1412)) ([498fd38](https://github.com/open-feature/java-sdk/commit/498fd382659669315b0db61db5f19ce054467bc9))
 * update release please action ([#1430](https://github.com/open-feature/java-sdk/issues/1430)) ([1cc851b](https://github.com/open-feature/java-sdk/commit/1cc851b293008a8dd273e904e4c77a650ad71146))
 * use PAT for release please ([014f8a5](https://github.com/open-feature/java-sdk/commit/014f8a59da8f1e976e440ed1ea17e85561f98e2d))
