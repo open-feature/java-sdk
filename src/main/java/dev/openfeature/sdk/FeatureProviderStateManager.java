@@ -2,14 +2,14 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import java.util.concurrent.atomic.AtomicBoolean;
-import lombok.Getter;
+import java.util.concurrent.atomic.AtomicReference;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class FeatureProviderStateManager implements EventProviderListener {
     private final FeatureProvider delegate;
     private final AtomicBoolean isInitialized = new AtomicBoolean();
-
-    @Getter
-    private ProviderState state = ProviderState.NOT_READY;
+    private final AtomicReference<ProviderState> state = new AtomicReference<>(ProviderState.NOT_READY);
 
     public FeatureProviderStateManager(FeatureProvider delegate) {
         this.delegate = delegate;
@@ -24,17 +24,17 @@ class FeatureProviderStateManager implements EventProviderListener {
         }
         try {
             delegate.initialize(evaluationContext);
-            state = ProviderState.READY;
+            setState(ProviderState.READY);
         } catch (OpenFeatureError openFeatureError) {
             if (ErrorCode.PROVIDER_FATAL.equals(openFeatureError.getErrorCode())) {
-                state = ProviderState.FATAL;
+                setState(ProviderState.FATAL);
             } else {
-                state = ProviderState.ERROR;
+                setState(ProviderState.ERROR);
             }
             isInitialized.set(false);
             throw openFeatureError;
         } catch (Exception e) {
-            state = ProviderState.ERROR;
+            setState(ProviderState.ERROR);
             isInitialized.set(false);
             throw e;
         }
@@ -42,7 +42,7 @@ class FeatureProviderStateManager implements EventProviderListener {
 
     public void shutdown() {
         delegate.shutdown();
-        state = ProviderState.NOT_READY;
+        setState(ProviderState.NOT_READY);
         isInitialized.set(false);
     }
 
@@ -50,15 +50,32 @@ class FeatureProviderStateManager implements EventProviderListener {
     public void onEmit(ProviderEvent event, ProviderEventDetails details) {
         if (ProviderEvent.PROVIDER_ERROR.equals(event)) {
             if (details != null && details.getErrorCode() == ErrorCode.PROVIDER_FATAL) {
-                state = ProviderState.FATAL;
+                setState(ProviderState.FATAL);
             } else {
-                state = ProviderState.ERROR;
+                setState(ProviderState.ERROR);
             }
         } else if (ProviderEvent.PROVIDER_STALE.equals(event)) {
-            state = ProviderState.STALE;
+            setState(ProviderState.STALE);
         } else if (ProviderEvent.PROVIDER_READY.equals(event)) {
-            state = ProviderState.READY;
+            setState(ProviderState.READY);
         }
+    }
+
+    private void setState(ProviderState state) {
+        ProviderState oldState = this.state.getAndSet(state);
+        if (oldState != state) {
+            String providerName;
+            if (delegate.getMetadata() == null || delegate.getMetadata().getName() == null) {
+                providerName = "unknown";
+            } else {
+                providerName = delegate.getMetadata().getName();
+            }
+            log.info("Provider {} transitioned from state {} to state {}", providerName, oldState, state);
+        }
+    }
+
+    public ProviderState getState() {
+        return state.get();
     }
 
     FeatureProvider getProvider() {

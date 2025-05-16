@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
@@ -112,7 +113,7 @@ class OpenFeatureAPITest {
         api.getClient().track("track-event", new ImmutableContext(), new MutableTrackingEventDetails(22.2f));
 
         verify(featureProvider).initialize(any());
-        verify(featureProvider).getMetadata();
+        verify(featureProvider, times(2)).getMetadata();
         verify(featureProvider).track(any(), any(), any());
     }
 }

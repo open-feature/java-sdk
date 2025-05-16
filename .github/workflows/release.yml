@@ -12,11 +12,11 @@ permissions:  # added using https://github.com/step-security/secure-workflows
 
 jobs:
   release-please:
-    environment: publish
-    permissions:
-      contents: write  # for google-github-actions/release-please-action to create release commit
-      pull-requests: write  # for google-github-actions/release-please-action to create release PR
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # for googleapis/release-please-action to create release commit
+      pull-requests: write # for googleapis/release-please-action to create release PR
+      issues: write # for googleapis/release-please-action to create labels
 
     # Release-please creates a PR that tracks all changes
     steps:
@@ -24,13 +24,22 @@ jobs:
         id: release
         with:
           token: ${{secrets.RELEASE_PLEASE_ACTION_TOKEN}}
+    outputs:
+      release_created: ${{ fromJSON(steps.release.outputs.paths_released)[0] != null }} # if we have a single release path, do the release
 
-      # These steps are only run if this was a merged release-please PR
-      - name: checkout
-        if: ${{ steps.release.outputs.release_created }}
+  publish:
+    environment: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs: release-please
+    if: ${{ fromJSON(needs.release-please.outputs.release_created || false) }}
+
+    steps:
+      - name: Checkout Repository
         uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2
+
       - name: Set up JDK 17
-        if: ${{ steps.release.outputs.release_created }}
         uses: actions/setup-java@f4f1212c880fdec8162ea9a6493f4495191887b4
         with:
           java-version: '17'
@@ -41,17 +50,15 @@ jobs:
           server-password: ${{ secrets.OSSRH_PASSWORD }}
 
       - name: Configure GPG Key
-        if: ${{ steps.release.outputs.release_created }}
         run: |
           echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
         env:
           GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
 
       - name: Deploy
-        if: ${{ steps.release.outputs.release_created }}
         run: |
           mvn --batch-mode \
-            --settings release/m2-settings.xml clean deploy
+            --settings release/m2-settings.xml -DskipTests clean deploy
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
