@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.15.2](https://github.com/open-feature/java-sdk/compare/v1.15.1...v1.15.2) (2025-05-16)
+
+
+### 🧹 Chore
+
+* **deps:** update codecov/codecov-action action to v5.4.3 ([#1454](https://github.com/open-feature/java-sdk/issues/1454)) ([e337939](https://github.com/open-feature/java-sdk/commit/e3379395e6bfb0ce811d8372761a3cb015ad2cde))
+* **deps:** update github/codeql-action digest to 510dfa3 ([#1450](https://github.com/open-feature/java-sdk/issues/1450)) ([d9a72d2](https://github.com/open-feature/java-sdk/commit/d9a72d2aafd787a1814132f000897ad1c94181e4))
+* **deps:** update github/codeql-action digest to 57eebf6 ([#1455](https://github.com/open-feature/java-sdk/issues/1455)) ([36eed06](https://github.com/open-feature/java-sdk/commit/36eed065e763bbfa0f8f97d704202bbd219332ca))
+* **deps:** update github/codeql-action digest to b86edfc ([#1453](https://github.com/open-feature/java-sdk/issues/1453)) ([b667aa3](https://github.com/open-feature/java-sdk/commit/b667aa325136b78c01867d40342f81eeb7e16f46))
+* improvements to release workflow ([#1451](https://github.com/open-feature/java-sdk/issues/1451)) ([1714efe](https://github.com/open-feature/java-sdk/commit/1714efe81aa6ae025f4f8b12c9c042561498d25e))
+
 ## [1.15.1](https://github.com/open-feature/java-sdk/compare/v1.14.2...v1.15.1) (2025-05-14)
 
 
