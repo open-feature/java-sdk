@@ -76,14 +76,21 @@ public abstract class EventProvider implements FeatureProvider {
      * @param event   The event type
      * @param details The details of the event
      */
-    public void emit(ProviderEvent event, ProviderEventDetails details) {
-        if (eventProviderListener != null) {
-            eventProviderListener.onEmit(event, details);
+    public void emit(final ProviderEvent event, final ProviderEventDetails details) {
+        final var localEventProviderListener = this.eventProviderListener;
+        final var localOnEmit = this.onEmit;
+
+        if (localEventProviderListener == null && localOnEmit == null) {
+            return;
         }
 
-        final TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> localOnEmit = this.onEmit;
-        if (localOnEmit != null) {
-            emitterExecutor.submit(() -> localOnEmit.accept(this, event, details));
+        try (var ignored = OpenFeatureAPI.lock.readLockAutoCloseable()) {
+            if (localEventProviderListener != null) {
+                localEventProviderListener.onEmit(event, details);
+            }
+            if (localOnEmit != null) {
+                localOnEmit.accept(this, event, details);
+            }
         }
     }
 
