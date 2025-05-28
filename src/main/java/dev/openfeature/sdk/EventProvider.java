@@ -1,9 +1,6 @@
 package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.internal.TriConsumer;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -56,8 +53,7 @@ public abstract class EventProvider implements FeatureProvider {
      * or timeout period has elapsed.
      */
     @Override
-    public void shutdown() {
-    }
+    public void shutdown() {}
 
     /**
      * Emit the specified {@link ProviderEvent}.
