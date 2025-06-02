@@ -20,17 +20,12 @@ public class Awaitable {
      * immediately.
      */
     @SuppressWarnings("java:S2142")
-    public void await() {
-        if (isDone) {
-            return;
-        }
-        synchronized (this) {
-            while (!isDone) {
-                try {
-                    this.wait();
-                } catch (InterruptedException ignored) {
-                    // ignored, do not propagate the interrupted state
-                }
+    public synchronized void await() {
+        while (!isDone) {
+            try {
+                this.wait();
+            } catch (InterruptedException ignored) {
+                // ignored, do not propagate the interrupted state
             }
         }
     }
