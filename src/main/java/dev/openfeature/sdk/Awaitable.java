@@ -19,6 +19,7 @@ public class Awaitable {
      * {@link Awaitable#wakeup()} has been called before the current thread invokes this method, it will return
      * immediately.
      */
+    @SuppressWarnings("java:S2142")
     public void await() {
         if (isDone) {
             return;
@@ -28,7 +29,7 @@ public class Awaitable {
                 try {
                     this.wait();
                 } catch (InterruptedException ignored) {
-                    Thread.currentThread().interrupt();
+                    // ignored, do not propagate the interrupted state
                 }
             }
         }

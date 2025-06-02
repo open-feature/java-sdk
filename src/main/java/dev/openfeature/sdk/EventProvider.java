@@ -86,6 +86,8 @@ public abstract class EventProvider implements FeatureProvider {
 
         final var awaitable = new Awaitable();
 
+        // These calls need to be executed on a different thread to prevent deadlocks when the provider initialization
+        // relies on a ready event to be emitted
         emitterExecutor.submit(() -> {
             try (var ignored = OpenFeatureAPI.lock.readLockAutoCloseable()) {
                 if (localEventProviderListener != null) {
