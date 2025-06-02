@@ -3,9 +3,14 @@ package dev.openfeature.sdk.providers.memory;
 import static dev.openfeature.sdk.Structure.mapToStructure;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableMap;
 import dev.openfeature.sdk.Client;
@@ -19,6 +24,7 @@ import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
 import dev.openfeature.sdk.exceptions.TypeMismatchError;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,10 +40,11 @@ class InMemoryProviderTest {
     @SneakyThrows
     @BeforeEach
     void beforeEach() {
+        final var configChangedEventCounter = new AtomicInteger();
         Map<String, Flag<?>> flags = buildFlags();
         provider = spy(new InMemoryProvider(flags));
         api = OpenFeatureAPITestUtil.createAPI();
-        api.onProviderConfigurationChanged(eventDetails -> {});
+        api.onProviderConfigurationChanged(eventDetails -> configChangedEventCounter.incrementAndGet());
         api.setProviderAndWait(provider);
         client = api.getClient();
         provider.updateFlags(flags);
@@ -48,6 +55,11 @@ class InMemoryProviderTest {
                         .variant("off", false)
                         .defaultVariant("on")
                         .build());
+
+        // wait for the two config changed events to be fired, otherwise they could mess with our tests
+        while (configChangedEventCounter.get() < 2) {
+            Thread.sleep(1);
+        }
     }
 
     @Test

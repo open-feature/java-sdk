@@ -1,6 +1,9 @@
 package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.internal.TriConsumer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -18,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class EventProvider implements FeatureProvider {
     private EventProviderListener eventProviderListener;
+    private final ExecutorService emitterExecutor = Executors.newCachedThreadPool();
 
     void setEventProviderListener(EventProviderListener eventProviderListener) {
         this.eventProviderListener = eventProviderListener;
@@ -53,7 +57,18 @@ public abstract class EventProvider implements FeatureProvider {
      * or timeout period has elapsed.
      */
     @Override
-    public void shutdown() {}
+    public void shutdown() {
+        emitterExecutor.shutdown();
+        try {
+            if (!emitterExecutor.awaitTermination(EventSupport.SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                log.warn("Emitter executor did not terminate before the timeout period had elapsed");
+                emitterExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            emitterExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
 
     /**
      * Emit the specified {@link ProviderEvent}.
@@ -61,22 +76,30 @@ public abstract class EventProvider implements FeatureProvider {
      * @param event   The event type
      * @param details The details of the event
      */
-    public void emit(final ProviderEvent event, final ProviderEventDetails details) {
+    public Awaitable emit(final ProviderEvent event, final ProviderEventDetails details) {
         final var localEventProviderListener = this.eventProviderListener;
         final var localOnEmit = this.onEmit;
 
         if (localEventProviderListener == null && localOnEmit == null) {
-            return;
+            return Awaitable.FINISHED;
         }
 
-        try (var ignored = OpenFeatureAPI.lock.readLockAutoCloseable()) {
-            if (localEventProviderListener != null) {
-                localEventProviderListener.onEmit(event, details);
+        final var awaitable = new Awaitable();
+
+        emitterExecutor.submit(() -> {
+            try (var ignored = OpenFeatureAPI.lock.readLockAutoCloseable()) {
+                if (localEventProviderListener != null) {
+                    localEventProviderListener.onEmit(event, details);
+                }
+                if (localOnEmit != null) {
+                    localOnEmit.accept(this, event, details);
+                }
+            } finally {
+                awaitable.wakeup();
             }
-            if (localOnEmit != null) {
-                localOnEmit.accept(this, event, details);
-            }
-        }
+        });
+
+        return awaitable;
     }
 
     /**
@@ -85,8 +108,8 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    public void emitProviderReady(ProviderEventDetails details) {
-        emit(ProviderEvent.PROVIDER_READY, details);
+    public Awaitable emitProviderReady(ProviderEventDetails details) {
+        return emit(ProviderEvent.PROVIDER_READY, details);
     }
 
     /**
@@ -96,8 +119,8 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    public void emitProviderConfigurationChanged(ProviderEventDetails details) {
-        emit(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, details);
+    public Awaitable emitProviderConfigurationChanged(ProviderEventDetails details) {
+        return emit(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, details);
     }
 
     /**
@@ -106,8 +129,8 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    public void emitProviderStale(ProviderEventDetails details) {
-        emit(ProviderEvent.PROVIDER_STALE, details);
+    public Awaitable emitProviderStale(ProviderEventDetails details) {
+        return emit(ProviderEvent.PROVIDER_STALE, details);
     }
 
     /**
@@ -116,7 +139,7 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    public void emitProviderError(ProviderEventDetails details) {
-        emit(ProviderEvent.PROVIDER_ERROR, details);
+    public Awaitable emitProviderError(ProviderEventDetails details) {
+        return emit(ProviderEvent.PROVIDER_ERROR, details);
     }
 }

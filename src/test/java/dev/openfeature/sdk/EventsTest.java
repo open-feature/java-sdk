@@ -604,7 +604,7 @@ class EventsTest {
         TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
         Client client = api.getClient(name);
         api.setProviderAndWait(name, provider);
-        provider.emitProviderStale(ProviderEventDetails.builder().build());
+        provider.emitProviderStale(ProviderEventDetails.builder().build()).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.STALE);
 
         // should run even though handler was added after stale
@@ -625,7 +625,7 @@ class EventsTest {
         TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
         Client client = api.getClient(name);
         api.setProviderAndWait(name, provider);
-        provider.emitProviderError(ProviderEventDetails.builder().build());
+        provider.emitProviderError(ProviderEventDetails.builder().build()).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.ERROR);
 
         verify(handler, never()).accept(any());

@@ -32,6 +32,7 @@ class EventProviderTest {
     }
 
     @Test
+    @Timeout(2)
     @DisplayName("should run attached onEmit with emitters")
     void emitsEventsWhenAttached() {
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = mockOnEmit();
