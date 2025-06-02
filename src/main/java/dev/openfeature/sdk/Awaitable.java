@@ -1,7 +1,7 @@
 package dev.openfeature.sdk;
 
 /**
- * A class to help with synchronization
+ * A class to help with synchronization.
  */
 public class Awaitable {
     public static final Awaitable FINISHED = new Awaitable(true);
@@ -17,7 +17,7 @@ public class Awaitable {
     /**
      * Lets the calling thread wait until some other thread calls {@link Awaitable#wakeup()}. If
      * {@link Awaitable#wakeup()} has been called before the current thread invokes this method, it will return
-     * immediately
+     * immediately.
      */
     public void await() {
         if (isDone) {

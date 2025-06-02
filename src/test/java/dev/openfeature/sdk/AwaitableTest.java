@@ -1,8 +1,10 @@
 package dev.openfeature.sdk;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
@@ -62,9 +64,7 @@ class AwaitableTest {
             threads[i].start();
         }
 
-        while (isRunning.get() < numThreads) {
-            Thread.sleep(1);
-        }
+        await().atMost(1, TimeUnit.SECONDS).until(() -> isRunning.get() == numThreads);
 
         awaitable.wakeup();
 
