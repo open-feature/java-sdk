@@ -28,6 +28,7 @@ public class Awaitable {
                 try {
                     this.wait();
                 } catch (InterruptedException ignored) {
+                    // ignore
                 }
             }
         }
