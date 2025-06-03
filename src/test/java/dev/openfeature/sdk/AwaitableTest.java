@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-@Timeout(value=5, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+@Timeout(value = 5, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
 class AwaitableTest {
     @Test
     void waitingForFinishedIsANoOp() {
