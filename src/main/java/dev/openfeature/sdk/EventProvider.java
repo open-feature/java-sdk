@@ -76,15 +76,32 @@ public abstract class EventProvider implements FeatureProvider {
      * @param event   The event type
      * @param details The details of the event
      */
-    public void emit(ProviderEvent event, ProviderEventDetails details) {
-        if (eventProviderListener != null) {
-            eventProviderListener.onEmit(event, details);
+    public Awaitable emit(final ProviderEvent event, final ProviderEventDetails details) {
+        final var localEventProviderListener = this.eventProviderListener;
+        final var localOnEmit = this.onEmit;
+
+        if (localEventProviderListener == null && localOnEmit == null) {
+            return Awaitable.FINISHED;
         }
 
-        final TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> localOnEmit = this.onEmit;
-        if (localOnEmit != null) {
-            emitterExecutor.submit(() -> localOnEmit.accept(this, event, details));
-        }
+        final var awaitable = new Awaitable();
+
+        // These calls need to be executed on a different thread to prevent deadlocks when the provider initialization
+        // relies on a ready event to be emitted
+        emitterExecutor.submit(() -> {
+            try (var ignored = OpenFeatureAPI.lock.readLockAutoCloseable()) {
+                if (localEventProviderListener != null) {
+                    localEventProviderListener.onEmit(event, details);
+                }
+                if (localOnEmit != null) {
+                    localOnEmit.accept(this, event, details);
+                }
+            } finally {
+                awaitable.wakeup();
+            }
+        });
+
+        return awaitable;
     }
 
     /**
@@ -93,8 +110,8 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    public void emitProviderReady(ProviderEventDetails details) {
-        emit(ProviderEvent.PROVIDER_READY, details);
+    public Awaitable emitProviderReady(ProviderEventDetails details) {
+        return emit(ProviderEvent.PROVIDER_READY, details);
     }
 
     /**
@@ -104,8 +121,8 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    public void emitProviderConfigurationChanged(ProviderEventDetails details) {
-        emit(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, details);
+    public Awaitable emitProviderConfigurationChanged(ProviderEventDetails details) {
+        return emit(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, details);
     }
 
     /**
@@ -114,8 +131,8 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    public void emitProviderStale(ProviderEventDetails details) {
-        emit(ProviderEvent.PROVIDER_STALE, details);
+    public Awaitable emitProviderStale(ProviderEventDetails details) {
+        return emit(ProviderEvent.PROVIDER_STALE, details);
     }
 
     /**
@@ -124,7 +141,7 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    public void emitProviderError(ProviderEventDetails details) {
-        emit(ProviderEvent.PROVIDER_ERROR, details);
+    public Awaitable emitProviderError(ProviderEventDetails details) {
+        return emit(ProviderEvent.PROVIDER_ERROR, details);
     }
 }

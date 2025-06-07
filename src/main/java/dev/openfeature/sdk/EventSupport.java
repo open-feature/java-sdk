@@ -1,12 +1,12 @@
 package dev.openfeature.sdk;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -23,13 +23,10 @@ class EventSupport {
 
     // we use a v4 uuid as a "placeholder" for anonymous clients, since
     // ConcurrentHashMap doesn't support nulls
-    private static final String defaultClientUuid = UUID.randomUUID().toString();
+    private static final String DEFAULT_CLIENT_UUID = UUID.randomUUID().toString();
     private final Map<String, HandlerStore> handlerStores = new ConcurrentHashMap<>();
     private final HandlerStore globalHandlerStore = new HandlerStore();
-    private final ExecutorService taskExecutor = Executors.newCachedThreadPool(runnable -> {
-        final Thread thread = new Thread(runnable);
-        return thread;
-    });
+    private final ExecutorService taskExecutor = Executors.newCachedThreadPool();
 
     /**
      * Run all the event handlers associated with this domain.
@@ -40,11 +37,10 @@ class EventSupport {
      * @param eventDetails the event details
      */
     public void runClientHandlers(String domain, ProviderEvent event, EventDetails eventDetails) {
-        domain = Optional.ofNullable(domain).orElse(defaultClientUuid);
+        domain = Optional.ofNullable(domain).orElse(DEFAULT_CLIENT_UUID);
 
         // run handlers if they exist
         Optional.ofNullable(handlerStores.get(domain))
-                .filter(store -> Optional.of(store).isPresent())
                 .map(store -> store.handlerMap.get(event))
                 .ifPresent(handlers -> handlers.forEach(handler -> runHandler(handler, eventDetails)));
     }
@@ -69,7 +65,7 @@ class EventSupport {
      * @param handler the handler function to run
      */
     public void addClientHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
-        final String name = Optional.ofNullable(domain).orElse(defaultClientUuid);
+        final String name = Optional.ofNullable(domain).orElse(DEFAULT_CLIENT_UUID);
 
         // lazily create and cache a HandlerStore if it doesn't exist
         HandlerStore store = Optional.ofNullable(this.handlerStores.get(name)).orElseGet(() -> {
@@ -89,7 +85,7 @@ class EventSupport {
      * @param handler the handler ref to be removed
      */
     public void removeClientHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
-        domain = Optional.ofNullable(domain).orElse(defaultClientUuid);
+        domain = Optional.ofNullable(domain).orElse(DEFAULT_CLIENT_UUID);
         this.handlerStores.get(domain).removeHandler(event, handler);
     }
 
@@ -160,14 +156,14 @@ class EventSupport {
     // instantiated when a handler is added to that client.
     static class HandlerStore {
 
-        private final Map<ProviderEvent, List<Consumer<EventDetails>>> handlerMap;
+        private final Map<ProviderEvent, Collection<Consumer<EventDetails>>> handlerMap;
 
         HandlerStore() {
             handlerMap = new ConcurrentHashMap<>();
-            handlerMap.put(ProviderEvent.PROVIDER_READY, new ArrayList<>());
-            handlerMap.put(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, new ArrayList<>());
-            handlerMap.put(ProviderEvent.PROVIDER_ERROR, new ArrayList<>());
-            handlerMap.put(ProviderEvent.PROVIDER_STALE, new ArrayList<>());
+            handlerMap.put(ProviderEvent.PROVIDER_READY, new ConcurrentLinkedQueue<>());
+            handlerMap.put(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, new ConcurrentLinkedQueue<>());
+            handlerMap.put(ProviderEvent.PROVIDER_ERROR, new ConcurrentLinkedQueue<>());
+            handlerMap.put(ProviderEvent.PROVIDER_STALE, new ConcurrentLinkedQueue<>());
         }
 
         void addHandler(ProviderEvent event, Consumer<EventDetails> handler) {
