@@ -4,6 +4,10 @@ package dev.openfeature.sdk;
  * A class to help with synchronization by allowing the optional awaiting of the associated action.
  */
 public class Awaitable {
+
+    /**
+     * An already-completed Awaitable. Awaiting this will return immediately.
+     */
     public static final Awaitable FINISHED = new Awaitable(true);
 
     private boolean isDone = false;
