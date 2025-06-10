@@ -150,7 +150,7 @@ class DeveloperExperienceTest implements HookFixtures {
         api.setProviderAndWait(domain, provider);
         Client client = api.getClient(domain);
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
-        provider.emitProviderError(ProviderEventDetails.builder().build());
+        provider.emitProviderError(ProviderEventDetails.builder().build()).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.ERROR);
     }
 
@@ -165,7 +165,7 @@ class DeveloperExperienceTest implements HookFixtures {
         api.setProviderAndWait(domain, provider);
         Client client = api.getClient(domain);
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
-        provider.emitProviderStale(ProviderEventDetails.builder().build());
+        provider.emitProviderStale(ProviderEventDetails.builder().build()).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.STALE);
     }
 
@@ -180,9 +180,9 @@ class DeveloperExperienceTest implements HookFixtures {
         api.setProviderAndWait(domain, provider);
         Client client = api.getClient(domain);
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
-        provider.emitProviderStale(ProviderEventDetails.builder().build());
+        provider.emitProviderStale(ProviderEventDetails.builder().build()).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.STALE);
-        provider.emitProviderReady(ProviderEventDetails.builder().build());
+        provider.emitProviderReady(ProviderEventDetails.builder().build()).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
     }
 }

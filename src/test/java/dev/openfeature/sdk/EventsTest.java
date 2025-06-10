@@ -24,7 +24,7 @@ class EventsTest {
     private OpenFeatureAPI api;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() {
         api = new OpenFeatureAPI();
     }
 
@@ -578,7 +578,7 @@ class EventsTest {
             number = "5.3.3",
             text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
     void matchingReadyEventsMustRunImmediately() {
-        final String name = "matchingEventsMustRunImmediately";
+        final String name = "matchingReadyEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
 
         // provider which is already ready
@@ -597,14 +597,14 @@ class EventsTest {
             number = "5.3.3",
             text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
     void matchingStaleEventsMustRunImmediately() {
-        final String name = "matchingEventsMustRunImmediately";
+        final String name = "matchingStaleEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
 
         // provider which is already stale
         TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
         Client client = api.getClient(name);
         api.setProviderAndWait(name, provider);
-        provider.emitProviderStale(ProviderEventDetails.builder().build());
+        provider.emitProviderStale(ProviderEventDetails.builder().build()).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.STALE);
 
         // should run even though handler was added after stale
@@ -618,14 +618,14 @@ class EventsTest {
             number = "5.3.3",
             text = "Handlers attached after the provider is already in the associated state, MUST run immediately.")
     void matchingErrorEventsMustRunImmediately() {
-        final String name = "matchingEventsMustRunImmediately";
+        final String name = "matchingErrorEventsMustRunImmediately";
         final Consumer<EventDetails> handler = mockHandler();
 
         // provider which is already in error
         TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
         Client client = api.getClient(name);
         api.setProviderAndWait(name, provider);
-        provider.emitProviderError(ProviderEventDetails.builder().build());
+        provider.emitProviderError(ProviderEventDetails.builder().build()).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.ERROR);
 
         verify(handler, never()).accept(any());
