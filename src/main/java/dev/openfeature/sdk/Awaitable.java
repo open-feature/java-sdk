@@ -1,7 +1,7 @@
 package dev.openfeature.sdk;
 
 /**
- * A class to help with synchronization.
+ * A class to help with synchronization by allowing the optional awaiting of the associated action.
  */
 public class Awaitable {
     public static final Awaitable FINISHED = new Awaitable(true);
