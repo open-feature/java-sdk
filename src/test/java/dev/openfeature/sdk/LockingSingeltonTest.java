@@ -20,7 +20,6 @@ class LockingSingeltonTest {
     private static OpenFeatureAPI api;
     private OpenFeatureClient client;
     private AutoCloseableReentrantReadWriteLock apiLock;
-    private AutoCloseableReentrantReadWriteLock clientContextLock;
     private AutoCloseableReentrantReadWriteLock clientHooksLock;
 
     @BeforeAll
@@ -36,9 +35,7 @@ class LockingSingeltonTest {
         apiLock = setupLock(apiLock, mockInnerReadLock(), mockInnerWriteLock());
         OpenFeatureAPI.lock = apiLock;
 
-        clientContextLock = setupLock(clientContextLock, mockInnerReadLock(), mockInnerWriteLock());
         clientHooksLock = setupLock(clientHooksLock, mockInnerReadLock(), mockInnerWriteLock());
-        client.contextLock = clientContextLock;
         client.hooksLock = clientHooksLock;
     }
 
@@ -155,28 +152,6 @@ class LockingSingeltonTest {
         verify(clientHooksLock.readLock()).unlock();
 
         api.getHooks();
-        verify(apiLock.readLock()).lock();
-        verify(apiLock.readLock()).unlock();
-    }
-
-    @Test
-    void setContextShouldWriteLockAndUnlock() {
-        client.setEvaluationContext(new ImmutableContext());
-        verify(clientContextLock.writeLock()).lock();
-        verify(clientContextLock.writeLock()).unlock();
-
-        api.setEvaluationContext(new ImmutableContext());
-        verify(apiLock.writeLock()).lock();
-        verify(apiLock.writeLock()).unlock();
-    }
-
-    @Test
-    void getContextShouldReadLockAndUnlock() {
-        client.getEvaluationContext();
-        verify(clientContextLock.readLock()).lock();
-        verify(clientContextLock.readLock()).unlock();
-
-        api.getEvaluationContext();
         verify(apiLock.readLock()).lock();
         verify(apiLock.readLock()).unlock();
     }
