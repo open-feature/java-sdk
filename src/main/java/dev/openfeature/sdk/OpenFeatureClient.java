@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -49,8 +50,7 @@ public class OpenFeatureClient implements Client {
     private final List<Hook> clientHooks;
     private final HookSupport hookSupport;
     AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
-    AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
-    private EvaluationContext evaluationContext;
+    private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
 
     /**
      * Deprecated public constructor. Use OpenFeature.API.getClient() instead.
@@ -125,7 +125,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public OpenFeatureClient addHooks(Hook... hooks) {
-        try (AutoCloseableLock __ = this.hooksLock.writeLockAutoCloseable()) {
+        try (AutoCloseableLock ignored = this.hooksLock.writeLockAutoCloseable()) {
             this.clientHooks.addAll(Arrays.asList(hooks));
         }
         return this;
@@ -136,8 +136,12 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public List<Hook> getHooks() {
-        try (AutoCloseableLock __ = this.hooksLock.readLockAutoCloseable()) {
-            return this.clientHooks;
+        try (AutoCloseableLock ignored = this.hooksLock.readLockAutoCloseable()) {
+            if (this.clientHooks.isEmpty()) {
+                return Collections.emptyList();
+            } else {
+                return new ArrayList<>(this.clientHooks);
+            }
         }
     }
 
@@ -146,9 +150,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public OpenFeatureClient setEvaluationContext(EvaluationContext evaluationContext) {
-        try (AutoCloseableLock __ = contextLock.writeLockAutoCloseable()) {
-            this.evaluationContext = evaluationContext;
-        }
+        this.evaluationContext.set(evaluationContext);
         return this;
     }
 
@@ -157,9 +159,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public EvaluationContext getEvaluationContext() {
-        try (AutoCloseableLock __ = contextLock.readLockAutoCloseable()) {
-            return this.evaluationContext;
-        }
+        return this.evaluationContext.get();
     }
 
     private <T> FlagEvaluationDetails<T> evaluateFlag(
@@ -179,8 +179,10 @@ public class OpenFeatureClient implements Client {
             provider = stateManager.getProvider();
             ProviderState state = stateManager.getState();
 
-            mergedHooks = ObjectUtils.merge(
-                    provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getHooks());
+            try (AutoCloseableLock ignored = this.hooksLock.readLockAutoCloseable()) {
+                mergedHooks = ObjectUtils.merge(
+                        provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getHooks());
+            }
 
             EvaluationContext mergedCtx = hookSupport.beforeHooks(
                     type,
@@ -264,7 +266,7 @@ public class OpenFeatureClient implements Client {
      */
     private EvaluationContext mergeEvaluationContext(EvaluationContext invocationContext) {
         final EvaluationContext apiContext = openfeatureApi.getEvaluationContext();
-        final EvaluationContext clientContext = this.getEvaluationContext();
+        final EvaluationContext clientContext = evaluationContext.get();
         final EvaluationContext transactionContext = openfeatureApi.getTransactionContext();
         return mergeContextMaps(apiContext, transactionContext, clientContext, invocationContext);
     }
