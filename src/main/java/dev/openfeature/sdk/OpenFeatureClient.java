@@ -165,8 +165,8 @@ public class OpenFeatureClient implements Client {
 
     @SuppressFBWarnings(
             value = {"REC_CATCH_EXCEPTION"},
-            justification =
-                    "We don't want to allow any exception to reach the user. Instead, we return an evaluation result with the appropriate error code.")
+            justification = "We don't want to allow any exception to reach the user. "
+                    + "Instead, we return an evaluation result with the appropriate error code.")
     private <T> FlagEvaluationDetails<T> evaluateFlag(
             FlagValueType type, String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         var flagOptions = ObjectUtils.defaultIfNull(
