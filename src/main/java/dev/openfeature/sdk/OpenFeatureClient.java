@@ -5,8 +5,6 @@ import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
-import dev.openfeature.sdk.internal.AutoCloseableLock;
-import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import dev.openfeature.sdk.internal.ObjectUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
@@ -16,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import lombok.Getter;
@@ -48,9 +47,8 @@ public class OpenFeatureClient implements Client {
     @Getter
     private final String version;
 
-    private final List<Hook> clientHooks;
+    private final ConcurrentLinkedQueue<Hook> clientHooks;
     private final HookSupport hookSupport;
-    AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
 
     /**
@@ -69,7 +67,7 @@ public class OpenFeatureClient implements Client {
         this.openfeatureApi = openFeatureAPI;
         this.domain = domain;
         this.version = version;
-        this.clientHooks = new ArrayList<>();
+        this.clientHooks = new ConcurrentLinkedQueue<>();
         this.hookSupport = new HookSupport();
     }
 
@@ -126,9 +124,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public OpenFeatureClient addHooks(Hook... hooks) {
-        try (AutoCloseableLock ignored = this.hooksLock.writeLockAutoCloseable()) {
-            this.clientHooks.addAll(Arrays.asList(hooks));
-        }
+        this.clientHooks.addAll(Arrays.asList(hooks));
         return this;
     }
 
@@ -137,13 +133,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public List<Hook> getHooks() {
-        try (AutoCloseableLock ignored = this.hooksLock.readLockAutoCloseable()) {
-            if (this.clientHooks.isEmpty()) {
-                return Collections.emptyList();
-            } else {
-                return new ArrayList<>(this.clientHooks);
-            }
-        }
+        return new ArrayList<>(this.clientHooks);
     }
 
     /**
@@ -183,10 +173,8 @@ public class OpenFeatureClient implements Client {
             var provider = stateManager.getProvider();
             var state = stateManager.getState();
 
-            try (AutoCloseableLock ignored = this.hooksLock.readLockAutoCloseable()) {
-                mergedHooks = ObjectUtils.merge(
-                        provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getHooks());
-            }
+            mergedHooks = ObjectUtils.merge(
+                    provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
 
             var mergedCtx = hookSupport.beforeHooks(
                     type,

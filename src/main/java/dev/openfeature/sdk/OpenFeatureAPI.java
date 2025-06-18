@@ -5,10 +5,11 @@ import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +24,14 @@ import lombok.extern.slf4j.Slf4j;
 public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     // package-private multi-read/single-write lock
     static AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
-    private final List<Hook> apiHooks;
+    private final ConcurrentLinkedQueue<Hook> apiHooks;
     private ProviderRepository providerRepository;
     private EventSupport eventSupport;
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
     private TransactionContextPropagator transactionContextPropagator;
 
     protected OpenFeatureAPI() {
-        apiHooks = new ArrayList<>();
+        apiHooks = new ConcurrentLinkedQueue<>();
         providerRepository = new ProviderRepository(this);
         eventSupport = new EventSupport();
         transactionContextPropagator = new NoOpTransactionContextPropagator();
@@ -303,9 +304,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @param hooks The hook to add.
      */
     public void addHooks(Hook... hooks) {
-        try (AutoCloseableLock ignored = lock.writeLockAutoCloseable()) {
-            this.apiHooks.addAll(Arrays.asList(hooks));
-        }
+        this.apiHooks.addAll(Arrays.asList(hooks));
     }
 
     /**
@@ -314,22 +313,23 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @return A list of {@link Hook}s.
      */
     public List<Hook> getHooks() {
-        try (AutoCloseableLock ignored = lock.readLockAutoCloseable()) {
-            if (this.apiHooks.isEmpty()) {
-                return Collections.emptyList();
-            } else {
-                return new ArrayList<>(this.apiHooks);
-            }
-        }
+        return new ArrayList<>(this.apiHooks);
+    }
+
+    /**
+     * Returns a reference to the collection of {@link Hook}s.
+     *
+     * @return The collection of {@link Hook}s.
+     */
+    Collection<Hook> getMutableHooks() {
+        return this.apiHooks;
     }
 
     /**
      * Removes all hooks.
      */
     public void clearHooks() {
-        try (AutoCloseableLock ignored = lock.writeLockAutoCloseable()) {
-            this.apiHooks.clear();
-        }
+        this.apiHooks.clear();
     }
 
     /**
