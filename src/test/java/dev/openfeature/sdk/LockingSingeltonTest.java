@@ -36,7 +36,6 @@ class LockingSingeltonTest {
         OpenFeatureAPI.lock = apiLock;
 
         clientHooksLock = setupLock(clientHooksLock, mockInnerReadLock(), mockInnerWriteLock());
-        client.hooksLock = clientHooksLock;
     }
 
     @Nested
@@ -135,28 +134,6 @@ class LockingSingeltonTest {
     }
 
     @Test
-    void addHooksShouldWriteLockAndUnlock() {
-        client.addHooks(new Hook() {});
-        verify(clientHooksLock.writeLock()).lock();
-        verify(clientHooksLock.writeLock()).unlock();
-
-        api.addHooks(new Hook() {});
-        verify(apiLock.writeLock()).lock();
-        verify(apiLock.writeLock()).unlock();
-    }
-
-    @Test
-    void getHooksShouldReadLockAndUnlock() {
-        client.getHooks();
-        verify(clientHooksLock.readLock()).lock();
-        verify(clientHooksLock.readLock()).unlock();
-
-        api.getHooks();
-        verify(apiLock.readLock()).lock();
-        verify(apiLock.readLock()).unlock();
-    }
-
-    @Test
     void setTransactionalContextPropagatorShouldWriteLockAndUnlock() {
         api.setTransactionContextPropagator(new NoOpTransactionContextPropagator());
         verify(apiLock.writeLock()).lock();
@@ -168,13 +145,6 @@ class LockingSingeltonTest {
         api.getTransactionContextPropagator();
         verify(apiLock.readLock()).lock();
         verify(apiLock.readLock()).unlock();
-    }
-
-    @Test
-    void clearHooksShouldWriteLockAndUnlock() {
-        api.clearHooks();
-        verify(apiLock.writeLock()).lock();
-        verify(apiLock.writeLock()).unlock();
     }
 
     private static ReentrantReadWriteLock.ReadLock mockInnerReadLock() {
