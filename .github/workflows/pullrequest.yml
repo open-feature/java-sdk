@@ -29,7 +29,7 @@ jobs:
             cache: maven
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@ef36b69c6d7c22bd9d0183f534d82d47639dc745
+        uses: github/codeql-action/init@66d72553a22659994d73473ae27a699b25587b48
         with:
           languages: java
 
@@ -55,4 +55,4 @@ jobs:
           verbose: true # optional (default = false)
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@ef36b69c6d7c22bd9d0183f534d82d47639dc745
+        uses: github/codeql-action/analyze@66d72553a22659994d73473ae27a699b25587b48
