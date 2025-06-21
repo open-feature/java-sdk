@@ -1,6 +1,7 @@
 package dev.openfeature.sdk.internal;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -64,9 +65,9 @@ public class ObjectUtils {
      * @return resulting object
      */
     @SafeVarargs
-    public static <T> List<T> merge(List<T>... sources) {
+    public static <T> List<T> merge(Collection<T>... sources) {
         List<T> merged = new ArrayList<>();
-        for (List<T> source : sources) {
+        for (Collection<T> source : sources) {
             merged.addAll(source);
         }
         return merged;
