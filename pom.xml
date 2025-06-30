@@ -202,7 +202,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.13.1</version>
+                <version>5.13.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -403,7 +403,7 @@
                     <plugin>
                         <groupId>com.github.spotbugs</groupId>
                         <artifactId>spotbugs-maven-plugin</artifactId>
-                        <version>4.9.3.0</version>
+                        <version>4.9.3.2</version>
                         <configuration>
                             <excludeFilterFile>spotbugs-exclusions.xml</excludeFilterFile>
                             <plugins>
@@ -447,7 +447,7 @@
                             <dependency>
                                 <groupId>com.puppycrawl.tools</groupId>
                                 <artifactId>checkstyle</artifactId>
-                                <version>10.25.0</version>
+                                <version>10.26.1</version>
                             </dependency>
                         </dependencies>
                         <executions>
