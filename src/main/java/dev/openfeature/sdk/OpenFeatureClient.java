@@ -5,9 +5,8 @@ import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
-import dev.openfeature.sdk.internal.AutoCloseableLock;
-import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import dev.openfeature.sdk.internal.ObjectUtils;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -46,11 +47,9 @@ public class OpenFeatureClient implements Client {
     @Getter
     private final String version;
 
-    private final List<Hook> clientHooks;
+    private final ConcurrentLinkedQueue<Hook> clientHooks;
     private final HookSupport hookSupport;
-    AutoCloseableReentrantReadWriteLock hooksLock = new AutoCloseableReentrantReadWriteLock();
-    AutoCloseableReentrantReadWriteLock contextLock = new AutoCloseableReentrantReadWriteLock();
-    private EvaluationContext evaluationContext;
+    private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
 
     /**
      * Deprecated public constructor. Use OpenFeature.API.getClient() instead.
@@ -68,7 +67,7 @@ public class OpenFeatureClient implements Client {
         this.openfeatureApi = openFeatureAPI;
         this.domain = domain;
         this.version = version;
-        this.clientHooks = new ArrayList<>();
+        this.clientHooks = new ConcurrentLinkedQueue<>();
         this.hookSupport = new HookSupport();
     }
 
@@ -125,9 +124,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public OpenFeatureClient addHooks(Hook... hooks) {
-        try (AutoCloseableLock __ = this.hooksLock.writeLockAutoCloseable()) {
-            this.clientHooks.addAll(Arrays.asList(hooks));
-        }
+        this.clientHooks.addAll(Arrays.asList(hooks));
         return this;
     }
 
@@ -136,9 +133,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public List<Hook> getHooks() {
-        try (AutoCloseableLock __ = this.hooksLock.readLockAutoCloseable()) {
-            return this.clientHooks;
-        }
+        return new ArrayList<>(this.clientHooks);
     }
 
     /**
@@ -146,9 +141,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public OpenFeatureClient setEvaluationContext(EvaluationContext evaluationContext) {
-        try (AutoCloseableLock __ = contextLock.writeLockAutoCloseable()) {
-            this.evaluationContext = evaluationContext;
-        }
+        this.evaluationContext.set(evaluationContext);
         return this;
     }
 
@@ -157,32 +150,33 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public EvaluationContext getEvaluationContext() {
-        try (AutoCloseableLock __ = contextLock.readLockAutoCloseable()) {
-            return this.evaluationContext;
-        }
+        return this.evaluationContext.get();
     }
 
+    @SuppressFBWarnings(
+            value = {"REC_CATCH_EXCEPTION"},
+            justification = "We don't want to allow any exception to reach the user. "
+                    + "Instead, we return an evaluation result with the appropriate error code.")
     private <T> FlagEvaluationDetails<T> evaluateFlag(
             FlagValueType type, String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        FlagEvaluationOptions flagOptions = ObjectUtils.defaultIfNull(
+        var flagOptions = ObjectUtils.defaultIfNull(
                 options, () -> FlagEvaluationOptions.builder().build());
-        Map<String, Object> hints = Collections.unmodifiableMap(flagOptions.getHookHints());
+        var hints = Collections.unmodifiableMap(flagOptions.getHookHints());
 
         FlagEvaluationDetails<T> details = null;
         List<Hook> mergedHooks = null;
         HookContext<T> afterHookContext = null;
-        FeatureProvider provider;
 
         try {
-            FeatureProviderStateManager stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
+            var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
             // provider must be accessed once to maintain a consistent reference
-            provider = stateManager.getProvider();
-            ProviderState state = stateManager.getState();
+            var provider = stateManager.getProvider();
+            var state = stateManager.getState();
 
             mergedHooks = ObjectUtils.merge(
-                    provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getHooks());
+                    provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
 
-            EvaluationContext mergedCtx = hookSupport.beforeHooks(
+            var mergedCtx = hookSupport.beforeHooks(
                     type,
                     HookContext.from(
                             key,
@@ -205,12 +199,12 @@ public class OpenFeatureClient implements Client {
                 throw new FatalError("Provider is in an irrecoverable error state");
             }
 
-            ProviderEvaluation<T> providerEval =
+            var providerEval =
                     (ProviderEvaluation<T>) createProviderEvaluation(type, key, defaultValue, provider, mergedCtx);
 
             details = FlagEvaluationDetails.from(providerEval, key);
             if (details.getErrorCode() != null) {
-                OpenFeatureError error =
+                var error =
                         ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
                 enrichDetailsWithErrorDefaults(defaultValue, details);
                 hookSupport.errorHooks(type, afterHookContext, error, mergedHooks, hints);
@@ -264,7 +258,7 @@ public class OpenFeatureClient implements Client {
      */
     private EvaluationContext mergeEvaluationContext(EvaluationContext invocationContext) {
         final EvaluationContext apiContext = openfeatureApi.getEvaluationContext();
-        final EvaluationContext clientContext = this.getEvaluationContext();
+        final EvaluationContext clientContext = evaluationContext.get();
         final EvaluationContext transactionContext = openfeatureApi.getTransactionContext();
         return mergeContextMaps(apiContext, transactionContext, clientContext, invocationContext);
     }
