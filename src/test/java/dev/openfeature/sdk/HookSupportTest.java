@@ -23,8 +23,14 @@ class HookSupportTest implements HookFixtures {
         Map<String, Value> attributes = new HashMap<>();
         attributes.put("baseKey", new Value("baseValue"));
         EvaluationContext baseContext = new ImmutableContext(attributes);
-        HookContext<String> hookContext = new HookContext<>(
-                "flagKey", FlagValueType.STRING, "defaultValue", baseContext, () -> "client", () -> "provider");
+        HookContext<String> hookContext = HookContext.<String>builder()
+                .flagKey("flagKey")
+                .type(FlagValueType.STRING)
+                .defaultValue("defaultValue")
+                .ctx(baseContext)
+                .clientMetadata(() -> "client")
+                .providerMetadata(() -> "provider")
+                .build();
         Hook<String> hook1 = mockStringHook();
         Hook<String> hook2 = mockStringHook();
         when(hook1.before(any(), any())).thenReturn(Optional.of(evaluationContextWithValue("bla", "blubber")));
@@ -47,13 +53,14 @@ class HookSupportTest implements HookFixtures {
         HookSupport hookSupport = new HookSupport();
         EvaluationContext baseContext = new ImmutableContext();
         IllegalStateException expectedException = new IllegalStateException("All fine, just a test");
-        HookContext<Object> hookContext = new HookContext<>(
-                "flagKey",
-                flagValueType,
-                createDefaultValue(flagValueType),
-                baseContext,
-                () -> "client",
-                () -> "provider");
+        HookContext<Object> hookContext = HookContext.<Object>builder()
+                .flagKey("flagKey")
+                .type(flagValueType)
+                .defaultValue(createDefaultValue(flagValueType))
+                .ctx(baseContext)
+                .clientMetadata(() -> "client")
+                .providerMetadata(() -> "provider")
+                .build();
 
         hookSupport.beforeHooks(
                 flagValueType, hookContext, Collections.singletonList(genericHook), Collections.emptyMap());
@@ -104,5 +111,33 @@ class HookSupportTest implements HookFixtures {
         attributes.put(key, new Value(value));
         EvaluationContext baseContext = new ImmutableContext(attributes);
         return baseContext;
+    }
+
+    private static class TestHook implements Hook<String> {
+        boolean beforeCalled = false;
+        boolean afterCalled = false;
+        boolean errorCalled = false;
+        boolean finallyCalled = false;
+
+        @Override
+        public Optional<EvaluationContext> before(HookContext<String> ctx, Map<String, Object> hints) {
+            beforeCalled = true;
+            return Optional.empty();
+        }
+
+        @Override
+        public void after(HookContext<String> ctx, FlagEvaluationDetails<String> details, Map<String, Object> hints) {
+            afterCalled = true;
+        }
+
+        @Override
+        public void error(HookContext<String> ctx, Exception error, Map<String, Object> hints) {
+            errorCalled = true;
+        }
+
+        @Override
+        public void finallyAfter(HookContext<String> ctx, FlagEvaluationDetails<String> details, Map<String, Object> hints) {
+            finallyCalled = true;
+        }
     }
 }

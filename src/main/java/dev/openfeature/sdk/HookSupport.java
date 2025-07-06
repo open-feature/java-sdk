@@ -2,6 +2,7 @@ package dev.openfeature.sdk;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -87,10 +88,21 @@ class HookSupport {
         List<Hook> reversedHooks = new ArrayList<>(hooks);
         Collections.reverse(reversedHooks);
         EvaluationContext context = hookCtx.getCtx();
+
+        // Create hook data for each hook instance
+        Map<Hook, HookData> hookDataMap = new HashMap<>();
         for (Hook hook : reversedHooks) {
             if (hook.supportsFlagValueType(flagValueType)) {
+                hookDataMap.put(hook, HookData.create());
+            }
+        }
+
+        for (Hook hook : reversedHooks) {
+            if (hook.supportsFlagValueType(flagValueType)) {
+                // Create a new context with this hook's data
+                HookContext contextWithHookData = hookCtx.withHookData(hookDataMap.get(hook));
                 Optional<EvaluationContext> optional =
-                        Optional.ofNullable(hook.before(hookCtx, hints)).orElse(Optional.empty());
+                        Optional.ofNullable(hook.before(contextWithHookData, hints)).orElse(Optional.empty());
                 if (optional.isPresent()) {
                     context = context.merge(optional.get());
                 }
