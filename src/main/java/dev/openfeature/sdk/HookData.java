@@ -1,5 +1,8 @@
 package dev.openfeature.sdk;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -47,8 +50,8 @@ public interface HookData {
     /**
      * Default thread-safe implementation of HookData.
      */
-    class DefaultHookData implements HookData {
-        private final ConcurrentMap<String, Object> data = new ConcurrentHashMap<>();
+    public class DefaultHookData implements HookData {
+        private final Map<String, Object> data = Collections.synchronizedMap(new HashMap<>());
 
         @Override
         public void set(String key, Object value) {
