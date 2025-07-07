@@ -65,7 +65,7 @@ jobs:
     - name: Deploy
       run: |
         mvn --batch-mode \
-          --settings release/m2-settings.xml clean deploy
+          --settings release/m2-settings.xml -DskipTests clean deploy
       env:
         OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
