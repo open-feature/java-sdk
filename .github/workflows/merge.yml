@@ -23,7 +23,7 @@ jobs:
     steps:
     - uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
     - name: Set up JDK 17
-      uses: actions/setup-java@67aec007b3fcabe15ca665bfccc1e255dd52e30d
+      uses: actions/setup-java@c190c18febcf6c040d80b10ea201a05a2c320263
       with:
         java-version: '17'
         distribution: 'temurin'
