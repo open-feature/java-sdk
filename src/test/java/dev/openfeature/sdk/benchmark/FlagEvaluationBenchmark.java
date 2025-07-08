@@ -1,8 +1,8 @@
-package dev.openfeature.sdk;
+package dev.openfeature.sdk.benchmark;
 
-import dev.openfeature.sdk.state.FlagEvaluationState;
+import dev.openfeature.sdk.benchmark.state.FlagEvaluationState;
+import dev.openfeature.sdk.benchmark.state.HooksState;
 import java.util.concurrent.TimeUnit;
-import dev.openfeature.sdk.state.HooksState;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;

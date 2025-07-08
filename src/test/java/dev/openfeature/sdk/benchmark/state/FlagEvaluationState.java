@@ -1,15 +1,11 @@
-package dev.openfeature.sdk.state;
+package dev.openfeature.sdk.benchmark.state;
 
 import dev.openfeature.sdk.Client;
 import dev.openfeature.sdk.ImmutableMetadata;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
-import org.openjdk.jmh.annotations.Level;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.*;
 import java.util.Map;
 
 @State(Scope.Benchmark)

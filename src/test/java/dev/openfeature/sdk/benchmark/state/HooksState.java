@@ -1,4 +1,4 @@
-package dev.openfeature.sdk.state;
+package dev.openfeature.sdk.benchmark.state;
 
 import dev.openfeature.sdk.Client;
 import dev.openfeature.sdk.Hook;
