@@ -101,8 +101,8 @@ class HookSupport {
             if (hook.supportsFlagValueType(flagValueType)) {
                 // Create a new context with this hook's data
                 HookContext contextWithHookData = hookCtx.withHookData(hookDataMap.get(hook));
-                Optional<EvaluationContext> optional =
-                        Optional.ofNullable(hook.before(contextWithHookData, hints)).orElse(Optional.empty());
+                Optional<EvaluationContext> optional = Optional.ofNullable(hook.before(contextWithHookData, hints))
+                        .orElse(Optional.empty());
                 if (optional.isPresent()) {
                     context = context.merge(optional.get());
                 }

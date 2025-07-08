@@ -3,8 +3,6 @@ package dev.openfeature.sdk;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Hook data provides a way for hooks to maintain state across their execution stages.

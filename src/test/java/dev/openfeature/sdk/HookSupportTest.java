@@ -136,7 +136,8 @@ class HookSupportTest implements HookFixtures {
         }
 
         @Override
-        public void finallyAfter(HookContext<String> ctx, FlagEvaluationDetails<String> details, Map<String, Object> hints) {
+        public void finallyAfter(
+                HookContext<String> ctx, FlagEvaluationDetails<String> details, Map<String, Object> hints) {
             finallyCalled = true;
         }
     }

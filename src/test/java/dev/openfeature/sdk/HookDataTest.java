@@ -109,4 +109,3 @@ class HookDataTest {
         assertNull(hookData.get("nullKey", String.class));
     }
 }
-
