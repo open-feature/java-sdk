@@ -55,9 +55,10 @@ jobs:
           verbose: true # optional (default = false)
 
       - name: Run JMH benchmark
-        run: |
-          'mvn clean compile'
-          'mvn jmh:benchmark -rf json -rff output.json .*'
+        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify
+        #run: |
+        #  'mvn clean compile'
+        #  'mvn jmh:benchmark -rf json -rff output.json .*'
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@624d0bca90f761ffa7ce50c41875a1a226969a02
