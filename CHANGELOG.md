@@ -1,5 +1,74 @@
 # Changelog
 
+## [1.16.0](https://github.com/open-feature/java-sdk/compare/v1.15.1...v1.16.0) (2025-07-07)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.23.0 ([#1466](https://github.com/open-feature/java-sdk/issues/1466)) ([50a6b16](https://github.com/open-feature/java-sdk/commit/50a6b168a7de40337aa51ef3d79d122030956cb9))
+* **deps:** update dependency org.junit:junit-bom to v5.13.1 ([#1475](https://github.com/open-feature/java-sdk/issues/1475)) ([545d6aa](https://github.com/open-feature/java-sdk/commit/545d6aac09dbc74c00a0a4e5c26f4ef80be22379))
+* **deps:** update dependency org.junit:junit-bom to v5.13.2 ([#1492](https://github.com/open-feature/java-sdk/issues/1492)) ([34b22e8](https://github.com/open-feature/java-sdk/commit/34b22e8d93a986fdb81500ab539b4d2fe038b618))
+* **deps:** update dependency org.junit:junit-bom to v5.13.3 ([#1505](https://github.com/open-feature/java-sdk/issues/1505)) ([957c0d1](https://github.com/open-feature/java-sdk/commit/957c0d1ba38ecc758c1ec164e40070ac93a01d68))
+* **deps:** update junit5 monorepo ([#1467](https://github.com/open-feature/java-sdk/issues/1467)) ([f8260a1](https://github.com/open-feature/java-sdk/commit/f8260a1c3a345c877eba95bfe41184ad11f6555e))
+* Reduce locking and concurrency issues ([#1478](https://github.com/open-feature/java-sdk/issues/1478)) ([ebea0fd](https://github.com/open-feature/java-sdk/commit/ebea0fdf1cf3e6f4d2e8aebf2dcb7c7e1f31acc2))
+
+
+### ✨ New Features
+
+* add means of awaiting event emission, fix flaky build ([#1463](https://github.com/open-feature/java-sdk/issues/1463)) ([3dd7d5d](https://github.com/open-feature/java-sdk/commit/3dd7d5d4262f1f4461e13c13a7d64d2fa8bfd764)), closes [#1449](https://github.com/open-feature/java-sdk/issues/1449)
+
+
+### 🧹 Chore
+
+* **deps:** update actions/cache digest to 640a1c2 ([#1485](https://github.com/open-feature/java-sdk/issues/1485)) ([7c2af57](https://github.com/open-feature/java-sdk/commit/7c2af57a362ee11f757a431ee17eff3ee448bf6c))
+* **deps:** update actions/checkout digest to 09d2aca ([#1473](https://github.com/open-feature/java-sdk/issues/1473)) ([b5d873e](https://github.com/open-feature/java-sdk/commit/b5d873e44d3c41b42f11569b0fafccc0a002ebdd))
+* **deps:** update actions/setup-java digest to 67aec00 ([#1504](https://github.com/open-feature/java-sdk/issues/1504)) ([08f549a](https://github.com/open-feature/java-sdk/commit/08f549afd1fd26581b2a8e063832ec986c5e3267))
+* **deps:** update actions/setup-java digest to ebb356c ([#1490](https://github.com/open-feature/java-sdk/issues/1490)) ([e67f598](https://github.com/open-feature/java-sdk/commit/e67f5983573afff805a56ef18584d1a7291ccafc))
+* **deps:** update codecov/codecov-action action to v5.4.3 ([#1454](https://github.com/open-feature/java-sdk/issues/1454)) ([e337939](https://github.com/open-feature/java-sdk/commit/e3379395e6bfb0ce811d8372761a3cb015ad2cde))
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v2.44.5 ([#1462](https://github.com/open-feature/java-sdk/issues/1462)) ([40b319c](https://github.com/open-feature/java-sdk/commit/40b319c5de0461bec13f76978ae09edc958310cd))
+* **deps:** update dependency com.github.spotbugs:spotbugs-maven-plugin to v4.9.3.1 ([#1493](https://github.com/open-feature/java-sdk/issues/1493)) ([b64efe8](https://github.com/open-feature/java-sdk/commit/b64efe82d993defe070dfeb9aa60e740ccf757cd))
+* **deps:** update dependency com.github.spotbugs:spotbugs-maven-plugin to v4.9.3.2 ([#1496](https://github.com/open-feature/java-sdk/issues/1496)) ([fc430c3](https://github.com/open-feature/java-sdk/commit/fc430c3e1d57a532d8c0c879c3e7e25c46d4ad84))
+* **deps:** update dependency com.puppycrawl.tools:checkstyle to v10.24.0 ([#1458](https://github.com/open-feature/java-sdk/issues/1458)) ([dcbfd26](https://github.com/open-feature/java-sdk/commit/dcbfd265a3875271695af760fce9870e53c69f13))
+* **deps:** update dependency com.puppycrawl.tools:checkstyle to v10.25.0 ([#1468](https://github.com/open-feature/java-sdk/issues/1468)) ([1558a86](https://github.com/open-feature/java-sdk/commit/1558a862497c0e133d11d53ff6d7f28437653d43))
+* **deps:** update dependency com.puppycrawl.tools:checkstyle to v10.25.1 ([#1489](https://github.com/open-feature/java-sdk/issues/1489)) ([312b6df](https://github.com/open-feature/java-sdk/commit/312b6df5d2c891ac758bf398f8399ecd25b7597e))
+* **deps:** update dependency com.puppycrawl.tools:checkstyle to v10.26.0 ([#1494](https://github.com/open-feature/java-sdk/issues/1494)) ([300a705](https://github.com/open-feature/java-sdk/commit/300a705e0af959da7ed0e88e9975379ff6fc4138))
+* **deps:** update dependency com.puppycrawl.tools:checkstyle to v10.26.1 ([#1498](https://github.com/open-feature/java-sdk/issues/1498)) ([2e3b479](https://github.com/open-feature/java-sdk/commit/2e3b479cb1e8b0b65652ee813eaa2e1940d53c8e))
+* **deps:** update dependency maven to v3.9.10 ([#1474](https://github.com/open-feature/java-sdk/issues/1474)) ([4481537](https://github.com/open-feature/java-sdk/commit/4481537cebc213dcfe19bb8cd9b70a4c91a682b2))
+* **deps:** update dependency net.bytebuddy:byte-buddy to v1.17.6 ([#1482](https://github.com/open-feature/java-sdk/issues/1482)) ([8e51e6f](https://github.com/open-feature/java-sdk/commit/8e51e6fe101882184a5d09be31fa65563d82c673))
+* **deps:** update dependency net.bytebuddy:byte-buddy-agent to v1.17.6 ([#1483](https://github.com/open-feature/java-sdk/issues/1483)) ([936ff60](https://github.com/open-feature/java-sdk/commit/936ff60fac471a83a7c14412d2e825b2a7f9704c))
+* **deps:** update dependency org.apache.maven.plugins:maven-gpg-plugin to v3.2.8 ([#1501](https://github.com/open-feature/java-sdk/issues/1501)) ([0515ad5](https://github.com/open-feature/java-sdk/commit/0515ad54c4f71863373eb1b7f429393923b27d90))
+* **deps:** update dependency org.codehaus.mojo:exec-maven-plugin to v3.5.1 ([#1461](https://github.com/open-feature/java-sdk/issues/1461)) ([b6ceff2](https://github.com/open-feature/java-sdk/commit/b6ceff2ecb0e34be2ccdb83f7f37c1177de6f27e))
+* **deps:** update dependency org.mockito:mockito-core to v5.18.0 ([#1457](https://github.com/open-feature/java-sdk/issues/1457)) ([e17b0b2](https://github.com/open-feature/java-sdk/commit/e17b0b29758ae7cdbdac9ddb2178382c55eb1277))
+* **deps:** update github/codeql-action digest to 075e08a ([#1470](https://github.com/open-feature/java-sdk/issues/1470)) ([6597de7](https://github.com/open-feature/java-sdk/commit/6597de7a98e0fae10a541a8a9b60837623c133a8))
+* **deps:** update github/codeql-action digest to 33f8489 ([#1502](https://github.com/open-feature/java-sdk/issues/1502)) ([0fd9d3d](https://github.com/open-feature/java-sdk/commit/0fd9d3dcfb1fd65197a42885b12d40a1cc152d3b))
+* **deps:** update github/codeql-action digest to 396fd27 ([#1456](https://github.com/open-feature/java-sdk/issues/1456)) ([b45a937](https://github.com/open-feature/java-sdk/commit/b45a9370173e3d3b97c78449dfc99225fb572228))
+* **deps:** update github/codeql-action digest to 3de706a ([#1481](https://github.com/open-feature/java-sdk/issues/1481)) ([99a3006](https://github.com/open-feature/java-sdk/commit/99a3006de878ab0ba1f0e61a4cb5432914425795))
+* **deps:** update github/codeql-action digest to 466d6ce ([#1477](https://github.com/open-feature/java-sdk/issues/1477)) ([0b57bca](https://github.com/open-feature/java-sdk/commit/0b57bcafc14b946000feb4a3421d73b9616e83cb))
+* **deps:** update github/codeql-action digest to 4a00331 ([#1469](https://github.com/open-feature/java-sdk/issues/1469)) ([376f81f](https://github.com/open-feature/java-sdk/commit/376f81f5c3b66d7e3e298aac30ac7544b84e7362))
+* **deps:** update github/codeql-action digest to 4c57370 ([#1497](https://github.com/open-feature/java-sdk/issues/1497)) ([49214b7](https://github.com/open-feature/java-sdk/commit/49214b7282ddde1ee16cf80f92c11cc90ef7612a))
+* **deps:** update github/codeql-action digest to 510dfa3 ([#1450](https://github.com/open-feature/java-sdk/issues/1450)) ([d9a72d2](https://github.com/open-feature/java-sdk/commit/d9a72d2aafd787a1814132f000897ad1c94181e4))
+* **deps:** update github/codeql-action digest to 57eebf6 ([#1455](https://github.com/open-feature/java-sdk/issues/1455)) ([36eed06](https://github.com/open-feature/java-sdk/commit/36eed065e763bbfa0f8f97d704202bbd219332ca))
+* **deps:** update github/codeql-action digest to 66d7255 ([#1487](https://github.com/open-feature/java-sdk/issues/1487)) ([c3eaecd](https://github.com/open-feature/java-sdk/commit/c3eaecdb8b34d3b33946bd205ee92d49584602bd))
+* **deps:** update github/codeql-action digest to 7b0fb5a ([#1459](https://github.com/open-feature/java-sdk/issues/1459)) ([6a95c00](https://github.com/open-feature/java-sdk/commit/6a95c008e975dd3c7328c32f1d7cf626bbaecfa6))
+* **deps:** update github/codeql-action digest to 7cb9b16 ([#1476](https://github.com/open-feature/java-sdk/issues/1476)) ([6cca721](https://github.com/open-feature/java-sdk/commit/6cca721be5bc6f5926fe64668a7c03728cab3cb0))
+* **deps:** update github/codeql-action digest to 7fd6215 ([#1464](https://github.com/open-feature/java-sdk/issues/1464)) ([f10aaaa](https://github.com/open-feature/java-sdk/commit/f10aaaa357581b573895f4d6e2329abb705582aa))
+* **deps:** update github/codeql-action digest to 8ef1782 ([#1495](https://github.com/open-feature/java-sdk/issues/1495)) ([86a5916](https://github.com/open-feature/java-sdk/commit/86a5916f0dc6116b5b9e5dc897ff4b8705ac01e3))
+* **deps:** update github/codeql-action digest to 9b02dc2 ([#1491](https://github.com/open-feature/java-sdk/issues/1491)) ([6f67b06](https://github.com/open-feature/java-sdk/commit/6f67b06f712c461f331681a76f5cb2c3ddb0d36b))
+* **deps:** update github/codeql-action digest to ac30a39 ([#1488](https://github.com/open-feature/java-sdk/issues/1488)) ([8fad544](https://github.com/open-feature/java-sdk/commit/8fad544b17ee08b4280d7975073d00a874c374db))
+* **deps:** update github/codeql-action digest to b1e4dc3 ([#1471](https://github.com/open-feature/java-sdk/issues/1471)) ([2dcd6a1](https://github.com/open-feature/java-sdk/commit/2dcd6a1dd0c80ee676b9860afd6a6002d0ea4aea))
+* **deps:** update github/codeql-action digest to b694213 ([#1503](https://github.com/open-feature/java-sdk/issues/1503)) ([a5d1cbc](https://github.com/open-feature/java-sdk/commit/a5d1cbced4658fadb63f362b4512bdbd68ae7d6a))
+* **deps:** update github/codeql-action digest to b86edfc ([#1453](https://github.com/open-feature/java-sdk/issues/1453)) ([b667aa3](https://github.com/open-feature/java-sdk/commit/b667aa325136b78c01867d40342f81eeb7e16f46))
+* **deps:** update github/codeql-action digest to bc02a25 ([#1460](https://github.com/open-feature/java-sdk/issues/1460)) ([5e922cf](https://github.com/open-feature/java-sdk/commit/5e922cf3efc156135563707de92e508b0a4d19f3))
+* **deps:** update github/codeql-action digest to be30325 ([#1479](https://github.com/open-feature/java-sdk/issues/1479)) ([844d5e2](https://github.com/open-feature/java-sdk/commit/844d5e244b02703b624cf75e5bf8448c07e62d3d))
+* **deps:** update github/codeql-action digest to dcc1a66 ([#1499](https://github.com/open-feature/java-sdk/issues/1499)) ([69519b1](https://github.com/open-feature/java-sdk/commit/69519b1ef7274ceae39d6746c5a5a98dc69f562f))
+* **deps:** update github/codeql-action digest to ef36b69 ([#1484](https://github.com/open-feature/java-sdk/issues/1484)) ([8bf777a](https://github.com/open-feature/java-sdk/commit/8bf777a7e99be4dfac8917b8e61cb6c23385b8ce))
+* **deps:** update io.cucumber.version to v7.23.0 ([#1465](https://github.com/open-feature/java-sdk/issues/1465)) ([2de7616](https://github.com/open-feature/java-sdk/commit/2de76166764bacd34883b13220dd0bad824c8b1a))
+* improvements to release workflow ([#1451](https://github.com/open-feature/java-sdk/issues/1451)) ([1714efe](https://github.com/open-feature/java-sdk/commit/1714efe81aa6ae025f4f8b12c9c042561498d25e))
+* migrate to new publish ([5425a34](https://github.com/open-feature/java-sdk/commit/5425a34a12baa04f9583b83fd1bfdd7e2a6ab5e8))
+* remove unneeded version information ([#1428](https://github.com/open-feature/java-sdk/issues/1428)) ([3ed65cf](https://github.com/open-feature/java-sdk/commit/3ed65cfb0cb5ee5b70793cd68a27909c81cd4fab))
+* skip tests on publish ([6194186](https://github.com/open-feature/java-sdk/commit/6194186b3e791f3cb28da24f5acb3ff96788d65e))
+* update publish env vars ([85d89ee](https://github.com/open-feature/java-sdk/commit/85d89ee79a52d960322731fb786c0f60245f0d75))
+
 ## [1.15.1](https://github.com/open-feature/java-sdk/compare/v1.14.2...v1.15.1) (2025-05-14)
 
 
