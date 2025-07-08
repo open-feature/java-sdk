@@ -55,7 +55,7 @@ jobs:
           verbose: true # optional (default = false)
 
       - name: Run JMH benchmark
-        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify
+        run: mvn jmh:benchmark
         #run: |
         #  'mvn clean compile'
         #  'mvn jmh:benchmark -rf json -rff output.json .*'
