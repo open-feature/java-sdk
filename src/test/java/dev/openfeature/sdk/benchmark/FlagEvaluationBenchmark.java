@@ -10,18 +10,19 @@ import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Warmup;
 
-
 @BenchmarkMode(Mode.Throughput)
 @Warmup(time = 1, timeUnit = TimeUnit.SECONDS, iterations = 1)
-//@Warmup(time = 1, timeUnit = TimeUnit.SECONDS, iterations = 2)
+// @Warmup(time = 1, timeUnit = TimeUnit.SECONDS, iterations = 2)
 @Measurement(time = 5, timeUnit = TimeUnit.SECONDS, iterations = 1)
-//@Measurement(time = 5, timeUnit = TimeUnit.SECONDS, iterations = 4)
+// @Measurement(time = 5, timeUnit = TimeUnit.SECONDS, iterations = 4)
 @Fork(1)
 public class FlagEvaluationBenchmark {
 
     @Benchmark
     public String flagEvaluations(FlagEvaluationState state) {
-        return state.client.getStringDetails(FlagEvaluationState.FLAG_KEY, "default").getValue();
+        return state.client
+                .getStringDetails(FlagEvaluationState.FLAG_KEY, "default")
+                .getValue();
     }
 
     @Benchmark

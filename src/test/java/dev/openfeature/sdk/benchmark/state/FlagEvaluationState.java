@@ -5,8 +5,8 @@ import dev.openfeature.sdk.ImmutableMetadata;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
-import org.openjdk.jmh.annotations.*;
 import java.util.Map;
+import org.openjdk.jmh.annotations.*;
 
 @State(Scope.Benchmark)
 public class FlagEvaluationState {
@@ -18,17 +18,16 @@ public class FlagEvaluationState {
 
     @Setup(Level.Trial)
     public void setup() {
-        provider = new InMemoryProvider(
-                Map.of(
-                        FLAG_KEY,
-                        Flag.builder()
-                                .variant("a", "a-value")
-                                .variant("b", "b-value")
-                                .defaultVariant("b")
-                                .flagMetadata(ImmutableMetadata.builder().addString("meta", "data").build())
-                                .build()
-                )
-        );
+        provider = new InMemoryProvider(Map.of(
+                FLAG_KEY,
+                Flag.builder()
+                        .variant("a", "a-value")
+                        .variant("b", "b-value")
+                        .defaultVariant("b")
+                        .flagMetadata(ImmutableMetadata.builder()
+                                .addString("meta", "data")
+                                .build())
+                        .build()));
         OpenFeatureAPI.getInstance().setProviderAndWait(DOMAIN, provider);
         client = OpenFeatureAPI.getInstance().getClient(DOMAIN);
     }

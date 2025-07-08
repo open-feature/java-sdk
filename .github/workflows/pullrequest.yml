@@ -54,8 +54,9 @@ jobs:
           fail_ci_if_error: true # optional (default = false)
           verbose: true # optional (default = false)
 
-      - name: Run JMH benchmark
-        run: mvn --activate-profiles benchmark jmh:benchmark
+      - if: matrix.build.java == '17'
+        name: Run JMH benchmark
+        run: mvn --activate-profiles benchmark jmh:benchmark -rf json -rff output.json .*
         #run: |
         #  'mvn clean compile'
         #  'mvn jmh:benchmark -rf json -rff output.json .*'

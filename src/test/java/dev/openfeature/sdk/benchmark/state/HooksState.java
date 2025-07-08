@@ -24,17 +24,16 @@ public class HooksState {
 
     @Setup(Level.Trial)
     public void setup() {
-        provider = new InMemoryProvider(
-                Map.of(
-                        FLAG_KEY,
-                        Flag.builder()
-                                .variant("a", "a-value")
-                                .variant("b", "b-value")
-                                .defaultVariant("b")
-                                .flagMetadata(ImmutableMetadata.builder().addString("meta", "data").build())
-                                .build()
-                )
-        );
+        provider = new InMemoryProvider(Map.of(
+                FLAG_KEY,
+                Flag.builder()
+                        .variant("a", "a-value")
+                        .variant("b", "b-value")
+                        .defaultVariant("b")
+                        .flagMetadata(ImmutableMetadata.builder()
+                                .addString("meta", "data")
+                                .build())
+                        .build()));
         OpenFeatureAPI.getInstance().setProviderAndWait(DOMAIN, provider);
         client = OpenFeatureAPI.getInstance().getClient(DOMAIN);
         client.addHooks(new StringHook() {}, new Hook() {});
