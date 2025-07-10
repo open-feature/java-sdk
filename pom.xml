@@ -603,6 +603,9 @@
                         <groupId>at.lutnik</groupId>
                         <artifactId>jmh-comparator-maven-plugin</artifactId>
                         <version>0.1.0</version>
+                        <configuration>
+                            <baselineBranchName>main</baselineBranchName>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
