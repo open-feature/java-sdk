@@ -13,3 +13,7 @@ target
 
 # used for spec compliance tooling
 java-report.json
+/standalone/.gitignore
+/sdk/pom.xml
+/results.json
+/sdk.iml
