@@ -599,6 +599,11 @@
                         <artifactId>jmh-maven-plugin</artifactId>
                         <version>0.2.2</version>
                     </plugin>
+                    <plugin>
+                        <groupId>at.lutnik</groupId>
+                        <artifactId>jmh-comparator-maven-plugin</artifactId>
+                        <version>0.1.0</version>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
