@@ -606,15 +606,6 @@
                         <configuration>
                             <baselineBranchName>main</baselineBranchName>
                         </configuration>
-                        <executions>
-                            <execution>
-                                <id>default-descriptor</id>
-                                <goals>
-                                    <goal>JmhComparatorMojo</goal>
-                                </goals>
-                                <phase>process-classes</phase>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
