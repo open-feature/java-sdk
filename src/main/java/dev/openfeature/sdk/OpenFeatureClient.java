@@ -167,11 +167,10 @@ public class OpenFeatureClient implements Client {
         List<Hook> mergedHooks = null;
         HookContext<T> afterHookContext = null;
 
-        try {
-            Thread.sleep(25);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        System.out.println("jajaskd");
+        System.out.println("afd");
+        System.out.println("ghdjksl");
+        System.out.println("jgoijj");
 
         try {
             var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
