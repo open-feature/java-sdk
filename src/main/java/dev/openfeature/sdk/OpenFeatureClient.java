@@ -168,6 +168,12 @@ public class OpenFeatureClient implements Client {
         HookContext<T> afterHookContext = null;
 
         try {
+            Thread.sleep(25);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
             var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
             // provider must be accessed once to maintain a consistent reference
             var provider = stateManager.getProvider();
