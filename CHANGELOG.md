@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.16.1](https://github.com/open-feature/java-sdk/compare/v1.16.0...v1.16.1) (2025-07-11)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.24.0 ([#1510](https://github.com/open-feature/java-sdk/issues/1510)) ([4881966](https://github.com/open-feature/java-sdk/commit/488196656ad0fbca5211e270bfc55e3d83fa9a2f))
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.25.0 ([#1514](https://github.com/open-feature/java-sdk/issues/1514)) ([bf68cbd](https://github.com/open-feature/java-sdk/commit/bf68cbdedf6ce7218fadfe3a39df38019da8bcbb))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/setup-java digest to c190c18 ([#1508](https://github.com/open-feature/java-sdk/issues/1508)) ([908755c](https://github.com/open-feature/java-sdk/commit/908755c2c2e3abcef84f29728fd19092a9d66646))
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v2.45.0 ([#1509](https://github.com/open-feature/java-sdk/issues/1509)) ([62738f7](https://github.com/open-feature/java-sdk/commit/62738f7f16b783eabb7325bed3ac26be086b35e4))
+* **deps:** update dependency com.google.guava:guava to v33.4.8-jre ([#1382](https://github.com/open-feature/java-sdk/issues/1382)) ([1e8f5c8](https://github.com/open-feature/java-sdk/commit/1e8f5c880c1a0e8f0ccaa7c4b7452a051973f2b6))
+* **deps:** update github/codeql-action digest to 624d0bc ([#1507](https://github.com/open-feature/java-sdk/issues/1507)) ([26716a5](https://github.com/open-feature/java-sdk/commit/26716a51cfc720bdb294b50ff3759f8ae41fe410))
+* **deps:** update github/codeql-action digest to f53ec7c ([#1512](https://github.com/open-feature/java-sdk/issues/1512)) ([aa05693](https://github.com/open-feature/java-sdk/commit/aa0569379bd85d11a5f91bd1078cd9f2b3b311b4))
+
 ## [1.16.0](https://github.com/open-feature/java-sdk/compare/v1.15.1...v1.16.0) (2025-07-07)
 
 
