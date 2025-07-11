@@ -17,3 +17,4 @@ java-report.json
 /sdk/pom.xml
 /results.json
 /sdk.iml
+/jmh-comp-bench/
