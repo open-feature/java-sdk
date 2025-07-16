@@ -7,9 +7,11 @@ import dev.openfeature.sdk.Metadata;
 import dev.openfeature.sdk.ProviderEvaluation;
 import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.exceptions.GeneralError;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +21,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 
 /** <b>Experimental:</b> Provider implementation for Multi-provider. */
 @Slf4j
@@ -31,10 +32,10 @@ public class MultiProvider extends EventProvider {
     public static final int INIT_THREADS_COUNT = 8;
     private final Map<String, FeatureProvider> providers;
     private final Strategy strategy;
-    private String metadataName;
+    private MultiProviderMetadata metadata;
 
     /**
-     * Constructs a MultiProvider with the given list of FeatureProviders, using a default strategy.
+     * Constructs a MultiProvider with the given list of FeatureProviders, by default uses FirstMatchStrategy.
      *
      * @param providers the list of FeatureProviders to initialize the MultiProvider with
      */
@@ -77,33 +78,34 @@ public class MultiProvider extends EventProvider {
      */
     @Override
     public void initialize(EvaluationContext evaluationContext) throws Exception {
-        JSONObject json = new JSONObject();
-        json.put("name", NAME);
-        JSONObject providersMetadata = new JSONObject();
-        json.put("originalMetadata", providersMetadata);
-        ExecutorService initPool = Executors.newFixedThreadPool(INIT_THREADS_COUNT);
+        var metadataBuilder = MultiProviderMetadata.builder();
+        metadataBuilder.name(NAME);
+        HashMap<String, Metadata> providersMetadata = new HashMap<>();
+        ExecutorService initPool = Executors.newFixedThreadPool(Math.min(INIT_THREADS_COUNT, providers.size()));
         Collection<Callable<Boolean>> tasks = new ArrayList<>(providers.size());
         for (FeatureProvider provider : providers.values()) {
             tasks.add(() -> {
                 provider.initialize(evaluationContext);
                 return true;
             });
-            JSONObject providerMetadata = new JSONObject();
-            providerMetadata.put("name", provider.getMetadata().getName());
-            providersMetadata.put(provider.getMetadata().getName(), providerMetadata);
+            Metadata providerMetadata = provider.getMetadata();
+            providersMetadata.put(providerMetadata.getName(), providerMetadata);
         }
+        metadataBuilder.originalMetadata(providersMetadata);
         List<Future<Boolean>> results = initPool.invokeAll(tasks);
         for (Future<Boolean> result : results) {
             if (!result.get()) {
                 throw new GeneralError("init failed");
             }
         }
-        metadataName = json.toString();
+        initPool.shutdown();
+        metadata = metadataBuilder.build();
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP")
     @Override
     public Metadata getMetadata() {
-        return () -> metadataName;
+        return metadata;
     }
 
     @Override
