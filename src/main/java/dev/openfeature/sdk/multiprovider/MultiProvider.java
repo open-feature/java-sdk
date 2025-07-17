@@ -95,6 +95,7 @@ public class MultiProvider extends EventProvider {
         List<Future<Boolean>> results = initPool.invokeAll(tasks);
         for (Future<Boolean> result : results) {
             if (!result.get()) {
+                initPool.shutdown();
                 throw new GeneralError("init failed");
             }
         }
