@@ -41,7 +41,6 @@ class MultiProviderTest extends BaseStrategyTest {
         MultiProvider multiProvider = new MultiProvider(providers, strategy);
         multiProvider.initialize(null);
 
-        assertNotNull(multiProvider);
         MultiProviderMetadata metadata = (MultiProviderMetadata) multiProvider.getMetadata();
         Map<String, Metadata> map = metadata.getOriginalMetadata();
         assertEquals(mockMetaData1, map.get(mockProvider1.getMetadata().getName()));
