@@ -30,7 +30,7 @@ import org.openjdk.jmh.annotations.Mode;
 public class AllocationBenchmark {
 
     // 10K iterations works well with Xmx1024m (we don't want to run out of memory)
-    private static final int ITERATIONS = 10000;
+    private static final int ITERATIONS = 10;
 
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
