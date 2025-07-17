@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.16.1](https://github.com/open-feature/java-sdk/compare/v1.16.0...v1.16.1) (2025-07-17)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.24.0 ([#1510](https://github.com/open-feature/java-sdk/issues/1510)) ([4881966](https://github.com/open-feature/java-sdk/commit/488196656ad0fbca5211e270bfc55e3d83fa9a2f))
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.25.0 ([#1514](https://github.com/open-feature/java-sdk/issues/1514)) ([bf68cbd](https://github.com/open-feature/java-sdk/commit/bf68cbdedf6ce7218fadfe3a39df38019da8bcbb))
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.26.0 ([#1516](https://github.com/open-feature/java-sdk/issues/1516)) ([1d3fab6](https://github.com/open-feature/java-sdk/commit/1d3fab6184b4ba45b3e4cee420e24be722c76946))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/setup-java digest to ae2b61d ([#1518](https://github.com/open-feature/java-sdk/issues/1518)) ([1382b36](https://github.com/open-feature/java-sdk/commit/1382b367d934feaa5effe851f8b03b02bb2482c1))
+* **deps:** update actions/setup-java digest to c190c18 ([#1508](https://github.com/open-feature/java-sdk/issues/1508)) ([908755c](https://github.com/open-feature/java-sdk/commit/908755c2c2e3abcef84f29728fd19092a9d66646))
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v2.45.0 ([#1509](https://github.com/open-feature/java-sdk/issues/1509)) ([62738f7](https://github.com/open-feature/java-sdk/commit/62738f7f16b783eabb7325bed3ac26be086b35e4))
+* **deps:** update dependency com.google.guava:guava to v33.4.8-jre ([#1382](https://github.com/open-feature/java-sdk/issues/1382)) ([1e8f5c8](https://github.com/open-feature/java-sdk/commit/1e8f5c880c1a0e8f0ccaa7c4b7452a051973f2b6))
+* **deps:** update dependency maven to v3.9.11 ([#1519](https://github.com/open-feature/java-sdk/issues/1519)) ([cbf7a58](https://github.com/open-feature/java-sdk/commit/cbf7a5862286dc36023095208c3e865b058dacb0))
+* **deps:** update github/codeql-action digest to 03a2a17 ([#1520](https://github.com/open-feature/java-sdk/issues/1520)) ([ecc8f7e](https://github.com/open-feature/java-sdk/commit/ecc8f7e3ade314c050c67710ae96a182534b9692))
+* **deps:** update github/codeql-action digest to 0d17ea4 ([#1517](https://github.com/open-feature/java-sdk/issues/1517)) ([5b3e365](https://github.com/open-feature/java-sdk/commit/5b3e3656f6efad1f9020937bc3ea18078c4defc8))
+* **deps:** update github/codeql-action digest to 624d0bc ([#1507](https://github.com/open-feature/java-sdk/issues/1507)) ([26716a5](https://github.com/open-feature/java-sdk/commit/26716a51cfc720bdb294b50ff3759f8ae41fe410))
+* **deps:** update github/codeql-action digest to 6f936b5 ([#1515](https://github.com/open-feature/java-sdk/issues/1515)) ([006ae75](https://github.com/open-feature/java-sdk/commit/006ae75e2b1c745476dfda35113a06fc7fbceafb))
+* **deps:** update github/codeql-action digest to 7710ed1 ([#1521](https://github.com/open-feature/java-sdk/issues/1521)) ([ac3344c](https://github.com/open-feature/java-sdk/commit/ac3344c7f6293ac72523a5d0c5e61d4304c0a8b1))
+* **deps:** update github/codeql-action digest to f53ec7c ([#1512](https://github.com/open-feature/java-sdk/issues/1512)) ([aa05693](https://github.com/open-feature/java-sdk/commit/aa0569379bd85d11a5f91bd1078cd9f2b3b311b4))
+
 ## [1.16.0](https://github.com/open-feature/java-sdk/compare/v1.15.1...v1.16.0) (2025-07-07)
 
 
