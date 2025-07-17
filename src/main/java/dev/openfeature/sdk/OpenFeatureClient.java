@@ -167,9 +167,6 @@ public class OpenFeatureClient implements Client {
         List<Hook> mergedHooks = null;
         HookContext<T> afterHookContext = null;
 
-        System.out.println("jajaskd");
-        System.out.println("afd");
-
         try {
             var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
             // provider must be accessed once to maintain a consistent reference
