@@ -40,7 +40,7 @@ class HookSupport {
     public void errorHooks(
             FlagValueType flagValueType,
             HookContext hookCtx,
-            Exception e,
+            ErrorDetails e,
             List<Hook> hooks,
             Map<String, Object> hints) {
         executeHooks(flagValueType, hooks, "error", hook -> hook.error(hookCtx, e, hints));

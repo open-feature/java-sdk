@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,7 +15,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.ArrayList;
@@ -200,7 +198,7 @@ class HookSpecTest implements HookFixtures {
         Hook h = mockBooleanHook();
         doThrow(RuntimeException.class).when(h).finallyAfter(any(), any(), any());
 
-        verify(h, times(0)).error(any(), any(), any());
+        verify(h, times(0)).error(any(), any(Exception.class), any());
     }
 
     @Test
@@ -225,16 +223,16 @@ class HookSpecTest implements HookFixtures {
                 invocationCtx,
                 FlagEvaluationOptions.builder().hook(hook).build());
 
-        ArgumentCaptor<Exception> captor = ArgumentCaptor.forClass(Exception.class);
+        ArgumentCaptor<ErrorDetails> captor = ArgumentCaptor.forClass(ErrorDetails.class);
 
         verify(hook, times(1)).before(any(), any());
         verify(hook, times(1)).error(any(), captor.capture(), any());
         verify(hook, times(1)).finallyAfter(any(), any(), any());
         verify(hook, never()).after(any(), any(), any());
 
-        Exception exception = captor.getValue();
-        assertEquals(errorMessage, exception.getMessage());
-        assertInstanceOf(FlagNotFoundError.class, exception);
+        ErrorDetails errorDetails = captor.getValue();
+        assertEquals(errorMessage, errorDetails.getErrorMessage());
+        assertEquals(ErrorCode.FLAG_NOT_FOUND, errorDetails.getErrorCode());
     }
 
     @Specification(
@@ -279,7 +277,8 @@ class HookSpecTest implements HookFixtures {
                     }
 
                     @Override
-                    public void error(HookContext<Boolean> ctx, Exception error, Map<String, Object> hints) {
+                    public void error(
+                            HookContext<Boolean> ctx, ErrorDetails<Boolean> error, Map<String, Object> hints) {
                         evalOrder.add("provider error");
                     }
 
@@ -308,7 +307,7 @@ class HookSpecTest implements HookFixtures {
             }
 
             @Override
-            public void error(HookContext<Boolean> ctx, Exception error, Map<String, Object> hints) {
+            public void error(HookContext<Boolean> ctx, ErrorDetails<Boolean> error, Map<String, Object> hints) {
                 evalOrder.add("api error");
             }
 
@@ -334,7 +333,7 @@ class HookSpecTest implements HookFixtures {
             }
 
             @Override
-            public void error(HookContext<Boolean> ctx, Exception error, Map<String, Object> hints) {
+            public void error(HookContext<Boolean> ctx, ErrorDetails<Boolean> error, Map<String, Object> hints) {
                 evalOrder.add("client error");
             }
 
@@ -367,7 +366,8 @@ class HookSpecTest implements HookFixtures {
                             }
 
                             @Override
-                            public void error(HookContext<Boolean> ctx, Exception error, Map<String, Object> hints) {
+                            public void error(
+                                    HookContext<Boolean> ctx, ErrorDetails<Boolean> error, Map<String, Object> hints) {
                                 evalOrder.add("invocation error");
                             }
 
@@ -546,7 +546,7 @@ class HookSpecTest implements HookFixtures {
                 new ImmutableContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
         verify(hook, times(1)).before(any(), any());
-        verify(hook, times(1)).error(any(), any(), any());
+        verify(hook, times(1)).error(any(), any(ErrorDetails.class), any());
         assertEquals(false, value, "Falls through to the default.");
     }
 
@@ -564,7 +564,7 @@ class HookSpecTest implements HookFixtures {
                 new ImmutableContext(),
                 FlagEvaluationOptions.builder().hook(hook).build());
         verify(hook, times(1)).after(any(), any(), any());
-        verify(hook, times(1)).error(any(), any(), any());
+        verify(hook, times(1)).error(any(), any(ErrorDetails.class), any());
     }
 
     @Test
@@ -609,7 +609,7 @@ class HookSpecTest implements HookFixtures {
                 FlagEvaluationOptions.builder().hook(hook).build());
 
         verify(hook).before(any(), any());
-        verify(hook).error(any(HookContext.class), any(Exception.class), any(Map.class));
+        verify(hook).error(any(HookContext.class), any(ErrorDetails.class), any(Map.class));
         verify(hook).finallyAfter(any(HookContext.class), any(FlagEvaluationDetails.class), any(Map.class));
     }
 
@@ -655,8 +655,8 @@ class HookSpecTest implements HookFixtures {
         verify(hook, times(1)).before(any(), any());
         verify(hook2, times(0)).before(any(), any());
 
-        verify(hook, times(1)).error(any(), any(), any());
-        verify(hook2, times(1)).error(any(), any(), any());
+        verify(hook, times(1)).error(any(), any(ErrorDetails.class), any());
+        verify(hook2, times(1)).error(any(), any(ErrorDetails.class), any());
     }
 
     @Specification(number = "4.1.4", text = "The evaluation context MUST be mutable only within the before hook.")
@@ -760,7 +760,7 @@ class HookSpecTest implements HookFixtures {
     void first_error_broken() {
         Hook hook = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).before(any(), any());
-        doThrow(RuntimeException.class).when(hook).error(any(), any(), any());
+        doThrow(RuntimeException.class).when(hook).error(any(), any(Exception.class), any());
         Hook hook2 = mockBooleanHook();
         InOrder order = inOrder(hook, hook2);
 
@@ -772,8 +772,8 @@ class HookSpecTest implements HookFixtures {
                 FlagEvaluationOptions.builder().hook(hook2).hook(hook).build());
 
         order.verify(hook).before(any(), any());
-        order.verify(hook2).error(any(), any(), any());
-        order.verify(hook).error(any(), any(), any());
+        order.verify(hook2).error(any(), any(ErrorDetails.class), any());
+        order.verify(hook).error(any(), any(ErrorDetails.class), any());
     }
 
     private Client getClient(FeatureProvider provider) {

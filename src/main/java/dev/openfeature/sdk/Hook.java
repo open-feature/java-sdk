@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.exceptions.ExceptionUtils;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,9 +36,22 @@ public interface Hook<T> {
      * Run when evaluation encounters an error. This will always run. Errors thrown will be swallowed.
      *
      * @param ctx   Information about the particular flag evaluation
-     * @param error The exception that was thrown.
+     * @param error The error details might contain an exception that was thrown.
      * @param hints An immutable mapping of data for users to communicate to the hooks.
      */
+    default void error(HookContext<T> ctx, ErrorDetails<T> error, Map<String, Object> hints) {
+        error(ctx, ExceptionUtils.instantiateErrorByErrorCode(error.getErrorCode(), error.getErrorMessage()), hints);
+    }
+
+    /**
+     * Run when evaluation encounters an error. This will always run. Errors thrown will be swallowed.
+     *
+     * @param ctx   Information about the particular flag evaluation
+     * @param error The exception that was thrown or instantiated.
+     * @param hints An immutable mapping of data for users to communicate to the hooks.
+     * @deprecated Please use ErrorDetails instead of Exceptions.
+     */
+    @Deprecated
     default void error(HookContext<T> ctx, Exception error, Map<String, Object> hints) {}
 
     /**
