@@ -11,7 +11,7 @@ import lombok.With;
  * @param <T> the type for the flag being evaluated
  */
 @Value
-@Builder
+@Builder(toBuilder = true)
 @With
 public class HookContext<T> {
     @NonNull String flagKey;
@@ -24,6 +24,12 @@ public class HookContext<T> {
 
     ClientMetadata clientMetadata;
     Metadata providerMetadata;
+
+    /**
+     * Hook data provides a way for hooks to maintain state across their execution stages.
+     * Each hook instance gets its own isolated data store.
+     */
+    HookData hookData;
 
     /**
      * Builds a {@link HookContext} instances from request data.
@@ -51,6 +57,7 @@ public class HookContext<T> {
                 .providerMetadata(providerMetadata)
                 .ctx(ctx)
                 .defaultValue(defaultValue)
+                .hookData(null) // Explicitly set to null for backward compatibility
                 .build();
     }
 }
