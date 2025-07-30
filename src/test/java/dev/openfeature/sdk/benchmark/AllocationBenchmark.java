@@ -60,6 +60,7 @@ public class AllocationBenchmark {
         EvaluationContext invocationContext = new ImmutableContext(invocationAttrs);
 
         for (int i = 0; i < ITERATIONS; i++) {
+            System.out.println("Iteration: " + i);
             client.getBooleanValue(BOOLEAN_FLAG_KEY, false);
             client.getStringValue(STRING_FLAG_KEY, "default");
             client.getIntegerValue(INT_FLAG_KEY, 0);
