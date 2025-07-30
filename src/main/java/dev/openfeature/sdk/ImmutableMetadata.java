@@ -117,8 +117,10 @@ public class ImmutableMetadata {
         return new ImmutableMetadataBuilder();
     }
 
+    /**
+     * Immutable builder for {@link ImmutableMetadata}.
+     */
     public static class ImmutableMetadataBuilder {
-
         private final Map<String, Object> metadata;
 
         private ImmutableMetadataBuilder() {
