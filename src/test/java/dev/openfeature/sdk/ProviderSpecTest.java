@@ -40,6 +40,9 @@ public class ProviderSpecTest {
         ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new ImmutableContext());
         assertNotNull(int_result.getValue());
 
+        ProviderEvaluation<Number> number_result = p.getNumberEvaluation("key", 2L, new ImmutableContext());
+        assertNotNull(number_result.getValue());
+
         ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new ImmutableContext());
         assertNotNull(double_result.getValue());
 
@@ -96,6 +99,9 @@ public class ProviderSpecTest {
     void variant_set() {
         ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new ImmutableContext());
         assertNotNull(int_result.getReason());
+
+        ProviderEvaluation<Number> number_result = p.getNumberEvaluation("key", 2L, new ImmutableContext());
+        assertNotNull(number_result.getReason());
 
         ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new ImmutableContext());
         assertNotNull(double_result.getReason());

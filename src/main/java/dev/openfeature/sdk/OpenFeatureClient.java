@@ -287,9 +287,11 @@ public class OpenFeatureClient implements Client {
             case STRING:
                 return provider.getStringEvaluation(key, (String) defaultValue, invocationContext);
             case INTEGER:
-                return provider.getIntegerEvaluation(key, (Integer) defaultValue, invocationContext);
+                return provider.getNumberEvaluation(key, (Integer) defaultValue, invocationContext);
+            case NUMBER:
+                return provider.getNumberEvaluation(key, (Number) defaultValue, invocationContext);
             case DOUBLE:
-                return provider.getDoubleEvaluation(key, (Double) defaultValue, invocationContext);
+                return provider.getNumberEvaluation(key, (Double) defaultValue, invocationContext);
             case OBJECT:
                 return provider.getObjectEvaluation(key, (Value) defaultValue, invocationContext);
             default:
