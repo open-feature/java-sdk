@@ -21,7 +21,7 @@ public interface FeatureProvider {
      * @param key          the unique identifier for the flag
      * @param defaultValue the default value to return if the flag cannot be resolved
      * @param ctx          the evaluation context containing any relevant information for resolution
-     * @return a {@link ProviderEvaluation} containing the resolved {@code Number} value and additional evaluation details
+     * @return a {@link ProviderEvaluation} containing the resolved {@code Number} value and additional eval details
      */
     default ProviderEvaluation<Number> getNumberEvaluation(String key, Number defaultValue, EvaluationContext ctx) {
         ProviderEvaluation<Double> dep = getDoubleEvaluation(key, defaultValue.doubleValue(), ctx);
@@ -39,12 +39,16 @@ public interface FeatureProvider {
     ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx);
 
     /**
+     * Evaluate feature flag returning an integer value.
+     *
      * @deprecated please use {@link #getNumberEvaluation(String, Number, EvaluationContext)}
      */
     @Deprecated
     ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx);
 
     /**
+     * Evaluate a feature flag returning a double value.
+     *
      * @deprecated please use {@link #getNumberEvaluation(String, Number, EvaluationContext)}
      */
     @Deprecated
