@@ -16,7 +16,7 @@ jobs:
                 - java: 11
                   profile: java11
     name: with Java ${{ matrix.build.java }}
-    runs-on: ${{ matrix.os}}
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Check out the code
         uses: actions/checkout@8edcb1bdb4e267140fa742c62e395cd74f332709
@@ -53,6 +53,10 @@ jobs:
           name: coverage # optional
           fail_ci_if_error: true # optional (default = false)
           verbose: true # optional (default = false)
+
+      - if: matrix.build.java == '17'
+        name: Run JMH benchmark
+        run: mvn --activate-profiles benchmark jmh:benchmark "-Djmh.rf=json" "-Djmh.rff=benchmark/results/results.json"
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@4474150eef8c855ab74a7f19f3ae525e469d2de6
