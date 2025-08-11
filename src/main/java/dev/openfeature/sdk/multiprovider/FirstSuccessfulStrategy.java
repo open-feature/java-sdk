@@ -1,9 +1,9 @@
 package dev.openfeature.sdk.multiprovider;
 
+import dev.openfeature.sdk.ErrorCode;
 import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.ProviderEvaluation;
-import dev.openfeature.sdk.exceptions.GeneralError;
 import java.util.Map;
 import java.util.function.Function;
 import lombok.NoArgsConstructor;
@@ -32,10 +32,13 @@ public class FirstSuccessfulStrategy implements Strategy {
                     return res;
                 }
             } catch (Exception e) {
-                log.debug("evaluation exception {}", e.getMessage());
+                log.debug("evaluation exception {}", key, e);
             }
         }
 
-        throw new GeneralError("evaluation error");
+        return ProviderEvaluation.<T>builder()
+                .errorMessage("No provider successfully responded")
+                .errorCode(ErrorCode.GENERAL)
+                .build();
     }
 }

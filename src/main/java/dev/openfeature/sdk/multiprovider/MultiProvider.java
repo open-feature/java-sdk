@@ -81,7 +81,7 @@ public class MultiProvider extends EventProvider {
         var metadataBuilder = MultiProviderMetadata.builder();
         metadataBuilder.name(NAME);
         HashMap<String, Metadata> providersMetadata = new HashMap<>();
-        ExecutorService initPool = Executors.newFixedThreadPool(Math.min(INIT_THREADS_COUNT, providers.size()));
+        ExecutorService executorService = Executors.newFixedThreadPool(Math.min(INIT_THREADS_COUNT, providers.size()));
         Collection<Callable<Boolean>> tasks = new ArrayList<>(providers.size());
         for (FeatureProvider provider : providers.values()) {
             tasks.add(() -> {
@@ -92,14 +92,14 @@ public class MultiProvider extends EventProvider {
             providersMetadata.put(providerMetadata.getName(), providerMetadata);
         }
         metadataBuilder.originalMetadata(providersMetadata);
-        List<Future<Boolean>> results = initPool.invokeAll(tasks);
+        List<Future<Boolean>> results = executorService.invokeAll(tasks);
         for (Future<Boolean> result : results) {
             if (!result.get()) {
-                initPool.shutdown();
+                executorService.shutdown();
                 throw new GeneralError("init failed");
             }
         }
-        initPool.shutdown();
+        executorService.shutdown();
         metadata = metadataBuilder.build();
     }
 

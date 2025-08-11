@@ -3,11 +3,9 @@ package dev.openfeature.sdk.multiProvider;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import dev.openfeature.sdk.ErrorCode;
 import dev.openfeature.sdk.ProviderEvaluation;
-import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 import dev.openfeature.sdk.multiprovider.FirstMatchStrategy;
 import org.junit.jupiter.api.Test;
 
@@ -42,8 +40,6 @@ class FirstMatchStrategyTest extends BaseStrategyTest {
                 DEFAULT_STRING,
                 null,
                 p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
-
-        assertNotNull(result);
         assertEquals(ErrorCode.PARSE_ERROR, result.getErrorCode());
     }
 
@@ -68,16 +64,15 @@ class FirstMatchStrategyTest extends BaseStrategyTest {
         setupProviderFlagNotFound(mockProvider1);
         setupProviderFlagNotFound(mockProvider2);
         setupProviderFlagNotFound(mockProvider3);
-        FlagNotFoundError exception = assertThrows(FlagNotFoundError.class, () -> {
-            strategy.evaluate(
-                    orderedProviders,
-                    FLAG_KEY,
-                    DEFAULT_STRING,
-                    null,
-                    p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
-        });
+        ProviderEvaluation<String> providerEvaluation = strategy.evaluate(
+                orderedProviders,
+                FLAG_KEY,
+                DEFAULT_STRING,
+                null,
+                p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
 
-        assertEquals("flag not found", exception.getMessage());
+        assertEquals(ErrorCode.GENERAL, providerEvaluation.getErrorCode());
+        assertEquals("No provider successfully responded", providerEvaluation.getErrorMessage());
     }
 
     @Test

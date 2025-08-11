@@ -9,13 +9,13 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import dev.openfeature.sdk.ErrorCode;
 import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.Metadata;
 import dev.openfeature.sdk.MutableContext;
 import dev.openfeature.sdk.ProviderEvaluation;
 import dev.openfeature.sdk.Value;
-import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.multiprovider.FirstMatchStrategy;
 import dev.openfeature.sdk.multiprovider.MultiProvider;
@@ -80,7 +80,6 @@ class MultiProviderTest extends BaseStrategyTest {
         Strategy mockStrategy = mock(Strategy.class);
         MultiProvider multiProvider = new MultiProvider(providers, mockStrategy);
         multiProvider.initialize(null);
-        assertNotNull(multiProvider);
         MultiProviderMetadata metadata = (MultiProviderMetadata) multiProvider.getMetadata();
         Map<String, Metadata> map = metadata.getOriginalMetadata();
         assertEquals(mockMetaData1, map.get(mockProvider1.getMetadata().getName()));
@@ -101,7 +100,9 @@ class MultiProviderTest extends BaseStrategyTest {
         assertEquals(
                 "v1",
                 multiProvider.getObjectEvaluation("o1", null, null).getValue().asString());
-        assertThrows(FlagNotFoundError.class, () -> multiProvider.getStringEvaluation("non-existing", "", null));
+        ProviderEvaluation<String> providerEvaluation = multiProvider.getStringEvaluation("non-existing", "", null);
+        assertEquals(ErrorCode.GENERAL, providerEvaluation.getErrorCode());
+        assertEquals("No provider successfully responded", providerEvaluation.getErrorMessage());
     }
 
     @SneakyThrows

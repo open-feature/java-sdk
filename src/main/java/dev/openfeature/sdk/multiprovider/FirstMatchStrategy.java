@@ -2,6 +2,7 @@ package dev.openfeature.sdk.multiprovider;
 
 import static dev.openfeature.sdk.ErrorCode.FLAG_NOT_FOUND;
 
+import dev.openfeature.sdk.ErrorCode;
 import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.ProviderEvaluation;
@@ -45,9 +46,12 @@ public class FirstMatchStrategy implements Strategy {
                     return res;
                 }
             } catch (FlagNotFoundError e) {
-                log.debug("flag not found {}", e.getMessage());
+                log.debug("flag not found {}", key, e);
             }
         }
-        throw new FlagNotFoundError("flag not found");
+        return ProviderEvaluation.<T>builder()
+                .errorMessage("No provider successfully responded")
+                .errorCode(ErrorCode.GENERAL)
+                .build();
     }
 }
