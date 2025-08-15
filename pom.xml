@@ -12,7 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
-        <org.mockito.version>5.18.0</org.mockito.version>
+        <org.mockito.version>5.19.0</org.mockito.version>
         <!-- exclusion expression for e2e tests -->
         <testExclusions>**/e2e/*.java</testExclusions>
         <module-name>${project.groupId}.${project.artifactId}</module-name>
