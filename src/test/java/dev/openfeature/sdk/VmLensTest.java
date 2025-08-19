@@ -9,6 +9,7 @@ import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Javadoc.
  */
+@EnabledIfSystemProperty(named = "--activate-profiles", matches = "vmlens")
 class VmLensTest {
     final OpenFeatureAPI api = new OpenFeatureAPI();
 
@@ -31,6 +33,11 @@ class VmLensTest {
     void tearDown() {
         api.clearHooks();
         api.shutdown();
+    }
+
+    @Test
+    void fail(){
+        assertTrue(false);
     }
 
     @Test
