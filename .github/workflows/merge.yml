@@ -21,9 +21,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
+    - uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493
     - name: Set up JDK 17
-      uses: actions/setup-java@c190c18febcf6c040d80b10ea201a05a2c320263
+      uses: actions/setup-java@e9343db97e09d87a3c50e544105d99fe912c204b
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -33,7 +33,7 @@ jobs:
         server-password: ${{ secrets.CENTRAL_PASSWORD }}
 
     - name: Cache local Maven repository
-      uses: actions/cache@640a1c2554105b57832a23eea0b4672fc7a790d5
+      uses: actions/cache@638ed79f9dc94c1de1baef91bcab5edaa19451f4
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-17-maven-${{ hashFiles('**/pom.xml') }}
