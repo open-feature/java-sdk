@@ -44,7 +44,7 @@ jobs:
         # run tests with vmlens
       - if: matrix.build.java == '17'
         name: Test with vmlens
-        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} vmlens-maven-plugin:test
+        run: mvn --activate-profiles e2e,${{ matrix.build.profile }} vmlens-maven-plugin:test
 
         # verify, but skip test step, as this was already done in the step before
       - if: matrix.build.java == '17'
