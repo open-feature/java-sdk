@@ -24,8 +24,16 @@ import org.junit.jupiter.api.Test;
 class VmLensTest {
     final OpenFeatureAPI api = OpenFeatureAPITestUtil.createAPI();
 
+    // todo add tests:
+    // concurrent changing of context thorugh client.setctx... and flags with a targeting rule depending on that context
+    // concurrent setting of context thorugh client.setctx... and flags with a targeting rule depending on that context
+    // concurrent changing of context through a hook and flags with a targeting rule depending on that context
+    // concurrent setting of context through a hook and flags with a targeting rule depending on that context
+
+
     @BeforeEach
     void setUp() {
+        System.out.println("VmLensTest.setUp");
         var flags = new HashMap<String, Flag<?>>();
         flags.put("a", Flag.builder().variant("a", "def").defaultVariant("a").build());
         flags.put("b", Flag.builder().variant("a", "as").defaultVariant("a").build());
@@ -34,14 +42,17 @@ class VmLensTest {
 
     @AfterEach
     void tearDown() {
+        System.out.println("VmLensTest.tearDown");
         api.clearHooks();
         api.shutdown();
     }
 
     @Test
     void concurrentClientCreations() {
+        System.out.println("VmLensTest.concurrentClientCreations");
         try (AllInterleavings allInterleavings = new AllInterleavings("Concurrent creations of the Client")) {
             while (allInterleavings.hasNext()) {
+                System.out.println("iteration");
                 Runner.runParallel(api::getClient, api::getClient);
             }
         }
@@ -51,9 +62,11 @@ class VmLensTest {
 
     @Test
     void concurrentFlagEvaluations() {
+        System.out.println("VmLensTest.concurrentFlagEvaluations");
         var client = api.getClient();
         try (AllInterleavings allInterleavings = new AllInterleavings("Concurrent evaluations")) {
             while (allInterleavings.hasNext()) {
+                System.out.println("iteration");
                 Runner.runParallel(
                         () -> assertEquals("def", client.getStringValue("a", "a")),
                         () -> assertEquals("as", client.getStringValue("b", "b")));
@@ -63,9 +76,11 @@ class VmLensTest {
 
     @Test
     void concurrentFlagEvaluationsAndHookAdditions() {
+        System.out.println("VmLensTest.concurrentFlagEvaluationsAndHookAdditions");
         var client = api.getClient();
         try (AllInterleavings allInterleavings = new AllInterleavings("Concurrent evaluations and hook additions")) {
             while (allInterleavings.hasNext()) {
+                System.out.println("iteration");
                 Runner.runParallel(
                         () -> assertEquals("def", client.getStringValue("a", "a")),
                         () -> client.addHooks(new StringHook() {}));
@@ -75,10 +90,12 @@ class VmLensTest {
 
     @Test
     void concurrentContextSetting() {
+        System.out.println("VmLensTest.concurrentContextSetting");
         var client = api.getClient();
         try (AllInterleavings allInterleavings =
                 new AllInterleavings("Concurrently setting the context and evaluating a flag")) {
             while (allInterleavings.hasNext()) {
+                System.out.println("iteration");
                 Runner.runParallel(
                         () -> assertEquals("def", client.getStringValue("a", "a")),
                         () -> client.setEvaluationContext(new ImmutableContext(Map.of("a", new Value("b")))),
