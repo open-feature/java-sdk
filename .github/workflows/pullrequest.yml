@@ -41,18 +41,16 @@ jobs:
             restore-keys: |
                 ${{ runner.os }}${{ matrix.build.java }}-maven-
 
-        # run tests with vmlens
-      - if: matrix.build.java == '17'
-        name: Test with vmlens
-        run: mvn --activate-profiles e2e,${{ matrix.build.profile }} clean compile vmlens-maven-plugin:test
-
-        # verify, but skip test step, as this was already done in the step before
       - if: matrix.build.java == '17'
         name: Verify
-        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify -DskipTests
+        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify
+
+      - if: matrix.build.java == '17'
+        name: Verify with VmLens
+        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} vmlens-maven-plugin:test
 
       - if: matrix.build.java != '17'
-        name: Verify with vmlens
+        name: Verify
         run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify
 
       - if: matrix.build.java == '17'
