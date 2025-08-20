@@ -2,25 +2,16 @@ package dev.openfeature.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
-import com.vmlens.api.AllInterleavings;
 import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.providers.memory.Flag;
-import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -112,65 +103,5 @@ class OpenFeatureClientTest implements HookFixtures {
         FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);
 
         assertThat(details.getErrorCode()).isEqualTo(ErrorCode.PROVIDER_NOT_READY);
-    }
-
-    //@Test
-    void a() throws InterruptedException {
-        OpenFeatureAPI api = new OpenFeatureAPI();
-
-        var flags = new HashMap<String, Flag<?>>();
-        flags.put("a", Flag.builder().variant("a", "def").defaultVariant("a").build());
-        flags.put("b", Flag.builder().variant("a", "as").defaultVariant("a").build());
-        flags.put("c", Flag.builder().variant("a", "dfs").defaultVariant("a").build());
-        flags.put("d", Flag.builder().variant("a", "asddd").defaultVariant("a").build());
-        api.setProviderAndWait(new InMemoryProvider(flags));
-
-        var countDownLatch = new CountDownLatch(1);
-        var client = new OpenFeatureClient(api, "name", "version");
-        var isRunning = new AtomicBoolean(true);
-        var eval = new Thread(() -> {
-            try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            System.out.println("starting eval");
-            while (isRunning.get()) {
-                client.getStringValue("a", "def");
-                client.getStringValue("b", "def");
-                client.getStringValue("c", "def");
-                client.getStringValue("d", "def");
-            }
-        });
-        var hook = new Thread(() -> {
-            try {
-                countDownLatch.await();
-                Thread.sleep(5);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            System.out.println("starting hook");
-            while (isRunning.get()) {
-                for (int i = 0; i < 100; i++) {
-
-                    client.addHooks(new Hook() {});
-                }
-
-                for (int i = 0; i < 90; i++) {
-
-                    client.getHooks().remove(4);
-                }
-            }
-        });
-
-        eval.start();
-        hook.start();
-        Thread.sleep(100);
-        countDownLatch.countDown();
-        Thread.sleep(40000);
-        isRunning.set(false);
-        eval.join();
-        hook.join();
-        System.out.println(client.getHooks().size());
     }
 }

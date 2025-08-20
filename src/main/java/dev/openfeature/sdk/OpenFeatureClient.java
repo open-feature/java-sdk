@@ -1,14 +1,11 @@
 package dev.openfeature.sdk;
 
-import com.vmlens.api.AllInterleavings;
 import dev.openfeature.sdk.exceptions.ExceptionUtils;
 import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
 import dev.openfeature.sdk.internal.ObjectUtils;
-import dev.openfeature.sdk.providers.memory.Flag;
-import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import lombok.Getter;
@@ -518,118 +514,5 @@ public class OpenFeatureClient implements Client {
     public Client removeHandler(ProviderEvent event, Consumer<EventDetails> handler) {
         openfeatureApi.removeHandler(domain, event, handler);
         return this;
-    }
-
-    static int jaVar = 0;
-
-    /**
-     * run.
-     *
-     * @param args the args
-     * @throws InterruptedException something
-     */
-    public static void main(String[] args) throws InterruptedException {
-
-        System.out.println("OpenFeatureClientTest.testUpdate");
-        final OpenFeatureAPI api = new OpenFeatureAPI();
-
-        var flags = new HashMap<String, Flag<?>>();
-        flags.put("a", Flag.builder().variant("a", "def").defaultVariant("a").build());
-        flags.put("b", Flag.builder().variant("a", "as").defaultVariant("a").build());
-        flags.put("c", Flag.builder().variant("a", "dfs").defaultVariant("a").build());
-        flags.put("d", Flag.builder().variant("a", "asddd").defaultVariant("a").build());
-        api.setProviderAndWait(new InMemoryProvider(flags));
-        var i = 0;
-        var c = new AtomicInteger();
-
-        System.out.println("before try");
-        try (AllInterleavings allInterleavings = new AllInterleavings("Concurrent evaluations and hook additions")) {
-            while (allInterleavings.hasNext()) {
-                c.incrementAndGet();
-                jaVar = 0;
-                Thread first = new Thread() {
-                    @Override
-                    public void run() {
-                        jaVar++;
-                    }
-                };
-                first.start();
-                jaVar++;
-                first.join();
-                if (jaVar != 2) {
-                    throw new RuntimeException("jaVar=" + jaVar);
-                }
-                /*
-                var client = api.getClient();
-                var firstReady = new Awaitable();
-                var secondReady = new Awaitable();
-                var startThreads = new Awaitable();
-                Thread first = new Thread() {
-                    @Override
-                    public void run() {
-                        firstReady.wakeup();
-                        startThreads.await();
-                        client.getStringValue("a", "a");
-                    }
-                };
-                Thread hookAdder = new Thread() {
-                    @Override
-                    public void run() {
-                        secondReady.wakeup();
-                        startThreads.await();
-                        client.addHooks(new Hook() {});
-                    }
-                };
-                hookAdder.start();
-                first.start();
-                firstReady.await();
-                secondReady.await();
-                startThreads.wakeup();
-                first.join();
-                hookAdder.join();
-*/
-                /*System.out.println("has interlereaving");
-                i++;
-                //var latch = new CountDownLatch(1);
-                var client = api.getClient();
-                var concurrentModException = new AtomicReference<ConcurrentModificationException>();
-                Thread eval = new Thread(() -> {
-                    System.out.println("eval");
-                    try {
-                        latch.await();
-                    } catch (InterruptedException ignored) {
-                    }
-                    client.getStringValue("a", "a");
-                    client.getStringValue("b", "a");
-                    client.getStringValue("c", "a");
-                    client.getStringValue("d", "a");
-
-                });
-                Thread hookAdder = new Thread(() -> {
-                    System.out.println("hook adder");
-                    try {
-                        latch.await();
-                    } catch (InterruptedException ignored) {
-                    }
-                    client.addHooks(new Hook() {});
-
-                });
-                System.out.println("starting...");
-                //eval.start();
-                //hookAdder.start();
-                System.out.println("started");
-                Thread.sleep(200);
-                client.getStringValue("d", "a");
-                client.addHooks(new Hook() {});
-                client.getStringValue("d", "a");
-                //latch.countDown();
-                eval.join();
-                hookAdder.join();
-                System.out.println(concurrentModException.get());*/
-            }
-        }
-        System.out.println("i = " + i);
-        System.out.println("jaVar = " + jaVar);
-        System.out.println("c.get() = " + c.get());
     }
 }

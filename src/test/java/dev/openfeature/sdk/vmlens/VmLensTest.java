@@ -1,7 +1,15 @@
-package dev.openfeature.sdk;
+package dev.openfeature.sdk.vmlens;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.vmlens.api.AllInterleavings;
 import com.vmlens.api.Runner;
+import dev.openfeature.sdk.ImmutableContext;
+import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.OpenFeatureAPITestUtil;
+import dev.openfeature.sdk.StringHook;
+import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import java.util.HashMap;
@@ -9,17 +17,12 @@ import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Javadoc.
  */
-@EnabledIfSystemProperty(named = "--activate-profiles", matches = "vmlens")
 class VmLensTest {
-    final OpenFeatureAPI api = new OpenFeatureAPI();
+    final OpenFeatureAPI api = OpenFeatureAPITestUtil.createAPI();
 
     @BeforeEach
     void setUp() {
@@ -36,8 +39,14 @@ class VmLensTest {
     }
 
     @Test
-    void fail(){
-        assertTrue(false);
+    void concurrentClientCreations() {
+        try (AllInterleavings allInterleavings = new AllInterleavings("Concurrent creations of the Client")) {
+            while (allInterleavings.hasNext()) {
+                Runner.runParallel(api::getClient, api::getClient);
+            }
+        }
+        // keep the linter happy
+        assertTrue(true);
     }
 
     @Test
@@ -47,8 +56,7 @@ class VmLensTest {
             while (allInterleavings.hasNext()) {
                 Runner.runParallel(
                         () -> assertEquals("def", client.getStringValue("a", "a")),
-                        () -> assertEquals("as", client.getStringValue("b", "b"))
-                );
+                        () -> assertEquals("as", client.getStringValue("b", "b")));
             }
         }
     }
@@ -60,42 +68,21 @@ class VmLensTest {
             while (allInterleavings.hasNext()) {
                 Runner.runParallel(
                         () -> assertEquals("def", client.getStringValue("a", "a")),
-                        () -> client.addHooks(new StringHook() {})
-                );
+                        () -> client.addHooks(new StringHook() {}));
             }
         }
-    }
-// todo add tests:
-    // concurrent changing of context thorugh client.setctx... and flags with a targeting rule depending on that context
-    // concurrent setting of context thorugh client.setctx... and flags with a targeting rule depending on that context
-    // concurrent changing of context through a hook and flags with a targeting rule depending on that context
-    // concurrent setting of context through a hook and flags with a targeting rule depending on that context
-
-    @Test
-    void concurrentClientCreations() {
-        try (AllInterleavings allInterleavings = new AllInterleavings("Concurrent creations of the Client")) {
-            while (allInterleavings.hasNext()) {
-                Runner.runParallel(
-                        api::getClient,
-                        api::getClient
-                );
-            }
-        }
-        // keep the linter happy
-        assertTrue(true);
     }
 
     @Test
     void concurrentContextSetting() {
         var client = api.getClient();
-        try (AllInterleavings allInterleavings = new AllInterleavings(
-                "Concurrently setting the context and evaluating a flag")) {
+        try (AllInterleavings allInterleavings =
+                new AllInterleavings("Concurrently setting the context and evaluating a flag")) {
             while (allInterleavings.hasNext()) {
                 Runner.runParallel(
                         () -> assertEquals("def", client.getStringValue("a", "a")),
                         () -> client.setEvaluationContext(new ImmutableContext(Map.of("a", new Value("b")))),
-                        () -> client.setEvaluationContext(new ImmutableContext(Map.of("c", new Value("d"))))
-                );
+                        () -> client.setEvaluationContext(new ImmutableContext(Map.of("c", new Value("d")))));
             }
         }
     }
