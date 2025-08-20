@@ -21,7 +21,7 @@ jobs:
       - name: Check out the code
         uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493
 
-      - name: Set up the JDK
+      - name: Set up JDK ${{ matrix.build.java }}
         uses: actions/setup-java@e9343db97e09d87a3c50e544105d99fe912c204b
         with:
             java-version: ${{ matrix.build.java }}
@@ -41,12 +41,19 @@ jobs:
             restore-keys: |
                 ${{ runner.os }}${{ matrix.build.java }}-maven-
 
-      - name: Verify with Maven
-        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify
-
+        # run tests with vmlens
       - if: matrix.build.java == '17'
+        name: Test with vmlens
+        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} vmlens-maven-plugin:test
+
+        # verify, but skip test step, as this was already done in the step before
+      - if: matrix.build.java == '17'
+        name: Verify
+        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify -DskipTests
+
+      - if: matrix.build.java != '17'
         name: Verify with vmlens
-        run: mvn vmlens-maven-plugin:test --activate-profiles e2e,${{ matrix.build.profile }}
+        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify
 
       - if: matrix.build.java == '17'
         name: Upload coverage to Codecov
