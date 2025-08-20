@@ -304,23 +304,6 @@
                     </archive>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.vmlens</groupId>
-                <artifactId>vmlens-maven-plugin</artifactId>
-                <version>1.2.11</version>
-                <executions>
-                    <execution>
-                        <id>test</id>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <agentDirectory>vmlens-agent</agentDirectory>
-                            <failIfNoTests>true</failIfNoTests>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
@@ -332,6 +315,23 @@
             </activation>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>com.vmlens</groupId>
+                        <artifactId>vmlens-maven-plugin</artifactId>
+                        <version>1.2.11</version>
+                        <executions>
+                            <execution>
+                                <id>test</id>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <agentDirectory>vmlens-agent</agentDirectory>
+                                    <failIfNoTests>true</failIfNoTests>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <version>3.8.1</version>

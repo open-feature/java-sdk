@@ -46,7 +46,7 @@ jobs:
 
       - if: matrix.build.java == '17'
         name: Verify with vmlens
-        run: mvn vmlens-maven-plugin:test -e -X
+        run: mvn vmlens-maven-plugin:test --activate-profiles e2e,${{ matrix.build.profile }}
 
       - if: matrix.build.java == '17'
         name: Upload coverage to Codecov
