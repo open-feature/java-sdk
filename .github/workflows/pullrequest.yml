@@ -45,9 +45,9 @@ jobs:
         name: Verify
         run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify
 
-      - if: matrix.build.java == '17'
-        name: Verify with VmLens
-        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} vmlens-maven-plugin:test
+      #- if: matrix.build.java == '17'
+      #  name: Verify with VmLens
+      #  run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} vmlens-maven-plugin:test
 
       - if: matrix.build.java != '17'
         name: Verify

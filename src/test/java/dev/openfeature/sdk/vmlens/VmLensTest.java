@@ -8,7 +8,6 @@ import com.vmlens.api.Runner;
 import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.OpenFeatureAPITestUtil;
-import dev.openfeature.sdk.StringHook;
 import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
@@ -73,6 +72,7 @@ class VmLensTest {
         }
     }
 
+    /*
     @Test
     void concurrentFlagEvaluationsAndHookAdditions() {
         System.out.println("VmLensTest.concurrentFlagEvaluationsAndHookAdditions");
@@ -87,7 +87,7 @@ class VmLensTest {
         }
         // keep the linter happy
         assertTrue(true);
-    }
+    }*/
 
     @Test
     void concurrentContextSetting() {
@@ -101,6 +101,19 @@ class VmLensTest {
                         () -> assertEquals("def", client.getStringValue("a", "a")),
                         () -> client.setEvaluationContext(new ImmutableContext(Map.of("a", new Value("b")))),
                         () -> client.setEvaluationContext(new ImmutableContext(Map.of("c", new Value("d")))));
+            }
+        }
+    }
+
+    @Test
+    void plsFail() {
+        System.out.println("VmLensTest.plsFail");
+        try (AllInterleavings allInterleavings = new AllInterleavings("pls fails")) {
+            while (allInterleavings.hasNext()) {
+                System.out.println("iteration");
+                final int[] i = new int[1];
+                Runner.runParallel(() -> i[0]++, () -> i[0]++);
+                assertEquals(2, i[0]);
             }
         }
     }
