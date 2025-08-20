@@ -21,7 +21,7 @@ jobs:
       - name: Check out the code
         uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493
 
-      - name: Set up JDK 11
+      - name: Set up the JDK
         uses: actions/setup-java@e9343db97e09d87a3c50e544105d99fe912c204b
         with:
             java-version: ${{ matrix.build.java }}
@@ -44,8 +44,9 @@ jobs:
       - name: Verify with Maven
         run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify
 
-      - name: Verify with vmlens
-        run: mvn vmlens-maven-plugin:test --activate-profiles e2e -e -X
+      - if: matrix.build.java == '17'
+        name: Verify with vmlens
+        run: mvn vmlens-maven-plugin:test -e -X
 
       - if: matrix.build.java == '17'
         name: Upload coverage to Codecov
