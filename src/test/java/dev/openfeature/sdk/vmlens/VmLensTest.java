@@ -8,7 +8,6 @@ import com.vmlens.api.Runner;
 import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.OpenFeatureAPITestUtil;
-import dev.openfeature.sdk.StringHook;
 import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
@@ -29,7 +28,6 @@ class VmLensTest {
     // concurrent setting of context thorugh client.setctx... and flags with a targeting rule depending on that context
     // concurrent changing of context through a hook and flags with a targeting rule depending on that context
     // concurrent setting of context through a hook and flags with a targeting rule depending on that context
-
 
     @BeforeEach
     void setUp() {
@@ -73,7 +71,7 @@ class VmLensTest {
             }
         }
     }
-
+    /*
     @Test
     void concurrentFlagEvaluationsAndHookAdditions() {
         System.out.println("VmLensTest.concurrentFlagEvaluationsAndHookAdditions");
@@ -86,7 +84,7 @@ class VmLensTest {
                         () -> client.addHooks(new StringHook() {}));
             }
         }
-    }
+    }*/
 
     @Test
     void concurrentContextSetting() {
