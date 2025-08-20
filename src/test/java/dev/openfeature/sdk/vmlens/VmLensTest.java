@@ -72,23 +72,6 @@ class VmLensTest {
         }
     }
 
-    /*
-    @Test
-    void concurrentFlagEvaluationsAndHookAdditions() {
-        System.out.println("VmLensTest.concurrentFlagEvaluationsAndHookAdditions");
-        var client = api.getClient();
-        try (AllInterleavings allInterleavings = new AllInterleavings("Concurrent evaluations and hook additions")) {
-            while (allInterleavings.hasNext()) {
-                System.out.println("iteration");
-                Runner.runParallel(
-                        () -> client.getStringValue("a", "a"),
-                        () -> client.addHooks(new StringHook() {}));
-            }
-        }
-        // keep the linter happy
-        assertTrue(true);
-    }*/
-
     @Test
     void concurrentContextSetting() {
         System.out.println("VmLensTest.concurrentContextSetting");
@@ -101,19 +84,6 @@ class VmLensTest {
                         () -> assertEquals("def", client.getStringValue("a", "a")),
                         () -> client.setEvaluationContext(new ImmutableContext(Map.of("a", new Value("b")))),
                         () -> client.setEvaluationContext(new ImmutableContext(Map.of("c", new Value("d")))));
-            }
-        }
-    }
-
-    @Test
-    void plsFail() {
-        System.out.println("VmLensTest.plsFail");
-        try (AllInterleavings allInterleavings = new AllInterleavings("pls fails")) {
-            while (allInterleavings.hasNext()) {
-                System.out.println("iteration");
-                final int[] i = new int[1];
-                Runner.runParallel(() -> i[0]++, () -> i[0]++);
-                assertEquals(2, i[0]);
             }
         }
     }
