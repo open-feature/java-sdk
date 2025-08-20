@@ -45,7 +45,7 @@ jobs:
         run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify
 
       - name: Verify with vmlens
-        run: mvn vmlens-maven-plugin:test
+        run: mvn vmlens-maven-plugin:test --activate-profiles e2e -e -X
 
       - if: matrix.build.java == '17'
         name: Upload coverage to Codecov
