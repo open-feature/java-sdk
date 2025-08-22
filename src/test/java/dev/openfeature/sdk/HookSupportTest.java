@@ -55,31 +55,22 @@ class HookSupportTest implements HookFixtures {
                 () -> "client",
                 () -> "provider");
 
+        FlagEvaluationDetails<Object> details = FlagEvaluationDetails.builder().build();
+        ErrorDetails<Object> error = ErrorDetails.from(expectedException, details);
+
         hookSupport.beforeHooks(
                 flagValueType, hookContext, Collections.singletonList(genericHook), Collections.emptyMap());
         hookSupport.afterHooks(
-                flagValueType,
-                hookContext,
-                FlagEvaluationDetails.builder().build(),
-                Collections.singletonList(genericHook),
-                Collections.emptyMap());
+                flagValueType, hookContext, details, Collections.singletonList(genericHook), Collections.emptyMap());
         hookSupport.afterAllHooks(
-                flagValueType,
-                hookContext,
-                FlagEvaluationDetails.builder().build(),
-                Collections.singletonList(genericHook),
-                Collections.emptyMap());
+                flagValueType, hookContext, details, Collections.singletonList(genericHook), Collections.emptyMap());
         hookSupport.errorHooks(
-                flagValueType,
-                hookContext,
-                expectedException,
-                Collections.singletonList(genericHook),
-                Collections.emptyMap());
+                flagValueType, hookContext, error, Collections.singletonList(genericHook), Collections.emptyMap());
 
         verify(genericHook).before(any(), any());
         verify(genericHook).after(any(), any(), any());
         verify(genericHook).finallyAfter(any(), any(), any());
-        verify(genericHook).error(any(), any(), any());
+        verify(genericHook).error(any(), any(ErrorDetails.class), any());
     }
 
     private Object createDefaultValue(FlagValueType flagValueType) {
