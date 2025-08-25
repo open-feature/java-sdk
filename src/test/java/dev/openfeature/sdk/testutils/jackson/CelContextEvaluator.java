@@ -21,6 +21,7 @@ public class CelContextEvaluator<T> implements ContextEvaluator<T> {
             CelCompiler celCompiler = CelCompilerFactory.standardCelCompilerBuilder()
                     .addVar("customer", SimpleType.BOOL)
                     .addVar("email", SimpleType.STRING)
+                    .addVar("age", SimpleType.INT)
                     .addVar("dummy", SimpleType.STRING)
                     .setResultType(SimpleType.STRING)
                     // Add other variables you expect
@@ -40,7 +41,8 @@ public class CelContextEvaluator<T> implements ContextEvaluator<T> {
             Map<String, Object> objectMap = new HashMap<>();
             // Provide defaults for all declared variables to prevent runtime errors.
             objectMap.put("email", "");
-            objectMap.put("customer", "");
+            objectMap.put("customer", true);
+            objectMap.put("age", 0);
             objectMap.put("dummy", "");
 
             if (evaluationContext != null) {

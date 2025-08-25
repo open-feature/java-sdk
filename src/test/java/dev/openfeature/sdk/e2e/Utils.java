@@ -7,6 +7,8 @@ import java.util.Objects;
 
 public final class Utils {
 
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private Utils() {}
 
     public static Object convert(String value, String type) {
@@ -27,7 +29,7 @@ public final class Utils {
                 return Long.parseLong(value);
             case "object":
                 try {
-                    return Value.objectToValue(new ObjectMapper().readValue(value, Object.class));
+                    return Value.objectToValue(OBJECT_MAPPER.readValue(value, Object.class));
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }

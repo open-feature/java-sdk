@@ -1,5 +1,7 @@
 package dev.openfeature.sdk.testutils;
 
+import static dev.openfeature.sdk.e2e.Utils.OBJECT_MAPPER;
+
 import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,7 +43,7 @@ public class TestFlagsUtils {
      */
     public static synchronized Map<String, Flag<?>> buildFlags() {
         if (flags == null) {
-            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = OBJECT_MAPPER;
             objectMapper.configure(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature(), true);
             objectMapper.addMixIn(Flag.class, InMemoryFlagMixin.class);
             objectMapper.addMixIn(Flag.FlagBuilder.class, InMemoryFlagMixin.FlagBuilderMixin.class);
