@@ -36,11 +36,16 @@ public class CelContextEvaluator<T> implements ContextEvaluator<T> {
     @Override
     @SuppressWarnings("unchecked")
     public T evaluate(Flag flag, EvaluationContext evaluationContext) {
-        try {
-            Map<String, Object> objectMap = new HashMap<>(Map.of("email", ""));
+            Map<String, Object> objectMap = new HashMap<>();
+            // Provide defaults for all declared variables to prevent runtime errors.
+            objectMap.put("email", "");
+            objectMap.put("customer", "");
+            objectMap.put("dummy", "");
+
             if (evaluationContext != null) {
-                // Evaluate with context
+                // Evaluate with context, overriding defaults.
                 objectMap.putAll(evaluationContext.asObjectMap());
+            }
             }
 
             Object result = program.eval(objectMap);
