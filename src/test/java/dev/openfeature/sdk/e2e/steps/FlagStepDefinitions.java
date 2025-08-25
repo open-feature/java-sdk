@@ -97,8 +97,8 @@ public class FlagStepDefinitions {
     }
 
     @Then("the error message should contain {string}")
-    public void the_error_error_message_should_contain(String errorCode) {
-        assertThat(state.evaluation.getErrorMessage()).contains(errorCode);
+    public void the_error_message_should_contain(String messageSubstring) {
+        assertThat(state.evaluation.getErrorMessage()).contains(messageSubstring);
     }
 
     @Then("the resolved metadata value \"{}\" with type \"{}\" should be \"{}\"")
