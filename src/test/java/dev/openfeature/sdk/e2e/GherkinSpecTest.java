@@ -5,6 +5,7 @@ import static io.cucumber.junit.platform.engine.Constants.OBJECT_FACTORY_PROPERT
 import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;
 
 import org.junit.platform.suite.api.ConfigurationParameter;
+import org.junit.platform.suite.api.ExcludeTags;
 import org.junit.platform.suite.api.IncludeEngines;
 import org.junit.platform.suite.api.SelectDirectories;
 import org.junit.platform.suite.api.Suite;
@@ -15,4 +16,5 @@ import org.junit.platform.suite.api.Suite;
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "dev.openfeature.sdk.e2e.steps")
 @ConfigurationParameter(key = OBJECT_FACTORY_PROPERTY_NAME, value = "io.cucumber.picocontainer.PicoFactory")
-public class EvaluationTest {}
+@ExcludeTags({"deprecated"})
+public class GherkinSpecTest {}

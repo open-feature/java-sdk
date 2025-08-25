@@ -2,6 +2,7 @@ package dev.openfeature.sdk.e2e.steps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.openfeature.sdk.ErrorCode;
 import dev.openfeature.sdk.FlagEvaluationDetails;
 import dev.openfeature.sdk.ImmutableMetadata;
 import dev.openfeature.sdk.Value;
@@ -63,6 +64,11 @@ public class FlagStepDefinitions {
         assertThat(state.evaluation.getValue()).isEqualTo(Utils.convert(value, state.flag.type));
     }
 
+    @Then("the flag key should be {string}")
+    public void the_flag_key_should_be(String key) {
+        assertThat(state.evaluation.getFlagKey()).isEqualTo(key);
+    }
+
     @Then("the reason should be {string}")
     public void the_reason_should_be(String reason) {
         assertThat(state.evaluation.getReason()).isEqualTo(reason);
@@ -71,6 +77,20 @@ public class FlagStepDefinitions {
     @Then("the variant should be {string}")
     public void the_variant_should_be(String variant) {
         assertThat(state.evaluation.getVariant()).isEqualTo(variant);
+    }
+
+    @Then("the error-code should be {string}")
+    public void the_error_code_should_be(String errorCode) {
+        if (errorCode.isEmpty()) {
+            assertThat(state.evaluation.getErrorCode()).isNull();
+        } else {
+            assertThat(state.evaluation.getErrorCode()).isEqualTo(ErrorCode.valueOf(errorCode));
+        }
+    }
+
+    @Then("the error message should contain {string}")
+    public void the_error_error_message_should_contain(String errorCode) {
+        assertThat(state.evaluation.getErrorMessage()).contains(errorCode);
     }
 
     @Then("the resolved metadata value \"{}\" with type \"{}\" should be \"{}\"")
