@@ -114,9 +114,9 @@ public class ContextSteps {
     public void a_context_containing_a_key_with_type_and_with_value(String key, String type, String value)
             throws ClassNotFoundException, InstantiationException {
         Map<String, Value> map = state.context.asMap();
-        map.put(key, new Value(value));
+        Map<String, Value> map = state.context.asMap();
+        map.put(key, new Value(Utils.convert(value, type)));
         state.context = new MutableContext(state.context.getTargetingKey(), map);
-    }
 
     @Given("a context containing a targeting key with value {string}")
     public void a_context_containing_a_targeting_key_with_value(String string) {
