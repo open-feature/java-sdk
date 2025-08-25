@@ -138,11 +138,21 @@ public class InMemoryProvider extends EventProvider {
         }
         Flag<?> flag = flags.get(key);
         if (flag == null) {
-            throw new FlagNotFoundError("flag " + key + "not found");
+            throw new FlagNotFoundError("flag " + key + " not found");
         }
         T value;
+        Reason reason = Reason.STATIC;
         if (flag.getContextEvaluator() != null) {
-            value = (T) flag.getContextEvaluator().evaluate(flag, evaluationContext);
+            try {
+                value = (T) flag.getContextEvaluator().evaluate(flag, evaluationContext);
+                reason = Reason.TARGETING_MATCH;
+            } catch (Exception e) {
+                value = null;
+            }
+            if (value == null) {
+                value = (T) flag.getVariants().get(flag.getDefaultVariant());
+                reason = Reason.DEFAULT;
+            }
         } else if (!expectedType.isInstance(flag.getVariants().get(flag.getDefaultVariant()))) {
             throw new TypeMismatchError("flag " + key + "is not of expected type");
         } else {
@@ -151,7 +161,7 @@ public class InMemoryProvider extends EventProvider {
         return ProviderEvaluation.<T>builder()
                 .value(value)
                 .variant(flag.getDefaultVariant())
-                .reason(Reason.STATIC.toString())
+                .reason(reason.toString())
                 .flagMetadata(flag.getFlagMetadata())
                 .build();
     }
