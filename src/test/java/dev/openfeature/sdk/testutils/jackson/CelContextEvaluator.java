@@ -19,7 +19,7 @@ public class CelContextEvaluator<T> implements ContextEvaluator<T> {
             CelRuntime celRuntime =
                     CelRuntimeFactory.standardCelRuntimeBuilder().build();
             CelCompiler celCompiler = CelCompilerFactory.standardCelCompilerBuilder()
-                    .addVar("customer", SimpleType.STRING)
+                    .addVar("customer", SimpleType.BOOL)
                     .addVar("email", SimpleType.STRING)
                     .addVar("dummy", SimpleType.STRING)
                     .setResultType(SimpleType.STRING)
@@ -36,6 +36,7 @@ public class CelContextEvaluator<T> implements ContextEvaluator<T> {
     @Override
     @SuppressWarnings("unchecked")
     public T evaluate(Flag flag, EvaluationContext evaluationContext) {
+        try {
             Map<String, Object> objectMap = new HashMap<>();
             // Provide defaults for all declared variables to prevent runtime errors.
             objectMap.put("email", "");
@@ -45,7 +46,6 @@ public class CelContextEvaluator<T> implements ContextEvaluator<T> {
             if (evaluationContext != null) {
                 // Evaluate with context, overriding defaults.
                 objectMap.putAll(evaluationContext.asObjectMap());
-            }
             }
 
             Object result = program.eval(objectMap);

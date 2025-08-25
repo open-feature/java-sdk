@@ -1,13 +1,12 @@
 package dev.openfeature.sdk.testutils.jackson;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import dev.openfeature.sdk.MutableStructure;
 import dev.openfeature.sdk.Value;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -27,29 +26,24 @@ public class VariantsMapDeserializer extends JsonDeserializer<Map<String, Object
             JsonNode variantNode = field.getValue();
 
             // Convert the variant value to OpenFeature Value
-            Object variantValue = null;
-            try {
-                variantValue = convertToValue(variantNode);
-            } catch (InstantiationException e) {
-                throw new RuntimeException(e);
-            }
+            Object variantValue = convertToValue(p, variantNode);
             variants.put(variantKey, variantValue);
         }
 
         return variants;
     }
 
-    private Object convertToValue(JsonNode node) throws InstantiationException {
+    private Object convertToValue(JsonParser p, JsonNode node) throws JsonProcessingException {
         // If the node has a "value" property, use that
         if (node.isObject() && node.has("value")) {
-            return convertJsonNodeToValue(node.get("value"));
+            return convertJsonNodeToValue(p, node.get("value"));
         }
 
         // Otherwise, treat the entire node as the value
-        return convertJsonNodeToValue(node);
+        return convertJsonNodeToValue(p, node);
     }
 
-    private Object convertJsonNodeToValue(JsonNode node) throws InstantiationException {
+    private Object convertJsonNodeToValue(JsonParser p, JsonNode node) throws JsonProcessingException {
         if (node.isNull()) {
             return null;
         } else if (node.isBoolean()) {
@@ -61,24 +55,9 @@ public class VariantsMapDeserializer extends JsonDeserializer<Map<String, Object
         } else if (node.isTextual()) {
             return node.asText();
         } else if (node.isArray()) {
-            List<Object> list = new ArrayList<>();
-            for (JsonNode item : node) {
-                list.add(convertJsonNodeToValue(item));
-            }
-            return list;
+            return Value.objectToValue(p.getCodec().treeToValue(node, List.class));
         } else if (node.isObject()) {
-            Map<String, Value> map = new HashMap<>();
-            Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-            while (fields.hasNext()) {
-                Map.Entry<String, JsonNode> field = fields.next();
-                Object o = convertJsonNodeToValue(field.getValue());
-                if (o instanceof Value) {
-                    map.put(field.getKey(), (Value) o);
-                } else {
-                    map.put(field.getKey(), new Value(o));
-                }
-            }
-            return new Value(new MutableStructure(map));
+            return Value.objectToValue(p.getCodec().treeToValue(node, Object.class));
         }
 
         throw new IllegalArgumentException("Unsupported JSON node type: " + node.getNodeType());

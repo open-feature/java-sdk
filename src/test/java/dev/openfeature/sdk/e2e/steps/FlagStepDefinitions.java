@@ -61,7 +61,15 @@ public class FlagStepDefinitions {
 
     @Then("the resolved details value should be {string}")
     public void the_resolved_details_value_should_be(String value) {
-        assertThat(state.evaluation.getValue()).isEqualTo(Utils.convert(value, state.flag.type));
+        Object evaluationValue = state.evaluation.getValue();
+        if (state.flag.type.equalsIgnoreCase("object")) {
+            assertThat(((Value) evaluationValue).asStructure().asObjectMap())
+                    .isEqualTo(((Value) Utils.convert(value, state.flag.type))
+                            .asStructure()
+                            .asObjectMap());
+        } else {
+            assertThat(evaluationValue).isEqualTo(Utils.convert(value, state.flag.type));
+        }
     }
 
     @Then("the flag key should be {string}")

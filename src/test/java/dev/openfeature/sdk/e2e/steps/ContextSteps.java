@@ -15,6 +15,7 @@ import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.e2e.ContextStoringProvider;
 import dev.openfeature.sdk.e2e.State;
+import dev.openfeature.sdk.e2e.Utils;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -105,18 +106,16 @@ public class ContextSteps {
     }
 
     @Given("a context containing a key {string} with null value")
-    public void a_context_containing_a_key_with_null_value(String key)
-            throws ClassNotFoundException, InstantiationException {
+    public void a_context_containing_a_key_with_null_value(String key) {
         a_context_containing_a_key_with_type_and_with_value(key, "String", null);
     }
 
     @Given("a context containing a key {string}, with type {string} and with value {string}")
-    public void a_context_containing_a_key_with_type_and_with_value(String key, String type, String value)
-            throws ClassNotFoundException, InstantiationException {
+    public void a_context_containing_a_key_with_type_and_with_value(String key, String type, String value) {
         Map<String, Value> map = state.context.asMap();
-        Map<String, Value> map = state.context.asMap();
-        map.put(key, new Value(Utils.convert(value, type)));
+        map.put(key, Value.objectToValue(Utils.convert(value, type)));
         state.context = new MutableContext(state.context.getTargetingKey(), map);
+    }
 
     @Given("a context containing a targeting key with value {string}")
     public void a_context_containing_a_targeting_key_with_value(String string) {

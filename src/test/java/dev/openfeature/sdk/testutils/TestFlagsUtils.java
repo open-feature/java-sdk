@@ -12,6 +12,7 @@ import dev.openfeature.sdk.testutils.jackson.ImmutableMetadataDeserializer;
 import dev.openfeature.sdk.testutils.jackson.InMemoryFlagMixin;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Map;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -32,33 +33,37 @@ public class TestFlagsUtils {
     public static final String WRONG_FLAG_KEY = "wrong-flag";
     public static final String METADATA_FLAG_KEY = "metadata-flag";
 
+    private static Map<String, Flag<?>> flags;
     /**
      * Building flags for testing purposes.
      *
      * @return map of flags
      */
     public static Map<String, Flag<?>> buildFlags() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature(), true);
-        objectMapper.addMixIn(Flag.class, InMemoryFlagMixin.class);
-        objectMapper.addMixIn(Flag.FlagBuilder.class, InMemoryFlagMixin.FlagBuilderMixin.class);
+        if (flags == null) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature(), true);
+            objectMapper.addMixIn(Flag.class, InMemoryFlagMixin.class);
+            objectMapper.addMixIn(Flag.FlagBuilder.class, InMemoryFlagMixin.FlagBuilderMixin.class);
 
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(ImmutableMetadata.class, new ImmutableMetadataDeserializer());
-        module.addDeserializer(ContextEvaluator.class, new ContextEvaluatorDeserializer());
-        objectMapper.registerModule(module);
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(ImmutableMetadata.class, new ImmutableMetadataDeserializer());
+            module.addDeserializer(ContextEvaluator.class, new ContextEvaluatorDeserializer());
+            objectMapper.registerModule(module);
 
-        Map<String, Flag<?>> flagsJson;
-        try {
-            flagsJson = objectMapper.readValue(
-                    Paths.get("spec/specification/assets/gherkin/test-flags.json")
-                            .toFile(),
-                    new TypeReference<>() {});
+            Map<String, Flag<?>> flagsJson;
+            try {
+                flagsJson = objectMapper.readValue(
+                        Paths.get("spec/specification/assets/gherkin/test-flags.json")
+                                .toFile(),
+                        new TypeReference<>() {});
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            flags = Collections.unmodifiableMap(flagsJson);
         }
 
-        return flagsJson;
+        return flags;
     }
 }
