@@ -39,7 +39,7 @@ public class TestFlagsUtils {
      *
      * @return map of flags
      */
-    public static Map<String, Flag<?>> buildFlags() {
+    public static synchronized Map<String, Flag<?>> buildFlags() {
         if (flags == null) {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature(), true);
