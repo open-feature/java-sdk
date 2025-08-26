@@ -12,6 +12,11 @@ import java.util.function.Function;
 public interface EvaluationContext extends Structure {
 
     String TARGETING_KEY = "targetingKey";
+    
+    /**
+     * Empty evaluation context for use as a default.
+     */
+    EvaluationContext EMPTY = new ImmutableContext();
 
     String getTargetingKey();
 

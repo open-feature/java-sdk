@@ -1,6 +1,7 @@
 package dev.openfeature.api;
 
 import java.util.ServiceLoader;
+import java.util.function.Consumer;
 
 /**
  * Main abstract class that combines all OpenFeature interfaces.
@@ -10,7 +11,8 @@ import java.util.ServiceLoader;
 public abstract class OpenFeatureAPI implements 
         OpenFeatureCore, 
         OpenFeatureHooks, 
-        OpenFeatureContext {
+        OpenFeatureContext,
+        OpenFeatureEventHandling {
 
     private static volatile OpenFeatureAPI instance;
     private static final Object lock = new Object();
@@ -82,6 +84,7 @@ public abstract class OpenFeatureAPI implements
             instance = null;
         }
     }
+
 
     // All methods from the implemented interfaces are abstract and must be implemented by concrete classes
 }

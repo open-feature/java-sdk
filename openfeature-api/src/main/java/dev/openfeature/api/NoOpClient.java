@@ -10,12 +10,9 @@ import java.util.function.Consumer;
  */
 class NoOpClient implements Client {
 
-    private static final ImmutableMetadata CLIENT_METADATA = 
-        ImmutableMetadata.builder().name("No-op Client").build();
-
     @Override
-    public Metadata getMetadata() {
-        return CLIENT_METADATA;
+    public ClientMetadata getMetadata() {
+        return () -> "no-op";
     }
 
     @Override
@@ -48,7 +45,7 @@ class NoOpClient implements Client {
         return FlagEvaluationDetails.<Boolean>builder()
                 .flagKey(key)
                 .value(defaultValue)
-                .reason(Reason.DEFAULT)
+                .reason(Reason.DEFAULT.toString())
                 .build();
     }
 
@@ -82,7 +79,7 @@ class NoOpClient implements Client {
         return FlagEvaluationDetails.<String>builder()
                 .flagKey(key)
                 .value(defaultValue)
-                .reason(Reason.DEFAULT)
+                .reason(Reason.DEFAULT.toString())
                 .build();
     }
 
@@ -116,7 +113,7 @@ class NoOpClient implements Client {
         return FlagEvaluationDetails.<Integer>builder()
                 .flagKey(key)
                 .value(defaultValue)
-                .reason(Reason.DEFAULT)
+                .reason(Reason.DEFAULT.toString())
                 .build();
     }
 
@@ -150,7 +147,7 @@ class NoOpClient implements Client {
         return FlagEvaluationDetails.<Double>builder()
                 .flagKey(key)
                 .value(defaultValue)
-                .reason(Reason.DEFAULT)
+                .reason(Reason.DEFAULT.toString())
                 .build();
     }
 
@@ -184,7 +181,7 @@ class NoOpClient implements Client {
         return FlagEvaluationDetails.<Value>builder()
                 .flagKey(key)
                 .value(defaultValue)
-                .reason(Reason.DEFAULT)
+                .reason(Reason.DEFAULT.toString())
                 .build();
     }
 
@@ -220,6 +217,11 @@ class NoOpClient implements Client {
 
     @Override
     public void track(String eventName, EvaluationContext context) {
+        // No-op - silently ignore
+    }
+
+    @Override
+    public void track(String eventName, TrackingEventDetails details) {
         // No-op - silently ignore
     }
 

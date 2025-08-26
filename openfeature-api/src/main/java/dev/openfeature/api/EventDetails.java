@@ -14,11 +14,11 @@ public class EventDetails extends ProviderEventDetails {
     private String domain;
     private String providerName;
 
-    static EventDetails fromProviderEventDetails(ProviderEventDetails providerEventDetails, String providerName) {
+    public static EventDetails fromProviderEventDetails(ProviderEventDetails providerEventDetails, String providerName) {
         return fromProviderEventDetails(providerEventDetails, providerName, null);
     }
 
-    static EventDetails fromProviderEventDetails(
+    public static EventDetails fromProviderEventDetails(
             ProviderEventDetails providerEventDetails, String providerName, String domain) {
         return builder()
                 .domain(domain)
