@@ -1,4 +1,4 @@
-package dev.openfeature.api.internal;
+package dev.openfeature.sdk.internal;
 
 @SuppressWarnings("checkstyle:MissingJavadocType")
 public interface AutoCloseableLock extends AutoCloseable {
