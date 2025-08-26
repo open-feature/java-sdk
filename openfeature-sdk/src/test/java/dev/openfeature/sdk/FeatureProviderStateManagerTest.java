@@ -3,8 +3,16 @@ package dev.openfeature.sdk;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import dev.openfeature.sdk.exceptions.FatalError;
-import dev.openfeature.sdk.exceptions.GeneralError;
+import dev.openfeature.api.ErrorCode;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.Metadata;
+import dev.openfeature.api.ProviderEvaluation;
+import dev.openfeature.api.ProviderEvent;
+import dev.openfeature.api.ProviderEventDetails;
+import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.Value;
+import dev.openfeature.api.exceptions.FatalError;
+import dev.openfeature.api.exceptions.GeneralError;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import lombok.SneakyThrows;

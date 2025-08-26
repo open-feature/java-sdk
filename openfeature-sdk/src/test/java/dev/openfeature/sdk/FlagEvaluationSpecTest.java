@@ -2,12 +2,36 @@ package dev.openfeature.sdk;
 
 import static dev.openfeature.sdk.DoSomethingProvider.DEFAULT_METADATA;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-import dev.openfeature.sdk.exceptions.GeneralError;
+import dev.openfeature.api.Client;
+import dev.openfeature.api.ErrorCode;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.FlagEvaluationDetails;
+import dev.openfeature.api.FlagEvaluationOptions;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.HookContext;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.Reason;
+import dev.openfeature.api.TransactionContextPropagator;
+import dev.openfeature.api.Value;
+import dev.openfeature.api.exceptions.GeneralError;
+import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.HashMap;
@@ -42,7 +66,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @BeforeEach
     void getApiInstance() {
-        api = new OpenFeatureAPI();
+        api = new DefaultOpenFeatureAPI();
     }
 
     @BeforeEach
@@ -702,7 +726,6 @@ class FlagEvaluationSpecTest implements HookFixtures {
     void setting_transaction_context() {
         DoSomethingProvider provider = new DoSomethingProvider();
         api.setProviderAndWait(provider);
-
         TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
         api.setTransactionContextPropagator(transactionContextPropagator);
 

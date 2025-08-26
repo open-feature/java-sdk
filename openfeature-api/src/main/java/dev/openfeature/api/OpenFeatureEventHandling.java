@@ -3,30 +3,58 @@ package dev.openfeature.api;
 import java.util.function.Consumer;
 
 /**
- * Interface for advanced event handling capabilities.
- * This interface provides domain-specific event handler management
- * which is typically used by SDK implementations but not required
- * for basic API usage.
+ * Interface for provider event handling operations.
+ * Provides event registration and management for provider state changes,
+ * configuration updates, and other provider lifecycle events.
  */
 public interface OpenFeatureEventHandling {
-    
     /**
-     * Add event handlers for domain-specific provider events.
-     * This method is used by SDK implementations to manage client-level event handlers.
-     * 
-     * @param domain the domain for which to add the handler
-     * @param event the provider event to listen for
-     * @param handler the event handler to add
+     * Register an event handler for when a provider becomes ready.
+     *
+     * @param handler Consumer to handle the event
+     * @return api instance for method chaining
      */
-    void addHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler);
-    
+    OpenFeatureAPI onProviderReady(Consumer<EventDetails> handler);
+
     /**
-     * Remove event handlers for domain-specific provider events.
-     * This method is used by SDK implementations to manage client-level event handlers.
-     * 
-     * @param domain the domain for which to remove the handler
-     * @param event the provider event to stop listening for
-     * @param handler the event handler to remove
+     * Register an event handler for when a provider's configuration changes.
+     *
+     * @param handler Consumer to handle the event
+     * @return api instance for method chaining
      */
-    void removeHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler);
+    OpenFeatureAPI onProviderConfigurationChanged(Consumer<EventDetails> handler);
+
+    /**
+     * Register an event handler for when a provider becomes stale.
+     *
+     * @param handler Consumer to handle the event
+     * @return api instance for method chaining
+     */
+    OpenFeatureAPI onProviderStale(Consumer<EventDetails> handler);
+
+    /**
+     * Register an event handler for when a provider encounters an error.
+     *
+     * @param handler Consumer to handle the event
+     * @return api instance for method chaining
+     */
+    OpenFeatureAPI onProviderError(Consumer<EventDetails> handler);
+
+    /**
+     * Register an event handler for a specific provider event.
+     *
+     * @param event   the provider event to listen for
+     * @param handler Consumer to handle the event
+     * @return api instance for method chaining
+     */
+    OpenFeatureAPI on(ProviderEvent event, Consumer<EventDetails> handler);
+
+    /**
+     * Remove an event handler for a specific provider event.
+     *
+     * @param event   the provider event to stop listening for
+     * @param handler the handler to remove
+     * @return api instance for method chaining
+     */
+    OpenFeatureAPI removeHandler(ProviderEvent event, Consumer<EventDetails> handler);
 }

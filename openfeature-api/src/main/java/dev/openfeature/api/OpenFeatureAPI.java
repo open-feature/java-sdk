@@ -1,18 +1,28 @@
 package dev.openfeature.api;
 
+import dev.openfeature.api.internal.noop.NoOpOpenFeatureAPI;
 import java.util.ServiceLoader;
-import java.util.function.Consumer;
 
 /**
  * Main abstract class that combines all OpenFeature interfaces.
  * Uses ServiceLoader pattern to automatically discover and load implementations.
  * This allows for multiple SDK implementations with priority-based selection.
+ *
+ * <p>Implements all OpenFeature interface facets:
+ * - Core operations (client management, provider configuration)
+ * - Hook management (global hook configuration)
+ * - Context management (global evaluation context)
+ * - Event handling (provider event registration and management)
+ * - Transaction context (transaction-scoped context propagation)
+ * - Lifecycle management (cleanup and shutdown)
  */
-public abstract class OpenFeatureAPI implements 
-        OpenFeatureCore, 
-        OpenFeatureHooks, 
-        OpenFeatureContext,
-        OpenFeatureEventHandling {
+public abstract class OpenFeatureAPI
+        implements OpenFeatureCore,
+                OpenFeatureHooks,
+                OpenFeatureContext,
+                OpenFeatureEventHandling,
+                OpenFeatureTransactionContext,
+                OpenFeatureLifecycle {
 
     private static volatile OpenFeatureAPI instance;
     private static final Object lock = new Object();
@@ -20,7 +30,7 @@ public abstract class OpenFeatureAPI implements
     /**
      * Gets the singleton OpenFeature API instance.
      * Uses ServiceLoader to automatically discover and load the best available implementation.
-     * 
+     *
      * @return The singleton instance
      */
     public static OpenFeatureAPI getInstance() {
@@ -38,12 +48,11 @@ public abstract class OpenFeatureAPI implements
      * Load the best available OpenFeature implementation using ServiceLoader.
      * Implementations are selected based on priority, with higher priorities taking precedence.
      * If no implementation is available, returns a no-op implementation.
-     * 
+     *
      * @return the loaded OpenFeature API implementation
      */
     private static OpenFeatureAPI loadImplementation() {
-        ServiceLoader<OpenFeatureAPIProvider> loader = 
-            ServiceLoader.load(OpenFeatureAPIProvider.class);
+        ServiceLoader<OpenFeatureAPIProvider> loader = ServiceLoader.load(OpenFeatureAPIProvider.class);
 
         OpenFeatureAPIProvider bestProvider = null;
         int highestPriority = Integer.MIN_VALUE;
@@ -57,8 +66,8 @@ public abstract class OpenFeatureAPI implements
                 }
             } catch (Exception e) {
                 // Log but continue - don't let one bad provider break everything
-                System.err.println("Failed to get priority from provider " + 
-                    provider.getClass().getName() + ": " + e.getMessage());
+                System.err.println("Failed to get priority from provider "
+                        + provider.getClass().getName() + ": " + e.getMessage());
             }
         }
 
@@ -66,8 +75,8 @@ public abstract class OpenFeatureAPI implements
             try {
                 return bestProvider.createAPI();
             } catch (Exception e) {
-                System.err.println("Failed to create API from provider " + 
-                    bestProvider.getClass().getName() + ": " + e.getMessage());
+                System.err.println("Failed to create API from provider "
+                        + bestProvider.getClass().getName() + ": " + e.getMessage());
                 // Fall through to no-op
             }
         }
@@ -84,7 +93,4 @@ public abstract class OpenFeatureAPI implements
             instance = null;
         }
     }
-
-
-    // All methods from the implemented interfaces are abstract and must be implemented by concrete classes
 }

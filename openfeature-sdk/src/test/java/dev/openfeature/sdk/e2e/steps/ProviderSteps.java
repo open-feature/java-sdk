@@ -2,7 +2,6 @@ package dev.openfeature.sdk.e2e.steps;
 
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
 
-import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.e2e.State;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
@@ -20,7 +19,7 @@ public class ProviderSteps {
     public void aStableProvider() {
         Map<String, Flag<?>> flags = buildFlags();
         InMemoryProvider provider = new InMemoryProvider(flags);
-        OpenFeatureAPI.getInstance().setProviderAndWait(provider);
-        state.client = OpenFeatureAPI.getInstance().getClient();
+        state.api.setProviderAndWait(provider);
+        state.client = state.api.getClient();
     }
 }

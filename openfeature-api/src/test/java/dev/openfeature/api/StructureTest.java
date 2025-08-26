@@ -1,6 +1,6 @@
-package dev.openfeature.sdk;
+package dev.openfeature.api;
 
-import static dev.openfeature.sdk.Structure.mapToStructure;
+import static dev.openfeature.api.Structure.mapToStructure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;

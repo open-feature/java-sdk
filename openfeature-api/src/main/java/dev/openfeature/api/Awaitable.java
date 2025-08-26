@@ -1,4 +1,4 @@
-package dev.openfeature.sdk;
+package dev.openfeature.api;
 
 /**
  * A class to help with synchronization by allowing the optional awaiting of the associated action.

@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.api.Awaitable;
 import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.ProviderEvent;
@@ -23,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  * @see FeatureProvider
  */
 @Slf4j
-public abstract class EventProvider implements FeatureProvider {
+public abstract class EventProvider implements dev.openfeature.api.EventProvider {
     private EventProviderListener eventProviderListener;
     private final ExecutorService emitterExecutor = Executors.newCachedThreadPool();
 
@@ -106,46 +107,5 @@ public abstract class EventProvider implements FeatureProvider {
         });
 
         return awaitable;
-    }
-
-    /**
-     * Emit a {@link ProviderEvent#PROVIDER_READY} event.
-     * Shorthand for {@link #emit(ProviderEvent, ProviderEventDetails)}
-     *
-     * @param details The details of the event
-     */
-    public Awaitable emitProviderReady(ProviderEventDetails details) {
-        return emit(ProviderEvent.PROVIDER_READY, details);
-    }
-
-    /**
-     * Emit a
-     * {@link ProviderEvent#PROVIDER_CONFIGURATION_CHANGED}
-     * event. Shorthand for {@link #emit(ProviderEvent, ProviderEventDetails)}
-     *
-     * @param details The details of the event
-     */
-    public Awaitable emitProviderConfigurationChanged(ProviderEventDetails details) {
-        return emit(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, details);
-    }
-
-    /**
-     * Emit a {@link ProviderEvent#PROVIDER_STALE} event.
-     * Shorthand for {@link #emit(ProviderEvent, ProviderEventDetails)}
-     *
-     * @param details The details of the event
-     */
-    public Awaitable emitProviderStale(ProviderEventDetails details) {
-        return emit(ProviderEvent.PROVIDER_STALE, details);
-    }
-
-    /**
-     * Emit a {@link ProviderEvent#PROVIDER_ERROR} event.
-     * Shorthand for {@link #emit(ProviderEvent, ProviderEventDetails)}
-     *
-     * @param details The details of the event
-     */
-    public Awaitable emitProviderError(ProviderEventDetails details) {
-        return emit(ProviderEvent.PROVIDER_ERROR, details);
     }
 }

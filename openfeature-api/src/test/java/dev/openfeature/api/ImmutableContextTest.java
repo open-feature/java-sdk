@@ -1,6 +1,6 @@
-package dev.openfeature.sdk;
+package dev.openfeature.api;
 
-import static dev.openfeature.sdk.EvaluationContext.TARGETING_KEY;
+import static dev.openfeature.api.EvaluationContext.TARGETING_KEY;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;

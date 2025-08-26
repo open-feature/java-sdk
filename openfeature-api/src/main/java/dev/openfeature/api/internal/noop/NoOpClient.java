@@ -1,5 +1,17 @@
-package dev.openfeature.api;
+package dev.openfeature.api.internal.noop;
 
+import dev.openfeature.api.Client;
+import dev.openfeature.api.ClientMetadata;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.EventDetails;
+import dev.openfeature.api.FlagEvaluationDetails;
+import dev.openfeature.api.FlagEvaluationOptions;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.ProviderEvent;
+import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.Reason;
+import dev.openfeature.api.TrackingEventDetails;
+import dev.openfeature.api.Value;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -7,8 +19,10 @@ import java.util.function.Consumer;
 /**
  * No-operation implementation of Client that provides safe defaults.
  * All flag evaluations return default values and all operations are safe no-ops.
+ *
+ * <p><strong>This is an internal implementation class and should not be used directly by external users.</strong>
  */
-class NoOpClient implements Client {
+public class NoOpClient implements Client {
 
     @Override
     public ClientMetadata getMetadata() {
@@ -55,7 +69,8 @@ class NoOpClient implements Client {
     }
 
     @Override
-    public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+    public FlagEvaluationDetails<Boolean> getBooleanDetails(
+            String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return getBooleanDetails(key, defaultValue);
     }
 
@@ -70,7 +85,8 @@ class NoOpClient implements Client {
     }
 
     @Override
-    public Boolean getBooleanValue(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+    public Boolean getBooleanValue(
+            String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return defaultValue;
     }
 
@@ -89,7 +105,8 @@ class NoOpClient implements Client {
     }
 
     @Override
-    public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+    public FlagEvaluationDetails<String> getStringDetails(
+            String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return getStringDetails(key, defaultValue);
     }
 
@@ -104,7 +121,8 @@ class NoOpClient implements Client {
     }
 
     @Override
-    public String getStringValue(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+    public String getStringValue(
+            String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return defaultValue;
     }
 
@@ -123,7 +141,8 @@ class NoOpClient implements Client {
     }
 
     @Override
-    public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+    public FlagEvaluationDetails<Integer> getIntegerDetails(
+            String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return getIntegerDetails(key, defaultValue);
     }
 
@@ -138,7 +157,8 @@ class NoOpClient implements Client {
     }
 
     @Override
-    public Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+    public Integer getIntegerValue(
+            String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return defaultValue;
     }
 
@@ -157,7 +177,8 @@ class NoOpClient implements Client {
     }
 
     @Override
-    public FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+    public FlagEvaluationDetails<Double> getDoubleDetails(
+            String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return getDoubleDetails(key, defaultValue);
     }
 
@@ -172,7 +193,8 @@ class NoOpClient implements Client {
     }
 
     @Override
-    public Double getDoubleValue(String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+    public Double getDoubleValue(
+            String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return defaultValue;
     }
 
@@ -191,7 +213,8 @@ class NoOpClient implements Client {
     }
 
     @Override
-    public FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+    public FlagEvaluationDetails<Value> getObjectDetails(
+            String key, Value defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return getObjectDetails(key, defaultValue);
     }
 

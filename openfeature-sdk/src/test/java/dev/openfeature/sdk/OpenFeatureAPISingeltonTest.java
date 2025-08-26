@@ -12,6 +12,6 @@ class OpenFeatureAPISingeltonTest {
                     "The API, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the API are present at runtime.")
     @Test
     void global_singleton() {
-        assertSame(OpenFeatureAPI.getInstance(), OpenFeatureAPI.getInstance());
+        assertSame(DefaultOpenFeatureAPI.getInstance(), DefaultOpenFeatureAPI.getInstance());
     }
 }

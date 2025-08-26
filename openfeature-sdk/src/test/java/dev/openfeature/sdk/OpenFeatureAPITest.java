@@ -8,6 +8,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.MutableTrackingEventDetails;
+import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.Collections;
@@ -19,11 +26,11 @@ class OpenFeatureAPITest {
 
     private static final String DOMAIN_NAME = "my domain";
 
-    private OpenFeatureAPI api;
+    private DefaultOpenFeatureAPI api;
 
     @BeforeEach
     void setupTest() {
-        api = new OpenFeatureAPI();
+        api = new DefaultOpenFeatureAPI();
     }
 
     @Test

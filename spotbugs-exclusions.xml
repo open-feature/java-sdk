@@ -9,6 +9,10 @@
         <Class name="dev.openfeature.sdk.OpenFeatureAPI"/>
         <Bug pattern="MS_EXPOSE_REP"/>
     </And>
+    <And>
+        <Class name="dev.openfeature.api.OpenFeatureAPI"/>
+        <Bug pattern="MS_EXPOSE_REP"/>
+    </And>
     <!-- evaluation context and hooks are mutable if mutable impl is used -->
     <And>
         <Class name="dev.openfeature.sdk.OpenFeatureClient"/>
@@ -27,24 +31,97 @@
         <Bug pattern="EI_EXPOSE_REP2"/>
     </And>
     <And>
+        <Class name="dev.openfeature.api.OpenFeatureAPI"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </And>
+    <And>
+        <Class name="dev.openfeature.api.OpenFeatureAPI"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </And>
+    <!-- API classes that expose internal representations by design -->
+    <And>
+        <Class name="dev.openfeature.api.internal.noop.NoOpOpenFeatureAPI"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </And>
+    <And>
+        <Class name="dev.openfeature.api.FlagEvaluationOptions"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </And>
+    <And>
+        <Class name="dev.openfeature.api.FlagEvaluationOptions"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </And>
+    <And>
+        <Class name="dev.openfeature.api.FlagEvaluationOptions$FlagEvaluationOptionsBuilder"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </And>
+    <And>
+        <Class name="dev.openfeature.api.ProviderEventDetails"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </And>
+    <And>
+        <Class name="dev.openfeature.api.ProviderEventDetails"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </And>
+    <And>
+        <Class name="dev.openfeature.api.ProviderEventDetails$ProviderEventDetailsBuilder"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </And>
+    <And>
         Added in spotbugs 4.8.0 - EventProvider shares a name with something from the standard lib (confusing), but change would be breaking
         <Class name="dev.openfeature.sdk.EventProvider"/>
         <Bug pattern="PI_DO_NOT_REUSE_PUBLIC_IDENTIFIERS_CLASS_NAMES"/>
     </And>
+    <!-- EventProvider class intentionally shadows interface name for backward compatibility -->
+    <And>
+        <Class name="dev.openfeature.sdk.EventProvider"/>
+        <Bug pattern="NM_SAME_SIMPLE_NAME_AS_INTERFACE"/>
+    </And>
+    <!-- SDK classes that expose internal representations by design -->
+    <And>
+        <Class name="dev.openfeature.sdk.DefaultOpenFeatureAPI"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </And>
+    <And>
+        <Class name="dev.openfeature.sdk.DefaultOpenFeatureAPI"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </And>
+    <And>
+        <Class name="dev.openfeature.api.internal.noop.NoOpProvider"/>
+        <Bug pattern="SS_SHOULD_BE_STATIC"/>
+    </And>
+    <And>
+        <Class name="dev.openfeature.sdk.providers.memory.Flag"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </And>
     <And>
         Added in spotbugs 4.8.0 - Metadata shares a name with something from the standard lib (confusing), but change would be breaking
-        <Class name="dev.openfeature.sdk.Metadata"/>
+        <Class name="dev.openfeature.api.Metadata"/>
         <Bug pattern="PI_DO_NOT_REUSE_PUBLIC_IDENTIFIERS_CLASS_NAMES"/>
     </And>
     <And>
         Added in spotbugs 4.8.0 - Reason shares a name with something from the standard lib (confusing), but change would be breaking
-        <Class name="dev.openfeature.sdk.Reason"/>
+        <Class name="dev.openfeature.api.Reason"/>
         <Bug pattern="PI_DO_NOT_REUSE_PUBLIC_IDENTIFIERS_CLASS_NAMES"/>
     </And>
     <And>
         Added in spotbugs 4.8.0 - FlagValueType.STRING shares a name with something from the standard lib (confusing), but change would be breaking
-        <Class name="dev.openfeature.sdk.FlagValueType"/>
+        <Class name="dev.openfeature.api.FlagValueType"/>
         <Bug pattern="PI_DO_NOT_REUSE_PUBLIC_IDENTIFIERS_FIELD_NAMES"/>
+    </And>
+    <!-- Lombok generated code issues -->
+    <And>
+        <Class name="dev.openfeature.api.HookContext"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+    </And>
+    <And>
+        <Class name="dev.openfeature.api.HookContext"/>
+        <Bug pattern="ES_COMPARING_PARAMETER_STRING_WITH_EQ"/>
+    </And>
+    <!-- Intentional null return for Boolean wrapper -->
+    <And>
+        <Class name="dev.openfeature.api.ImmutableMetadata"/>
+        <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
     </And>
 
     <!-- Test class that should be excluded -->

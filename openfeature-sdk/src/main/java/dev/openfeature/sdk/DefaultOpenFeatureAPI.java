@@ -6,11 +6,13 @@ import dev.openfeature.api.EventDetails;
 import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.Hook;
 import dev.openfeature.api.Metadata;
-import dev.openfeature.api.OpenFeatureAdvanced;
+import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.ProviderEvent;
 import dev.openfeature.api.ProviderEventDetails;
 import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.TransactionContextPropagator;
 import dev.openfeature.api.exceptions.OpenFeatureError;
+import dev.openfeature.api.internal.noop.NoOpTransactionContextPropagator;
 import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import java.util.ArrayList;
@@ -26,12 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Default implementation of OpenFeature API that provides full SDK functionality.
- * This implementation extends the abstract API and provides advanced features including
- * provider management, event handling, and lifecycle management.
+ * This implementation extends the abstract API and provides all OpenFeature capabilities including
+ * provider management, event handling, transaction context management, and lifecycle management.
  */
 @Slf4j
 @SuppressWarnings("PMD.UnusedLocalVariable")
-public class DefaultOpenFeatureAPI extends dev.openfeature.api.OpenFeatureAPI implements OpenFeatureAdvanced {
+public class DefaultOpenFeatureAPI extends OpenFeatureAPI {
     // package-private multi-read/single-write lock
     static AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
     private final ConcurrentLinkedQueue<Hook> apiHooks;
@@ -143,6 +145,7 @@ public class DefaultOpenFeatureAPI extends dev.openfeature.api.OpenFeatureAPI im
     /**
      * Return the transaction context propagator.
      */
+    @Override
     public TransactionContextPropagator getTransactionContextPropagator() {
         try (AutoCloseableLock ignored = lock.readLockAutoCloseable()) {
             return this.transactionContextPropagator;
@@ -154,6 +157,7 @@ public class DefaultOpenFeatureAPI extends dev.openfeature.api.OpenFeatureAPI im
      *
      * @throws IllegalArgumentException if {@code transactionContextPropagator} is null
      */
+    @Override
     public void setTransactionContextPropagator(TransactionContextPropagator transactionContextPropagator) {
         if (transactionContextPropagator == null) {
             throw new IllegalArgumentException("Transaction context propagator cannot be null");
@@ -417,15 +421,13 @@ public class DefaultOpenFeatureAPI extends dev.openfeature.api.OpenFeatureAPI im
         return this;
     }
 
-    @Override
-    public void removeHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
+    void removeHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
         try (AutoCloseableLock ignored = lock.writeLockAutoCloseable()) {
             eventSupport.removeClientHandler(domain, event, handler);
         }
     }
 
-    @Override
-    public void addHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
+    void addHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
         try (AutoCloseableLock ignored = lock.writeLockAutoCloseable()) {
             // if the provider is in the state associated with event, run immediately
             if (Optional.ofNullable(this.providerRepository.getProviderState(domain))

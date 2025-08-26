@@ -2,9 +2,9 @@ package dev.openfeature.sdk.e2e.steps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import dev.openfeature.sdk.FlagEvaluationDetails;
-import dev.openfeature.sdk.ImmutableMetadata;
-import dev.openfeature.sdk.Value;
+import dev.openfeature.api.FlagEvaluationDetails;
+import dev.openfeature.api.ImmutableMetadata;
+import dev.openfeature.api.Value;
 import dev.openfeature.sdk.e2e.Flag;
 import dev.openfeature.sdk.e2e.State;
 import dev.openfeature.sdk.e2e.Utils;

@@ -8,7 +8,15 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
-import dev.openfeature.sdk.exceptions.FatalError;
+import dev.openfeature.api.Client;
+import dev.openfeature.api.ErrorCode;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.FlagEvaluationDetails;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.exceptions.FatalError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.HashMap;
@@ -38,7 +46,7 @@ class OpenFeatureClientTest implements HookFixtures {
     @Test
     @DisplayName("should not throw exception if hook has different type argument than hookContext")
     void shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext() {
-        OpenFeatureAPI api = new OpenFeatureAPI();
+        OpenFeatureAPI api = new DefaultOpenFeatureAPI();
         api.setProviderAndWait(
                 "shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext", new DoSomethingProvider());
         Client client = api.getClient("shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext");
@@ -58,7 +66,7 @@ class OpenFeatureClientTest implements HookFixtures {
     @Test
     @DisplayName("addHooks should allow chaining by returning the same client instance")
     void addHooksShouldAllowChaining() {
-        OpenFeatureAPI api = mock(OpenFeatureAPI.class);
+        DefaultOpenFeatureAPI api = mock(DefaultOpenFeatureAPI.class);
         OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
         Hook<?> hook1 = Mockito.mock(Hook.class);
         Hook<?> hook2 = Mockito.mock(Hook.class);
@@ -70,7 +78,7 @@ class OpenFeatureClientTest implements HookFixtures {
     @Test
     @DisplayName("setEvaluationContext should allow chaining by returning the same client instance")
     void setEvaluationContextShouldAllowChaining() {
-        OpenFeatureAPI api = mock(OpenFeatureAPI.class);
+        DefaultOpenFeatureAPI api = mock(DefaultOpenFeatureAPI.class);
         OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
         EvaluationContext ctx = new ImmutableContext("targeting key", new HashMap<>());
 
@@ -82,7 +90,7 @@ class OpenFeatureClientTest implements HookFixtures {
     @DisplayName("Should not call evaluation methods when the provider has state FATAL")
     void shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState() {
         FeatureProvider provider = new TestEventsProvider(100, true, "fake fatal", true);
-        OpenFeatureAPI api = new OpenFeatureAPI();
+        OpenFeatureAPI api = new DefaultOpenFeatureAPI();
         Client client = api.getClient("shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState");
 
         assertThrows(
@@ -97,7 +105,7 @@ class OpenFeatureClientTest implements HookFixtures {
     @DisplayName("Should not call evaluation methods when the provider has state NOT_READY")
     void shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState() {
         FeatureProvider provider = new TestEventsProvider(5000);
-        OpenFeatureAPI api = new OpenFeatureAPI();
+        OpenFeatureAPI api = new DefaultOpenFeatureAPI();
         api.setProvider("shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState", provider);
         Client client = api.getClient("shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState");
         FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);

@@ -1,4 +1,4 @@
-package dev.openfeature.sdk;
+package dev.openfeature.api;
 
 import java.util.HashMap;
 import java.util.Map;

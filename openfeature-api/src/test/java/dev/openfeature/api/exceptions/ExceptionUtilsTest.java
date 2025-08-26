@@ -1,9 +1,9 @@
-package dev.openfeature.sdk.exceptions;
+package dev.openfeature.api.exceptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-import dev.openfeature.sdk.ErrorCode;
+import dev.openfeature.api.ErrorCode;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtensionContext;

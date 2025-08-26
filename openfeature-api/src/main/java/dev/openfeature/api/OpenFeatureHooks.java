@@ -9,7 +9,7 @@ import java.util.List;
 public interface OpenFeatureHooks {
     /**
      * Adds hooks for globally, used for all evaluations.
-     * Hooks are run in the order they're added in the before stage. 
+     * Hooks are run in the order they're added in the before stage.
      * They are run in reverse order for all other stages.
      *
      * @param hooks The hooks to add.

@@ -1,7 +1,12 @@
 package dev.openfeature.sdk;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.fixtures.ProviderFixture;
 import dev.openfeature.sdk.testutils.exception.TestException;
 import java.time.Duration;
@@ -26,7 +31,7 @@ class ShutdownBehaviorSpecTest {
 
     @BeforeEach
     void resetFeatureProvider() {
-        api = new OpenFeatureAPI();
+        api = new DefaultOpenFeatureAPI();
         setFeatureProvider(new NoOpProvider());
     }
 

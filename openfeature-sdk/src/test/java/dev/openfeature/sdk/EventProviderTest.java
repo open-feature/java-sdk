@@ -2,8 +2,18 @@ package dev.openfeature.sdk;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.Metadata;
+import dev.openfeature.api.ProviderEvaluation;
+import dev.openfeature.api.ProviderEvent;
+import dev.openfeature.api.ProviderEventDetails;
+import dev.openfeature.api.Value;
+import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.internal.TriConsumer;
 import dev.openfeature.sdk.testutils.TestStackedEmitCallsProvider;
 import io.cucumber.java.AfterAll;
@@ -28,7 +38,7 @@ class EventProviderTest {
 
     @AfterAll
     public static void resetDefaultProvider() {
-        new OpenFeatureAPI().setProviderAndWait(new NoOpProvider());
+        new DefaultOpenFeatureAPI().setProviderAndWait(new NoOpProvider());
     }
 
     @Test
@@ -92,7 +102,7 @@ class EventProviderTest {
     @DisplayName("should not deadlock on emit called during emit")
     void doesNotDeadlockOnEmitStackedCalls() {
         TestStackedEmitCallsProvider provider = new TestStackedEmitCallsProvider();
-        new OpenFeatureAPI().setProviderAndWait(provider);
+        new DefaultOpenFeatureAPI().setProviderAndWait(provider);
     }
 
     static class TestEventProvider extends EventProvider {

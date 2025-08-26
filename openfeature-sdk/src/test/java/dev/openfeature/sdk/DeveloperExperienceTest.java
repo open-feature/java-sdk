@@ -7,6 +7,20 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import dev.openfeature.api.Client;
+import dev.openfeature.api.ErrorCode;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.FlagEvaluationDetails;
+import dev.openfeature.api.FlagEvaluationOptions;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.HookContext;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.MutableContext;
+import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.ProviderEventDetails;
+import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.Reason;
+import dev.openfeature.api.Value;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.Arrays;
@@ -24,7 +38,7 @@ class DeveloperExperienceTest implements HookFixtures {
 
     @BeforeEach
     public void setUp() throws Exception {
-        api = new OpenFeatureAPI();
+        api = new DefaultOpenFeatureAPI();
     }
 
     @Test
@@ -101,7 +115,7 @@ class DeveloperExperienceTest implements HookFixtures {
     void providerLockedPerTransaction() {
 
         final String defaultValue = "string-value";
-        final OpenFeatureAPI api = new OpenFeatureAPI();
+        final OpenFeatureAPI api = new DefaultOpenFeatureAPI();
 
         class MutatingHook implements Hook {
 

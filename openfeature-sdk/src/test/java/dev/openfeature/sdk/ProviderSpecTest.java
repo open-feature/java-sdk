@@ -5,6 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.ImmutableMetadata;
+import dev.openfeature.api.ProviderEvaluation;
+import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.Reason;
+import dev.openfeature.api.Value;
+import dev.openfeature.api.internal.noop.NoOpProvider;
 import org.junit.jupiter.api.Test;
 
 public class ProviderSpecTest {

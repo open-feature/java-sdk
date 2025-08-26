@@ -8,6 +8,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.testutils.exception.TestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +25,7 @@ class InitializeBehaviorSpecTest {
 
     @BeforeEach
     void setupTest() {
-        this.api = new OpenFeatureAPI();
+        this.api = new DefaultOpenFeatureAPI();
         api.setProvider(new NoOpProvider());
     }
 

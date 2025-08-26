@@ -4,13 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import dev.openfeature.sdk.EvaluationContext;
-import dev.openfeature.sdk.Hook;
-import dev.openfeature.sdk.HookContext;
-import dev.openfeature.sdk.ImmutableContext;
-import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.HookContext;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.Value;
 import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
-import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.e2e.ContextStoringProvider;
 import dev.openfeature.sdk.e2e.State;
 import io.cucumber.datatable.DataTable;
@@ -33,9 +32,9 @@ public class ContextSteps {
     public void setup() {
         ContextStoringProvider provider = new ContextStoringProvider();
         state.provider = provider;
-        OpenFeatureAPI.getInstance().setProviderAndWait(provider);
-        state.client = OpenFeatureAPI.getInstance().getClient();
-        OpenFeatureAPI.getInstance().setTransactionContextPropagator(new ThreadLocalTransactionContextPropagator());
+        state.api.setProviderAndWait(provider);
+        state.client = state.api.getClient();
+        state.api.setTransactionContextPropagator(new ThreadLocalTransactionContextPropagator());
     }
 
     @When("A context entry with key {string} and value {string} is added to the {string} level")
@@ -48,9 +47,9 @@ public class ContextSteps {
         data.put(contextKey, new Value(contextValue));
         EvaluationContext context = new ImmutableContext(data);
         if ("API".equals(level)) {
-            OpenFeatureAPI.getInstance().setEvaluationContext(context);
+            state.api.setEvaluationContext(context);
         } else if ("Transaction".equals(level)) {
-            OpenFeatureAPI.getInstance().setTransactionContext(context);
+            state.api.setTransactionContext(context);
         } else if ("Client".equals(level)) {
             state.client.setEvaluationContext(context);
         } else if ("Invocation".equals(level)) {

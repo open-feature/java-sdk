@@ -6,15 +6,15 @@ import static dev.openfeature.sdk.testutils.TestFlagsUtils.INT_FLAG_KEY;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.OBJECT_FLAG_KEY;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.STRING_FLAG_KEY;
 
-import dev.openfeature.sdk.Client;
-import dev.openfeature.sdk.EvaluationContext;
-import dev.openfeature.sdk.Hook;
-import dev.openfeature.sdk.HookContext;
-import dev.openfeature.sdk.ImmutableContext;
-import dev.openfeature.sdk.ImmutableStructure;
-import dev.openfeature.sdk.NoOpProvider;
-import dev.openfeature.sdk.OpenFeatureAPI;
-import dev.openfeature.sdk.Value;
+import dev.openfeature.api.Client;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.HookContext;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.ImmutableStructure;
+import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.Value;
+import dev.openfeature.api.internal.noop.NoOpProvider;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -37,13 +37,14 @@ public class AllocationBenchmark {
     @Fork(jvmArgsAppend = {"-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
     public void run() {
 
-        OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
+        OpenFeatureAPI api = new dev.openfeature.sdk.DefaultOpenFeatureAPI();
+        api.setProviderAndWait(new NoOpProvider());
         Map<String, Value> globalAttrs = new HashMap<>();
         globalAttrs.put("global", new Value(1));
         EvaluationContext globalContext = new ImmutableContext(globalAttrs);
-        OpenFeatureAPI.getInstance().setEvaluationContext(globalContext);
+        api.setEvaluationContext(globalContext);
 
-        Client client = OpenFeatureAPI.getInstance().getClient();
+        Client client = api.getClient();
 
         Map<String, Value> clientAttrs = new HashMap<>();
         clientAttrs.put("client", new Value(2));

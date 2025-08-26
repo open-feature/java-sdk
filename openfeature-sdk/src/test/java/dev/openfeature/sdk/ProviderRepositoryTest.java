@@ -1,15 +1,23 @@
 package dev.openfeature.sdk;
 
-import static dev.openfeature.sdk.fixtures.ProviderFixture.*;
+import static dev.openfeature.sdk.fixtures.ProviderFixture.createMockedErrorProvider;
+import static dev.openfeature.sdk.fixtures.ProviderFixture.createMockedProvider;
 import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doDelayResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
-import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.exceptions.OpenFeatureError;
+import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.testutils.exception.TestException;
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
@@ -35,7 +43,7 @@ class ProviderRepositoryTest {
 
     @BeforeEach
     void setupTest() {
-        providerRepository = new ProviderRepository(new OpenFeatureAPI());
+        providerRepository = new ProviderRepository(new DefaultOpenFeatureAPI());
     }
 
     @Nested

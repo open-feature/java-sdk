@@ -1,5 +1,12 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.ImmutableMetadata;
+import dev.openfeature.api.Metadata;
+import dev.openfeature.api.ProviderEvaluation;
+import dev.openfeature.api.Value;
+
 class DoSomethingProvider implements FeatureProvider {
 
     static final String name = "Something";

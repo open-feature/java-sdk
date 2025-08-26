@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.google.common.collect.Lists;
+import dev.openfeature.api.MutableContext;
+import dev.openfeature.api.MutableTrackingEventDetails;
+import dev.openfeature.api.Value;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 

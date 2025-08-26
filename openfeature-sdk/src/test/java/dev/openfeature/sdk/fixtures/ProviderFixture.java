@@ -7,9 +7,9 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
-import dev.openfeature.sdk.FeatureProvider;
-import dev.openfeature.sdk.ImmutableContext;
-import dev.openfeature.sdk.ProviderState;
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.ProviderState;
 import java.io.FileNotFoundException;
 import java.util.concurrent.CountDownLatch;
 import lombok.experimental.UtilityClass;
