@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import dev.openfeature.api.*;
 import org.junit.jupiter.api.Test;
 
 public class TelemetryTest {

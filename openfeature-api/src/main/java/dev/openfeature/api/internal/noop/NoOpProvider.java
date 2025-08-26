@@ -1,4 +1,4 @@
-package dev.openfeature.sdk;
+package dev.openfeature.api.internal.noop;
 
 import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FeatureProvider;
@@ -11,6 +11,8 @@ import lombok.Getter;
 
 /**
  * A {@link FeatureProvider} that simply returns the default values passed to it.
+ *
+ * <p><strong>This is an internal implementation class and should not be used directly by external users.</strong>
  */
 public class NoOpProvider implements FeatureProvider {
     public static final String PASSED_IN_DEFAULT = "Passed in default";

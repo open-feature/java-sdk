@@ -306,8 +306,8 @@ public class Value implements Cloneable {
         } else if (object instanceof Structure) {
             return new Value((Structure) object);
         } else if (object instanceof List) {
-            return new Value(
-                    ((List<Object>) object).stream().map(o -> Value.objectToValue(o)).collect(Collectors.toList()));
+            return new Value(((List<Object>) object)
+                    .stream().map(o -> Value.objectToValue(o)).collect(Collectors.toList()));
         } else if (object instanceof Instant) {
             return new Value((Instant) object);
         } else if (object instanceof Map) {

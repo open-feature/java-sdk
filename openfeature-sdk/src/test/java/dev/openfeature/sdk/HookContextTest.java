@@ -3,6 +3,11 @@ package dev.openfeature.sdk;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import dev.openfeature.api.ClientMetadata;
+import dev.openfeature.api.FlagValueType;
+import dev.openfeature.api.HookContext;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.Metadata;
 import org.junit.jupiter.api.Test;
 
 class HookContextTest {

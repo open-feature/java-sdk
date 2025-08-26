@@ -1,15 +1,15 @@
 package dev.openfeature.sdk.testutils;
 
-import dev.openfeature.sdk.EvaluationContext;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.Metadata;
+import dev.openfeature.api.ProviderEvaluation;
+import dev.openfeature.api.ProviderEvent;
+import dev.openfeature.api.ProviderEventDetails;
+import dev.openfeature.api.Reason;
+import dev.openfeature.api.Value;
+import dev.openfeature.api.exceptions.FatalError;
+import dev.openfeature.api.exceptions.GeneralError;
 import dev.openfeature.sdk.EventProvider;
-import dev.openfeature.sdk.Metadata;
-import dev.openfeature.sdk.ProviderEvaluation;
-import dev.openfeature.sdk.ProviderEvent;
-import dev.openfeature.sdk.ProviderEventDetails;
-import dev.openfeature.sdk.Reason;
-import dev.openfeature.sdk.Value;
-import dev.openfeature.sdk.exceptions.FatalError;
-import dev.openfeature.sdk.exceptions.GeneralError;
 import lombok.SneakyThrows;
 
 public class TestEventsProvider extends EventProvider {

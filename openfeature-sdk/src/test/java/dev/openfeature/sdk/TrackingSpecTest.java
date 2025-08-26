@@ -14,6 +14,17 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import dev.openfeature.api.Client;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.ImmutableStructure;
+import dev.openfeature.api.ImmutableTrackingEventDetails;
+import dev.openfeature.api.MutableContext;
+import dev.openfeature.api.MutableTrackingEventDetails;
+import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.TrackingEventDetails;
+import dev.openfeature.api.Value;
 import dev.openfeature.sdk.fixtures.ProviderFixture;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +39,7 @@ class TrackingSpecTest {
 
     @BeforeEach
     void getApiInstance() {
-        api = new OpenFeatureAPI();
+        api = new DefaultOpenFeatureAPI();
         client = api.getClient();
     }
 

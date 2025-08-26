@@ -1,10 +1,10 @@
 package dev.openfeature.sdk.testutils;
 
-import static dev.openfeature.sdk.Structure.mapToStructure;
+import static dev.openfeature.api.Structure.mapToStructure;
 
 import com.google.common.collect.ImmutableMap;
-import dev.openfeature.sdk.ImmutableMetadata;
-import dev.openfeature.sdk.Value;
+import dev.openfeature.api.ImmutableMetadata;
+import dev.openfeature.api.Value;
 import dev.openfeature.sdk.providers.memory.Flag;
 import java.util.HashMap;
 import java.util.Map;

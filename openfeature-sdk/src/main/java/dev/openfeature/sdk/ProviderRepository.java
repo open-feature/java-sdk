@@ -4,6 +4,7 @@ import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.exceptions.GeneralError;
 import dev.openfeature.api.exceptions.OpenFeatureError;
+import dev.openfeature.api.internal.noop.NoOpProvider;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

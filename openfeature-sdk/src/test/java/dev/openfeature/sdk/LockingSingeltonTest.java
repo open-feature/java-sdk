@@ -5,6 +5,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import dev.openfeature.api.ProviderEvent;
+import dev.openfeature.api.internal.noop.NoOpProvider;
+import dev.openfeature.api.internal.noop.NoOpTransactionContextPropagator;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
@@ -17,15 +20,15 @@ import org.junit.jupiter.api.parallel.Isolated;
 @Isolated()
 class LockingSingeltonTest {
 
-    private static OpenFeatureAPI api;
+    private static DefaultOpenFeatureAPI api;
     private OpenFeatureClient client;
     private AutoCloseableReentrantReadWriteLock apiLock;
     private AutoCloseableReentrantReadWriteLock clientHooksLock;
 
     @BeforeAll
     static void beforeAll() {
-        api = OpenFeatureAPI.getInstance();
-        OpenFeatureAPI.getInstance().setProvider("LockingTest", new NoOpProvider());
+        api = new DefaultOpenFeatureAPI();
+        DefaultOpenFeatureAPI.getInstance().setProvider("LockingTest", new NoOpProvider());
     }
 
     @BeforeEach
@@ -33,7 +36,7 @@ class LockingSingeltonTest {
         client = (OpenFeatureClient) api.getClient("LockingTest");
 
         apiLock = setupLock(apiLock, mockInnerReadLock(), mockInnerWriteLock());
-        OpenFeatureAPI.lock = apiLock;
+        DefaultOpenFeatureAPI.lock = apiLock;
 
         clientHooksLock = setupLock(clientHooksLock, mockInnerReadLock(), mockInnerWriteLock());
     }

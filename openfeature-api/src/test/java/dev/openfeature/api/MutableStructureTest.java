@@ -1,4 +1,4 @@
-package dev.openfeature.sdk;
+package dev.openfeature.api;
 
 import static org.junit.jupiter.api.Assertions.*;
 

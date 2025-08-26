@@ -16,7 +16,23 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dev.openfeature.sdk.exceptions.FlagNotFoundError;
+import dev.openfeature.api.BooleanHook;
+import dev.openfeature.api.Client;
+import dev.openfeature.api.ErrorCode;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.FlagEvaluationDetails;
+import dev.openfeature.api.FlagEvaluationOptions;
+import dev.openfeature.api.FlagValueType;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.HookContext;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.ImmutableMetadata;
+import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.ProviderEvaluation;
+import dev.openfeature.api.Value;
+import dev.openfeature.api.exceptions.FlagNotFoundError;
+import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.ArrayList;
@@ -38,7 +54,7 @@ class HookSpecTest implements HookFixtures {
 
     @BeforeEach
     void setUp() {
-        this.api = new OpenFeatureAPI();
+        this.api = new DefaultOpenFeatureAPI();
     }
 
     @Specification(

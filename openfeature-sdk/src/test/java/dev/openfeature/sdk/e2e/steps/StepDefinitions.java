@@ -3,14 +3,15 @@ package dev.openfeature.sdk.e2e.steps;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import dev.openfeature.sdk.Client;
-import dev.openfeature.sdk.EvaluationContext;
-import dev.openfeature.sdk.FlagEvaluationDetails;
-import dev.openfeature.sdk.ImmutableContext;
-import dev.openfeature.sdk.OpenFeatureAPI;
-import dev.openfeature.sdk.Reason;
-import dev.openfeature.sdk.Structure;
-import dev.openfeature.sdk.Value;
+import dev.openfeature.api.Client;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.FlagEvaluationDetails;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.Reason;
+import dev.openfeature.api.Structure;
+import dev.openfeature.api.Value;
+import dev.openfeature.sdk.DefaultOpenFeatureAPI;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import io.cucumber.java.BeforeAll;
@@ -54,8 +55,9 @@ public class StepDefinitions {
     public static void setup() {
         Map<String, Flag<?>> flags = buildFlags();
         InMemoryProvider provider = new InMemoryProvider(flags);
-        OpenFeatureAPI.getInstance().setProviderAndWait(provider);
-        client = OpenFeatureAPI.getInstance().getClient();
+        OpenFeatureAPI api = new DefaultOpenFeatureAPI();
+        api.setProviderAndWait(provider);
+        client = api.getClient();
     }
 
     /*

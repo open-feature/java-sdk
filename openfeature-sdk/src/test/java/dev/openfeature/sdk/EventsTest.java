@@ -4,8 +4,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
+import dev.openfeature.api.Client;
+import dev.openfeature.api.EventDetails;
+import dev.openfeature.api.ImmutableMetadata;
+import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.ProviderEvent;
+import dev.openfeature.api.ProviderEventDetails;
+import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +38,7 @@ class EventsTest {
 
     @BeforeEach
     void setUp() {
-        api = new OpenFeatureAPI();
+        api = new DefaultOpenFeatureAPI();
     }
 
     @Nested

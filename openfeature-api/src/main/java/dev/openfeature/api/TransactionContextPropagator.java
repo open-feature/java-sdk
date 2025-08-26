@@ -1,6 +1,4 @@
-package dev.openfeature.sdk;
-
-import dev.openfeature.api.EvaluationContext;
+package dev.openfeature.api;
 
 /**
  * {@link TransactionContextPropagator} is responsible for persisting a transactional context

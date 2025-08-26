@@ -1,12 +1,12 @@
 package dev.openfeature.sdk.testutils;
 
-import dev.openfeature.sdk.EvaluationContext;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.Metadata;
+import dev.openfeature.api.ProviderEvaluation;
+import dev.openfeature.api.ProviderEvent;
+import dev.openfeature.api.ProviderEventDetails;
+import dev.openfeature.api.Value;
 import dev.openfeature.sdk.EventProvider;
-import dev.openfeature.sdk.Metadata;
-import dev.openfeature.sdk.ProviderEvaluation;
-import dev.openfeature.sdk.ProviderEvent;
-import dev.openfeature.sdk.ProviderEventDetails;
-import dev.openfeature.sdk.Value;
 import java.util.function.Consumer;
 
 public class TestStackedEmitCallsProvider extends EventProvider {

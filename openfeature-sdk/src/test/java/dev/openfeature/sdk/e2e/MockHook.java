@@ -1,9 +1,9 @@
 package dev.openfeature.sdk.e2e;
 
-import dev.openfeature.sdk.EvaluationContext;
-import dev.openfeature.sdk.FlagEvaluationDetails;
-import dev.openfeature.sdk.Hook;
-import dev.openfeature.sdk.HookContext;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.FlagEvaluationDetails;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.HookContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

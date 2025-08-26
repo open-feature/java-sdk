@@ -2,6 +2,9 @@ package dev.openfeature.sdk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import dev.openfeature.api.ProviderEvaluation;
+import dev.openfeature.api.Value;
+import dev.openfeature.api.internal.noop.NoOpProvider;
 import org.junit.jupiter.api.Test;
 
 public class NoOpProviderTest {

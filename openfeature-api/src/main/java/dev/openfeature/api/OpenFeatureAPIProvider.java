@@ -8,7 +8,7 @@ package dev.openfeature.api;
 public interface OpenFeatureAPIProvider {
     /**
      * Create an OpenFeature API implementation.
-     * 
+     *
      * @return the API implementation
      */
     OpenFeatureAPI createAPI();
@@ -16,7 +16,7 @@ public interface OpenFeatureAPIProvider {
     /**
      * Priority for this provider. Higher values take precedence.
      * This allows multiple implementations to coexist with clear precedence rules.
-     * 
+     *
      * @return priority value (default: 0)
      */
     default int getPriority() {

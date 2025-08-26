@@ -2,6 +2,7 @@ package dev.openfeature.sdk;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+import dev.openfeature.api.Metadata;
 import org.junit.jupiter.api.Test;
 
 class MetadataTest {
