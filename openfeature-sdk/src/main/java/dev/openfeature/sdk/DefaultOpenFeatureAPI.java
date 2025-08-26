@@ -40,6 +40,11 @@ public class DefaultOpenFeatureAPI extends dev.openfeature.api.OpenFeatureAPI im
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
     private TransactionContextPropagator transactionContextPropagator;
 
+    /**
+     * Creates a new DefaultOpenFeatureAPI instance with default settings.
+     * Initializes the API with empty hooks, a provider repository, event support,
+     * and a no-op transaction context propagator.
+     */
     public DefaultOpenFeatureAPI() {
         apiHooks = new ConcurrentLinkedQueue<>();
         providerRepository = new ProviderRepository(this);
@@ -333,7 +338,6 @@ public class DefaultOpenFeatureAPI extends dev.openfeature.api.OpenFeatureAPI im
         return this.apiHooks;
     }
 
-
     /**
      * Removes all hooks.
      */
@@ -441,7 +445,6 @@ public class DefaultOpenFeatureAPI extends dev.openfeature.api.OpenFeatureAPI im
     public FeatureProviderStateManager getFeatureProviderStateManager(String domain) {
         return providerRepository.getFeatureProviderStateManager(domain);
     }
-
 
     /**
      * Runs the handlers associated with a particular provider.
