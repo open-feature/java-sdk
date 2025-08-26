@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>dev.openfeature</groupId>
+        <artifactId>openfeature-java</artifactId>
+        <version>2.0.0</version>
+    </parent>
+
+    <artifactId>openfeature-sdk</artifactId>
+
+    <name>OpenFeature Java SDK</name>
+    <description>OpenFeature Java SDK - Full implementation of OpenFeature API with advanced features</description>
+
+    <properties>
+        <module-name>dev.openfeature.sdk</module-name>
+        <testExclusions>**/e2e/*.java</testExclusions>
+    </properties>
+
+    <dependencies>
+        <!-- API dependency -->
+        <dependency>
+            <groupId>dev.openfeature</groupId>
+            <artifactId>openfeature-api</artifactId>
+        </dependency>
+
+        <!-- Lombok for clean code generation -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.38</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Spotbugs for annotations -->
+        <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs</artifactId>
+            <version>4.8.6</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- SLF4J already included from API module -->
+
+        <!-- Test dependencies will be added later -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>${module-name}</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
