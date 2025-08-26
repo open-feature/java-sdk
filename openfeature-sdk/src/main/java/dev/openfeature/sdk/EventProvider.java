@@ -1,5 +1,9 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.ProviderEvent;
+import dev.openfeature.api.ProviderEventDetails;
 import dev.openfeature.api.internal.TriConsumer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -89,7 +93,7 @@ public abstract class EventProvider implements FeatureProvider {
         // These calls need to be executed on a different thread to prevent deadlocks when the provider initialization
         // relies on a ready event to be emitted
         emitterExecutor.submit(() -> {
-            try (var ignored = OpenFeatureAPI.lock.readLockAutoCloseable()) {
+            try (var ignored = DefaultOpenFeatureAPI.lock.readLockAutoCloseable()) {
                 if (localEventProviderListener != null) {
                     localEventProviderListener.onEmit(event, details);
                 }

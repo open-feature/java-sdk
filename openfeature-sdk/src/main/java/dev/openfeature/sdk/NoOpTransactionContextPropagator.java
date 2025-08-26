@@ -1,5 +1,7 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.ImmutableContext;
 /**
  * A {@link TransactionContextPropagator} that simply returns empty context.
  */

@@ -1,6 +1,15 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.api.*;
+import dev.openfeature.api.Client;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.EventDetails;
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.Metadata;
+import dev.openfeature.api.OpenFeatureAdvanced;
+import dev.openfeature.api.ProviderEvent;
+import dev.openfeature.api.ProviderEventDetails;
+import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.exceptions.OpenFeatureError;
 import dev.openfeature.api.internal.AutoCloseableLock;
 import dev.openfeature.api.internal.AutoCloseableReentrantReadWriteLock;
@@ -320,9 +329,10 @@ public class DefaultOpenFeatureAPI extends dev.openfeature.api.OpenFeatureAPI im
      *
      * @return The collection of {@link Hook}s.
      */
-    Collection<Hook> getMutableHooks() {
+    public Collection<Hook> getMutableHooks() {
         return this.apiHooks;
     }
+
 
     /**
      * Removes all hooks.
@@ -403,13 +413,15 @@ public class DefaultOpenFeatureAPI extends dev.openfeature.api.OpenFeatureAPI im
         return this;
     }
 
-    void removeHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
+    @Override
+    public void removeHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
         try (AutoCloseableLock ignored = lock.writeLockAutoCloseable()) {
             eventSupport.removeClientHandler(domain, event, handler);
         }
     }
 
-    void addHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
+    @Override
+    public void addHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
         try (AutoCloseableLock ignored = lock.writeLockAutoCloseable()) {
             // if the provider is in the state associated with event, run immediately
             if (Optional.ofNullable(this.providerRepository.getProviderState(domain))
@@ -422,9 +434,14 @@ public class DefaultOpenFeatureAPI extends dev.openfeature.api.OpenFeatureAPI im
         }
     }
 
-    FeatureProviderStateManager getFeatureProviderStateManager(String domain) {
+    /**
+     * Get the feature provider state manager for a domain.
+     * Package-private method used by SDK implementations.
+     */
+    public FeatureProviderStateManager getFeatureProviderStateManager(String domain) {
         return providerRepository.getFeatureProviderStateManager(domain);
     }
+
 
     /**
      * Runs the handlers associated with a particular provider.

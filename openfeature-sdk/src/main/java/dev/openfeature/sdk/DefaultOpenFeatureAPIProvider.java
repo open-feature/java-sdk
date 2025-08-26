@@ -12,7 +12,7 @@ public class DefaultOpenFeatureAPIProvider implements OpenFeatureAPIProvider {
 
     /**
      * Create an OpenFeature API implementation with full SDK functionality.
-     * 
+     *
      * @return the default SDK implementation
      */
     @Override
@@ -23,7 +23,7 @@ public class DefaultOpenFeatureAPIProvider implements OpenFeatureAPIProvider {
     /**
      * Standard priority for the default SDK implementation.
      * Other SDK implementations can use higher priorities to override this.
-     * 
+     *
      * @return priority value (0 for standard implementation)
      */
     @Override

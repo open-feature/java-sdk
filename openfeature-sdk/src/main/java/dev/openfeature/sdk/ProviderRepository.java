@@ -1,5 +1,7 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.exceptions.GeneralError;
 import dev.openfeature.api.exceptions.OpenFeatureError;
 import java.util.List;
@@ -28,9 +30,9 @@ class ProviderRepository {
         return thread;
     });
     private final Object registerStateManagerLock = new Object();
-    private final OpenFeatureAPI openFeatureAPI;
+    private final DefaultOpenFeatureAPI openFeatureAPI;
 
-    public ProviderRepository(OpenFeatureAPI openFeatureAPI) {
+    public ProviderRepository(DefaultOpenFeatureAPI openFeatureAPI) {
         this.openFeatureAPI = openFeatureAPI;
     }
 

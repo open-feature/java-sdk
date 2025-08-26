@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.api.EvaluationContext;
 /**
  * A {@link ThreadLocalTransactionContextPropagator} is a transactional context propagator
  * that uses a ThreadLocal to persist a transactional context for the duration of a single thread.

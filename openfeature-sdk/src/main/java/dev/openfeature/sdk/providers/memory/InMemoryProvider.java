@@ -1,7 +1,6 @@
 package dev.openfeature.sdk.providers.memory;
 
 import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.sdk.EventProvider;
 import dev.openfeature.api.Metadata;
 import dev.openfeature.api.ProviderEvaluation;
 import dev.openfeature.api.ProviderEventDetails;
@@ -14,6 +13,7 @@ import dev.openfeature.api.exceptions.GeneralError;
 import dev.openfeature.api.exceptions.OpenFeatureError;
 import dev.openfeature.api.exceptions.ProviderNotReadyError;
 import dev.openfeature.api.exceptions.TypeMismatchError;
+import dev.openfeature.sdk.EventProvider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
