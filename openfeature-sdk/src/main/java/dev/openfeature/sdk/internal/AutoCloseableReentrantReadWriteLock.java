@@ -1,4 +1,4 @@
-package dev.openfeature.api.internal;
+package dev.openfeature.sdk.internal;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 

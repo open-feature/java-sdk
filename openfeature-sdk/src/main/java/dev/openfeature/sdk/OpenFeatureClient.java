@@ -24,7 +24,7 @@ import dev.openfeature.api.exceptions.FatalError;
 import dev.openfeature.api.exceptions.GeneralError;
 import dev.openfeature.api.exceptions.OpenFeatureError;
 import dev.openfeature.api.exceptions.ProviderNotReadyError;
-import dev.openfeature.api.internal.ObjectUtils;
+import dev.openfeature.sdk.internal.ObjectUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Arrays;

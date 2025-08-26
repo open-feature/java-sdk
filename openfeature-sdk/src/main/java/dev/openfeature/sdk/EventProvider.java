@@ -4,7 +4,7 @@ import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.ProviderEvent;
 import dev.openfeature.api.ProviderEventDetails;
-import dev.openfeature.api.internal.TriConsumer;
+import dev.openfeature.sdk.internal.TriConsumer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
