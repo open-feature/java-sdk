@@ -16,7 +16,7 @@ public enum ProviderState {
      * @param event event to compare
      * @return boolean if matches.
      */
-    boolean matchesEvent(ProviderEvent event) {
+    public boolean matchesEvent(ProviderEvent event) {
         return this == READY && event == ProviderEvent.PROVIDER_READY
                 || this == STALE && event == ProviderEvent.PROVIDER_STALE
                 || this == ERROR && event == ProviderEvent.PROVIDER_ERROR;

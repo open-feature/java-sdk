@@ -2,6 +2,7 @@ package dev.openfeature.api;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * No-operation implementation of OpenFeatureAPI that provides safe defaults.
@@ -39,7 +40,7 @@ public class NoOpOpenFeatureAPI extends OpenFeatureAPI {
 
     @Override
     public Metadata getProviderMetadata() {
-        return ImmutableMetadata.builder().name("No-op Provider").build();
+        return () -> "No-op Provider";
     }
 
     @Override
@@ -71,4 +72,17 @@ public class NoOpOpenFeatureAPI extends OpenFeatureAPI {
     public EvaluationContext getEvaluationContext() {
         return EvaluationContext.EMPTY;
     }
+
+    // Implementation of OpenFeatureEventHandling interface
+    
+    @Override
+    public void addHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
+        // No-op - silently ignore
+    }
+    
+    @Override
+    public void removeHandler(String domain, ProviderEvent event, Consumer<EventDetails> handler) {
+        // No-op - silently ignore
+    }
+    
 }
