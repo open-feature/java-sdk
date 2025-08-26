@@ -1,5 +1,10 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.FlagEvaluationDetails;
+import dev.openfeature.api.FlagValueType;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.HookContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

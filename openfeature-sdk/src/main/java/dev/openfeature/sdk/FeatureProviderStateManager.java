@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.api.ErrorCode;
 import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.ProviderEvent;

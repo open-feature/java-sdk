@@ -1,5 +1,24 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.api.Client;
+import dev.openfeature.api.ClientMetadata;
+import dev.openfeature.api.ErrorCode;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.EventDetails;
+import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.FlagEvaluationDetails;
+import dev.openfeature.api.FlagEvaluationOptions;
+import dev.openfeature.api.FlagValueType;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.HookContext;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.ImmutableStructure;
+import dev.openfeature.api.ProviderEvaluation;
+import dev.openfeature.api.ProviderEvent;
+import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.Reason;
+import dev.openfeature.api.TrackingEventDetails;
+import dev.openfeature.api.Value;
 import dev.openfeature.api.exceptions.ExceptionUtils;
 import dev.openfeature.api.exceptions.FatalError;
 import dev.openfeature.api.exceptions.GeneralError;
@@ -39,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 @Deprecated() // TODO: eventually we will make this non-public. See issue #872
 public class OpenFeatureClient implements Client {
 
-    private final OpenFeatureAPI openfeatureApi;
+    private final DefaultOpenFeatureAPI openfeatureApi;
 
     @Getter
     private final String domain;
@@ -63,7 +82,7 @@ public class OpenFeatureClient implements Client {
      *         Use the OpenFeatureAPI's getClient factory method instead.
      */
     @Deprecated() // TODO: eventually we will make this non-public. See issue #872
-    public OpenFeatureClient(OpenFeatureAPI openFeatureAPI, String domain, String version) {
+    public OpenFeatureClient(DefaultOpenFeatureAPI openFeatureAPI, String domain, String version) {
         this.openfeatureApi = openFeatureAPI;
         this.domain = domain;
         this.version = version;

@@ -1,6 +1,6 @@
 package dev.openfeature.sdk.providers.memory;
 
-import dev.openfeature.sdk.ImmutableMetadata;
+import dev.openfeature.api.ImmutableMetadata;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;

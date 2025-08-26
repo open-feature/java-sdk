@@ -3,6 +3,7 @@ package dev.openfeature.sdk;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,12 +12,45 @@ import lombok.extern.slf4j.Slf4j;
  * through builder and accessors.
  */
 @Slf4j
-@EqualsAndHashCode
-public class ImmutableMetadata {
-    private final Map<String, Object> metadata;
+@EqualsAndHashCode(callSuper = true)
+public class ImmutableMetadata extends AbstractStructure {
 
-    private ImmutableMetadata(Map<String, Object> metadata) {
-        this.metadata = metadata;
+    private ImmutableMetadata(Map<String, Value> attributes) {
+        super(attributes);
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return attributes.keySet();
+    }
+
+    @Override
+    public Value getValue(String key) {
+        return attributes.get(key);
+    }
+
+    /**
+     * Generic value retrieval for the given key.
+     */
+    public <T> T getValue(final String key, final Class<T> type) {
+        Value value = getValue(key);
+        if (value == null) {
+            log.debug("Metadata key " + key + " does not exist");
+            return null;
+        }
+
+        try {
+            Object obj = value.asObject();
+            return obj != null ? type.cast(obj) : null;
+        } catch (ClassCastException e) {
+            log.debug("Error retrieving value for key " + key, e);
+            return null;
+        }
+    }
+
+    @Override
+    public Map<String, Value> asMap() {
+        return new HashMap<>(attributes);
     }
 
     /**
@@ -26,7 +60,8 @@ public class ImmutableMetadata {
      * @param key flag metadata key to retrieve
      */
     public String getString(final String key) {
-        return getValue(key, String.class);
+        Value value = getValue(key);
+        return value != null && value.isString() ? value.asString() : null;
     }
 
     /**
@@ -36,7 +71,14 @@ public class ImmutableMetadata {
      * @param key flag metadata key to retrieve
      */
     public Integer getInteger(final String key) {
-        return getValue(key, Integer.class);
+        Value value = getValue(key);
+        if (value != null && value.isNumber()) {
+            Object obj = value.asObject();
+            if (obj instanceof Integer) {
+                return (Integer) obj;
+            }
+        }
+        return null;
     }
 
     /**
@@ -46,7 +88,14 @@ public class ImmutableMetadata {
      * @param key flag metadata key to retrieve
      */
     public Long getLong(final String key) {
-        return getValue(key, Long.class);
+        Value value = getValue(key);
+        if (value != null && value.isNumber()) {
+            Object obj = value.asObject();
+            if (obj instanceof Long) {
+                return (Long) obj;
+            }
+        }
+        return null;
     }
 
     /**
@@ -56,7 +105,14 @@ public class ImmutableMetadata {
      * @param key flag metadata key to retrieve
      */
     public Float getFloat(final String key) {
-        return getValue(key, Float.class);
+        Value value = getValue(key);
+        if (value != null && value.isNumber()) {
+            Object obj = value.asObject();
+            if (obj instanceof Float) {
+                return (Float) obj;
+            }
+        }
+        return null;
     }
 
     /**
@@ -66,7 +122,14 @@ public class ImmutableMetadata {
      * @param key flag metadata key to retrieve
      */
     public Double getDouble(final String key) {
-        return getValue(key, Double.class);
+        Value value = getValue(key);
+        if (value != null && value.isNumber()) {
+            Object obj = value.asObject();
+            if (obj instanceof Double) {
+                return (Double) obj;
+            }
+        }
+        return null;
     }
 
     /**
@@ -76,38 +139,20 @@ public class ImmutableMetadata {
      * @param key flag metadata key to retrieve
      */
     public Boolean getBoolean(final String key) {
-        return getValue(key, Boolean.class);
+        Value value = getValue(key);
+        return value != null && value.isBoolean() ? value.asBoolean() : null;
     }
 
     /**
-     * Generic value retrieval for the given key.
+     * Returns an unmodifiable map of metadata as primitive objects.
+     * This provides backward compatibility for the original ImmutableMetadata API.
      */
-    public <T> T getValue(final String key, final Class<T> type) {
-        final Object o = metadata.get(key);
-
-        if (o == null) {
-            log.debug("Metadata key " + key + "does not exist");
-            return null;
-        }
-
-        try {
-            return type.cast(o);
-        } catch (ClassCastException e) {
-            log.debug("Error retrieving value for key " + key, e);
-            return null;
-        }
-    }
-
-    public Map<String, Object> asUnmodifiableMap() {
-        return Collections.unmodifiableMap(metadata);
-    }
-
-    public boolean isEmpty() {
-        return metadata.isEmpty();
+    public Map<String, Object> asUnmodifiableObjectMap() {
+        return Collections.unmodifiableMap(asObjectMap());
     }
 
     public boolean isNotEmpty() {
-        return !metadata.isEmpty();
+        return !isEmpty();
     }
 
     /**
@@ -121,10 +166,10 @@ public class ImmutableMetadata {
      * Immutable builder for {@link ImmutableMetadata}.
      */
     public static class ImmutableMetadataBuilder {
-        private final Map<String, Object> metadata;
+        private final Map<String, Value> attributes;
 
         private ImmutableMetadataBuilder() {
-            metadata = new HashMap<>();
+            attributes = new HashMap<>();
         }
 
         /**
@@ -134,7 +179,7 @@ public class ImmutableMetadata {
          * @param value flag metadata value to add
          */
         public ImmutableMetadataBuilder addString(final String key, final String value) {
-            metadata.put(key, value);
+            attributes.put(key, Value.objectToValue(value));
             return this;
         }
 
@@ -145,7 +190,7 @@ public class ImmutableMetadata {
          * @param value flag metadata value to add
          */
         public ImmutableMetadataBuilder addInteger(final String key, final Integer value) {
-            metadata.put(key, value);
+            attributes.put(key, Value.objectToValue(value));
             return this;
         }
 
@@ -156,7 +201,11 @@ public class ImmutableMetadata {
          * @param value flag metadata value to add
          */
         public ImmutableMetadataBuilder addLong(final String key, final Long value) {
-            metadata.put(key, value);
+            try {
+                attributes.put(key, new Value(value));
+            } catch (InstantiationException e) {
+                throw new RuntimeException("Failed to create Value for Long", e);
+            }
             return this;
         }
 
@@ -167,7 +216,11 @@ public class ImmutableMetadata {
          * @param value flag metadata value to add
          */
         public ImmutableMetadataBuilder addFloat(final String key, final Float value) {
-            metadata.put(key, value);
+            try {
+                attributes.put(key, new Value(value));
+            } catch (InstantiationException e) {
+                throw new RuntimeException("Failed to create Value for Float", e);
+            }
             return this;
         }
 
@@ -178,7 +231,7 @@ public class ImmutableMetadata {
          * @param value flag metadata value to add
          */
         public ImmutableMetadataBuilder addDouble(final String key, final Double value) {
-            metadata.put(key, value);
+            attributes.put(key, Value.objectToValue(value));
             return this;
         }
 
@@ -189,7 +242,7 @@ public class ImmutableMetadata {
          * @param value flag metadata value to add
          */
         public ImmutableMetadataBuilder addBoolean(final String key, final Boolean value) {
-            metadata.put(key, value);
+            attributes.put(key, Value.objectToValue(value));
             return this;
         }
 
@@ -197,7 +250,7 @@ public class ImmutableMetadata {
          * Retrieve {@link ImmutableMetadata} with provided key,value pairs.
          */
         public ImmutableMetadata build() {
-            return new ImmutableMetadata(this.metadata);
+            return new ImmutableMetadata(this.attributes);
         }
     }
 }
