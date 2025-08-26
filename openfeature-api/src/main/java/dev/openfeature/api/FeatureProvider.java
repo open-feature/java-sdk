@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * The interface implemented by upstream flag providers to resolve flags for
  * their service. If you want to support realtime events with your provider, you
- * should extend {@link EventProvider}
+ * should extend the EventProvider class from the SDK module
  */
 public interface FeatureProvider {
     Metadata getMetadata();

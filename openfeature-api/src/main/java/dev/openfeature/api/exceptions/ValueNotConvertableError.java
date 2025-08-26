@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.experimental.StandardException;
 
 /**
- * The value can not be converted to a {@link dev.openfeature.sdk.Value}.
+ * The value can not be converted to a {@link dev.openfeature.api.Value}.
  */
 @StandardException
 public class ValueNotConvertableError extends OpenFeatureError {
