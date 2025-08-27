@@ -23,7 +23,6 @@ import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -687,8 +686,7 @@ class EventsTest {
                 text = "The API and client MUST provide a function allowing the removal of event handlers.")
         @Test
         @DisplayName("should not run removed events")
-        @SneakyThrows
-        void removedEventsShouldNotRun() {
+        void removedEventsShouldNotRun() throws Exception {
             final String name = "removedEventsShouldNotRun";
             final Consumer<EventDetails> handler1 = mockHandler();
             final Consumer<EventDetails> handler2 = mockHandler();

@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -120,13 +119,16 @@ class DeveloperExperienceTest implements HookFixtures {
         class MutatingHook implements Hook {
 
             @Override
-            @SneakyThrows
             // change the provider during a before hook - this should not impact the evaluation in progress
             public Optional before(HookContext ctx, Map hints) {
+                try {
 
-                api.setProviderAndWait(TestEventsProvider.newInitializedTestEventsProvider());
+                    api.setProviderAndWait(TestEventsProvider.newInitializedTestEventsProvider());
 
-                return Optional.empty();
+                    return Optional.empty();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 

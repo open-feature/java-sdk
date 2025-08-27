@@ -28,7 +28,6 @@ import dev.openfeature.api.Value;
 import dev.openfeature.sdk.fixtures.ProviderFixture;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -54,8 +53,7 @@ class TrackingSpecTest {
                     + "particular action or application state, with parameters `tracking event name` (string, required) and "
                     + "`tracking event details` (optional), which returns nothing.")
     @Test
-    @SneakyThrows
-    void trackMethodFulfillsSpec() {
+    void trackMethodFulfillsSpec() throws Exception {
 
         ImmutableContext ctx = new ImmutableContext();
         MutableTrackingEventDetails details = new MutableTrackingEventDetails(0.0f);

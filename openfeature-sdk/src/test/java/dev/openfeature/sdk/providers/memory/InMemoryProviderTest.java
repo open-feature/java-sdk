@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,9 +36,8 @@ class InMemoryProviderTest {
     private InMemoryProvider provider;
     private OpenFeatureAPI api;
 
-    @SneakyThrows
     @BeforeEach
-    void beforeEach() {
+    void beforeEach() throws Exception {
         final var configChangedEventCounter = new AtomicInteger();
         Map<String, Flag<?>> flags = buildFlags();
         provider = spy(new InMemoryProvider(flags));
@@ -105,9 +103,8 @@ class InMemoryProviderTest {
         });
     }
 
-    @SneakyThrows
     @Test
-    void shouldThrowIfNotInitialized() {
+    void shouldThrowIfNotInitialized() throws Exception {
         InMemoryProvider inMemoryProvider = new InMemoryProvider(new HashMap<>());
 
         // ErrorCode.PROVIDER_NOT_READY should be returned when evaluated via the client

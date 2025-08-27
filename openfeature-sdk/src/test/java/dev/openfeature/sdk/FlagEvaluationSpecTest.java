@@ -38,7 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,8 +55,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         return api.getClient();
     }
 
-    @SneakyThrows
-    private Client _initializedClient() {
+    private Client _initializedClient() throws Exception {
         TestEventsProvider provider = new TestEventsProvider();
         provider.initialize(null);
         api.setProviderAndWait(provider);
@@ -91,13 +89,12 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertThat(api.getProvider()).isEqualTo(mockProvider);
     }
 
-    @SneakyThrows
     @Specification(
             number = "1.1.8",
             text =
                     "The API SHOULD provide functions to set a provider and wait for the initialize function to return or throw.")
     @Test
-    void providerAndWait() {
+    void providerAndWait() throws Exception {
         FeatureProvider provider = new TestEventsProvider(500);
         api.setProviderAndWait(provider);
         Client client = api.getClient();
@@ -110,13 +107,12 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertThat(client2.getProviderState()).isEqualTo(ProviderState.READY);
     }
 
-    @SneakyThrows
     @Specification(
             number = "1.1.8",
             text =
                     "The API SHOULD provide functions to set a provider and wait for the initialize function to return or throw.")
     @Test
-    void providerAndWaitError() {
+    void providerAndWaitError() throws Exception {
         FeatureProvider provider1 = new TestEventsProvider(500, true, "fake error");
         assertThrows(GeneralError.class, () -> api.setProviderAndWait(provider1));
 
@@ -361,9 +357,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
             number = "1.5.1",
             text =
                     "The evaluation options structure's hooks field denotes an ordered collection of hooks that the client MUST execute for the respective flag evaluation, in addition to those already configured.")
-    @SneakyThrows
     @Test
-    void hooks() {
+    void hooks() throws Exception {
         Client c = _initializedClient();
         Hook<Boolean> clientHook = mockBooleanHook();
         Hook<Boolean> invocationHook = mockBooleanHook();

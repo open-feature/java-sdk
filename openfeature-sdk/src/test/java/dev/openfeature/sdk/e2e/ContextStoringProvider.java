@@ -5,9 +5,7 @@ import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.Metadata;
 import dev.openfeature.api.ProviderEvaluation;
 import dev.openfeature.api.Value;
-import lombok.Getter;
 
-@Getter
 public class ContextStoringProvider implements FeatureProvider {
     private EvaluationContext evaluationContext;
 
@@ -44,5 +42,9 @@ public class ContextStoringProvider implements FeatureProvider {
     public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
         this.evaluationContext = ctx;
         return null;
+    }
+
+    public EvaluationContext getEvaluationContext() {
+        return evaluationContext;
     }
 }

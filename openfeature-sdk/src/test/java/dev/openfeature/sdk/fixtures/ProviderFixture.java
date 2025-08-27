@@ -12,11 +12,13 @@ import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.ProviderState;
 import java.io.FileNotFoundException;
 import java.util.concurrent.CountDownLatch;
-import lombok.experimental.UtilityClass;
 import org.mockito.stubbing.Answer;
 
-@UtilityClass
 public class ProviderFixture {
+
+    private ProviderFixture() {
+        // Utility class
+    }
 
     public static FeatureProvider createMockedProvider() {
         FeatureProvider provider = mock(FeatureProvider.class);

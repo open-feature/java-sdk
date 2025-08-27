@@ -18,7 +18,6 @@ import dev.openfeature.api.HookContext;
 import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.Metadata;
 import dev.openfeature.api.exceptions.GeneralError;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.simplify4u.slf4jmock.LoggerMock;
@@ -73,9 +72,8 @@ class LoggingHookTest {
         LoggerMock.setMock(LoggingHook.class, logger);
     }
 
-    @SneakyThrows
     @Test
-    void beforeLogsAllPropsExceptEvaluationContext() {
+    void beforeLogsAllPropsExceptEvaluationContext() throws Exception {
         LoggingHook hook = new LoggingHook();
         hook.before(hookContext, null);
 
@@ -85,9 +83,8 @@ class LoggingHookTest {
         verify(mockBuilder).log(argThat((String s) -> s.contains("Before")));
     }
 
-    @SneakyThrows
     @Test
-    void beforeLogsAllPropsAndEvaluationContext() {
+    void beforeLogsAllPropsAndEvaluationContext() throws Exception {
         LoggingHook hook = new LoggingHook(true);
         hook.before(hookContext, null);
 
@@ -97,9 +94,8 @@ class LoggingHookTest {
         verify(mockBuilder).log(argThat((String s) -> s.contains("Before")));
     }
 
-    @SneakyThrows
     @Test
-    void afterLogsAllPropsExceptEvaluationContext() {
+    void afterLogsAllPropsExceptEvaluationContext() throws Exception {
         LoggingHook hook = new LoggingHook();
         FlagEvaluationDetails<Object> details = FlagEvaluationDetails.builder()
                 .reason(REASON)
@@ -115,9 +111,8 @@ class LoggingHookTest {
         verify(mockBuilder).log(argThat((String s) -> s.contains("After")));
     }
 
-    @SneakyThrows
     @Test
-    void afterLogsAllPropsAndEvaluationContext() {
+    void afterLogsAllPropsAndEvaluationContext() throws Exception {
         LoggingHook hook = new LoggingHook(true);
         FlagEvaluationDetails<Object> details = FlagEvaluationDetails.builder()
                 .reason(REASON)
@@ -133,9 +128,8 @@ class LoggingHookTest {
         verify(mockBuilder).log(argThat((String s) -> s.contains("After")));
     }
 
-    @SneakyThrows
     @Test
-    void errorLogsAllPropsExceptEvaluationContext() {
+    void errorLogsAllPropsExceptEvaluationContext() throws Exception {
         LoggingHook hook = new LoggingHook();
         GeneralError error = new GeneralError(ERROR_MESSAGE);
         hook.error(hookContext, error, null);
@@ -147,9 +141,8 @@ class LoggingHookTest {
         verify(mockBuilder).log(argThat((String s) -> s.contains("Error")), any(Exception.class));
     }
 
-    @SneakyThrows
     @Test
-    void errorLogsAllPropsAndEvaluationContext() {
+    void errorLogsAllPropsAndEvaluationContext() throws Exception {
         LoggingHook hook = new LoggingHook(true);
         GeneralError error = new GeneralError(ERROR_MESSAGE);
         hook.error(hookContext, error, null);

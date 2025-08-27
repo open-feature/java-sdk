@@ -20,7 +20,6 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.SneakyThrows;
 
 public class StepDefinitions {
 
@@ -49,10 +48,9 @@ public class StepDefinitions {
     private int typeErrorDefaultValue;
     private FlagEvaluationDetails<Integer> typeErrorDetails;
 
-    @SneakyThrows
     @BeforeAll()
     @Given("a provider is registered")
-    public static void setup() {
+    public static void setup() throws Exception {
         Map<String, Flag<?>> flags = buildFlags();
         InMemoryProvider provider = new InMemoryProvider(flags);
         OpenFeatureAPI api = new DefaultOpenFeatureAPI();
