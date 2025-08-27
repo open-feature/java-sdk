@@ -21,8 +21,14 @@ class HookContextTest {
     void metadata_field_is_type_metadata() {
         ClientMetadata clientMetadata = mock(ClientMetadata.class);
         Metadata meta = mock(Metadata.class);
-        HookContext<Object> hc =
-                HookContext.from("key", FlagValueType.BOOLEAN, clientMetadata, meta, new ImmutableContext(), false);
+        HookContext<Boolean> hc = HookContext.<Boolean>builder()
+                .flagKey("key")
+                .type(FlagValueType.BOOLEAN)
+                .clientMetadata(clientMetadata)
+                .providerMetadata(meta)
+                .ctx(new ImmutableContext())
+                .defaultValue(false)
+                .build();
 
         assertTrue(ClientMetadata.class.isAssignableFrom(hc.getClientMetadata().getClass()));
         assertTrue(Metadata.class.isAssignableFrom(hc.getProviderMetadata().getClass()));

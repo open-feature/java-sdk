@@ -12,6 +12,7 @@ import dev.openfeature.api.FlagValueType;
 import dev.openfeature.api.Hook;
 import dev.openfeature.api.HookContext;
 import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.ImmutableMetadata;
 import dev.openfeature.api.ImmutableStructure;
 import dev.openfeature.api.ProviderEvaluation;
 import dev.openfeature.api.ProviderEvent;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -201,18 +203,25 @@ public class OpenFeatureClient implements Client {
 
             var mergedCtx = hookSupport.beforeHooks(
                     type,
-                    HookContext.from(
-                            key,
-                            type,
-                            this.getMetadata(),
-                            provider.getMetadata(),
-                            mergeEvaluationContext(ctx),
-                            defaultValue),
+                    HookContext.<T>builder()
+                            .flagKey(key)
+                            .type(type)
+                            .clientMetadata(this.getMetadata())
+                            .providerMetadata(provider.getMetadata())
+                            .ctx(mergeEvaluationContext(ctx))
+                            .defaultValue(defaultValue)
+                            .build(),
                     mergedHooks,
                     hints);
 
-            afterHookContext =
-                    HookContext.from(key, type, this.getMetadata(), provider.getMetadata(), mergedCtx, defaultValue);
+            afterHookContext = HookContext.<T>builder()
+                    .flagKey(key)
+                    .type(type)
+                    .clientMetadata(this.getMetadata())
+                    .providerMetadata(provider.getMetadata())
+                    .ctx(mergedCtx)
+                    .defaultValue(defaultValue)
+                    .build();
 
             // "short circuit" if the provider is in NOT_READY or FATAL state
             if (ProviderState.NOT_READY.equals(state)) {
@@ -225,7 +234,16 @@ public class OpenFeatureClient implements Client {
             var providerEval =
                     (ProviderEvaluation<T>) createProviderEvaluation(type, key, defaultValue, provider, mergedCtx);
 
-            details = FlagEvaluationDetails.from(providerEval, key);
+            details = FlagEvaluationDetails.<T>builder()
+                    .flagKey(key)
+                    .value(providerEval.getValue())
+                    .variant(providerEval.getVariant())
+                    .reason(providerEval.getReason())
+                    .errorMessage(providerEval.getErrorMessage())
+                    .errorCode(providerEval.getErrorCode())
+                    .flagMetadata(Optional.ofNullable(providerEval.getFlagMetadata())
+                            .orElse(ImmutableMetadata.builder().build()))
+                    .build();
             if (details.getErrorCode() != null) {
                 var error =
                         ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());

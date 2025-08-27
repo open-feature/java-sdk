@@ -202,24 +202,4 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
         }
     }
 
-    /**
-     * Generate detail payload from the provider response.
-     *
-     * @param providerEval provider response
-     * @param flagKey      key for the flag being evaluated
-     * @param <T>          type of flag being returned
-     * @return detail payload
-     */
-    public static <T> FlagEvaluationDetails<T> from(ProviderEvaluation<T> providerEval, String flagKey) {
-        return FlagEvaluationDetails.<T>builder()
-                .flagKey(flagKey)
-                .value(providerEval.getValue())
-                .variant(providerEval.getVariant())
-                .reason(providerEval.getReason())
-                .errorMessage(providerEval.getErrorMessage())
-                .errorCode(providerEval.getErrorCode())
-                .flagMetadata(Optional.ofNullable(providerEval.getFlagMetadata())
-                        .orElse(ImmutableMetadata.builder().build()))
-                .build();
-    }
 }
