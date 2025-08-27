@@ -16,10 +16,11 @@ public class ProviderEventDetails implements EventDetailsInterface {
 
     /**
      * Creates an empty ProviderEventDetails for backwards compatibility.
+     *
      * @deprecated Use builder() instead
      */
     @Deprecated
-    public ProviderEventDetails() {
+    private ProviderEventDetails() {
         this(null, null, null, null);
     }
 
@@ -31,7 +32,7 @@ public class ProviderEventDetails implements EventDetailsInterface {
      * @param eventMetadata metadata associated with the event (may be null)
      * @param errorCode error code (should be populated for PROVIDER_ERROR events)
      */
-    public ProviderEventDetails(
+    private ProviderEventDetails(
             List<String> flagsChanged, String message, ImmutableMetadata eventMetadata, ErrorCode errorCode) {
         this.flagsChanged = flagsChanged != null ? List.copyOf(flagsChanged) : null;
         this.message = message;
@@ -55,8 +56,8 @@ public class ProviderEventDetails implements EventDetailsInterface {
         return errorCode;
     }
 
-    public static ProviderEventDetailsBuilder builder() {
-        return new ProviderEventDetailsBuilder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     /**
@@ -64,7 +65,7 @@ public class ProviderEventDetails implements EventDetailsInterface {
      *
      * @return a builder for ProviderEventDetails
      */
-    public ProviderEventDetailsBuilder toBuilder() {
+    public Builder toBuilder() {
         return builder()
                 .flagsChanged(this.flagsChanged)
                 .message(this.message)
@@ -104,30 +105,30 @@ public class ProviderEventDetails implements EventDetailsInterface {
     /**
      * Builder class for creating instances of ProviderEventDetails.
      */
-    public static class ProviderEventDetailsBuilder {
+    public static class Builder {
         private List<String> flagsChanged;
         private String message;
         private ImmutableMetadata eventMetadata;
         private ErrorCode errorCode;
 
-        private ProviderEventDetailsBuilder() {}
+        private Builder() {}
 
-        public ProviderEventDetailsBuilder flagsChanged(List<String> flagsChanged) {
-            this.flagsChanged = flagsChanged;
+        public Builder flagsChanged(List<String> flagsChanged) {
+            this.flagsChanged = flagsChanged != null ? List.copyOf(flagsChanged) : null;
             return this;
         }
 
-        public ProviderEventDetailsBuilder message(String message) {
+        public Builder message(String message) {
             this.message = message;
             return this;
         }
 
-        public ProviderEventDetailsBuilder eventMetadata(ImmutableMetadata eventMetadata) {
+        public Builder eventMetadata(ImmutableMetadata eventMetadata) {
             this.eventMetadata = eventMetadata;
             return this;
         }
 
-        public ProviderEventDetailsBuilder errorCode(ErrorCode errorCode) {
+        public Builder errorCode(ErrorCode errorCode) {
             this.errorCode = errorCode;
             return this;
         }

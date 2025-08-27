@@ -37,8 +37,8 @@ public class EvaluationEvent {
         this.attributes = attributes != null ? new HashMap<>(attributes) : new HashMap<>();
     }
 
-    public static EvaluationEventBuilder builder() {
-        return new EvaluationEventBuilder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
@@ -66,21 +66,21 @@ public class EvaluationEvent {
     /**
      * Builder class for creating instances of EvaluationEvent.
      */
-    public static class EvaluationEventBuilder {
+    public static class Builder {
         private String name;
         private Map<String, Object> attributes = new HashMap<>();
 
-        public EvaluationEventBuilder name(String name) {
+        public Builder name(String name) {
             this.name = name;
             return this;
         }
 
-        public EvaluationEventBuilder attributes(Map<String, Object> attributes) {
+        public Builder attributes(Map<String, Object> attributes) {
             this.attributes = attributes != null ? new HashMap<>(attributes) : new HashMap<>();
             return this;
         }
 
-        public EvaluationEventBuilder attribute(String key, Object value) {
+        public Builder attribute(String key, Object value) {
             this.attributes.put(key, value);
             return this;
         }

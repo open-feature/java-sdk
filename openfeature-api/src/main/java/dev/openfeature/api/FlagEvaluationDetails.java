@@ -1,7 +1,6 @@
 package dev.openfeature.api;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Contains information about how the provider resolved a flag, including the
@@ -11,20 +10,23 @@ import java.util.Optional;
  */
 public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
 
-    private String flagKey;
-    private T value;
-    private String variant;
-    private String reason;
-    private ErrorCode errorCode;
-    private String errorMessage;
-    private ImmutableMetadata flagMetadata;
+    private final String flagKey;
+    private final T value;
+    private final String variant;
+    private final String reason;
+    private final ErrorCode errorCode;
+    private final String errorMessage;
+    private final ImmutableMetadata flagMetadata;
 
-    public FlagEvaluationDetails() {
-        this.flagMetadata = ImmutableMetadata.builder().build();
+    /**
+     * Private constructor for builder pattern only.
+     */
+    private FlagEvaluationDetails() {
+        this(null, null, null, null, null, null, null);
     }
 
     /**
-     * Constructs a FlagEvaluationDetails with the specified parameters.
+     * Private constructor for immutable FlagEvaluationDetails.
      *
      * @param flagKey the flag key
      * @param value the resolved value
@@ -34,7 +36,7 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
      * @param errorMessage the error message if applicable
      * @param flagMetadata metadata associated with the flag
      */
-    public FlagEvaluationDetails(
+    private FlagEvaluationDetails(
             String flagKey,
             T value,
             String variant,
@@ -57,60 +59,39 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
         return flagKey;
     }
 
-    public void setFlagKey(String flagKey) {
-        this.flagKey = flagKey;
-    }
 
     public T getValue() {
         return value;
     }
 
-    public void setValue(T value) {
-        this.value = value;
-    }
 
     public String getVariant() {
         return variant;
     }
 
-    public void setVariant(String variant) {
-        this.variant = variant;
-    }
 
     public String getReason() {
         return reason;
     }
 
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
 
     public ErrorCode getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(ErrorCode errorCode) {
-        this.errorCode = errorCode;
-    }
 
     public String getErrorMessage() {
         return errorMessage;
     }
 
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
 
     public ImmutableMetadata getFlagMetadata() {
         return flagMetadata;
     }
 
-    public void setFlagMetadata(ImmutableMetadata flagMetadata) {
-        this.flagMetadata = flagMetadata;
-    }
 
-    public static <T> FlagEvaluationDetailsBuilder<T> builder() {
-        return new FlagEvaluationDetailsBuilder<>();
+    public static <T> Builder<T> builder() {
+        return new Builder<>();
     }
 
     @Override
@@ -153,7 +134,7 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
      *
      * @param <T> the type of the flag value
      */
-    public static class FlagEvaluationDetailsBuilder<T> {
+    public static class Builder<T> {
         private String flagKey;
         private T value;
         private String variant;
@@ -162,37 +143,37 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
         private String errorMessage;
         private ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
 
-        public FlagEvaluationDetailsBuilder<T> flagKey(String flagKey) {
+        public Builder<T> flagKey(String flagKey) {
             this.flagKey = flagKey;
             return this;
         }
 
-        public FlagEvaluationDetailsBuilder<T> value(T value) {
+        public Builder<T> value(T value) {
             this.value = value;
             return this;
         }
 
-        public FlagEvaluationDetailsBuilder<T> variant(String variant) {
+        public Builder<T> variant(String variant) {
             this.variant = variant;
             return this;
         }
 
-        public FlagEvaluationDetailsBuilder<T> reason(String reason) {
+        public Builder<T> reason(String reason) {
             this.reason = reason;
             return this;
         }
 
-        public FlagEvaluationDetailsBuilder<T> errorCode(ErrorCode errorCode) {
+        public Builder<T> errorCode(ErrorCode errorCode) {
             this.errorCode = errorCode;
             return this;
         }
 
-        public FlagEvaluationDetailsBuilder<T> errorMessage(String errorMessage) {
+        public Builder<T> errorMessage(String errorMessage) {
             this.errorMessage = errorMessage;
             return this;
         }
 
-        public FlagEvaluationDetailsBuilder<T> flagMetadata(ImmutableMetadata flagMetadata) {
+        public Builder<T> flagMetadata(ImmutableMetadata flagMetadata) {
             this.flagMetadata = flagMetadata;
             return this;
         }
@@ -201,5 +182,4 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
             return new FlagEvaluationDetails<>(flagKey, value, variant, reason, errorCode, errorMessage, flagMetadata);
         }
     }
-
 }
