@@ -6,11 +6,11 @@ import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.FlagEvaluationDetails;
 import dev.openfeature.api.MutableContext;
 import dev.openfeature.api.OpenFeatureAPI;
-import dev.openfeature.sdk.DefaultOpenFeatureAPI;
+import dev.openfeature.sdk.DefaultOpenFeatureAPIProvider;
 import java.util.List;
 
 public class State {
-    public OpenFeatureAPI api = new DefaultOpenFeatureAPI();
+    public OpenFeatureAPI api = new DefaultOpenFeatureAPIProvider().createAPI();
     public Client client;
     public Flag flag;
     public MutableContext context = new MutableContext();

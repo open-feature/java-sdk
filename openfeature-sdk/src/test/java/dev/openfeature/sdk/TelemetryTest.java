@@ -5,7 +5,18 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import dev.openfeature.api.*;
+import dev.openfeature.api.ClientMetadata;
+import dev.openfeature.api.ErrorCode;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.EvaluationEvent;
+import dev.openfeature.api.FlagEvaluationDetails;
+import dev.openfeature.api.FlagValueType;
+import dev.openfeature.api.HookContext;
+import dev.openfeature.api.ImmutableContext;
+import dev.openfeature.api.ImmutableMetadata;
+import dev.openfeature.api.Metadata;
+import dev.openfeature.api.Reason;
+import dev.openfeature.api.Telemetry;
 import org.junit.jupiter.api.Test;
 
 public class TelemetryTest {

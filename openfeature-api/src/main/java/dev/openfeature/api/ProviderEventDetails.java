@@ -4,27 +4,36 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * The details of a particular event.
+ * Details of a provider event, as emitted by providers.
+ * This represents the "provider event details" structure defined in the OpenFeature specification.
+ * Providers emit these events, which are then enriched by the SDK with provider context.
  */
-public class ProviderEventDetails {
-    private List<String> flagsChanged;
-    private String message;
-    private ImmutableMetadata eventMetadata;
-    private ErrorCode errorCode;
+public class ProviderEventDetails implements EventDetailsInterface {
+    private final List<String> flagsChanged;
+    private final String message;
+    private final ImmutableMetadata eventMetadata;
+    private final ErrorCode errorCode;
 
-    public ProviderEventDetails() {}
+    /**
+     * Creates an empty ProviderEventDetails for backwards compatibility.
+     * @deprecated Use builder() instead
+     */
+    @Deprecated
+    public ProviderEventDetails() {
+        this(null, null, null, null);
+    }
 
     /**
      * Constructs a ProviderEventDetails with the specified parameters.
      *
-     * @param flagsChanged list of flags that changed
-     * @param message message describing the event
-     * @param eventMetadata metadata associated with the event
-     * @param errorCode error code if applicable
+     * @param flagsChanged list of flags that changed (may be null)
+     * @param message message describing the event (should be populated for PROVIDER_ERROR events)
+     * @param eventMetadata metadata associated with the event (may be null)
+     * @param errorCode error code (should be populated for PROVIDER_ERROR events)
      */
     public ProviderEventDetails(
             List<String> flagsChanged, String message, ImmutableMetadata eventMetadata, ErrorCode errorCode) {
-        this.flagsChanged = flagsChanged;
+        this.flagsChanged = flagsChanged != null ? List.copyOf(flagsChanged) : null;
         this.message = message;
         this.eventMetadata = eventMetadata;
         this.errorCode = errorCode;
@@ -34,32 +43,16 @@ public class ProviderEventDetails {
         return flagsChanged;
     }
 
-    public void setFlagsChanged(List<String> flagsChanged) {
-        this.flagsChanged = flagsChanged;
-    }
-
     public String getMessage() {
         return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public ImmutableMetadata getEventMetadata() {
         return eventMetadata;
     }
 
-    public void setEventMetadata(ImmutableMetadata eventMetadata) {
-        this.eventMetadata = eventMetadata;
-    }
-
     public ErrorCode getErrorCode() {
         return errorCode;
-    }
-
-    public void setErrorCode(ErrorCode errorCode) {
-        this.errorCode = errorCode;
     }
 
     public static ProviderEventDetailsBuilder builder() {
@@ -72,7 +65,7 @@ public class ProviderEventDetails {
      * @return a builder for ProviderEventDetails
      */
     public ProviderEventDetailsBuilder toBuilder() {
-        return new ProviderEventDetailsBuilder()
+        return builder()
                 .flagsChanged(this.flagsChanged)
                 .message(this.message)
                 .eventMetadata(this.eventMetadata)
@@ -116,6 +109,8 @@ public class ProviderEventDetails {
         private String message;
         private ImmutableMetadata eventMetadata;
         private ErrorCode errorCode;
+
+        private ProviderEventDetailsBuilder() {}
 
         public ProviderEventDetailsBuilder flagsChanged(List<String> flagsChanged) {
             this.flagsChanged = flagsChanged;

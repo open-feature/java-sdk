@@ -438,7 +438,10 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
                     .matchesEvent(event)) {
                 eventSupport.runHandler(
                         handler,
-                        EventDetails.eventDetailsBuilder().domain(domain).build());
+                        EventDetails.builder()
+                                .providerName(getProvider(domain).getMetadata().getName())
+                                .domain(domain)
+                                .build());
             }
             eventSupport.addClientHandler(domain, event, handler);
         }
@@ -466,7 +469,8 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
 
             final String providerName = Optional.ofNullable(provider.getMetadata())
                     .map(Metadata::getName)
-                    .orElse(null);
+                    .filter(name -> name != null && !name.trim().isEmpty())
+                    .orElse("unknown");
 
             // run the global handlers
             eventSupport.runGlobalHandlers(event, EventDetails.fromProviderEventDetails(details, providerName));

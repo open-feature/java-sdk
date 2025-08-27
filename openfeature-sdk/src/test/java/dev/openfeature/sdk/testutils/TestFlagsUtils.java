@@ -8,6 +8,7 @@ import dev.openfeature.api.Value;
 import dev.openfeature.sdk.providers.memory.Flag;
 import java.util.HashMap;
 import java.util.Map;
+
 /**
  * Test flags utils.
  */
