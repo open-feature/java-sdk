@@ -8,13 +8,14 @@ import dev.openfeature.api.Value;
 import dev.openfeature.sdk.providers.memory.Flag;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.experimental.UtilityClass;
-
 /**
  * Test flags utils.
  */
-@UtilityClass
 public class TestFlagsUtils {
+
+    private TestFlagsUtils() {
+        // Utility class
+    }
 
     public static final String BOOLEAN_FLAG_KEY = "boolean-flag";
     public static final String STRING_FLAG_KEY = "string-flag";

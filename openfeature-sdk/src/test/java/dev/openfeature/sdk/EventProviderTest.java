@@ -17,7 +17,6 @@ import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.internal.TriConsumer;
 import dev.openfeature.sdk.testutils.TestStackedEmitCallsProvider;
 import io.cucumber.java.AfterAll;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,8 +29,7 @@ class EventProviderTest {
     private TestEventProvider eventProvider;
 
     @BeforeEach
-    @SneakyThrows
-    void setup() {
+    void setup() throws Exception {
         eventProvider = new TestEventProvider();
         eventProvider.initialize(null);
     }
@@ -97,10 +95,9 @@ class EventProviderTest {
     }
 
     @Test
-    @SneakyThrows
     @Timeout(value = 2, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
     @DisplayName("should not deadlock on emit called during emit")
-    void doesNotDeadlockOnEmitStackedCalls() {
+    void doesNotDeadlockOnEmitStackedCalls() throws Exception {
         TestStackedEmitCallsProvider provider = new TestStackedEmitCallsProvider();
         new DefaultOpenFeatureAPI().setProviderAndWait(provider);
     }

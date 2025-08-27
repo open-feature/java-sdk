@@ -8,7 +8,6 @@ import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.ImmutableContext;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 public class ThreadLocalTransactionContextPropagatorTest {
@@ -32,9 +31,8 @@ public class ThreadLocalTransactionContextPropagatorTest {
         assertNull(result);
     }
 
-    @SneakyThrows
     @Test
-    public void setTransactionContextTwoThreads() {
+    public void setTransactionContextTwoThreads() throws Exception {
         EvaluationContext firstContext = new ImmutableContext();
         EvaluationContext secondContext = new ImmutableContext();
 

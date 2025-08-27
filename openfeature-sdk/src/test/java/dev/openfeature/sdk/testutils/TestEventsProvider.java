@@ -10,7 +10,6 @@ import dev.openfeature.api.Value;
 import dev.openfeature.api.exceptions.FatalError;
 import dev.openfeature.api.exceptions.GeneralError;
 import dev.openfeature.sdk.EventProvider;
-import lombok.SneakyThrows;
 
 public class TestEventsProvider extends EventProvider {
     public static final String PASSED_IN_DEFAULT = "Passed in default";
@@ -42,8 +41,7 @@ public class TestEventsProvider extends EventProvider {
         this.isFatalInitError = fatal;
     }
 
-    @SneakyThrows
-    public static TestEventsProvider newInitializedTestEventsProvider() {
+    public static TestEventsProvider newInitializedTestEventsProvider() throws Exception {
         TestEventsProvider provider = new TestEventsProvider();
         provider.initialize(null);
         return provider;

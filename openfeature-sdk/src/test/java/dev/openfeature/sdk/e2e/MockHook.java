@@ -7,22 +7,16 @@ import dev.openfeature.api.HookContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import lombok.Getter;
 
 public class MockHook implements Hook {
-    @Getter
     private boolean beforeCalled;
 
-    @Getter
     private boolean afterCalled;
 
-    @Getter
     private boolean errorCalled;
 
-    @Getter
     private boolean finallyAfterCalled;
 
-    @Getter
     private final Map<String, FlagEvaluationDetails> evaluationDetails = new HashMap<>();
 
     @Override
@@ -46,5 +40,25 @@ public class MockHook implements Hook {
     public void finallyAfter(HookContext ctx, FlagEvaluationDetails details, Map hints) {
         finallyAfterCalled = true;
         evaluationDetails.put("finally", details);
+    }
+
+    public boolean isBeforeCalled() {
+        return beforeCalled;
+    }
+
+    public boolean isAfterCalled() {
+        return afterCalled;
+    }
+
+    public boolean isErrorCalled() {
+        return errorCalled;
+    }
+
+    public boolean isFinallyAfterCalled() {
+        return finallyAfterCalled;
+    }
+
+    public Map<String, FlagEvaluationDetails> getEvaluationDetails() {
+        return evaluationDetails;
     }
 }

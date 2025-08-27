@@ -15,7 +15,6 @@ import dev.openfeature.api.exceptions.FatalError;
 import dev.openfeature.api.exceptions.GeneralError;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,17 +29,15 @@ class FeatureProviderStateManagerTest {
         wrapper = new FeatureProviderStateManager(testDelegate);
     }
 
-    @SneakyThrows
     @Test
-    void shouldOnlyCallInitOnce() {
+    void shouldOnlyCallInitOnce() throws Exception {
         wrapper.initialize(null);
         wrapper.initialize(null);
         assertThat(testDelegate.initCalled.get()).isOne();
     }
 
-    @SneakyThrows
     @Test
-    void shouldCallInitTwiceWhenShutDownInTheMeantime() {
+    void shouldCallInitTwiceWhenShutDownInTheMeantime() throws Exception {
         wrapper.initialize(null);
         wrapper.shutdown();
         wrapper.initialize(null);
@@ -53,21 +50,19 @@ class FeatureProviderStateManagerTest {
         assertThat(wrapper.getState()).isEqualTo(ProviderState.NOT_READY);
     }
 
-    @SneakyThrows
     @Test
     @Specification(
             number = "1.7.3",
             text =
                     "The client's provider status accessor MUST indicate READY if the initialize function of the associated provider terminates normally.")
-    void shouldSetStateToReadyAfterInit() {
+    void shouldSetStateToReadyAfterInit() throws Exception {
         assertThat(wrapper.getState()).isEqualTo(ProviderState.NOT_READY);
         wrapper.initialize(null);
         assertThat(wrapper.getState()).isEqualTo(ProviderState.READY);
     }
 
-    @SneakyThrows
     @Test
-    void shouldSetStateToNotReadyAfterShutdown() {
+    void shouldSetStateToNotReadyAfterShutdown() throws Exception {
         assertThat(wrapper.getState()).isEqualTo(ProviderState.NOT_READY);
         wrapper.initialize(null);
         assertThat(wrapper.getState()).isEqualTo(ProviderState.READY);

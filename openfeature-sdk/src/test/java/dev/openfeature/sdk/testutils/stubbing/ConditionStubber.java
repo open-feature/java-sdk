@@ -5,12 +5,14 @@ import static org.mockito.Mockito.doAnswer;
 
 import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
-import lombok.experimental.UtilityClass;
 import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.Stubber;
 
-@UtilityClass
 public class ConditionStubber {
+
+    private ConditionStubber() {
+        // Utility class
+    }
 
     @SuppressWarnings("java:S2925")
     public static Stubber doDelayResponse(Duration duration) {
