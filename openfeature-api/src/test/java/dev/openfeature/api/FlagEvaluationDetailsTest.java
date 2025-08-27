@@ -9,16 +9,16 @@ import org.junit.jupiter.api.Test;
 class FlagEvaluationDetailsTest {
 
     @Test
-    @DisplayName("Should have empty constructor")
+    @DisplayName("Should create empty evaluation details with builder")
     public void empty() {
-        FlagEvaluationDetails<Integer> details = new FlagEvaluationDetails<Integer>();
+        FlagEvaluationDetails<Integer> details =
+                FlagEvaluationDetails.<Integer>builder().build();
         assertNotNull(details);
     }
 
     @Test
-    @DisplayName("Should have flagKey, value, variant, reason, errorCode, errorMessage, metadata constructor")
-    // removeing this constructor is a breaking change!
-    public void sevenArgConstructor() {
+    @DisplayName("Should create evaluation details with all fields using builder")
+    public void builderWithAllFields() {
 
         String flagKey = "my-flag";
         Integer value = 100;
@@ -28,8 +28,15 @@ class FlagEvaluationDetailsTest {
         String errorMessage = "message";
         ImmutableMetadata metadata = ImmutableMetadata.builder().build();
 
-        FlagEvaluationDetails<Integer> details = new FlagEvaluationDetails<>(
-                flagKey, value, variant, reason.toString(), errorCode, errorMessage, metadata);
+        FlagEvaluationDetails<Integer> details = FlagEvaluationDetails.<Integer>builder()
+                .flagKey(flagKey)
+                .value(value)
+                .variant(variant)
+                .reason(reason.toString())
+                .errorCode(errorCode)
+                .errorMessage(errorMessage)
+                .flagMetadata(metadata)
+                .build();
 
         assertEquals(flagKey, details.getFlagKey());
         assertEquals(value, details.getValue());
