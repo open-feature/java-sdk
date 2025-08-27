@@ -1,50 +1,77 @@
 package dev.openfeature.api;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
- * The details of a particular event.
+ * Event details delivered to event handlers, including provider context.
+ * This represents the "event details" structure defined in the OpenFeature specification.
+ * Contains all provider event details plus required provider identification.
  */
-public class EventDetails extends ProviderEventDetails {
-    /** The domain associated with this event. */
-    private String domain;
+public class EventDetails implements EventDetailsInterface {
+    /** The name of the provider that generated this event (required by OpenFeature spec). */
+    private final String providerName;
 
-    /** The name of the provider that generated this event. */
-    private String providerName;
+    /** The domain associated with this event (may be null for global providers). */
+    private final String domain;
 
-    public EventDetails() {
-        super();
-    }
+    /** The provider event details containing the actual event information. */
+    private final ProviderEventDetails providerEventDetails;
 
     /**
-     * Constructs an EventDetails with the specified domain and provider name.
+     * Constructs an EventDetails with the specified provider context and event details.
      *
-     * @param domain the domain associated with this event
-     * @param providerName the name of the provider that generated this event
+     * @param providerName the name of the provider that generated this event (required)
+     * @param domain the domain associated with this event (may be null)
+     * @param providerEventDetails the provider event details (required)
      */
-    public EventDetails(String domain, String providerName) {
-        super();
+    public EventDetails(String providerName, String domain, ProviderEventDetails providerEventDetails) {
+        this.providerName =
+                Objects.requireNonNull(providerName, "providerName is required by OpenFeature specification");
         this.domain = domain;
-        this.providerName = providerName;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
+        this.providerEventDetails = Objects.requireNonNull(providerEventDetails, "providerEventDetails cannot be null");
     }
 
     public String getProviderName() {
         return providerName;
     }
 
-    public void setProviderName(String providerName) {
-        this.providerName = providerName;
+    public String getDomain() {
+        return domain;
     }
 
-    public static EventDetailsBuilder eventDetailsBuilder() {
+    /**
+     * Gets the underlying provider event details.
+     *
+     * @return the provider event details
+     */
+    public ProviderEventDetails getProviderEventDetails() {
+        return providerEventDetails;
+    }
+
+    // Delegation methods implementing EventDetailsInterface
+
+    @Override
+    public List<String> getFlagsChanged() {
+        return providerEventDetails.getFlagsChanged();
+    }
+
+    @Override
+    public String getMessage() {
+        return providerEventDetails.getMessage();
+    }
+
+    @Override
+    public ImmutableMetadata getEventMetadata() {
+        return providerEventDetails.getEventMetadata();
+    }
+
+    @Override
+    public ErrorCode getErrorCode() {
+        return providerEventDetails.getErrorCode();
+    }
+
+    public static EventDetailsBuilder builder() {
         return new EventDetailsBuilder();
     }
 
@@ -53,14 +80,11 @@ public class EventDetails extends ProviderEventDetails {
      *
      * @return a builder for EventDetails
      */
-    public EventDetailsBuilder eventDetailsToBuilder() {
-        return new EventDetailsBuilder()
-                .domain(this.domain)
+    public EventDetailsBuilder toBuilder() {
+        return builder()
                 .providerName(this.providerName)
-                .flagsChanged(this.getFlagsChanged())
-                .message(this.getMessage())
-                .eventMetadata(this.getEventMetadata())
-                .errorCode(this.getErrorCode());
+                .domain(this.domain)
+                .providerEventDetails(this.providerEventDetails);
     }
 
     @Override
@@ -71,68 +95,105 @@ public class EventDetails extends ProviderEventDetails {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        if (!super.equals(obj)) {
-            return false;
-        }
         EventDetails that = (EventDetails) obj;
-        return Objects.equals(domain, that.domain) && Objects.equals(providerName, that.providerName);
+        return Objects.equals(providerName, that.providerName)
+                && Objects.equals(domain, that.domain)
+                && Objects.equals(providerEventDetails, that.providerEventDetails);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), domain, providerName);
+        return Objects.hash(providerName, domain, providerEventDetails);
     }
 
     @Override
     public String toString() {
-        return "EventDetails{" + "domain='"
-                + domain + '\'' + ", providerName='"
-                + providerName + '\'' + ", flagsChanged="
-                + getFlagsChanged() + ", message='"
-                + getMessage() + '\'' + ", eventMetadata="
-                + getEventMetadata() + ", errorCode="
-                + getErrorCode() + '}';
+        return "EventDetails{" + "providerName='"
+                + providerName + '\'' + ", domain='"
+                + domain + '\'' + ", providerEventDetails="
+                + providerEventDetails + '}';
     }
 
     /**
      * Builder class for creating instances of EventDetails.
      */
     public static class EventDetailsBuilder {
-        private String domain;
         private String providerName;
-        private java.util.List<String> flagsChanged;
-        private String message;
-        private ImmutableMetadata eventMetadata;
-        private ErrorCode errorCode;
+        private String domain;
+        private ProviderEventDetails providerEventDetails;
 
-        public EventDetailsBuilder domain(String domain) {
-            this.domain = domain;
-            return this;
-        }
+        private EventDetailsBuilder() {}
 
         public EventDetailsBuilder providerName(String providerName) {
             this.providerName = providerName;
             return this;
         }
 
-        public EventDetailsBuilder flagsChanged(java.util.List<String> flagsChanged) {
-            this.flagsChanged = flagsChanged != null ? new java.util.ArrayList<>(flagsChanged) : null;
+        public EventDetailsBuilder domain(String domain) {
+            this.domain = domain;
+            return this;
+        }
+
+        public EventDetailsBuilder providerEventDetails(ProviderEventDetails providerEventDetails) {
+            this.providerEventDetails = providerEventDetails;
+            return this;
+        }
+
+        // Convenience methods for building provider event details inline
+        public EventDetailsBuilder flagsChanged(List<String> flagsChanged) {
+            ensureProviderEventDetailsBuilder();
+            this.providerEventDetails = ProviderEventDetails.builder()
+                    .flagsChanged(flagsChanged)
+                    .message(getProviderEventDetailsOrEmpty().getMessage())
+                    .eventMetadata(getProviderEventDetailsOrEmpty().getEventMetadata())
+                    .errorCode(getProviderEventDetailsOrEmpty().getErrorCode())
+                    .build();
             return this;
         }
 
         public EventDetailsBuilder message(String message) {
-            this.message = message;
+            ensureProviderEventDetailsBuilder();
+            this.providerEventDetails = ProviderEventDetails.builder()
+                    .flagsChanged(getProviderEventDetailsOrEmpty().getFlagsChanged())
+                    .message(message)
+                    .eventMetadata(getProviderEventDetailsOrEmpty().getEventMetadata())
+                    .errorCode(getProviderEventDetailsOrEmpty().getErrorCode())
+                    .build();
             return this;
         }
 
         public EventDetailsBuilder eventMetadata(ImmutableMetadata eventMetadata) {
-            this.eventMetadata = eventMetadata;
+            ensureProviderEventDetailsBuilder();
+            this.providerEventDetails = ProviderEventDetails.builder()
+                    .flagsChanged(getProviderEventDetailsOrEmpty().getFlagsChanged())
+                    .message(getProviderEventDetailsOrEmpty().getMessage())
+                    .eventMetadata(eventMetadata)
+                    .errorCode(getProviderEventDetailsOrEmpty().getErrorCode())
+                    .build();
             return this;
         }
 
         public EventDetailsBuilder errorCode(ErrorCode errorCode) {
-            this.errorCode = errorCode;
+            ensureProviderEventDetailsBuilder();
+            this.providerEventDetails = ProviderEventDetails.builder()
+                    .flagsChanged(getProviderEventDetailsOrEmpty().getFlagsChanged())
+                    .message(getProviderEventDetailsOrEmpty().getMessage())
+                    .eventMetadata(getProviderEventDetailsOrEmpty().getEventMetadata())
+                    .errorCode(errorCode)
+                    .build();
             return this;
+        }
+
+        private void ensureProviderEventDetailsBuilder() {
+            if (this.providerEventDetails == null) {
+                this.providerEventDetails = ProviderEventDetails.builder().build();
+            }
+        }
+
+        private ProviderEventDetails getProviderEventDetailsOrEmpty() {
+            return this.providerEventDetails != null
+                    ? this.providerEventDetails
+                    : ProviderEventDetails.builder().build();
         }
 
         /**
@@ -141,12 +202,10 @@ public class EventDetails extends ProviderEventDetails {
          * @return a new EventDetails instance
          */
         public EventDetails build() {
-            EventDetails eventDetails = new EventDetails(domain, providerName);
-            eventDetails.setFlagsChanged(flagsChanged);
-            eventDetails.setMessage(message);
-            eventDetails.setEventMetadata(eventMetadata);
-            eventDetails.setErrorCode(errorCode);
-            return eventDetails;
+            if (providerEventDetails == null) {
+                providerEventDetails = ProviderEventDetails.builder().build();
+            }
+            return new EventDetails(providerName, domain, providerEventDetails);
         }
     }
 
@@ -172,12 +231,10 @@ public class EventDetails extends ProviderEventDetails {
      */
     public static EventDetails fromProviderEventDetails(
             ProviderEventDetails providerEventDetails, String providerName, String domain) {
-        return eventDetailsBuilder()
-                .domain(domain)
+        return builder()
                 .providerName(providerName)
-                .flagsChanged(providerEventDetails.getFlagsChanged())
-                .eventMetadata(providerEventDetails.getEventMetadata())
-                .message(providerEventDetails.getMessage())
+                .domain(domain)
+                .providerEventDetails(providerEventDetails)
                 .build();
     }
 }

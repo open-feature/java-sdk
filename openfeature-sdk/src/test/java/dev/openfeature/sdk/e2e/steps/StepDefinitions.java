@@ -11,7 +11,7 @@ import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.Reason;
 import dev.openfeature.api.Structure;
 import dev.openfeature.api.Value;
-import dev.openfeature.sdk.DefaultOpenFeatureAPI;
+import dev.openfeature.sdk.DefaultOpenFeatureAPIProvider;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import io.cucumber.java.BeforeAll;
@@ -53,7 +53,7 @@ public class StepDefinitions {
     public static void setup() throws Exception {
         Map<String, Flag<?>> flags = buildFlags();
         InMemoryProvider provider = new InMemoryProvider(flags);
-        OpenFeatureAPI api = new DefaultOpenFeatureAPI();
+        OpenFeatureAPI api = new DefaultOpenFeatureAPIProvider().createAPI();
         api.setProviderAndWait(provider);
         client = api.getClient();
     }

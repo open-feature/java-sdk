@@ -81,7 +81,7 @@ public class Flag<T> {
         private ImmutableMetadata flagMetadata;
 
         public Builder<T> variants(Map<String, Object> variants) {
-            this.variants = variants;
+            this.variants = Map.copyOf(variants);
             return this;
         }
 

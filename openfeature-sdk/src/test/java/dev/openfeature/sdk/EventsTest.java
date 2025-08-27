@@ -107,7 +107,7 @@ class EventsTest {
 
                     provider.mockEvent(
                             ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                            EventDetails.builder().build());
+                            ProviderEventDetails.builder().build());
                     verify(handler, timeout(TIMEOUT)).accept(any());
                 }
 
@@ -180,7 +180,8 @@ class EventsTest {
                     client.onProviderStale(handler);
 
                     provider.mockEvent(
-                            ProviderEvent.PROVIDER_STALE, EventDetails.builder().build());
+                            ProviderEvent.PROVIDER_STALE,
+                            ProviderEventDetails.builder().build());
                     verify(handler, timeout(TIMEOUT)).accept(any());
                 }
 
@@ -201,7 +202,8 @@ class EventsTest {
                     client.onProviderStale(handler);
 
                     provider.mockEvent(
-                            ProviderEvent.PROVIDER_STALE, EventDetails.builder().build());
+                            ProviderEvent.PROVIDER_STALE,
+                            ProviderEventDetails.builder().build());
                     verify(handler, timeout(TIMEOUT)).accept(any());
                 }
             }
@@ -318,7 +320,7 @@ class EventsTest {
 
                 provider.mockEvent(
                         ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                        EventDetails.builder().build());
+                        ProviderEventDetails.builder().build());
                 verify(handler, timeout(TIMEOUT))
                         .accept(argThat(details -> details.getDomain().equals(name)));
             }
@@ -342,7 +344,7 @@ class EventsTest {
 
                 provider.mockEvent(
                         ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                        EventDetails.builder().build());
+                        ProviderEventDetails.builder().build());
                 verify(handler, timeout(TIMEOUT))
                         .accept(argThat(details -> details.getDomain().equals(name)));
             }
@@ -412,7 +414,7 @@ class EventsTest {
         // fire old event
         provider1.mockEvent(
                 ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                EventDetails.builder().build());
+                ProviderEventDetails.builder().build());
 
         // a bit of waiting here, but we want to make sure these are indeed never
         // called.
