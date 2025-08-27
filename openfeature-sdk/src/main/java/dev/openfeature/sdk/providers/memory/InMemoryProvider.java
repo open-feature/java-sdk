@@ -20,23 +20,26 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import lombok.Getter;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * In-memory provider.
  */
-@Slf4j
 public class InMemoryProvider extends EventProvider {
-
-    @Getter
+    private static final Logger log = LoggerFactory.getLogger(InMemoryProvider.class);
     private static final String NAME = "InMemoryProvider";
 
     private final Map<String, Flag<?>> flags;
-
-    @Getter
     private ProviderState state = ProviderState.NOT_READY;
+
+    public static String getName() {
+        return NAME;
+    }
+
+    public ProviderState getState() {
+        return state;
+    }
 
     @Override
     public Metadata getMetadata() {
@@ -118,11 +121,16 @@ public class InMemoryProvider extends EventProvider {
         return getEvaluation(key, evaluationContext, Double.class);
     }
 
-    @SneakyThrows
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(
             String key, Value defaultValue, EvaluationContext evaluationContext) {
-        return getEvaluation(key, evaluationContext, Value.class);
+        try {
+            return getEvaluation(key, evaluationContext, Value.class);
+        } catch (OpenFeatureError e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private <T> ProviderEvaluation<T> getEvaluation(

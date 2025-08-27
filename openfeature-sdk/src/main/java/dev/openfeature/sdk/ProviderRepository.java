@@ -17,10 +17,11 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 class ProviderRepository {
+    private static final Logger log = LoggerFactory.getLogger(ProviderRepository.class);
 
     private final Map<String, FeatureProviderStateManager> stateManagers = new ConcurrentHashMap<>();
     private final AtomicReference<FeatureProviderStateManager> defaultStateManger =

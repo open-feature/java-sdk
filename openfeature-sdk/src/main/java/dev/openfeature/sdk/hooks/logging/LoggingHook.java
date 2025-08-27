@@ -8,7 +8,8 @@ import dev.openfeature.api.HookContext;
 import dev.openfeature.api.exceptions.OpenFeatureError;
 import java.util.Map;
 import java.util.Optional;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.spi.LoggingEventBuilder;
 
 /**
@@ -16,11 +17,11 @@ import org.slf4j.spi.LoggingEventBuilder;
  * Useful for debugging.
  * Flag evaluation data is logged at debug and error in before/after stages and error stages, respectively.
  */
-@Slf4j
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
         value = "RV_RETURN_VALUE_IGNORED",
         justification = "we can ignore return values of chainables (builders) here")
 public class LoggingHook implements Hook<Object> {
+    private static final Logger log = LoggerFactory.getLogger(LoggingHook.class);
 
     static final String DOMAIN_KEY = "domain";
     static final String PROVIDER_NAME_KEY = "provider_name";

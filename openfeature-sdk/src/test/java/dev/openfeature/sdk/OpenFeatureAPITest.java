@@ -12,7 +12,6 @@ import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.MutableTrackingEventDetails;
-import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
