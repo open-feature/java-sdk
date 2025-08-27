@@ -52,7 +52,6 @@ public final class HookContext<T> {
         return new Builder<>();
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

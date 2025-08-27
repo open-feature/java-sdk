@@ -29,8 +29,8 @@ public final class FlagEvaluationOptions {
         return new HashMap<>(hookHints);
     }
 
-    public static FlagEvaluationOptionsBuilder builder() {
-        return new FlagEvaluationOptionsBuilder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
@@ -55,21 +55,21 @@ public final class FlagEvaluationOptions {
         return "FlagEvaluationOptions{" + "hooks=" + hooks + ", hookHints=" + hookHints + '}';
     }
 
-    public static class FlagEvaluationOptionsBuilder {
+    public static class Builder {
         private List<Hook> hooks = new ArrayList<>();
         private Map<String, Object> hookHints = new HashMap<>();
 
-        public FlagEvaluationOptionsBuilder hooks(List<Hook> hooks) {
+        public Builder hooks(List<Hook> hooks) {
             this.hooks = hooks != null ? new ArrayList<>(hooks) : new ArrayList<>();
             return this;
         }
 
-        public FlagEvaluationOptionsBuilder hook(Hook hook) {
+        public Builder hook(Hook hook) {
             this.hooks.add(hook);
             return this;
         }
 
-        public FlagEvaluationOptionsBuilder hookHints(Map<String, Object> hookHints) {
+        public Builder hookHints(Map<String, Object> hookHints) {
             this.hookHints = hookHints != null ? new HashMap<>(hookHints) : new HashMap<>();
             return this;
         }

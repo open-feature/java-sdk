@@ -8,19 +8,22 @@ import java.util.Objects;
  * @param <T> the type of the flag being evaluated.
  */
 public class ProviderEvaluation<T> implements BaseEvaluation<T> {
-    private T value;
-    private String variant;
-    private String reason;
-    private ErrorCode errorCode;
-    private String errorMessage;
-    private ImmutableMetadata flagMetadata;
+    private final T value;
+    private final String variant;
+    private final String reason;
+    private final ErrorCode errorCode;
+    private final String errorMessage;
+    private final ImmutableMetadata flagMetadata;
 
-    public ProviderEvaluation() {
-        this.flagMetadata = ImmutableMetadata.builder().build();
+    /**
+     * Private constructor for builder pattern only.
+     */
+    private ProviderEvaluation() {
+        this(null, null, null, null, null, null);
     }
 
     /**
-     * Constructs a ProviderEvaluation with the specified parameters.
+     * Private constructor for immutable ProviderEvaluation.
      *
      * @param value the resolved value
      * @param variant the variant identifier
@@ -29,7 +32,7 @@ public class ProviderEvaluation<T> implements BaseEvaluation<T> {
      * @param errorMessage the error message if applicable
      * @param flagMetadata metadata associated with the flag
      */
-    public ProviderEvaluation(
+    private ProviderEvaluation(
             T value,
             String variant,
             String reason,
@@ -50,52 +53,34 @@ public class ProviderEvaluation<T> implements BaseEvaluation<T> {
         return value;
     }
 
-    public void setValue(T value) {
-        this.value = value;
-    }
 
     public String getVariant() {
         return variant;
     }
 
-    public void setVariant(String variant) {
-        this.variant = variant;
-    }
 
     public String getReason() {
         return reason;
     }
 
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
 
     public ErrorCode getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(ErrorCode errorCode) {
-        this.errorCode = errorCode;
-    }
 
     public String getErrorMessage() {
         return errorMessage;
     }
 
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
 
     public ImmutableMetadata getFlagMetadata() {
         return flagMetadata;
     }
 
-    public void setFlagMetadata(ImmutableMetadata flagMetadata) {
-        this.flagMetadata = flagMetadata;
-    }
 
-    public static <T> ProviderEvaluationBuilder<T> builder() {
-        return new ProviderEvaluationBuilder<>();
+    public static <T> Builder<T> builder() {
+        return new Builder<>();
     }
 
     @Override
@@ -136,7 +121,7 @@ public class ProviderEvaluation<T> implements BaseEvaluation<T> {
      *
      * @param <T> the type of the evaluation value
      */
-    public static class ProviderEvaluationBuilder<T> {
+    public static class Builder<T> {
         private T value;
         private String variant;
         private String reason;
@@ -144,32 +129,32 @@ public class ProviderEvaluation<T> implements BaseEvaluation<T> {
         private String errorMessage;
         private ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
 
-        public ProviderEvaluationBuilder<T> value(T value) {
+        public Builder<T> value(T value) {
             this.value = value;
             return this;
         }
 
-        public ProviderEvaluationBuilder<T> variant(String variant) {
+        public Builder<T> variant(String variant) {
             this.variant = variant;
             return this;
         }
 
-        public ProviderEvaluationBuilder<T> reason(String reason) {
+        public Builder<T> reason(String reason) {
             this.reason = reason;
             return this;
         }
 
-        public ProviderEvaluationBuilder<T> errorCode(ErrorCode errorCode) {
+        public Builder<T> errorCode(ErrorCode errorCode) {
             this.errorCode = errorCode;
             return this;
         }
 
-        public ProviderEvaluationBuilder<T> errorMessage(String errorMessage) {
+        public Builder<T> errorMessage(String errorMessage) {
             this.errorMessage = errorMessage;
             return this;
         }
 
-        public ProviderEvaluationBuilder<T> flagMetadata(ImmutableMetadata flagMetadata) {
+        public Builder<T> flagMetadata(ImmutableMetadata flagMetadata) {
             this.flagMetadata = flagMetadata;
             return this;
         }

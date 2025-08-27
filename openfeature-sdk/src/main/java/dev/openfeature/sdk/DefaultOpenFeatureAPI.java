@@ -473,14 +473,18 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
                     .orElse("unknown");
 
             // run the global handlers
-            eventSupport.runGlobalHandlers(event, EventDetails.builder()
-                    .providerName(providerName)
-                    .providerEventDetails(details)
-                    .build());
+            eventSupport.runGlobalHandlers(
+                    event,
+                    EventDetails.builder()
+                            .providerName(providerName)
+                            .providerEventDetails(details)
+                            .build());
 
             // run the handlers associated with domains for this provider
             domainsForProvider.forEach(domain -> eventSupport.runClientHandlers(
-                    domain, event, EventDetails.builder()
+                    domain,
+                    event,
+                    EventDetails.builder()
                             .providerName(providerName)
                             .domain(domain)
                             .providerEventDetails(details)
@@ -492,7 +496,9 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
                 Set<String> boundDomains = providerRepository.getAllBoundDomains();
                 allDomainNames.removeAll(boundDomains);
                 allDomainNames.forEach(domain -> eventSupport.runClientHandlers(
-                        domain, event, EventDetails.builder()
+                        domain,
+                        event,
+                        EventDetails.builder()
                                 .providerName(providerName)
                                 .domain(domain)
                                 .providerEventDetails(details)

@@ -25,7 +25,7 @@ public class EventDetails implements EventDetailsInterface {
      * @param domain the domain associated with this event (may be null)
      * @param providerEventDetails the provider event details (required)
      */
-    public EventDetails(String providerName, String domain, ProviderEventDetails providerEventDetails) {
+    private EventDetails(String providerName, String domain, ProviderEventDetails providerEventDetails) {
         this.providerName =
                 Objects.requireNonNull(providerName, "providerName is required by OpenFeature specification");
         this.domain = domain;
@@ -71,8 +71,8 @@ public class EventDetails implements EventDetailsInterface {
         return providerEventDetails.getErrorCode();
     }
 
-    public static EventDetailsBuilder builder() {
-        return new EventDetailsBuilder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     /**
@@ -80,7 +80,7 @@ public class EventDetails implements EventDetailsInterface {
      *
      * @return a builder for EventDetails
      */
-    public EventDetailsBuilder toBuilder() {
+    public Builder toBuilder() {
         return builder()
                 .providerName(this.providerName)
                 .domain(this.domain)
@@ -117,30 +117,36 @@ public class EventDetails implements EventDetailsInterface {
     /**
      * Builder class for creating instances of EventDetails.
      */
-    public static class EventDetailsBuilder {
+    public static class Builder {
         private String providerName;
         private String domain;
         private ProviderEventDetails providerEventDetails;
 
-        private EventDetailsBuilder() {}
+        private Builder() {}
 
-        public EventDetailsBuilder providerName(String providerName) {
+        public Builder providerName(String providerName) {
             this.providerName = providerName;
             return this;
         }
 
-        public EventDetailsBuilder domain(String domain) {
+        public Builder domain(String domain) {
             this.domain = domain;
             return this;
         }
 
-        public EventDetailsBuilder providerEventDetails(ProviderEventDetails providerEventDetails) {
+        public Builder providerEventDetails(ProviderEventDetails providerEventDetails) {
             this.providerEventDetails = providerEventDetails;
             return this;
         }
 
         // Convenience methods for building provider event details inline
-        public EventDetailsBuilder flagsChanged(List<String> flagsChanged) {
+        /**
+         * Sets the list of flags that changed.
+         *
+         * @param flagsChanged list of flag keys that changed
+         * @return this builder
+         */
+        public Builder flagsChanged(List<String> flagsChanged) {
             ensureProviderEventDetailsBuilder();
             this.providerEventDetails = ProviderEventDetails.builder()
                     .flagsChanged(flagsChanged)
@@ -151,7 +157,13 @@ public class EventDetails implements EventDetailsInterface {
             return this;
         }
 
-        public EventDetailsBuilder message(String message) {
+        /**
+         * Sets the message describing the event.
+         *
+         * @param message message describing the event (should be populated for PROVIDER_ERROR events)
+         * @return this builder
+         */
+        public Builder message(String message) {
             ensureProviderEventDetailsBuilder();
             this.providerEventDetails = ProviderEventDetails.builder()
                     .flagsChanged(getProviderEventDetailsOrEmpty().getFlagsChanged())
@@ -162,7 +174,13 @@ public class EventDetails implements EventDetailsInterface {
             return this;
         }
 
-        public EventDetailsBuilder eventMetadata(ImmutableMetadata eventMetadata) {
+        /**
+         * Sets the metadata associated with the event.
+         *
+         * @param eventMetadata metadata associated with the event
+         * @return this builder
+         */
+        public Builder eventMetadata(ImmutableMetadata eventMetadata) {
             ensureProviderEventDetailsBuilder();
             this.providerEventDetails = ProviderEventDetails.builder()
                     .flagsChanged(getProviderEventDetailsOrEmpty().getFlagsChanged())
@@ -173,7 +191,13 @@ public class EventDetails implements EventDetailsInterface {
             return this;
         }
 
-        public EventDetailsBuilder errorCode(ErrorCode errorCode) {
+        /**
+         * Sets the error code for the event.
+         *
+         * @param errorCode error code (should be populated for PROVIDER_ERROR events)
+         * @return this builder
+         */
+        public Builder errorCode(ErrorCode errorCode) {
             ensureProviderEventDetailsBuilder();
             this.providerEventDetails = ProviderEventDetails.builder()
                     .flagsChanged(getProviderEventDetailsOrEmpty().getFlagsChanged())
@@ -208,5 +232,4 @@ public class EventDetails implements EventDetailsInterface {
             return new EventDetails(providerName, domain, providerEventDetails);
         }
     }
-
 }
