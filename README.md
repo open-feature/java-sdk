@@ -52,7 +52,11 @@ Note that this library is intended to be used in server-side contexts and has no
 
 ### Install
 
-#### Maven
+OpenFeature Java is now structured as a multi-module project with separate API and SDK artifacts. In most cases, you'll want to use the full SDK, but you can also use just the API if you're building a provider or need a lighter dependency.
+
+#### Complete SDK (Recommended)
+
+For full OpenFeature functionality, use the SDK module:
 
 <!-- x-release-please-start-version -->
 ```xml
@@ -60,6 +64,20 @@ Note that this library is intended to be used in server-side contexts and has no
     <groupId>dev.openfeature</groupId>
     <artifactId>sdk</artifactId>
     <version>1.18.0</version>
+</dependency>
+```
+<!-- x-release-please-end-version -->
+
+#### API Only
+
+For provider development or minimal dependencies, use the API module:
+
+<!-- x-release-please-start-version -->
+```xml
+<dependency>
+    <groupId>dev.openfeature</groupId>
+    <artifactId>api</artifactId>
+    <version>1.16.0</version>
 </dependency>
 ```
 <!-- x-release-please-end-version -->
@@ -81,10 +99,20 @@ If you would like snapshot builds, this is the relevant repository information:
 
 #### Gradle
 
+Complete SDK:
 <!-- x-release-please-start-version -->
 ```groovy
 dependencies {
     implementation 'dev.openfeature:sdk:1.18.0'
+}
+```
+<!-- x-release-please-end-version -->
+
+API only:
+<!-- x-release-please-start-version -->
+```groovy
+dependencies {
+    implementation 'dev.openfeature:api:1.16.0'
 }
 ```
 <!-- x-release-please-end-version -->
@@ -122,6 +150,19 @@ public void example(){
 ### API Reference
 
 See [here](https://javadoc.io/doc/dev.openfeature/sdk/latest/) for the Javadocs.
+
+## 🏗️ Architecture
+
+OpenFeature Java SDK is structured as a multi-module project:
+
+- **`openfeature-api`**: Core interfaces, data types, and contracts. Use this if you're building providers or hooks, or if you need minimal dependencies.
+- **`openfeature-sdk`**: Full implementation with all OpenFeature functionality. This is what most applications should use.
+
+This separation allows for:
+- **Cleaner dependencies**: Provider and hook developers only need the lightweight API module
+- **Better modularity**: Clear separation between contracts (API) and implementation (SDK)  
+- **Easier testing**: Components can be tested against the API contracts
+- **Reduced coupling**: Implementation details are isolated in the SDK module
 
 ## 🌟 Features
 
@@ -327,9 +368,17 @@ Additionally, you can develop a custom transaction context propagator by impleme
 
 ### Develop a provider
 
-To develop a provider, you need to create a new project and include the OpenFeature SDK as a dependency.
+To develop a provider, you need to create a new project and include the OpenFeature API as a dependency (you only need the API module for provider development).
 This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/java-sdk-contrib) available under the OpenFeature organization.
-You’ll then need to write the provider by implementing the `FeatureProvider` interface exported by the OpenFeature SDK.
+You'll then need to write the provider by implementing the `FeatureProvider` interface exported by the OpenFeature API.
+
+```xml
+<dependency>
+    <groupId>dev.openfeature</groupId>
+    <artifactId>api</artifactId>
+    <version>1.16.0</version>
+</dependency>
+```
 
 ```java
 public class MyProvider implements FeatureProvider {
@@ -413,9 +462,17 @@ OpenFeatureAPI.getInstance().getClient().getProviderState();
 
 ### Develop a hook
 
-To develop a hook, you need to create a new project and include the OpenFeature SDK as a dependency.
+To develop a hook, you need to create a new project and include the OpenFeature API as a dependency (you only need the API module for hook development).
 This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/java-sdk-contrib) available under the OpenFeature organization.
 Implement your own hook by conforming to the `Hook interface`.
+
+```xml
+<dependency>
+    <groupId>dev.openfeature</groupId>
+    <artifactId>api</artifactId>
+    <version>1.16.0</version>
+</dependency>
+```
 
 ```java
 class MyHook implements Hook {

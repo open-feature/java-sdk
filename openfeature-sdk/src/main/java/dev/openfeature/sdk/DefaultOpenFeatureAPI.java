@@ -31,9 +31,10 @@ import org.slf4j.LoggerFactory;
  * Default implementation of OpenFeature API that provides full SDK functionality.
  * This implementation extends the abstract API and provides all OpenFeature capabilities including
  * provider management, event handling, transaction context management, and lifecycle management.
+ * Package-private - users should access this through OpenFeatureAPI.getInstance().
  */
 @SuppressWarnings("PMD.UnusedLocalVariable")
-public class DefaultOpenFeatureAPI extends OpenFeatureAPI {
+class DefaultOpenFeatureAPI extends OpenFeatureAPI {
     private static final Logger log = LoggerFactory.getLogger(DefaultOpenFeatureAPI.class);
     // package-private multi-read/single-write lock
     static AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
@@ -47,8 +48,9 @@ public class DefaultOpenFeatureAPI extends OpenFeatureAPI {
      * Creates a new DefaultOpenFeatureAPI instance with default settings.
      * Initializes the API with empty hooks, a provider repository, event support,
      * and a no-op transaction context propagator.
+     * Package-private constructor - this class should only be instantiated by the SDK.
      */
-    public DefaultOpenFeatureAPI() {
+    DefaultOpenFeatureAPI() {
         apiHooks = new ConcurrentLinkedQueue<>();
         providerRepository = new ProviderRepository(this);
         eventSupport = new EventSupport();
@@ -435,7 +437,8 @@ public class DefaultOpenFeatureAPI extends OpenFeatureAPI {
                     .orElse(ProviderState.READY)
                     .matchesEvent(event)) {
                 eventSupport.runHandler(
-                        handler, dev.openfeature.api.EventDetails.eventDetailsBuilder().domain(domain).build());
+                        handler,
+                        EventDetails.eventDetailsBuilder().domain(domain).build());
             }
             eventSupport.addClientHandler(domain, event, handler);
         }
