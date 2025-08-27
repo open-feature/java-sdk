@@ -9,16 +9,16 @@ import org.junit.jupiter.api.Test;
 class ProviderEvaluationTest {
 
     @Test
-    @DisplayName("Should have empty constructor")
+    @DisplayName("Should create empty evaluation with builder")
     public void empty() {
-        ProviderEvaluation<Integer> details = new ProviderEvaluation<Integer>();
+        ProviderEvaluation<Integer> details =
+                ProviderEvaluation.<Integer>builder().build();
         assertNotNull(details);
     }
 
     @Test
-    @DisplayName("Should have value, variant, reason, errorCode, errorMessage, metadata constructor")
-    // removeing this constructor is a breaking change!
-    public void sixArgConstructor() {
+    @DisplayName("Should create evaluation with all fields using builder")
+    public void builderWithAllFields() {
 
         Integer value = 100;
         String variant = "1-hundred";
@@ -27,8 +27,14 @@ class ProviderEvaluationTest {
         String errorMessage = "message";
         ImmutableMetadata metadata = ImmutableMetadata.builder().build();
 
-        ProviderEvaluation<Integer> details =
-                new ProviderEvaluation<>(value, variant, reason.toString(), errorCode, errorMessage, metadata);
+        ProviderEvaluation<Integer> details = ProviderEvaluation.<Integer>builder()
+                .value(value)
+                .variant(variant)
+                .reason(reason.toString())
+                .errorCode(errorCode)
+                .errorMessage(errorMessage)
+                .flagMetadata(metadata)
+                .build();
 
         assertEquals(value, details.getValue());
         assertEquals(variant, details.getVariant());

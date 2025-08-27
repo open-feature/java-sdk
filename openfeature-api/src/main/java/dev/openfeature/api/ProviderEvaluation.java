@@ -53,31 +53,25 @@ public class ProviderEvaluation<T> implements BaseEvaluation<T> {
         return value;
     }
 
-
     public String getVariant() {
         return variant;
     }
-
 
     public String getReason() {
         return reason;
     }
 
-
     public ErrorCode getErrorCode() {
         return errorCode;
     }
-
 
     public String getErrorMessage() {
         return errorMessage;
     }
 
-
     public ImmutableMetadata getFlagMetadata() {
         return flagMetadata;
     }
-
 
     public static <T> Builder<T> builder() {
         return new Builder<>();
