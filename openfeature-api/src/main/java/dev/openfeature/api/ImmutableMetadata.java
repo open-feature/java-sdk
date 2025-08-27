@@ -3,17 +3,18 @@ package dev.openfeature.api;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Immutable Flag Metadata representation. Implementation is backed by a {@link Map} and immutability is provided
  * through builder and accessors.
  */
-@Slf4j
-@EqualsAndHashCode(callSuper = true)
 public class ImmutableMetadata extends AbstractStructure {
+
+    private static final Logger log = LoggerFactory.getLogger(ImmutableMetadata.class);
 
     private ImmutableMetadata(Map<String, Value> attributes) {
         super(attributes);
@@ -153,6 +154,25 @@ public class ImmutableMetadata extends AbstractStructure {
 
     public boolean isNotEmpty() {
         return !isEmpty();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
     }
 
     /**

@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 public class StructureTest {
@@ -75,7 +74,6 @@ public class StructureTest {
         assertTrue(structure.getValue(VALUE_KEY).isNull());
     }
 
-    @SneakyThrows
     @Test
     void mapToStructureTest() {
         Map<String, Object> map = new HashMap<>();

@@ -5,10 +5,9 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.experimental.Delegate;
 
 /**
  * The EvaluationContext is a container for arbitrary contextual data
@@ -16,12 +15,9 @@ import lombok.experimental.Delegate;
  * The MutableContext is an EvaluationContext implementation which is not threadsafe, and whose attributes can
  * be modified after instantiation.
  */
-@ToString
-@EqualsAndHashCode
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class MutableContext implements EvaluationContext {
 
-    @Delegate(excludes = DelegateExclusions.class)
     private final MutableStructure structure;
 
     public MutableContext() {
@@ -96,6 +92,37 @@ public class MutableContext implements EvaluationContext {
         return this;
     }
 
+    // Delegated methods from MutableStructure
+    @Override
+    public boolean isEmpty() {
+        return structure.isEmpty();
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return structure.keySet();
+    }
+
+    @Override
+    public Value getValue(String key) {
+        return structure.getValue(key);
+    }
+
+    @Override
+    public Map<String, Value> asMap() {
+        return structure.asMap();
+    }
+
+    @Override
+    public Map<String, Value> asUnmodifiableMap() {
+        return structure.asUnmodifiableMap();
+    }
+
+    @Override
+    public Map<String, Object> asObjectMap() {
+        return structure.asObjectMap();
+    }
+
     /**
      * Retrieve targetingKey from the context.
      */
@@ -123,6 +150,28 @@ public class MutableContext implements EvaluationContext {
         Map<String, Value> attributes = this.asMap();
         EvaluationContext.mergeMaps(MutableStructure::new, attributes, overridingContext.asUnmodifiableMap());
         return new MutableContext(attributes);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        MutableContext that = (MutableContext) obj;
+        return Objects.equals(structure, that.structure);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(structure);
+    }
+
+    @Override
+    public String toString() {
+        return "MutableContext{" + "structure=" + structure + '}';
     }
 
     /**

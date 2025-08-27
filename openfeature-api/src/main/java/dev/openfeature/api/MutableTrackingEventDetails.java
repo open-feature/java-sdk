@@ -4,22 +4,17 @@ import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.experimental.Delegate;
 
 /**
  * MutableTrackingEventDetails represents data pertinent to a particular tracking event.
  */
-@EqualsAndHashCode
-@ToString
 public class MutableTrackingEventDetails implements TrackingEventDetails {
 
     private final Number value;
-
-    @Delegate(excludes = MutableTrackingEventDetails.DelegateExclusions.class)
     private final MutableStructure structure;
 
     public MutableTrackingEventDetails() {
@@ -37,6 +32,11 @@ public class MutableTrackingEventDetails implements TrackingEventDetails {
      */
     public Optional<Number> getValue() {
         return Optional.ofNullable(value);
+    }
+
+    @Override
+    public Value getValue(String key) {
+        return structure.getValue(key);
     }
 
     // override @Delegate methods so that we can use "add" methods and still return MutableTrackingEventDetails,
@@ -79,6 +79,54 @@ public class MutableTrackingEventDetails implements TrackingEventDetails {
     public MutableTrackingEventDetails add(String key, Value value) {
         this.structure.add(key, value);
         return this;
+    }
+
+    // Delegated methods from MutableStructure
+    @Override
+    public boolean isEmpty() {
+        return structure.isEmpty();
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return structure.keySet();
+    }
+
+    @Override
+    public Map<String, Value> asMap() {
+        return structure.asMap();
+    }
+
+    @Override
+    public Map<String, Value> asUnmodifiableMap() {
+        return structure.asUnmodifiableMap();
+    }
+
+    @Override
+    public Map<String, Object> asObjectMap() {
+        return structure.asObjectMap();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        MutableTrackingEventDetails that = (MutableTrackingEventDetails) obj;
+        return Objects.equals(value, that.value) && Objects.equals(structure, that.structure);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value, structure);
+    }
+
+    @Override
+    public String toString() {
+        return "MutableTrackingEventDetails{" + "value=" + value + ", structure=" + structure + '}';
     }
 
     @SuppressWarnings("all")

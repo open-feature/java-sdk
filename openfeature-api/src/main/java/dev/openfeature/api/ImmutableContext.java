@@ -3,10 +3,9 @@ package dev.openfeature.api;
 import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.experimental.Delegate;
 
 /**
  * The EvaluationContext is a container for arbitrary contextual data
@@ -15,12 +14,9 @@ import lombok.experimental.Delegate;
  * threadsafe, and whose attributes can
  * not be modified after instantiation.
  */
-@ToString
-@EqualsAndHashCode
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public final class ImmutableContext implements EvaluationContext {
 
-    @Delegate(excludes = DelegateExclusions.class)
     private final ImmutableStructure structure;
 
     /**
@@ -72,6 +68,37 @@ public final class ImmutableContext implements EvaluationContext {
         return value == null ? null : value.asString();
     }
 
+    // Delegated methods from ImmutableStructure
+    @Override
+    public boolean isEmpty() {
+        return structure.isEmpty();
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return structure.keySet();
+    }
+
+    @Override
+    public Value getValue(String key) {
+        return structure.getValue(key);
+    }
+
+    @Override
+    public Map<String, Value> asMap() {
+        return structure.asMap();
+    }
+
+    @Override
+    public Map<String, Value> asUnmodifiableMap() {
+        return structure.asUnmodifiableMap();
+    }
+
+    @Override
+    public Map<String, Object> asObjectMap() {
+        return structure.asObjectMap();
+    }
+
     /**
      * Merges this EvaluationContext object with the passed EvaluationContext,
      * overriding in case of conflict.
@@ -91,6 +118,28 @@ public final class ImmutableContext implements EvaluationContext {
         Map<String, Value> attributes = this.asMap();
         EvaluationContext.mergeMaps(ImmutableStructure::new, attributes, overridingContext.asUnmodifiableMap());
         return new ImmutableContext(attributes);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        ImmutableContext that = (ImmutableContext) obj;
+        return Objects.equals(structure, that.structure);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(structure);
+    }
+
+    @Override
+    public String toString() {
+        return "ImmutableContext{" + "structure=" + structure + '}';
     }
 
     @SuppressWarnings("all")
