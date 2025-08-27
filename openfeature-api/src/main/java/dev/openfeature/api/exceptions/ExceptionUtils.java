@@ -1,11 +1,13 @@
 package dev.openfeature.api.exceptions;
 
 import dev.openfeature.api.ErrorCode;
-import lombok.experimental.UtilityClass;
 
 @SuppressWarnings("checkstyle:MissingJavadocType")
-@UtilityClass
-public class ExceptionUtils {
+public final class ExceptionUtils {
+
+    private ExceptionUtils() {
+        throw new AssertionError("Utility class should not be instantiated");
+    }
 
     /**
      * Creates an Error for the specific error code.

@@ -6,18 +6,14 @@ import dev.openfeature.api.exceptions.TypeMismatchError;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import lombok.EqualsAndHashCode;
-import lombok.SneakyThrows;
-import lombok.ToString;
 
 /**
  * Values serve as a generic return type for structure data from providers.
  * Providers may deal in JSON, protobuf, XML or some other data-interchange format.
  * This intermediate representation provides a good medium of exchange.
  */
-@ToString
-@EqualsAndHashCode
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType", "checkstyle:NoFinalizer"})
 public class Value implements Cloneable {
 
@@ -267,7 +263,6 @@ public class Value implements Cloneable {
      *
      * @return Value
      */
-    @SneakyThrows
     @Override
     protected Value clone() {
         if (this.isList()) {
@@ -281,7 +276,34 @@ public class Value implements Cloneable {
             Instant copy = Instant.ofEpochMilli(this.asInstant().toEpochMilli());
             return new Value(copy);
         }
-        return new Value(this.asObject());
+        try {
+            return new Value(this.asObject());
+        } catch (InstantiationException e) {
+            // This should never happen for valid internal objects
+            throw new RuntimeException("Failed to clone value", e);
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Value value = (Value) obj;
+        return Objects.equals(innerObject, value.innerObject);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(innerObject);
+    }
+
+    @Override
+    public String toString() {
+        return "Value{" + innerObject + '}';
     }
 
     /**

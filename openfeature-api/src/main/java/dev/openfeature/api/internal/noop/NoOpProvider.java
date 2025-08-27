@@ -7,7 +7,6 @@ import dev.openfeature.api.ProviderEvaluation;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.Reason;
 import dev.openfeature.api.Value;
-import lombok.Getter;
 
 /**
  * A {@link FeatureProvider} that simply returns the default values passed to it.
@@ -17,8 +16,11 @@ import lombok.Getter;
 public class NoOpProvider implements FeatureProvider {
     public static final String PASSED_IN_DEFAULT = "Passed in default";
 
-    @Getter
     private final String name = "No-op Provider";
+
+    public String getName() {
+        return name;
+    }
 
     // The Noop provider is ALWAYS NOT_READY, otherwise READY handlers would run immediately when attached.
     @Override

@@ -4,10 +4,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
  * {@link ImmutableStructure} represents a potentially nested object type which
@@ -17,10 +16,32 @@ import lombok.ToString;
  * whose attributes can
  * not be modified after instantiation. All references are clones.
  */
-@ToString
-@EqualsAndHashCode(callSuper = true)
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
 public final class ImmutableStructure extends AbstractStructure {
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
+    @Override
+    public String toString() {
+        return "ImmutableStructure{" + "attributes=" + attributes + '}';
+    }
 
     /**
      * create an immutable structure with the empty attributes.

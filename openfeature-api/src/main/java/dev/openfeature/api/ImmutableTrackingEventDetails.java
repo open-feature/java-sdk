@@ -2,18 +2,17 @@ package dev.openfeature.api;
 
 import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
-import lombok.experimental.Delegate;
 
 /**
  * ImmutableTrackingEventDetails represents data pertinent to a particular tracking event.
  */
 public class ImmutableTrackingEventDetails implements TrackingEventDetails {
 
-    @Delegate(excludes = DelegateExclusions.class)
     private final ImmutableStructure structure;
-
     private final Number value;
 
     public ImmutableTrackingEventDetails() {
@@ -36,6 +35,59 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
      */
     public Optional<Number> getValue() {
         return Optional.ofNullable(value);
+    }
+
+    @Override
+    public Value getValue(String key) {
+        return structure.getValue(key);
+    }
+
+    // Delegated methods from ImmutableStructure
+    @Override
+    public boolean isEmpty() {
+        return structure.isEmpty();
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return structure.keySet();
+    }
+
+    @Override
+    public Map<String, Value> asMap() {
+        return structure.asMap();
+    }
+
+    @Override
+    public Map<String, Value> asUnmodifiableMap() {
+        return structure.asUnmodifiableMap();
+    }
+
+    @Override
+    public Map<String, Object> asObjectMap() {
+        return structure.asObjectMap();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        ImmutableTrackingEventDetails that = (ImmutableTrackingEventDetails) obj;
+        return Objects.equals(structure, that.structure) && Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(structure, value);
+    }
+
+    @Override
+    public String toString() {
+        return "ImmutableTrackingEventDetails{" + "structure=" + structure + ", value=" + value + '}';
     }
 
     @SuppressWarnings("all")

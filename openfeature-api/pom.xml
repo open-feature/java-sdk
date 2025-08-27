@@ -27,13 +27,6 @@
             <version>2.0.17</version>
         </dependency>
 
-        <!-- Lombok for clean code generation -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.38</version>
-            <scope>provided</scope>
-        </dependency>
 
         <!-- Spotbugs for annotations -->
         <dependency>

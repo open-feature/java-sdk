@@ -4,9 +4,8 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
  * {@link MutableStructure} represents a potentially nested object type which is used to represent
@@ -14,10 +13,32 @@ import lombok.ToString;
  * The MutableStructure is a Structure implementation which is not threadsafe, and whose attributes can
  * be modified after instantiation.
  */
-@ToString
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
-@EqualsAndHashCode(callSuper = true)
 public class MutableStructure extends AbstractStructure {
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
+    @Override
+    public String toString() {
+        return "MutableStructure{" + "attributes=" + attributes + '}';
+    }
 
     public MutableStructure() {
         super();
