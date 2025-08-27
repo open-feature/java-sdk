@@ -9,7 +9,8 @@ import dev.openfeature.sdk.internal.TriConsumer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract EventProvider. Providers must extend this class to support events.
@@ -23,8 +24,8 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @see FeatureProvider
  */
-@Slf4j
 public abstract class EventProvider implements dev.openfeature.api.EventProvider {
+    private static final Logger log = LoggerFactory.getLogger(EventProvider.class);
     private EventProviderListener eventProviderListener;
     private final ExecutorService emitterExecutor = Executors.newCachedThreadPool();
 

@@ -36,8 +36,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * OpenFeature Client implementation.
@@ -47,7 +47,6 @@ import lombok.extern.slf4j.Slf4j;
  * @see Client
  * @deprecated // TODO: eventually we will make this non-public. See issue #872
  */
-@Slf4j
 @SuppressWarnings({
     "PMD.DataflowAnomalyAnalysis",
     "PMD.BeanMembersShouldSerialize",
@@ -57,14 +56,19 @@ import lombok.extern.slf4j.Slf4j;
 })
 @Deprecated() // TODO: eventually we will make this non-public. See issue #872
 public class OpenFeatureClient implements Client {
+    private static final Logger log = LoggerFactory.getLogger(OpenFeatureClient.class);
 
     private final DefaultOpenFeatureAPI openfeatureApi;
-
-    @Getter
     private final String domain;
-
-    @Getter
     private final String version;
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public String getVersion() {
+        return version;
+    }
 
     private final ConcurrentLinkedQueue<Hook> clientHooks;
     private final HookSupport hookSupport;

@@ -5,11 +5,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import lombok.experimental.UtilityClass;
 
 @SuppressWarnings("checkstyle:MissingJavadocType")
-@UtilityClass
-public class ObjectUtils {
+public final class ObjectUtils {
+
+    /**
+     * Private constructor for utility class.
+     */
+    private ObjectUtils() {
+        // Utility class
+    }
 
     /**
      * If the source param is null, return the default value.

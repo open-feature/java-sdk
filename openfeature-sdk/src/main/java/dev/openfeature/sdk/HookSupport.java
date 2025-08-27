@@ -11,13 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
-@RequiredArgsConstructor
 @SuppressWarnings({"unchecked", "rawtypes"})
 class HookSupport {
+    private static final Logger log = LoggerFactory.getLogger(HookSupport.class);
 
     public EvaluationContext beforeHooks(
             FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks, Map<String, Object> hints) {

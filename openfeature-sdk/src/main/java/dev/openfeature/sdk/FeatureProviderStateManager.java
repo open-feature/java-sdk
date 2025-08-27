@@ -9,10 +9,11 @@ import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.exceptions.OpenFeatureError;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 class FeatureProviderStateManager implements EventProviderListener {
+    private static final Logger log = LoggerFactory.getLogger(FeatureProviderStateManager.class);
     private final FeatureProvider delegate;
     private final AtomicBoolean isInitialized = new AtomicBoolean();
     private final AtomicReference<ProviderState> state = new AtomicReference<>(ProviderState.NOT_READY);

@@ -27,14 +27,6 @@
             <artifactId>openfeature-api</artifactId>
         </dependency>
 
-        <!-- Lombok for clean code generation -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.38</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Spotbugs for annotations -->
         <dependency>
             <groupId>com.github.spotbugs</groupId>
@@ -43,7 +35,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- SLF4J dependency needed for Lombok @Slf4j -->
+        <!-- SLF4J dependency needed for logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>

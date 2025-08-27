@@ -24,16 +24,17 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of OpenFeature API that provides full SDK functionality.
  * This implementation extends the abstract API and provides all OpenFeature capabilities including
  * provider management, event handling, transaction context management, and lifecycle management.
  */
-@Slf4j
 @SuppressWarnings("PMD.UnusedLocalVariable")
 public class DefaultOpenFeatureAPI extends OpenFeatureAPI {
+    private static final Logger log = LoggerFactory.getLogger(DefaultOpenFeatureAPI.class);
     // package-private multi-read/single-write lock
     static AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
     private final ConcurrentLinkedQueue<Hook> apiHooks;
@@ -434,7 +435,7 @@ public class DefaultOpenFeatureAPI extends OpenFeatureAPI {
                     .orElse(ProviderState.READY)
                     .matchesEvent(event)) {
                 eventSupport.runHandler(
-                        handler, EventDetails.builder().domain(domain).build());
+                        handler, dev.openfeature.api.EventDetails.eventDetailsBuilder().domain(domain).build());
             }
             eventSupport.addClientHandler(domain, event, handler);
         }

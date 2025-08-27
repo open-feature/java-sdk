@@ -13,13 +13,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Util class for storing and running handlers.
  */
-@Slf4j
 class EventSupport {
+    private static final Logger log = LoggerFactory.getLogger(EventSupport.class);
 
     public static final int SHUTDOWN_TIMEOUT_SECONDS = 3;
 
