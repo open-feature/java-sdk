@@ -1,22 +1,10 @@
-package dev.openfeature.sdk;
+package dev.openfeature.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import dev.openfeature.api.ClientMetadata;
-import dev.openfeature.api.ErrorCode;
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.EvaluationEvent;
-import dev.openfeature.api.FlagEvaluationDetails;
-import dev.openfeature.api.FlagValueType;
-import dev.openfeature.api.HookContext;
-import dev.openfeature.api.ImmutableContext;
-import dev.openfeature.api.ImmutableMetadata;
-import dev.openfeature.api.Metadata;
-import dev.openfeature.api.Reason;
-import dev.openfeature.api.Telemetry;
 import org.junit.jupiter.api.Test;
 
 public class TelemetryTest {
@@ -28,8 +16,8 @@ public class TelemetryTest {
         String providerName = "test-provider";
         String reason = "static";
 
-        Metadata providerMetadata = mock(Metadata.class);
-        when(providerMetadata.getName()).thenReturn(providerName);
+        Metadata providerMetadata = Mockito.mock(Metadata.class);
+        Mockito.when(providerMetadata.getName()).thenReturn(providerName);
 
         HookContext<Boolean> hookContext = HookContext.<Boolean>builder()
                 .flagKey(flagKey)
@@ -58,8 +46,8 @@ public class TelemetryTest {
         String flagKey = "test-flag";
         String providerName = "test-provider";
 
-        Metadata providerMetadata = mock(Metadata.class);
-        when(providerMetadata.getName()).thenReturn(providerName);
+        Metadata providerMetadata = Mockito.mock(Metadata.class);
+        Mockito.when(providerMetadata.getName()).thenReturn(providerName);
 
         HookContext<Boolean> hookContext = HookContext.<Boolean>builder()
                 .flagKey(flagKey)
@@ -85,9 +73,9 @@ public class TelemetryTest {
                 .flagKey("testFlag")
                 .type(FlagValueType.STRING)
                 .defaultValue("default")
-                .ctx(mock(EvaluationContext.class))
-                .clientMetadata(mock(ClientMetadata.class))
-                .providerMetadata(mock(Metadata.class))
+                .ctx(Mockito.mock(EvaluationContext.class))
+                .clientMetadata(Mockito.mock(ClientMetadata.class))
+                .providerMetadata(Mockito.mock(Metadata.class))
                 .build();
 
         FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
@@ -106,9 +94,9 @@ public class TelemetryTest {
                 .flagKey("testFlag")
                 .type(FlagValueType.STRING)
                 .defaultValue("default")
-                .ctx(mock(EvaluationContext.class))
-                .clientMetadata(mock(ClientMetadata.class))
-                .providerMetadata(mock(Metadata.class))
+                .ctx(Mockito.mock(EvaluationContext.class))
+                .clientMetadata(Mockito.mock(ClientMetadata.class))
+                .providerMetadata(Mockito.mock(Metadata.class))
                 .build();
 
         FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
@@ -123,18 +111,18 @@ public class TelemetryTest {
 
     @Test
     void testAllFieldsPopulated() {
-        EvaluationContext evaluationContext = mock(EvaluationContext.class);
-        when(evaluationContext.getTargetingKey()).thenReturn("realTargetingKey");
+        EvaluationContext evaluationContext = Mockito.mock(EvaluationContext.class);
+        Mockito.when(evaluationContext.getTargetingKey()).thenReturn("realTargetingKey");
 
-        Metadata providerMetadata = mock(Metadata.class);
-        when(providerMetadata.getName()).thenReturn("realProviderName");
+        Metadata providerMetadata = Mockito.mock(Metadata.class);
+        Mockito.when(providerMetadata.getName()).thenReturn("realProviderName");
 
         HookContext<String> hookContext = HookContext.<String>builder()
                 .flagKey("realFlag")
                 .type(FlagValueType.STRING)
                 .defaultValue("realDefault")
                 .ctx(evaluationContext)
-                .clientMetadata(mock(ClientMetadata.class))
+                .clientMetadata(Mockito.mock(ClientMetadata.class))
                 .providerMetadata(providerMetadata)
                 .build();
 
@@ -162,18 +150,18 @@ public class TelemetryTest {
 
     @Test
     void testErrorEvaluation() {
-        EvaluationContext evaluationContext = mock(EvaluationContext.class);
-        when(evaluationContext.getTargetingKey()).thenReturn("realTargetingKey");
+        EvaluationContext evaluationContext = Mockito.mock(EvaluationContext.class);
+        Mockito.when(evaluationContext.getTargetingKey()).thenReturn("realTargetingKey");
 
-        Metadata providerMetadata = mock(Metadata.class);
-        when(providerMetadata.getName()).thenReturn("realProviderName");
+        Metadata providerMetadata = Mockito.mock(Metadata.class);
+        Mockito.when(providerMetadata.getName()).thenReturn("realProviderName");
 
         HookContext<String> hookContext = HookContext.<String>builder()
                 .flagKey("realFlag")
                 .type(FlagValueType.STRING)
                 .defaultValue("realDefault")
                 .ctx(evaluationContext)
-                .clientMetadata(mock(ClientMetadata.class))
+                .clientMetadata(Mockito.mock(ClientMetadata.class))
                 .providerMetadata(providerMetadata)
                 .build();
 
@@ -202,18 +190,18 @@ public class TelemetryTest {
 
     @Test
     void testErrorCodeEvaluation() {
-        EvaluationContext evaluationContext = mock(EvaluationContext.class);
-        when(evaluationContext.getTargetingKey()).thenReturn("realTargetingKey");
+        EvaluationContext evaluationContext = Mockito.mock(EvaluationContext.class);
+        Mockito.when(evaluationContext.getTargetingKey()).thenReturn("realTargetingKey");
 
-        Metadata providerMetadata = mock(Metadata.class);
-        when(providerMetadata.getName()).thenReturn("realProviderName");
+        Metadata providerMetadata = Mockito.mock(Metadata.class);
+        Mockito.when(providerMetadata.getName()).thenReturn("realProviderName");
 
         HookContext<String> hookContext = HookContext.<String>builder()
                 .flagKey("realFlag")
                 .type(FlagValueType.STRING)
                 .defaultValue("realDefault")
                 .ctx(evaluationContext)
-                .clientMetadata(mock(ClientMetadata.class))
+                .clientMetadata(Mockito.mock(ClientMetadata.class))
                 .providerMetadata(providerMetadata)
                 .build();
 
