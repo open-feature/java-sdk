@@ -2,23 +2,19 @@ package dev.openfeature.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.junit.jupiter.api.Test;
+import java.util.Collections;
+import java.util.Map;
 
 public class TelemetryTest {
 
+    String flagKey = "test-flag";
+    String providerName = "test-provider";
+    String reason = "static";
+    Metadata providerMetadata = () -> providerName;
+
     @Test
     void testCreatesEvaluationEventWithMandatoryFields() {
-        // Arrange
-        String flagKey = "test-flag";
-        String providerName = "test-provider";
-        String reason = "static";
-
-        Metadata providerMetadata = Mockito.mock(Metadata.class);
-        Mockito.when(providerMetadata.getName()).thenReturn(providerName);
-
         HookContext<Boolean> hookContext = HookContext.<Boolean>builder()
                 .flagKey(flagKey)
                 .providerMetadata(providerMetadata)
@@ -42,13 +38,6 @@ public class TelemetryTest {
 
     @Test
     void testHandlesNullReason() {
-        // Arrange
-        String flagKey = "test-flag";
-        String providerName = "test-provider";
-
-        Metadata providerMetadata = Mockito.mock(Metadata.class);
-        Mockito.when(providerMetadata.getName()).thenReturn(providerName);
-
         HookContext<Boolean> hookContext = HookContext.<Boolean>builder()
                 .flagKey(flagKey)
                 .providerMetadata(providerMetadata)
@@ -73,9 +62,9 @@ public class TelemetryTest {
                 .flagKey("testFlag")
                 .type(FlagValueType.STRING)
                 .defaultValue("default")
-                .ctx(Mockito.mock(EvaluationContext.class))
-                .clientMetadata(Mockito.mock(ClientMetadata.class))
-                .providerMetadata(Mockito.mock(Metadata.class))
+                .ctx(EvaluationContext.EMPTY)
+                .clientMetadata(() -> "")
+                .providerMetadata(providerMetadata)
                 .build();
 
         FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
@@ -94,9 +83,9 @@ public class TelemetryTest {
                 .flagKey("testFlag")
                 .type(FlagValueType.STRING)
                 .defaultValue("default")
-                .ctx(Mockito.mock(EvaluationContext.class))
-                .clientMetadata(Mockito.mock(ClientMetadata.class))
-                .providerMetadata(Mockito.mock(Metadata.class))
+                .ctx(EvaluationContext.EMPTY)
+                .clientMetadata(() -> "")
+                .providerMetadata(providerMetadata)
                 .build();
 
         FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
@@ -111,19 +100,13 @@ public class TelemetryTest {
 
     @Test
     void testAllFieldsPopulated() {
-        EvaluationContext evaluationContext = Mockito.mock(EvaluationContext.class);
-        Mockito.when(evaluationContext.getTargetingKey()).thenReturn("realTargetingKey");
-
-        Metadata providerMetadata = Mockito.mock(Metadata.class);
-        Mockito.when(providerMetadata.getName()).thenReturn("realProviderName");
-
         HookContext<String> hookContext = HookContext.<String>builder()
                 .flagKey("realFlag")
                 .type(FlagValueType.STRING)
                 .defaultValue("realDefault")
-                .ctx(evaluationContext)
-                .clientMetadata(Mockito.mock(ClientMetadata.class))
-                .providerMetadata(providerMetadata)
+                .ctx(new ImmutableContext("realTargetingKey", Map.of()))
+                .clientMetadata(() -> "")
+                .providerMetadata(()-> "realProviderName")
                 .build();
 
         FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
@@ -150,19 +133,13 @@ public class TelemetryTest {
 
     @Test
     void testErrorEvaluation() {
-        EvaluationContext evaluationContext = Mockito.mock(EvaluationContext.class);
-        Mockito.when(evaluationContext.getTargetingKey()).thenReturn("realTargetingKey");
-
-        Metadata providerMetadata = Mockito.mock(Metadata.class);
-        Mockito.when(providerMetadata.getName()).thenReturn("realProviderName");
-
         HookContext<String> hookContext = HookContext.<String>builder()
                 .flagKey("realFlag")
                 .type(FlagValueType.STRING)
                 .defaultValue("realDefault")
-                .ctx(evaluationContext)
-                .clientMetadata(Mockito.mock(ClientMetadata.class))
-                .providerMetadata(providerMetadata)
+                .ctx(new ImmutableContext("realTargetingKey", Map.of()))
+                .clientMetadata(() -> "")
+                .providerMetadata(()-> "realProviderName")
                 .build();
 
         FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
@@ -190,19 +167,13 @@ public class TelemetryTest {
 
     @Test
     void testErrorCodeEvaluation() {
-        EvaluationContext evaluationContext = Mockito.mock(EvaluationContext.class);
-        Mockito.when(evaluationContext.getTargetingKey()).thenReturn("realTargetingKey");
-
-        Metadata providerMetadata = Mockito.mock(Metadata.class);
-        Mockito.when(providerMetadata.getName()).thenReturn("realProviderName");
-
         HookContext<String> hookContext = HookContext.<String>builder()
                 .flagKey("realFlag")
                 .type(FlagValueType.STRING)
                 .defaultValue("realDefault")
-                .ctx(evaluationContext)
-                .clientMetadata(Mockito.mock(ClientMetadata.class))
-                .providerMetadata(providerMetadata)
+                .ctx(new ImmutableContext("realTargetingKey", Map.of()))
+                .clientMetadata(() -> "")
+                .providerMetadata(()-> "realProviderName")
                 .build();
 
         FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
