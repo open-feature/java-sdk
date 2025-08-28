@@ -15,4 +15,4 @@ target
 java-report.json
 
 # vmlens stuff
-java-sdk/vmlens-agent/vmlens/
+/vmlens-agent/vmlens/

@@ -1,8 +1,7 @@
 package dev.openfeature.sdk.vmlens;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -72,7 +71,7 @@ class VmLensTest {
                         () -> assertEquals("def", client.getStringValue("a", "a")),
                         () -> client.setEvaluationContext(contextA),
                         () -> client.setEvaluationContext(contextB));
-                assertThat(client.getEvaluationContext(), anyOf(is(contextA), is(contextB)));
+                assertThat(client.getEvaluationContext()).isIn(contextA, contextB);
             }
         }
     }
