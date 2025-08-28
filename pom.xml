@@ -168,6 +168,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.vmlens</groupId>
+            <artifactId>api</artifactId>
+            <version>1.2.12</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
@@ -206,7 +213,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
@@ -298,7 +304,6 @@
                     </archive>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
@@ -310,6 +315,23 @@
             </activation>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>com.vmlens</groupId>
+                        <artifactId>vmlens-maven-plugin</artifactId>
+                        <version>1.2.12</version>
+                        <executions>
+                            <execution>
+                                <id>test</id>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <agentDirectory>vmlens-agent</agentDirectory>
+                                    <failIfNoTests>true</failIfNoTests>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <version>3.8.1</version>
