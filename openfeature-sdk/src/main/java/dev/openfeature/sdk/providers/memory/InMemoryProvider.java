@@ -124,13 +124,7 @@ public class InMemoryProvider extends EventProvider {
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(
             String key, Value defaultValue, EvaluationContext evaluationContext) {
-        try {
-            return getEvaluation(key, evaluationContext, Value.class);
-        } catch (OpenFeatureError e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return getEvaluation(key, evaluationContext, Value.class);
     }
 
     private <T> ProviderEvaluation<T> getEvaluation(

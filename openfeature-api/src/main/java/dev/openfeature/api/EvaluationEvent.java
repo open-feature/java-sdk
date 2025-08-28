@@ -6,35 +6,37 @@ import java.util.Objects;
 
 /**
  * Represents an evaluation event.
+ * This class is immutable and thread-safe.
  */
 public class EvaluationEvent {
 
-    private String name;
-    private Map<String, Object> attributes;
+    private final String name;
+    private final Map<String, Object> attributes;
 
-    public EvaluationEvent() {
-        this.attributes = new HashMap<>();
-    }
-
-    public EvaluationEvent(String name, Map<String, Object> attributes) {
+    /**
+     * Private constructor - use builder() to create instances.
+     */
+    private EvaluationEvent(String name, Map<String, Object> attributes) {
         this.name = name;
         this.attributes = attributes != null ? new HashMap<>(attributes) : new HashMap<>();
     }
 
+    /**
+     * Gets the name of the evaluation event.
+     *
+     * @return the event name
+     */
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
+    /**
+     * Gets a copy of the event attributes.
+     *
+     * @return a new map containing the event attributes
+     */
     public Map<String, Object> getAttributes() {
         return new HashMap<>(attributes);
-    }
-
-    public void setAttributes(Map<String, Object> attributes) {
-        this.attributes = attributes != null ? new HashMap<>(attributes) : new HashMap<>();
     }
 
     public static Builder builder() {
