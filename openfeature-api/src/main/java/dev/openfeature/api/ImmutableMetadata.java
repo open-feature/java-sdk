@@ -221,11 +221,7 @@ public class ImmutableMetadata extends AbstractStructure {
          * @param value flag metadata value to add
          */
         public Builder addLong(final String key, final Long value) {
-            try {
-                attributes.put(key, new Value(value));
-            } catch (InstantiationException e) {
-                throw new RuntimeException("Failed to create Value for Long", e);
-            }
+            attributes.put(key, Value.objectToValue(value));
             return this;
         }
 
@@ -236,11 +232,7 @@ public class ImmutableMetadata extends AbstractStructure {
          * @param value flag metadata value to add
          */
         public Builder addFloat(final String key, final Float value) {
-            try {
-                attributes.put(key, new Value(value));
-            } catch (InstantiationException e) {
-                throw new RuntimeException("Failed to create Value for Float", e);
-            }
+            attributes.put(key, Value.objectToValue(value));
             return this;
         }
 

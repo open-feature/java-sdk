@@ -323,6 +323,18 @@ public class Value implements Cloneable {
             return new Value((Boolean) object);
         } else if (object instanceof Integer) {
             return new Value((Integer) object);
+        } else if (object instanceof Long) {
+            try {
+                return new Value(object);
+            } catch (InstantiationException e) {
+                throw new RuntimeException("Failed to create Value for Long", e);
+            }
+        } else if (object instanceof Float) {
+            try {
+                return new Value(object);
+            } catch (InstantiationException e) {
+                throw new RuntimeException("Failed to create Value for Float", e);
+            }
         } else if (object instanceof Double) {
             return new Value((Double) object);
         } else if (object instanceof Structure) {
