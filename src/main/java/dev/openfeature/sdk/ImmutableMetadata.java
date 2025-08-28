@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
@@ -95,6 +96,10 @@ public class ImmutableMetadata {
             log.debug("Error retrieving value for key " + key, e);
             return null;
         }
+    }
+
+    public Map<String, Object> asUnmodifiableMap() {
+        return Collections.unmodifiableMap(metadata);
     }
 
     public boolean isEmpty() {

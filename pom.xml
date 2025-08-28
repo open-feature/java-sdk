@@ -5,14 +5,14 @@
 
     <groupId>dev.openfeature</groupId>
     <artifactId>sdk</artifactId>
-    <version>1.16.0</version> <!--x-release-please-version -->
+    <version>1.17.0</version> <!--x-release-please-version -->
 
     <properties>
         <toolchain.jdk.version>[17,)</toolchain.jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
-        <org.mockito.version>5.18.0</org.mockito.version>
+        <org.mockito.version>5.19.0</org.mockito.version>
         <!-- exclusion expression for e2e tests -->
         <testExclusions>**/e2e/*.java</testExclusions>
         <module-name>${project.groupId}.${project.artifactId}</module-name>
@@ -60,7 +60,7 @@
             <!-- used so that lombok can generate suppressions for spotbugs. It needs to find it on the relevant classpath -->
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs</artifactId>
-            <version>4.8.6</version>
+            <version>4.9.4</version>
             <scope>provided</scope>
         </dependency>
 
@@ -88,7 +88,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.27.3</version>
+            <version>3.27.4</version>
             <scope>test</scope>
         </dependency>
 
@@ -179,14 +179,14 @@
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.17.6</version>
+                <version>1.17.7</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy-agent</artifactId>
-                <version>1.17.6</version>
+                <version>1.17.7</version>
                 <scope>test</scope>
             </dependency>
             <!-- End mockito workaround-->
@@ -194,7 +194,7 @@
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>
-                <version>7.26.0</version>
+                <version>7.27.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -403,7 +403,7 @@
                     <plugin>
                         <groupId>com.github.spotbugs</groupId>
                         <artifactId>spotbugs-maven-plugin</artifactId>
-                        <version>4.9.3.2</version>
+                        <version>4.9.4.0</version>
                         <configuration>
                             <excludeFilterFile>spotbugs-exclusions.xml</excludeFilterFile>
                             <plugins>
@@ -419,7 +419,7 @@
                             <dependency>
                                 <groupId>com.github.spotbugs</groupId>
                                 <artifactId>spotbugs</artifactId>
-                                <version>4.8.6</version>
+                                <version>4.9.4</version>
                             </dependency>
                         </dependencies>
                         <executions>
@@ -447,7 +447,7 @@
                             <dependency>
                                 <groupId>com.puppycrawl.tools</groupId>
                                 <artifactId>checkstyle</artifactId>
-                                <version>10.26.1</version>
+                                <version>11.0.0</version>
                             </dependency>
                         </dependencies>
                         <executions>
@@ -463,7 +463,7 @@
                     <plugin>
                         <groupId>com.diffplug.spotless</groupId>
                         <artifactId>spotless-maven-plugin</artifactId>
-                        <version>2.46.0</version>
+                        <version>2.46.1</version>
                         <configuration>
                             <!-- optional: limit format enforcement to just the files changed by this feature branch -->
                             <!--                <ratchetFrom>origin/main</ratchetFrom>-->
@@ -549,7 +549,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.11.2</version>
+                        <version>3.11.3</version>
                         <configuration>
                             <failOnWarnings>true</failOnWarnings>
                             <doclint>all,-missing
