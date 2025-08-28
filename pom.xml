@@ -56,7 +56,7 @@
             <!-- API dependency for SDK module -->
             <dependency>
                 <groupId>dev.openfeature</groupId>
-                <artifactId>openfeature-api</artifactId>
+                <artifactId>api</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

@@ -189,6 +189,7 @@ public class OpenFeatureClient implements Client {
         var hints = Collections.unmodifiableMap(flagOptions.getHookHints());
 
         FlagEvaluationDetails<T> details = null;
+        FlagEvaluationDetails.Builder<T> detailsBuilder = null;
         List<Hook> mergedHooks = null;
         HookContext<T> afterHookContext = null;
 
@@ -234,7 +235,7 @@ public class OpenFeatureClient implements Client {
             var providerEval =
                     (ProviderEvaluation<T>) createProviderEvaluation(type, key, defaultValue, provider, mergedCtx);
 
-            details = FlagEvaluationDetails.<T>builder()
+            detailsBuilder = FlagEvaluationDetails.<T>builder()
                     .flagKey(key)
                     .value(providerEval.getValue())
                     .variant(providerEval.getVariant())
@@ -242,38 +243,41 @@ public class OpenFeatureClient implements Client {
                     .errorMessage(providerEval.getErrorMessage())
                     .errorCode(providerEval.getErrorCode())
                     .flagMetadata(Optional.ofNullable(providerEval.getFlagMetadata())
-                            .orElse(ImmutableMetadata.builder().build()))
-                    .build();
-            if (details.getErrorCode() != null) {
-                var error =
-                        ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
-                enrichDetailsWithErrorDefaults(defaultValue, details);
+                            .orElse(ImmutableMetadata.builder().build()));
+            if (providerEval.getErrorCode() != null) {
+                var error = ExceptionUtils.instantiateErrorByErrorCode(
+                        providerEval.getErrorCode(), providerEval.getErrorMessage());
+                // Create new details with error defaults since object is immutable
+                detailsBuilder
+                        .value(defaultValue) // Use default value for errors
+                        .reason(Reason.ERROR.toString()); // Use ERROR reason
+                details = detailsBuilder.build();
                 hookSupport.errorHooks(type, afterHookContext, error, mergedHooks, hints);
             } else {
+                details = detailsBuilder.build();
                 hookSupport.afterHooks(type, afterHookContext, details, mergedHooks, hints);
             }
         } catch (Exception e) {
-            if (details == null) {
-                details = FlagEvaluationDetails.<T>builder().flagKey(key).build();
+            ErrorCode errorCode =
+                    (e instanceof OpenFeatureError) ? ((OpenFeatureError) e).getErrorCode() : ErrorCode.GENERAL;
+
+            if (detailsBuilder == null) {
+                detailsBuilder = FlagEvaluationDetails.<T>builder()
+                        .flagKey(key)
+                        .flagMetadata(ImmutableMetadata.builder().build());
             }
-            if (e instanceof OpenFeatureError) {
-                details.setErrorCode(((OpenFeatureError) e).getErrorCode());
-            } else {
-                details.setErrorCode(ErrorCode.GENERAL);
-            }
-            details.setErrorMessage(e.getMessage());
-            enrichDetailsWithErrorDefaults(defaultValue, details);
+            details = detailsBuilder
+                    .value(defaultValue)
+                    .reason(Reason.ERROR.toString())
+                    .errorCode(errorCode)
+                    .errorMessage(e.getMessage())
+                    .build();
             hookSupport.errorHooks(type, afterHookContext, e, mergedHooks, hints);
         } finally {
             hookSupport.afterAllHooks(type, afterHookContext, details, mergedHooks, hints);
         }
 
         return details;
-    }
-
-    private static <T> void enrichDetailsWithErrorDefaults(T defaultValue, FlagEvaluationDetails<T> details) {
-        details.setValue(defaultValue);
-        details.setReason(Reason.ERROR.toString());
     }
 
     private static void validateTrackingEventName(String str) {
