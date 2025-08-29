@@ -7,12 +7,14 @@ import dev.openfeature.api.ProviderEvaluation;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.Reason;
 import dev.openfeature.api.Value;
+import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
 
 /**
  * A {@link FeatureProvider} that simply returns the default values passed to it.
  *
  * <p><strong>This is an internal implementation class and should not be used directly by external users.</strong>
  */
+@ExcludeFromGeneratedCoverageReport
 public class NoOpProvider implements FeatureProvider {
     public static final String PASSED_IN_DEFAULT = "Passed in default";
 

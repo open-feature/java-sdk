@@ -1,6 +1,7 @@
 package dev.openfeature.api;
 
 import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -88,6 +89,166 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
     @Override
     public String toString() {
         return "ImmutableTrackingEventDetails{" + "structure=" + structure + ", value=" + value + '}';
+    }
+
+    /**
+     * Returns a builder for creating ImmutableTrackingEventDetails instances.
+     *
+     * @return a builder for ImmutableTrackingEventDetails
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Returns a builder initialized with the current state of this object.
+     *
+     * @return a builder for ImmutableTrackingEventDetails
+     */
+    public Builder toBuilder() {
+        return builder().value(this.value).attributes(this.structure.asMap());
+    }
+
+    /**
+     * Builder class for creating instances of ImmutableTrackingEventDetails.
+     */
+    public static class Builder {
+        private Number value;
+        private final Map<String, Value> attributes;
+
+        private Builder() {
+            this.attributes = new HashMap<>();
+        }
+
+        /**
+         * Sets the numeric tracking value.
+         *
+         * @param value the tracking value
+         * @return this builder
+         */
+        public Builder value(Number value) {
+            this.value = value;
+            return this;
+        }
+
+        /**
+         * Sets the attributes from a map.
+         *
+         * @param attributes map of attributes
+         * @return this builder
+         */
+        public Builder attributes(Map<String, Value> attributes) {
+            if (attributes != null) {
+                this.attributes.clear();
+                this.attributes.putAll(attributes);
+            }
+            return this;
+        }
+
+        /**
+         * Add String value to the tracking event details.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder addString(final String key, final String value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Integer value to the tracking event details.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder addInteger(final String key, final Integer value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Long value to the tracking event details.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder addLong(final String key, final Long value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Float value to the tracking event details.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder addFloat(final String key, final Float value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Double value to the tracking event details.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder addDouble(final String key, final Double value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Boolean value to the tracking event details.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder addBoolean(final String key, final Boolean value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Structure value to the tracking event details.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder addStructure(final String key, final Structure value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Value to the tracking event details.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder addValue(final String key, final Value value) {
+            attributes.put(key, value);
+            return this;
+        }
+
+        /**
+         * Build the ImmutableTrackingEventDetails with the provided values.
+         *
+         * @return a new ImmutableTrackingEventDetails instance
+         */
+        public ImmutableTrackingEventDetails build() {
+            return new ImmutableTrackingEventDetails(value, new HashMap<>(attributes));
+        }
     }
 
     @SuppressWarnings("all")

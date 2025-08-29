@@ -262,7 +262,7 @@ public class ImmutableMetadata extends AbstractStructure {
          * Retrieve {@link ImmutableMetadata} with provided key,value pairs.
          */
         public ImmutableMetadata build() {
-            return new ImmutableMetadata(this.attributes);
+            return new ImmutableMetadata(new HashMap<>(this.attributes));
         }
     }
 }

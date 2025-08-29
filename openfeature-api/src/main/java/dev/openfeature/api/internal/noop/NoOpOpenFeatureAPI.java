@@ -10,6 +10,7 @@ import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.ProviderEvent;
 import dev.openfeature.api.TransactionContextPropagator;
 import dev.openfeature.api.exceptions.OpenFeatureError;
+import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -21,6 +22,7 @@ import java.util.function.Consumer;
  *
  * <p>Package-private to prevent direct instantiation by external users.
  */
+@ExcludeFromGeneratedCoverageReport
 public class NoOpOpenFeatureAPI extends OpenFeatureAPI {
 
     private static final NoOpClient NO_OP_CLIENT = new NoOpClient();

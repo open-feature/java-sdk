@@ -12,6 +12,7 @@ import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.Reason;
 import dev.openfeature.api.TrackingEventDetails;
 import dev.openfeature.api.Value;
+import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -22,6 +23,7 @@ import java.util.function.Consumer;
  *
  * <p><strong>This is an internal implementation class and should not be used directly by external users.</strong>
  */
+@ExcludeFromGeneratedCoverageReport
 public class NoOpClient implements Client {
 
     @Override
