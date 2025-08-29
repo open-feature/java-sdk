@@ -384,10 +384,6 @@
                                 </goals>
                                 <configuration>
                                     <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
-                                    <excludes>
-                                        <exclude>dev/openfeature/api/exceptions/**</exclude>
-                                        <exclude>dev/openfeature/sdk/exceptions/**</exclude>
-                                    </excludes>
                                     <rules>
                                         <rule>
                                             <element>PACKAGE</element>
@@ -395,7 +391,7 @@
                                                 <limit>
                                                     <counter>LINE</counter>
                                                     <value>COVEREDRATIO</value>
-                                                    <minimum>0.70</minimum>
+                                                    <minimum>0.80</minimum>
                                                 </limit>
                                             </limits>
                                         </rule>
