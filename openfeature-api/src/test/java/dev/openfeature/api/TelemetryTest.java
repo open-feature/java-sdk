@@ -2,9 +2,9 @@ package dev.openfeature.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import org.junit.jupiter.api.Test;
-import java.util.Collections;
+
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 public class TelemetryTest {
 
@@ -106,7 +106,7 @@ public class TelemetryTest {
                 .defaultValue("realDefault")
                 .ctx(new ImmutableContext("realTargetingKey", Map.of()))
                 .clientMetadata(() -> "")
-                .providerMetadata(()-> "realProviderName")
+                .providerMetadata(() -> "realProviderName")
                 .build();
 
         FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
@@ -139,7 +139,7 @@ public class TelemetryTest {
                 .defaultValue("realDefault")
                 .ctx(new ImmutableContext("realTargetingKey", Map.of()))
                 .clientMetadata(() -> "")
-                .providerMetadata(()-> "realProviderName")
+                .providerMetadata(() -> "realProviderName")
                 .build();
 
         FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
@@ -173,7 +173,7 @@ public class TelemetryTest {
                 .defaultValue("realDefault")
                 .ctx(new ImmutableContext("realTargetingKey", Map.of()))
                 .clientMetadata(() -> "")
-                .providerMetadata(()-> "realProviderName")
+                .providerMetadata(() -> "realProviderName")
                 .build();
 
         FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
