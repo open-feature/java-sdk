@@ -142,6 +142,166 @@ public final class ImmutableContext implements EvaluationContext {
         return "ImmutableContext{" + "structure=" + structure + '}';
     }
 
+    /**
+     * Returns a builder for creating ImmutableContext instances.
+     *
+     * @return a builder for ImmutableContext
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Returns a builder initialized with the current state of this object.
+     *
+     * @return a builder for ImmutableContext
+     */
+    public Builder toBuilder() {
+        return builder().targetingKey(this.getTargetingKey()).attributes(this.structure.asMap());
+    }
+
+    /**
+     * Builder class for creating instances of ImmutableContext.
+     */
+    public static class Builder {
+        private String targetingKey;
+        private final Map<String, Value> attributes;
+
+        private Builder() {
+            this.attributes = new HashMap<>();
+        }
+
+        /**
+         * Sets the targeting key for the evaluation context.
+         *
+         * @param targetingKey the targeting key
+         * @return this builder
+         */
+        public Builder targetingKey(String targetingKey) {
+            this.targetingKey = targetingKey;
+            return this;
+        }
+
+        /**
+         * Sets the attributes from a map.
+         *
+         * @param attributes map of attributes
+         * @return this builder
+         */
+        public Builder attributes(Map<String, Value> attributes) {
+            if (attributes != null) {
+                this.attributes.clear();
+                this.attributes.putAll(attributes);
+            }
+            return this;
+        }
+
+        /**
+         * Add String value to the evaluation context.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder add(final String key, final String value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Integer value to the evaluation context.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder add(final String key, final Integer value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Long value to the evaluation context.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder add(final String key, final Long value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Float value to the evaluation context.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder add(final String key, final Float value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Double value to the evaluation context.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder add(final String key, final Double value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Boolean value to the evaluation context.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder add(final String key, final Boolean value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Structure value to the evaluation context.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder add(final String key, final Structure value) {
+            attributes.put(key, Value.objectToValue(value));
+            return this;
+        }
+
+        /**
+         * Add Value to the evaluation context.
+         *
+         * @param key   attribute key
+         * @param value attribute value
+         * @return this builder
+         */
+        public Builder add(final String key, final Value value) {
+            attributes.put(key, value);
+            return this;
+        }
+
+        /**
+         * Build the ImmutableContext with the provided values.
+         *
+         * @return a new ImmutableContext instance
+         */
+        public ImmutableContext build() {
+            return new ImmutableContext(targetingKey, new HashMap<>(attributes));
+        }
+    }
+
     @SuppressWarnings("all")
     private static class DelegateExclusions {
         @ExcludeFromGeneratedCoverageReport
