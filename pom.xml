@@ -167,7 +167,12 @@
             <version>1.37</version>
             <scope>test</scope>
         </dependency>
-
+        <!--<dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>1.37</version>
+            <scope>test</scope>
+        </dependency>-->
     </dependencies>
 
     <dependencyManagement>
@@ -298,7 +303,6 @@
                     </archive>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
@@ -595,6 +599,14 @@
                         <artifactId>jmh-maven-plugin</artifactId>
                         <version>0.2.2</version>
                     </plugin>
+                    <plugin>
+                        <groupId>at.lutnik</groupId>
+                        <artifactId>jmh-comparator-maven-plugin</artifactId>
+                        <version>0.1.0</version>
+                        <configuration>
+                            <baselineBranchName>main</baselineBranchName>
+                        </configuration>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -703,6 +715,24 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!--<plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <configuration>
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>org.openjdk.jmh</groupId>
+                                    <artifactId>jmh-generator-annprocess</artifactId>
+                                    <version>1.37</version>
+                                </path>
+                                <path>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                    <version>1.18.38</version>
+                                </path>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </plugin>-->
                 </plugins>
             </build>
         </profile>
