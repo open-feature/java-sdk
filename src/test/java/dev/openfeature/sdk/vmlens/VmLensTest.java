@@ -1,7 +1,6 @@
 package dev.openfeature.sdk.vmlens;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -34,16 +33,6 @@ class VmLensTest {
     void tearDown() {
         api.clearHooks();
         api.shutdown();
-    }
-
-    @Test
-    void fail() {
-        try (AllInterleavings allInterleavings =
-                new AllInterleavings("Concurrently setting the context and evaluating a flag")) {
-            while (allInterleavings.hasNext()) {
-                assertThat(false).isIn(true);
-            }
-        }
     }
 
     @Test
