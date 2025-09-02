@@ -13,6 +13,3 @@ target
 
 # used for spec compliance tooling
 java-report.json
-
-# vmlens stuff
-/vmlens-agent/vmlens/
