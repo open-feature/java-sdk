@@ -326,7 +326,6 @@
                                     <goal>test</goal>
                                 </goals>
                                 <configuration>
-                                    <agentDirectory>vmlens-agent</agentDirectory>
                                     <failIfNoTests>true</failIfNoTests>
                                 </configuration>
                             </execution>
