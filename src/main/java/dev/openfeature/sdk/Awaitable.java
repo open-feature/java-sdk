@@ -10,7 +10,7 @@ public class Awaitable {
      */
     public static final Awaitable FINISHED = new Awaitable(true);
 
-    private volatile boolean isDone = false;
+    private boolean isDone = false;
 
     public Awaitable() {}
 
