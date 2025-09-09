@@ -49,7 +49,7 @@ public interface HookData {
      * Default thread-safe implementation of HookData.
      */
     public class DefaultHookData implements HookData {
-        private final Map<String, Object> data = Collections.synchronizedMap(new HashMap<>());
+        private final Map<String, Object> data = new HashMap<>();
 
         @Override
         public void set(String key, Object value) {
