@@ -171,7 +171,7 @@
         <dependency>
             <groupId>com.vmlens</groupId>
             <artifactId>api</artifactId>
-            <version>1.2.12</version>
+            <version>1.2.13</version>
             <scope>test</scope>
         </dependency>
 
@@ -318,7 +318,7 @@
                     <plugin>
                         <groupId>com.vmlens</groupId>
                         <artifactId>vmlens-maven-plugin</artifactId>
-                        <version>1.2.12</version>
+                        <version>1.2.13</version>
                         <executions>
                             <execution>
                                 <id>test</id>
