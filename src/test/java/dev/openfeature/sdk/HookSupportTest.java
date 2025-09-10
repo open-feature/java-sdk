@@ -9,8 +9,10 @@ import dev.openfeature.sdk.fixtures.HookFixtures;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,7 +40,7 @@ class HookSupportTest implements HookFixtures {
         HookSupport hookSupport = new HookSupport();
 
         EvaluationContext result = hookSupport.beforeHooks(
-                FlagValueType.STRING, hookContext, Arrays.asList(hook1, hook2), Collections.emptyMap());
+                FlagValueType.STRING, hookContext, hookSupport.getHookDataPairs(Arrays.asList(hook1, hook2)), Collections.emptyMap());
 
         assertThat(result.getValue("bla").asString()).isEqualTo("blubber");
         assertThat(result.getValue("foo").asString()).isEqualTo("bar");
@@ -51,6 +53,7 @@ class HookSupportTest implements HookFixtures {
     void shouldAlwaysCallGenericHook(FlagValueType flagValueType) {
         Hook<?> genericHook = mockGenericHook();
         HookSupport hookSupport = new HookSupport();
+        var hookDataPairs = hookSupport.getHookDataPairs(Collections.singletonList(genericHook));
         EvaluationContext baseContext = new ImmutableContext();
         IllegalStateException expectedException = new IllegalStateException("All fine, just a test");
         HookContext<Object> hookContext = HookContext.<Object>builder()
@@ -63,24 +66,24 @@ class HookSupportTest implements HookFixtures {
                 .build();
 
         hookSupport.beforeHooks(
-                flagValueType, hookContext, Collections.singletonList(genericHook), Collections.emptyMap());
+                flagValueType, hookContext, hookDataPairs, Collections.emptyMap());
         hookSupport.afterHooks(
                 flagValueType,
                 hookContext,
                 FlagEvaluationDetails.builder().build(),
-                Collections.singletonList(genericHook),
+                hookDataPairs,
                 Collections.emptyMap());
         hookSupport.afterAllHooks(
                 flagValueType,
                 hookContext,
                 FlagEvaluationDetails.builder().build(),
-                Collections.singletonList(genericHook),
+                hookDataPairs,
                 Collections.emptyMap());
         hookSupport.errorHooks(
                 flagValueType,
                 hookContext,
                 expectedException,
-                Collections.singletonList(genericHook),
+                hookDataPairs,
                 Collections.emptyMap());
 
         verify(genericHook).before(any(), any());
@@ -88,6 +91,89 @@ class HookSupportTest implements HookFixtures {
         verify(genericHook).finallyAfter(any(), any(), any());
         verify(genericHook).error(any(), any(), any());
     }
+
+    @ParameterizedTest
+    @EnumSource(value = FlagValueType.class)
+    @DisplayName("should allow hooks to store and retrieve data across stages")
+    void shouldPassDataAcrossStages(FlagValueType flagValueType) {
+        HookSupport hookSupport = new HookSupport();
+        HookContext<Object> hookContext = getObjectHookContext(flagValueType);
+
+        TestHookWithData testHook = new TestHookWithData("test-key", "value");
+        var pairs = hookSupport.getHookDataPairs(List.of(testHook));
+
+        callAllHooks(flagValueType, hookSupport, hookContext, pairs);
+
+        assertHookData(testHook, "value");
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = FlagValueType.class)
+    @DisplayName("should isolate data between different hook instances")
+    void shouldIsolateDataBetweenHooks(FlagValueType flagValueType) {
+        HookSupport hookSupport = new HookSupport();
+        HookContext<Object> hookContext = getObjectHookContext(flagValueType);
+
+        TestHookWithData testHook1 = new TestHookWithData("test-key", "value-1");
+        TestHookWithData testHook2 = new TestHookWithData("test-key", "value-2");
+        var pairs = hookSupport.getHookDataPairs(List.of(testHook1, testHook2));
+
+        callAllHooks(flagValueType, hookSupport, hookContext, pairs);
+
+        assertHookData(testHook1, "value-1");
+        assertHookData(testHook2, "value-2");
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = FlagValueType.class)
+    @DisplayName("should isolate data between the same hook instances")
+    void shouldIsolateDataBetweenSameHooks(FlagValueType flagValueType) {
+
+        HookSupport hookSupport = new HookSupport();
+        HookContext<Object> hookContext = getObjectHookContext(flagValueType);
+
+        TestHookWithData testHook = new TestHookWithData("test-key", "value-1");
+
+        // run hooks first time
+        var pairs = hookSupport.getHookDataPairs(List.of(testHook));
+        callAllHooks(flagValueType, hookSupport, hookContext, pairs);
+        assertHookData(testHook, "value-1");
+
+        // re-run with different value, will throw if HookData contains already data
+        testHook.value = "value-2";
+        callAllHooks(flagValueType, hookSupport, hookContext, pairs);
+
+        assertHookData(testHook, "value-2");
+    }
+
+    private HookContext<Object> getObjectHookContext(FlagValueType flagValueType) {
+        EvaluationContext baseContext = new ImmutableContext();
+        HookContext<Object> hookContext = HookContext.<Object>builder()
+                .flagKey("flagKey")
+                .type(flagValueType)
+                .defaultValue(createDefaultValue(flagValueType))
+                .ctx(baseContext)
+                .clientMetadata(() -> "client")
+                .providerMetadata(() -> "provider")
+                .build();
+        return hookContext;
+    }
+
+    private static void assertHookData(TestHookWithData testHook1, String expected) {
+        assertThat(testHook1.onBeforeValue).isEqualTo(expected);
+        assertThat(testHook1.onFinallyAfterValue).isEqualTo(expected);
+        assertThat(testHook1.onAfterValue).isEqualTo(expected);
+        assertThat(testHook1.onErrorValue).isEqualTo(expected);
+    }
+
+    private static void callAllHooks(FlagValueType flagValueType, HookSupport hookSupport, HookContext<Object> hookContext,
+            List<Pair<Hook, HookData>> pairs) {
+        hookSupport.beforeHooks(flagValueType, hookContext, pairs, Collections.emptyMap());
+        hookSupport.afterHooks(flagValueType, hookContext, new FlagEvaluationDetails<>(), pairs, Collections.emptyMap());
+        hookSupport.errorHooks(flagValueType, hookContext, new Exception(), pairs, Collections.emptyMap());
+        hookSupport.afterAllHooks(flagValueType, hookContext, new FlagEvaluationDetails<>(), pairs, Collections.emptyMap());
+    }
+
 
     private Object createDefaultValue(FlagValueType flagValueType) {
         switch (flagValueType) {
@@ -113,32 +199,46 @@ class HookSupportTest implements HookFixtures {
         return baseContext;
     }
 
-    private static class TestHook implements Hook<String> {
-        boolean beforeCalled = false;
-        boolean afterCalled = false;
-        boolean errorCalled = false;
-        boolean finallyCalled = false;
+    private class TestHookWithData implements Hook {
+
+        private final String key;
+        Object value;
+
+        Object onBeforeValue;
+        Object onAfterValue;
+        Object onErrorValue;
+        Object onFinallyAfterValue;
+
+        TestHookWithData(String key, Object value) {
+            this.key = key;
+            this.value = value;
+        }
 
         @Override
-        public Optional<EvaluationContext> before(HookContext<String> ctx, Map<String, Object> hints) {
-            beforeCalled = true;
+        public Optional<EvaluationContext> before(HookContext ctx, Map hints) {
+            var storedValue = ctx.getHookData().get(key);
+            if (storedValue != null) {
+                throw new Error("Hook data isolation violated! Data is already set.");
+            }
+            ctx.getHookData().set(key, value);
+            onBeforeValue = ctx.getHookData().get(key);
             return Optional.empty();
         }
 
         @Override
-        public void after(HookContext<String> ctx, FlagEvaluationDetails<String> details, Map<String, Object> hints) {
-            afterCalled = true;
+        public void after(HookContext ctx, FlagEvaluationDetails details, Map hints) {
+            onAfterValue = ctx.getHookData().get(key);
         }
 
         @Override
-        public void error(HookContext<String> ctx, Exception error, Map<String, Object> hints) {
-            errorCalled = true;
+        public void error(HookContext ctx, Exception error, Map hints) {
+            onErrorValue = ctx.getHookData().get(key);
         }
 
         @Override
-        public void finallyAfter(
-                HookContext<String> ctx, FlagEvaluationDetails<String> details, Map<String, Object> hints) {
-            finallyCalled = true;
+        public void finallyAfter(HookContext ctx, FlagEvaluationDetails details, Map hints) {
+            onFinallyAfterValue = ctx.getHookData().get(key);
         }
+
     }
 }

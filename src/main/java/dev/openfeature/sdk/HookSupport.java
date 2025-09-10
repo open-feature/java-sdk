@@ -6,9 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -16,52 +18,63 @@ import lombok.extern.slf4j.Slf4j;
 class HookSupport {
 
     public EvaluationContext beforeHooks(
-            FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks, Map<String, Object> hints) {
-        return callBeforeHooks(flagValueType, hookCtx, hooks, hints);
+            FlagValueType flagValueType, HookContext hookCtx, List<Pair<Hook, HookData>> hookDataPairs, Map<String, Object> hints) {
+        return callBeforeHooks(flagValueType, hookCtx, hookDataPairs, hints);
     }
 
     public void afterHooks(
             FlagValueType flagValueType,
             HookContext hookContext,
             FlagEvaluationDetails details,
-            List<Hook> hooks,
+            List<Pair<Hook, HookData>> hookDataPairs,
             Map<String, Object> hints) {
-        executeHooksUnchecked(flagValueType, hooks, hook -> hook.after(hookContext, details, hints));
+        executeHooksUnchecked(flagValueType, hookDataPairs, hookContext, (hook, ctx) -> hook.after(ctx, details, hints));
     }
 
     public void afterAllHooks(
             FlagValueType flagValueType,
             HookContext hookCtx,
             FlagEvaluationDetails details,
-            List<Hook> hooks,
+            List<Pair<Hook, HookData>> hookDataPairs,
             Map<String, Object> hints) {
-        executeHooks(flagValueType, hooks, "finally", hook -> hook.finallyAfter(hookCtx, details, hints));
+        executeHooks(flagValueType, hookDataPairs, hookCtx, "finally", (hook, ctx) -> hook.finallyAfter(ctx, details, hints));
     }
 
     public void errorHooks(
             FlagValueType flagValueType,
             HookContext hookCtx,
             Exception e,
-            List<Hook> hooks,
+            List<Pair<Hook, HookData>> hookDataPairs,
             Map<String, Object> hints) {
-        executeHooks(flagValueType, hooks, "error", hook -> hook.error(hookCtx, e, hints));
+        executeHooks(flagValueType, hookDataPairs, hookCtx, "error", (hook, ctx) -> hook.error(ctx, e, hints));
+    }
+
+    public List<Pair<Hook, HookData>> getHookDataPairs(List<Hook> hooks) {
+        var pairs = new ArrayList<Pair<Hook, HookData>>();
+        for (Hook hook : hooks) {
+            pairs.add(Pair.of(hook, HookData.create()));
+        }
+        return pairs;
     }
 
     private <T> void executeHooks(
-            FlagValueType flagValueType, List<Hook> hooks, String hookMethod, Consumer<Hook<T>> hookCode) {
-        if (hooks != null) {
-            for (Hook hook : hooks) {
+            FlagValueType flagValueType, List<Pair<Hook, HookData>> hookDataPairs, HookContext hookContext, String hookMethod, BiConsumer<Hook<T>, HookContext> hookCode) {
+        if (hookDataPairs != null) {
+            for (Pair<Hook, HookData> hookDataPair : hookDataPairs) {
+                Hook hook = hookDataPair.getLeft();
+                HookData hookData = hookDataPair.getRight();
                 if (hook.supportsFlagValueType(flagValueType)) {
-                    executeChecked(hook, hookCode, hookMethod);
+                    executeChecked(hook, hookData, hookContext, hookCode, hookMethod);
                 }
             }
         }
     }
 
     // before, error, and finally hooks shouldn't throw
-    private <T> void executeChecked(Hook<T> hook, Consumer<Hook<T>> hookCode, String hookMethod) {
+    private <T> void executeChecked(Hook<T> hook, HookData hookData, HookContext hookContext, BiConsumer<Hook<T>, HookContext> hookCode, String hookMethod) {
         try {
-            hookCode.accept(hook);
+            var hookCtxWithData = hookContext.withHookData(hookData);
+            hookCode.accept(hook, hookCtxWithData);
         } catch (Exception exception) {
             log.error(
                     "Unhandled exception when running {} hook {} (only 'after' hooks should throw)",
@@ -72,23 +85,26 @@ class HookSupport {
     }
 
     // after hooks can throw in order to do validation
-    private <T> void executeHooksUnchecked(FlagValueType flagValueType, List<Hook> hooks, Consumer<Hook<T>> hookCode) {
-        if (hooks != null) {
-            for (Hook hook : hooks) {
+    private <T> void executeHooksUnchecked(FlagValueType flagValueType, List<Pair<Hook, HookData>> hookDataPairs, HookContext hookContext, BiConsumer<Hook<T>, HookContext> hookCode) {
+        if (hookDataPairs != null) {
+            for (Pair<Hook, HookData> hookDataPair : hookDataPairs) {
+                Hook hook = hookDataPair.getLeft();
+                HookData hookData = hookDataPair.getRight();
                 if (hook.supportsFlagValueType(flagValueType)) {
-                    hookCode.accept(hook);
+                    var hookCtxWithData = hookContext.withHookData(hookData);
+                    hookCode.accept(hook, hookCtxWithData);
                 }
             }
         }
     }
 
     private EvaluationContext callBeforeHooks(
-            FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks, Map<String, Object> hints) {
+            FlagValueType flagValueType, HookContext hookCtx, List<Pair<Hook, HookData>> hookDataPairs, Map<String, Object> hints) {
         // These traverse backwards from normal.
-        List<Hook> reversedHooks = new ArrayList<>(hooks);
+        List<Pair<Hook, HookData>> reversedHooks = new ArrayList<>(hookDataPairs);
         Collections.reverse(reversedHooks);
         EvaluationContext context = hookCtx.getCtx();
-
+        /*
         // Create hook data for each hook instance
         Map<Hook, HookData> hookDataMap = new HashMap<>();
         for (Hook hook : reversedHooks) {
@@ -96,11 +112,15 @@ class HookSupport {
                 hookDataMap.put(hook, HookData.create());
             }
         }
+        */
 
-        for (Hook hook : reversedHooks) {
+        for (Pair<Hook, HookData> hookDataPair : reversedHooks) {
+            Hook hook = hookDataPair.getLeft();
+            HookData hookData = hookDataPair.getRight();
+
             if (hook.supportsFlagValueType(flagValueType)) {
                 // Create a new context with this hook's data
-                HookContext contextWithHookData = hookCtx.withHookData(hookDataMap.get(hook));
+                HookContext contextWithHookData = hookCtx.withHookData(hookData);
                 Optional<EvaluationContext> optional = Optional.ofNullable(hook.before(contextWithHookData, hints))
                         .orElse(Optional.empty());
                 if (optional.isPresent()) {

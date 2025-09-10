@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * OpenFeature Client implementation.
@@ -164,7 +165,8 @@ public class OpenFeatureClient implements Client {
         var hints = Collections.unmodifiableMap(flagOptions.getHookHints());
 
         FlagEvaluationDetails<T> details = null;
-        List<Hook> mergedHooks = null;
+        List<Hook> mergedHooks;
+        List<Pair<Hook, HookData>> hookDataPairs = null;
         HookContext<T> afterHookContext = null;
 
         try {
@@ -175,7 +177,7 @@ public class OpenFeatureClient implements Client {
 
             mergedHooks = ObjectUtils.merge(
                     provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
-
+            hookDataPairs = hookSupport.getHookDataPairs(mergedHooks);
             var mergedCtx = hookSupport.beforeHooks(
                     type,
                     HookContext.from(
@@ -185,7 +187,7 @@ public class OpenFeatureClient implements Client {
                             provider.getMetadata(),
                             mergeEvaluationContext(ctx),
                             defaultValue),
-                    mergedHooks,
+                    hookDataPairs,
                     hints);
 
             afterHookContext =
@@ -207,9 +209,9 @@ public class OpenFeatureClient implements Client {
                 var error =
                         ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
                 enrichDetailsWithErrorDefaults(defaultValue, details);
-                hookSupport.errorHooks(type, afterHookContext, error, mergedHooks, hints);
+                hookSupport.errorHooks(type, afterHookContext, error, hookDataPairs, hints);
             } else {
-                hookSupport.afterHooks(type, afterHookContext, details, mergedHooks, hints);
+                hookSupport.afterHooks(type, afterHookContext, details, hookDataPairs, hints);
             }
         } catch (Exception e) {
             if (details == null) {
@@ -222,9 +224,9 @@ public class OpenFeatureClient implements Client {
             }
             details.setErrorMessage(e.getMessage());
             enrichDetailsWithErrorDefaults(defaultValue, details);
-            hookSupport.errorHooks(type, afterHookContext, e, mergedHooks, hints);
+            hookSupport.errorHooks(type, afterHookContext, e, hookDataPairs, hints);
         } finally {
-            hookSupport.afterAllHooks(type, afterHookContext, details, mergedHooks, hints);
+            hookSupport.afterAllHooks(type, afterHookContext, details, hookDataPairs, hints);
         }
 
         return details;
