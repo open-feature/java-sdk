@@ -170,25 +170,16 @@ public class OpenFeatureClient implements Client {
         HookContext<T> afterHookContext = null;
 
         try {
-            var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
+            final var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
             // provider must be accessed once to maintain a consistent reference
-            var provider = stateManager.getProvider();
-            var state = stateManager.getState();
-
+            final var provider = stateManager.getProvider();
+            final var state = stateManager.getState();
+            afterHookContext = HookContext.from(
+                    key, type, this.getMetadata(), provider.getMetadata(), mergeEvaluationContext(ctx), defaultValue);
             mergedHooks = ObjectUtils.merge(
                     provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
             hookDataPairs = hookSupport.getHookDataPairs(mergedHooks);
-            var mergedCtx = hookSupport.beforeHooks(
-                    type,
-                    HookContext.from(
-                            key,
-                            type,
-                            this.getMetadata(),
-                            provider.getMetadata(),
-                            mergeEvaluationContext(ctx),
-                            defaultValue),
-                    hookDataPairs,
-                    hints);
+            var mergedCtx = hookSupport.beforeHooks(type, afterHookContext, hookDataPairs, hints);
 
             afterHookContext =
                     HookContext.from(key, type, this.getMetadata(), provider.getMetadata(), mergedCtx, defaultValue);
