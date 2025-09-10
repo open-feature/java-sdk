@@ -38,7 +38,7 @@ public interface HookData {
     <T> T get(String key, Class<T> type);
 
     /**
-     * Default implementation is using a synchronized map.
+     * Default implementation uses a HashMap.
      */
     static HookData create() {
         return new DefaultHookData();
