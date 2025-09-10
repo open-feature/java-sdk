@@ -20,4 +20,5 @@ public class Flag<T> {
     private String defaultVariant;
     private ContextEvaluator<T> contextEvaluator;
     private ImmutableMetadata flagMetadata;
+    private boolean disabled;
 }

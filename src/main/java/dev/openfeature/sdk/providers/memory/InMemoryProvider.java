@@ -97,36 +97,37 @@ public class InMemoryProvider extends EventProvider {
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(
             String key, Boolean defaultValue, EvaluationContext evaluationContext) {
-        return getEvaluation(key, evaluationContext, Boolean.class);
+        return getEvaluation(key, defaultValue, evaluationContext, Boolean.class);
     }
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(
             String key, String defaultValue, EvaluationContext evaluationContext) {
-        return getEvaluation(key, evaluationContext, String.class);
+        return getEvaluation(key, defaultValue, evaluationContext, String.class);
     }
 
     @Override
     public ProviderEvaluation<Integer> getIntegerEvaluation(
             String key, Integer defaultValue, EvaluationContext evaluationContext) {
-        return getEvaluation(key, evaluationContext, Integer.class);
+        return getEvaluation(key, defaultValue, evaluationContext, Integer.class);
     }
 
     @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(
             String key, Double defaultValue, EvaluationContext evaluationContext) {
-        return getEvaluation(key, evaluationContext, Double.class);
+        return getEvaluation(key, defaultValue, evaluationContext, Double.class);
     }
 
     @SneakyThrows
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(
             String key, Value defaultValue, EvaluationContext evaluationContext) {
-        return getEvaluation(key, evaluationContext, Value.class);
+        return getEvaluation(key, defaultValue, evaluationContext, Value.class);
     }
 
     private <T> ProviderEvaluation<T> getEvaluation(
-            String key, EvaluationContext evaluationContext, Class<?> expectedType) throws OpenFeatureError {
+            String key, T defaultValue, EvaluationContext evaluationContext, Class<?> expectedType)
+            throws OpenFeatureError {
         if (!ProviderState.READY.equals(state)) {
             if (ProviderState.NOT_READY.equals(state)) {
                 throw new ProviderNotReadyError("provider not yet initialized");
@@ -139,6 +140,13 @@ public class InMemoryProvider extends EventProvider {
         Flag<?> flag = flags.get(key);
         if (flag == null) {
             throw new FlagNotFoundError("flag " + key + " not found");
+        }
+        if (flag.isDisabled()) {
+            return ProviderEvaluation.<T>builder()
+                    .reason(Reason.DISABLED.name())
+                    .value(defaultValue)
+                    .flagMetadata(flag.getFlagMetadata())
+                    .build();
         }
         T value;
         Reason reason = Reason.STATIC;

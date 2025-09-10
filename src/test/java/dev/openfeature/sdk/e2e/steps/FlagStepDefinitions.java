@@ -24,7 +24,7 @@ public class FlagStepDefinitions {
         this.state = state;
     }
 
-    @Given("a {}-flag with key {string} and a default value {string}")
+    @Given("a {}-flag with key {string} and a fallback value {string}")
     public void givenAFlag(String type, String name, String defaultValue) {
         state.flag = new Flag(type, name, Utils.convert(defaultValue, type));
     }
