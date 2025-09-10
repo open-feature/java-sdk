@@ -45,7 +45,7 @@ public interface HookData {
     }
 
     /**
-     * Default thread-safe implementation of HookData.
+     * Default implementation of HookData.
      */
     public class DefaultHookData implements HookData {
         private final Map<String, Object> data = new HashMap<>();
