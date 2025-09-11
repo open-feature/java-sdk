@@ -71,7 +71,7 @@ class HookContextTest {
         HookData hookData = HookData.create();
         hookData.set("timing", System.currentTimeMillis());
 
-        HookContext<String> contextWithHookData = originalContext.withHookData(hookData);
+        HookContext<String> contextWithHookData = HookContextWithData.of(originalContext, hookData);
 
         assertNull(originalContext.getHookData());
         assertNotNull(contextWithHookData.getHookData());

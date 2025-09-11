@@ -90,7 +90,7 @@ class HookSupport {
             BiConsumer<Hook<T>, HookContext> hookCode,
             String hookMethod) {
         try {
-            var hookCtxWithData = hookContext.withHookData(hookData);
+            var hookCtxWithData = HookContextWithData.of(hookContext, hookData);
             hookCode.accept(hook, hookCtxWithData);
         } catch (Exception exception) {
             log.error(
@@ -112,7 +112,7 @@ class HookSupport {
                 Hook hook = hookDataPair.getLeft();
                 HookData hookData = hookDataPair.getRight();
                 if (hook.supportsFlagValueType(flagValueType)) {
-                    var hookCtxWithData = hookContext.withHookData(hookData);
+                    var hookCtxWithData = HookContextWithData.of(hookContext, hookData);
                     hookCode.accept(hook, hookCtxWithData);
                 }
             }
@@ -135,7 +135,7 @@ class HookSupport {
 
             if (hook.supportsFlagValueType(flagValueType)) {
                 // Create a new context with this hook's data
-                HookContext contextWithHookData = hookCtx.withHookData(hookData);
+                HookContext contextWithHookData = HookContextWithData.of(hookCtx, hookData);
                 Optional<EvaluationContext> optional = Optional.ofNullable(hook.before(contextWithHookData, hints))
                         .orElse(Optional.empty());
                 if (optional.isPresent()) {

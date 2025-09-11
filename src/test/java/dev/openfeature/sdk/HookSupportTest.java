@@ -25,7 +25,7 @@ class HookSupportTest implements HookFixtures {
         attributes.put("baseKey", new Value("baseValue"));
         EvaluationContext baseContext = new ImmutableContext(attributes);
         FlagValueType valueType = FlagValueType.STRING;
-        HookContext<String> hookContext = HookContext.<String>builder()
+        HookContext<String> hookContext = HookContextWithoutData.<String>builder()
                 .flagKey("flagKey")
                 .type(valueType)
                 .defaultValue("defaultValue")
