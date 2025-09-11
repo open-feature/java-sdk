@@ -1,18 +1,24 @@
 package dev.openfeature.sdk;
 
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.Value;
 import lombok.With;
+import lombok.experimental.NonFinal;
 
 /**
  * A data class to hold immutable context that {@link Hook} instances use.
  *
  * @param <T> the type for the flag being evaluated
  */
-@Value
+@Data
 @Builder
 @With
+@Setter(AccessLevel.PRIVATE)
 class HookContextWithoutData<T> implements HookContext<T> {
     @NonNull String flagKey;
 
@@ -20,8 +26,38 @@ class HookContextWithoutData<T> implements HookContext<T> {
 
     @NonNull T defaultValue;
 
+    @Setter(AccessLevel.PACKAGE)
     @NonNull EvaluationContext ctx;
 
     ClientMetadata clientMetadata;
     Metadata providerMetadata;
+
+    /**
+     * Builds a {@link HookContextWithoutData} instances from request data.
+     *
+     * @param key              feature flag key
+     * @param type             flag value type
+     * @param clientMetadata   info on which client is calling
+     * @param providerMetadata info on the provider
+     * @param ctx              Evaluation Context for the request
+     * @param defaultValue     Fallback value
+     * @param <T>              type that the flag is evaluating against
+     * @return resulting context for hook
+     */
+    static <T> HookContextWithoutData<T> from(
+            String key,
+            FlagValueType type,
+            ClientMetadata clientMetadata,
+            Metadata providerMetadata,
+            EvaluationContext ctx,
+            T defaultValue) {
+        return HookContextWithoutData.<T>builder()
+                .flagKey(key)
+                .type(type)
+                .clientMetadata(clientMetadata)
+                .providerMetadata(providerMetadata)
+                .ctx(ImmutableContext.EMPTY)
+                .defaultValue(defaultValue)
+                .build();
+    }
 }

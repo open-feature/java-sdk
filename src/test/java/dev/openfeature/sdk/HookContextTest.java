@@ -35,13 +35,7 @@ class HookContextTest {
         HookData hookData = HookData.create();
         hookData.set("test", "value");
 
-        HookContext<String> context = HookContext.<String>builder()
-                .flagKey("test-flag")
-                .type(FlagValueType.STRING)
-                .defaultValue("default")
-                .ctx(new ImmutableContext())
-                .hookData(hookData)
-                .build();
+        HookContext<String> context = HookContextWithData.of(null, hookData);
 
         assertNotNull(context.getHookData());
         assertEquals("value", context.getHookData().get("test"));

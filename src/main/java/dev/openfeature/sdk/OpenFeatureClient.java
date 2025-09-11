@@ -166,22 +166,23 @@ public class OpenFeatureClient implements Client {
         FlagEvaluationDetails<T> details = null;
         List<Hook> mergedHooks;
         List<Pair<Hook, HookData>> hookDataPairs = null;
-        HookContext<T> hookContext = null;
+        HookContextWithoutData<T> hookContext = null;
 
         try {
             final var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
             // provider must be accessed once to maintain a consistent reference
             final var provider = stateManager.getProvider();
             final var state = stateManager.getState();
-            hookContext = HookContext.from(
-                    key, type, this.getMetadata(), provider.getMetadata(), mergeEvaluationContext(ctx), defaultValue);
+            hookContext = HookContextWithoutData.from(
+                    key, type, this.getMetadata(), provider.getMetadata(), null, defaultValue);
+
+            hookContext.setCtx(mergeEvaluationContext(ctx));
+
             mergedHooks = ObjectUtils.merge(
                     provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
             hookDataPairs = hookSupport.getHookDataPairs(mergedHooks, type);
             var mergedCtx = hookSupport.beforeHooks(type, hookContext, hookDataPairs, hints);
-
-            hookContext =
-                    HookContext.from(key, type, this.getMetadata(), provider.getMetadata(), mergedCtx, defaultValue);
+            hookContext.setCtx(mergedCtx);
 
             // "short circuit" if the provider is in NOT_READY or FATAL state
             if (ProviderState.NOT_READY.equals(state)) {

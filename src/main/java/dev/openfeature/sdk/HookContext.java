@@ -18,7 +18,10 @@ public interface HookContext<T> {
      * @param defaultValue     Fallback value
      * @param <T>              type that the flag is evaluating against
      * @return resulting context for hook
+     *
+     * @deprecated this should not be instantiated outside the SDK anymore
      */
+    @Deprecated
     static <T> HookContext<T> from(
             String key,
             FlagValueType type,
