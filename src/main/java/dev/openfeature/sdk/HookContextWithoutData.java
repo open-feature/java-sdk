@@ -3,12 +3,9 @@ package dev.openfeature.sdk;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import lombok.Value;
 import lombok.With;
-import lombok.experimental.NonFinal;
 
 /**
  * A data class to hold immutable context that {@link Hook} instances use.

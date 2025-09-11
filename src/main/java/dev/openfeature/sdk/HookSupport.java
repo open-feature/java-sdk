@@ -75,9 +75,7 @@ class HookSupport {
             for (Pair<Hook, HookData> hookDataPair : hookDataPairs) {
                 Hook hook = hookDataPair.getLeft();
                 HookData hookData = hookDataPair.getRight();
-                if (hook.supportsFlagValueType(flagValueType)) {
-                    executeChecked(hook, hookData, hookContext, hookCode, hookMethod);
-                }
+                executeChecked(hook, hookData, hookContext, hookCode, hookMethod);
             }
         }
     }
@@ -111,10 +109,8 @@ class HookSupport {
             for (Pair<Hook, HookData> hookDataPair : hookDataPairs) {
                 Hook hook = hookDataPair.getLeft();
                 HookData hookData = hookDataPair.getRight();
-                if (hook.supportsFlagValueType(flagValueType)) {
-                    var hookCtxWithData = HookContextWithData.of(hookContext, hookData);
-                    hookCode.accept(hook, hookCtxWithData);
-                }
+                var hookCtxWithData = HookContextWithData.of(hookContext, hookData);
+                hookCode.accept(hook, hookCtxWithData);
             }
         }
     }
@@ -133,14 +129,12 @@ class HookSupport {
             Hook hook = hookDataPair.getLeft();
             HookData hookData = hookDataPair.getRight();
 
-            if (hook.supportsFlagValueType(flagValueType)) {
-                // Create a new context with this hook's data
-                HookContext contextWithHookData = HookContextWithData.of(hookCtx, hookData);
-                Optional<EvaluationContext> optional = Optional.ofNullable(hook.before(contextWithHookData, hints))
-                        .orElse(Optional.empty());
-                if (optional.isPresent()) {
-                    context = context.merge(optional.get());
-                }
+            // Create a new context with this hook's data
+            HookContext contextWithHookData = HookContextWithData.of(hookCtx, hookData);
+            Optional<EvaluationContext> optional =
+                    Optional.ofNullable(hook.before(contextWithHookData, hints)).orElse(Optional.empty());
+            if (optional.isPresent()) {
+                context = context.merge(optional.get());
             }
         }
         return context;
