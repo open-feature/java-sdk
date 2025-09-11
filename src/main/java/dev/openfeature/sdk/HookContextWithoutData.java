@@ -24,10 +24,4 @@ class HookContextWithoutData<T> implements HookContext<T> {
 
     ClientMetadata clientMetadata;
     Metadata providerMetadata;
-
-    /**
-     * Hook data provides a way for hooks to maintain state across their execution stages.
-     * Each hook instance gets its own isolated data store.
-     */
-    HookData hookData;
 }

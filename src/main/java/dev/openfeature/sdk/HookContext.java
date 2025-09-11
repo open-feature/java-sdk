@@ -33,7 +33,6 @@ public interface HookContext<T> {
                 .providerMetadata(providerMetadata)
                 .ctx(ctx)
                 .defaultValue(defaultValue)
-                .hookData(null) // Explicitly set to null for backward compatibility
                 .build();
     }
 
@@ -56,5 +55,7 @@ public interface HookContext<T> {
 
     Metadata getProviderMetadata();
 
-    HookData getHookData();
+    default HookData getHookData() {
+        return null;
+    }
 }
