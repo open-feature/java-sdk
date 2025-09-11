@@ -173,9 +173,11 @@ public class OpenFeatureClient implements Client {
             // provider must be accessed once to maintain a consistent reference
             final var provider = stateManager.getProvider();
             final var state = stateManager.getState();
-            hookContext = HookContextWithoutData.from(
-                    key, type, this.getMetadata(), provider.getMetadata(), null, defaultValue);
+            hookContext =
+                    HookContextWithoutData.from(key, type, this.getMetadata(), provider.getMetadata(), defaultValue);
 
+            // we are setting the evaluation context one after the other, so that we have a hook context in each
+            // possible exception case.
             hookContext.setCtx(mergeEvaluationContext(ctx));
 
             mergedHooks = ObjectUtils.merge(

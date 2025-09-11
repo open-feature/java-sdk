@@ -4,7 +4,6 @@ import dev.openfeature.sdk.HookContextWithoutData.HookContextWithoutDataBuilder;
 
 /**
  * A interface to hold immutable context that {@link Hook} instances use.
- *
  */
 public interface HookContext<T> {
     /**
@@ -18,7 +17,6 @@ public interface HookContext<T> {
      * @param defaultValue     Fallback value
      * @param <T>              type that the flag is evaluating against
      * @return resulting context for hook
-     *
      * @deprecated this should not be instantiated outside the SDK anymore
      */
     @Deprecated
@@ -29,14 +27,7 @@ public interface HookContext<T> {
             Metadata providerMetadata,
             EvaluationContext ctx,
             T defaultValue) {
-        return HookContextWithoutData.<T>builder()
-                .flagKey(key)
-                .type(type)
-                .clientMetadata(clientMetadata)
-                .providerMetadata(providerMetadata)
-                .ctx(ctx)
-                .defaultValue(defaultValue)
-                .build();
+        return new HookContextWithoutData<>(key, type, defaultValue, ctx, clientMetadata, providerMetadata);
     }
 
     /**

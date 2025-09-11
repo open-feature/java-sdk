@@ -35,7 +35,7 @@ class HookContextTest {
         HookData hookData = HookData.create();
         hookData.set("test", "value");
 
-        HookContext<String> context = HookContextWithData.of(null, hookData);
+        HookContextWithData context = HookContextWithData.of(mock(HookContext.class), hookData);
 
         assertNotNull(context.getHookData());
         assertEquals("value", context.getHookData().get("test"));

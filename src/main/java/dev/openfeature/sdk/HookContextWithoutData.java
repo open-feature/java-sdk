@@ -36,25 +36,13 @@ class HookContextWithoutData<T> implements HookContext<T> {
      * @param type             flag value type
      * @param clientMetadata   info on which client is calling
      * @param providerMetadata info on the provider
-     * @param ctx              Evaluation Context for the request
      * @param defaultValue     Fallback value
      * @param <T>              type that the flag is evaluating against
      * @return resulting context for hook
      */
     static <T> HookContextWithoutData<T> from(
-            String key,
-            FlagValueType type,
-            ClientMetadata clientMetadata,
-            Metadata providerMetadata,
-            EvaluationContext ctx,
-            T defaultValue) {
-        return HookContextWithoutData.<T>builder()
-                .flagKey(key)
-                .type(type)
-                .clientMetadata(clientMetadata)
-                .providerMetadata(providerMetadata)
-                .ctx(ImmutableContext.EMPTY)
-                .defaultValue(defaultValue)
-                .build();
+            String key, FlagValueType type, ClientMetadata clientMetadata, Metadata providerMetadata, T defaultValue) {
+        return new HookContextWithoutData<>(
+                key, type, defaultValue, ImmutableContext.EMPTY, clientMetadata, providerMetadata);
     }
 }
