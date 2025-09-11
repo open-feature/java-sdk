@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,9 +24,10 @@ class HookSupportTest implements HookFixtures {
         Map<String, Value> attributes = new HashMap<>();
         attributes.put("baseKey", new Value("baseValue"));
         EvaluationContext baseContext = new ImmutableContext(attributes);
+        FlagValueType valueType = FlagValueType.STRING;
         HookContext<String> hookContext = HookContext.<String>builder()
                 .flagKey("flagKey")
-                .type(FlagValueType.STRING)
+                .type(valueType)
                 .defaultValue("defaultValue")
                 .ctx(baseContext)
                 .clientMetadata(() -> "client")
@@ -40,9 +40,9 @@ class HookSupportTest implements HookFixtures {
         HookSupport hookSupport = new HookSupport();
 
         EvaluationContext result = hookSupport.beforeHooks(
-                FlagValueType.STRING,
+                valueType,
                 hookContext,
-                hookSupport.getHookDataPairs(Arrays.asList(hook1, hook2)),
+                hookSupport.getHookDataPairs(Arrays.asList(hook1, hook2), valueType),
                 Collections.emptyMap());
 
         assertThat(result.getValue("bla").asString()).isEqualTo("blubber");
@@ -56,7 +56,7 @@ class HookSupportTest implements HookFixtures {
     void shouldAlwaysCallGenericHook(FlagValueType flagValueType) {
         Hook<?> genericHook = mockGenericHook();
         HookSupport hookSupport = new HookSupport();
-        var hookDataPairs = hookSupport.getHookDataPairs(Collections.singletonList(genericHook));
+        var hookDataPairs = hookSupport.getHookDataPairs(Collections.singletonList(genericHook), flagValueType);
         EvaluationContext baseContext = new ImmutableContext();
         IllegalStateException expectedException = new IllegalStateException("All fine, just a test");
         HookContext<Object> hookContext = HookContext.<Object>builder()
@@ -97,7 +97,7 @@ class HookSupportTest implements HookFixtures {
         HookContext<Object> hookContext = getObjectHookContext(flagValueType);
 
         TestHookWithData testHook = new TestHookWithData("test-key", "value");
-        var pairs = hookSupport.getHookDataPairs(List.of(testHook));
+        var pairs = hookSupport.getHookDataPairs(List.of(testHook), flagValueType);
 
         callAllHooks(flagValueType, hookSupport, hookContext, testHook);
 
@@ -113,7 +113,7 @@ class HookSupportTest implements HookFixtures {
 
         TestHookWithData testHook1 = new TestHookWithData("test-key", "value-1");
         TestHookWithData testHook2 = new TestHookWithData("test-key", "value-2");
-        var pairs = hookSupport.getHookDataPairs(List.of(testHook1, testHook2));
+        var pairs = hookSupport.getHookDataPairs(List.of(testHook1, testHook2), flagValueType);
 
         callAllHooks(flagValueType, hookSupport, hookContext, pairs);
 
@@ -167,7 +167,7 @@ class HookSupportTest implements HookFixtures {
             HookSupport hookSupport,
             HookContext<Object> hookContext,
             TestHookWithData testHook) {
-        var pairs = hookSupport.getHookDataPairs(List.of(testHook));
+        var pairs = hookSupport.getHookDataPairs(List.of(testHook), flagValueType);
         callAllHooks(flagValueType, hookSupport, hookContext, pairs);
     }
 

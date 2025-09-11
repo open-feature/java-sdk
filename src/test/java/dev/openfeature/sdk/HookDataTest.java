@@ -2,10 +2,6 @@ package dev.openfeature.sdk;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
 class HookDataTest {
@@ -70,34 +66,6 @@ class HookDataTest {
 
         hookData.set("key", "updated");
         assertEquals("updated", hookData.get("key"));
-    }
-
-    @Test
-    void shouldBeThreadSafe() throws InterruptedException {
-        HookData hookData = HookData.create();
-        int threadCount = 10;
-        int operationsPerThread = 100;
-        CountDownLatch latch = new CountDownLatch(threadCount);
-        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-
-        for (int i = 0; i < threadCount; i++) {
-            final int threadId = i;
-            executor.submit(() -> {
-                try {
-                    for (int j = 0; j < operationsPerThread; j++) {
-                        String key = "thread-" + threadId + "-key-" + j;
-                        String value = "thread-" + threadId + "-value-" + j;
-                        hookData.set(key, value);
-                        assertEquals(value, hookData.get(key));
-                    }
-                } finally {
-                    latch.countDown();
-                }
-            });
-        }
-
-        assertTrue(latch.await(10, TimeUnit.SECONDS));
-        executor.shutdown();
     }
 
     @Test

@@ -19,7 +19,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * OpenFeature Client implementation.
@@ -167,21 +166,21 @@ public class OpenFeatureClient implements Client {
         FlagEvaluationDetails<T> details = null;
         List<Hook> mergedHooks;
         List<Pair<Hook, HookData>> hookDataPairs = null;
-        HookContext<T> afterHookContext = null;
+        HookContext<T> hookContext = null;
 
         try {
             final var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
             // provider must be accessed once to maintain a consistent reference
             final var provider = stateManager.getProvider();
             final var state = stateManager.getState();
-            afterHookContext = HookContext.from(
+            hookContext = HookContext.from(
                     key, type, this.getMetadata(), provider.getMetadata(), mergeEvaluationContext(ctx), defaultValue);
             mergedHooks = ObjectUtils.merge(
                     provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
-            hookDataPairs = hookSupport.getHookDataPairs(mergedHooks);
-            var mergedCtx = hookSupport.beforeHooks(type, afterHookContext, hookDataPairs, hints);
+            hookDataPairs = hookSupport.getHookDataPairs(mergedHooks, type);
+            var mergedCtx = hookSupport.beforeHooks(type, hookContext, hookDataPairs, hints);
 
-            afterHookContext =
+            hookContext =
                     HookContext.from(key, type, this.getMetadata(), provider.getMetadata(), mergedCtx, defaultValue);
 
             // "short circuit" if the provider is in NOT_READY or FATAL state
@@ -200,9 +199,9 @@ public class OpenFeatureClient implements Client {
                 var error =
                         ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
                 enrichDetailsWithErrorDefaults(defaultValue, details);
-                hookSupport.errorHooks(type, afterHookContext, error, hookDataPairs, hints);
+                hookSupport.errorHooks(type, hookContext, error, hookDataPairs, hints);
             } else {
-                hookSupport.afterHooks(type, afterHookContext, details, hookDataPairs, hints);
+                hookSupport.afterHooks(type, hookContext, details, hookDataPairs, hints);
             }
         } catch (Exception e) {
             if (details == null) {
@@ -215,9 +214,9 @@ public class OpenFeatureClient implements Client {
             }
             details.setErrorMessage(e.getMessage());
             enrichDetailsWithErrorDefaults(defaultValue, details);
-            hookSupport.errorHooks(type, afterHookContext, e, hookDataPairs, hints);
+            hookSupport.errorHooks(type, hookContext, e, hookDataPairs, hints);
         } finally {
-            hookSupport.afterAllHooks(type, afterHookContext, details, hookDataPairs, hints);
+            hookSupport.afterAllHooks(type, hookContext, details, hookDataPairs, hints);
         }
 
         return details;

@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -56,10 +55,12 @@ class HookSupport {
         executeHooks(flagValueType, hookDataPairs, hookCtx, "error", (hook, ctx) -> hook.error(ctx, e, hints));
     }
 
-    public List<Pair<Hook, HookData>> getHookDataPairs(List<Hook> hooks) {
+    public List<Pair<Hook, HookData>> getHookDataPairs(List<Hook> hooks, FlagValueType flagValueType) {
         var pairs = new ArrayList<Pair<Hook, HookData>>();
         for (Hook hook : hooks) {
-            pairs.add(Pair.of(hook, HookData.create()));
+            if (hook.supportsFlagValueType(flagValueType)) {
+                pairs.add(Pair.of(hook, HookData.create()));
+            }
         }
         return pairs;
     }
@@ -127,15 +128,6 @@ class HookSupport {
         List<Pair<Hook, HookData>> reversedHooks = new ArrayList<>(hookDataPairs);
         Collections.reverse(reversedHooks);
         EvaluationContext context = hookCtx.getCtx();
-        /*
-        // Create hook data for each hook instance
-        Map<Hook, HookData> hookDataMap = new HashMap<>();
-        for (Hook hook : reversedHooks) {
-            if (hook.supportsFlagValueType(flagValueType)) {
-                hookDataMap.put(hook, HookData.create());
-            }
-        }
-        */
 
         for (Pair<Hook, HookData> hookDataPair : reversedHooks) {
             Hook hook = hookDataPair.getLeft();
