@@ -1,25 +1,25 @@
 package dev.openfeature.sdk;
 
 class Pair<K, V> {
-    private final K key;
-    private final V value;
+    private final K left;
+    private final V right;
 
-    private Pair(K key, V value) {
-        this.key = key;
-        this.value = value;
+    private Pair(K left, V value) {
+        this.left = left;
+        this.right = value;
     }
 
     public K getLeft() {
-        return key;
+        return left;
     }
 
     public V getRight() {
-        return value;
+        return right;
     }
 
     @Override
     public String toString() {
-        return "Pair{" + "key=" + key + ", value=" + value + '}';
+        return "Pair{" + "key=" + left + ", value=" + right + '}';
     }
 
     public static <K, V> Pair<K, V> of(K key, V value) {
