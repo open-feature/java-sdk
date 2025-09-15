@@ -22,14 +22,14 @@ jobs:
         uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493
 
       - name: Set up JDK ${{ matrix.build.java }}
-        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
+        uses: actions/setup-java@a7ab372554b6eb1a8eb25e7d9aec1cc9f3ea1a76
         with:
             java-version: ${{ matrix.build.java }}
             distribution: 'temurin'
             cache: maven
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@02ab253bd299d261d00cdf8a9bca38fea2697d50
+        uses: github/codeql-action/init@aa90e97ad2ed17cde6a43e89f70138299e64f837
         with:
           languages: java
 
@@ -46,7 +46,7 @@ jobs:
 
       - if: matrix.build.java == '17'
         name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5.5.0
+        uses: codecov/codecov-action@v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
           flags: unittests # optional
@@ -55,4 +55,4 @@ jobs:
           verbose: true # optional (default = false)
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@02ab253bd299d261d00cdf8a9bca38fea2697d50
+        uses: github/codeql-action/analyze@aa90e97ad2ed17cde6a43e89f70138299e64f837

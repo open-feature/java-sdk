@@ -52,7 +52,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.38</version>
+            <version>1.18.40</version>
             <scope>provided</scope>
         </dependency>
 
@@ -60,7 +60,7 @@
             <!-- used so that lombok can generate suppressions for spotbugs. It needs to find it on the relevant classpath -->
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs</artifactId>
-            <version>4.9.4</version>
+            <version>4.9.5</version>
             <scope>provided</scope>
         </dependency>
 
@@ -201,7 +201,7 @@
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>
-                <version>7.27.2</version>
+                <version>7.28.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -264,7 +264,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.3</version>
+                <version>3.5.4</version>
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
@@ -283,7 +283,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.5.3</version>
+                <version>3.5.4</version>
                 <configuration>
                     <argLine>
                         ${surefireArgLine}
@@ -424,7 +424,7 @@
                     <plugin>
                         <groupId>com.github.spotbugs</groupId>
                         <artifactId>spotbugs-maven-plugin</artifactId>
-                        <version>4.9.4.0</version>
+                        <version>4.9.4.2</version>
                         <configuration>
                             <excludeFilterFile>spotbugs-exclusions.xml</excludeFilterFile>
                             <plugins>
@@ -440,7 +440,7 @@
                             <dependency>
                                 <groupId>com.github.spotbugs</groupId>
                                 <artifactId>spotbugs</artifactId>
-                                <version>4.9.4</version>
+                                <version>4.9.5</version>
                             </dependency>
                         </dependencies>
                         <executions>
@@ -684,7 +684,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.5.3</version>
+                        <version>3.5.4</version>
                         <configuration>
                             <argLine>
                                 ${surefireArgLine}
@@ -700,7 +700,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>3.5.3</version>
+                        <version>3.5.4</version>
                         <configuration>
                             <argLine>
                                 ${surefireArgLine}
