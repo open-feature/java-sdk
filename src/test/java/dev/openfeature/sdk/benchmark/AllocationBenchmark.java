@@ -32,9 +32,9 @@ public class AllocationBenchmark {
     // 10K iterations works well with Xmx1024m (we don't want to run out of memory)
     private static final int ITERATIONS = 10000;
 
-    @Benchmark
-    @BenchmarkMode(Mode.SingleShotTime)
-    @Fork(jvmArgsAppend = {"-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
+    //@Benchmark
+    //@BenchmarkMode(Mode.SingleShotTime)
+    //@Fork(jvmArgsAppend = {"-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
     public void run() {
 
         OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
@@ -65,6 +65,56 @@ public class AllocationBenchmark {
             client.getIntegerValue(INT_FLAG_KEY, 0);
             client.getDoubleValue(FLOAT_FLAG_KEY, 0.0);
             client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), invocationContext);
+        }
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.SingleShotTime)
+    @Fork(jvmArgsAppend = {"-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
+    public void context() {
+
+        OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
+        Map<String, Value> globalAttrs = new HashMap<>();
+        globalAttrs.put("global", new Value(1));
+        EvaluationContext globalContext = new ImmutableContext(globalAttrs);
+        OpenFeatureAPI.getInstance().setEvaluationContext(globalContext);
+
+        Client client = OpenFeatureAPI.getInstance().getClient();
+
+        Map<String, Value> clientAttrs = new HashMap<>();
+        clientAttrs.put("client", new Value(2));
+        client.setEvaluationContext(new ImmutableContext(clientAttrs));
+
+        Map<String, Value> transactionAttr = new HashMap<>();
+        transactionAttr.put("trans", new Value(4));
+
+        Map<String, Value> transactionAttr2 = new HashMap<>();
+        transactionAttr2.put("trans2", new Value(5));
+
+        Map<String, Value> invocationAttrs = new HashMap<>();
+        invocationAttrs.put("invoke", new Value(3));
+        EvaluationContext invocationContext = new ImmutableContext(invocationAttrs);
+
+        for (int i = 0; i < 100; i++) {
+            OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(transactionAttr));
+
+            for (int j = 0; j < 10; j++) {
+                client.getBooleanValue(BOOLEAN_FLAG_KEY, false);
+                client.getStringValue(STRING_FLAG_KEY, "default");
+                client.getIntegerValue(INT_FLAG_KEY, 0);
+                client.getDoubleValue(FLOAT_FLAG_KEY, 0.0);
+                client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), invocationContext);
+            }
+
+            OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(transactionAttr2));
+
+            for (int j = 0; j < 10; j++) {
+                client.getBooleanValue(BOOLEAN_FLAG_KEY, false);
+                client.getStringValue(STRING_FLAG_KEY, "default");
+                client.getIntegerValue(INT_FLAG_KEY, 0);
+                client.getDoubleValue(FLOAT_FLAG_KEY, 0.0);
+                client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), invocationContext);
+            }
         }
     }
 }
