@@ -9,6 +9,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import dev.openfeature.sdk.Client;
 import dev.openfeature.sdk.ErrorCode;
 import dev.openfeature.sdk.EventProvider;
 import dev.openfeature.sdk.FeatureProvider;
@@ -104,7 +105,8 @@ public class ProviderSteps {
         configureMockEvaluations(mockProvider, errorCode, errorMessage);
 
         OpenFeatureAPI.getInstance().setProvider(providerState.name(), mockProvider);
-        state.client = OpenFeatureAPI.getInstance().getClient(providerState.name());
+        Client client = OpenFeatureAPI.getInstance().getClient(providerState.name());
+        state.client = client;
 
         ProviderEventDetails details =
                 ProviderEventDetails.builder().errorCode(errorCode).build();
@@ -121,7 +123,7 @@ public class ProviderSteps {
             default:
         }
         Awaitility.await().until(() -> {
-            ProviderState providerState1 = state.client.getProviderState();
+            ProviderState providerState1 = client.getProviderState();
             return providerState1 == providerState;
         });
     }
