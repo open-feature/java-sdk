@@ -14,6 +14,7 @@ import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.ImmutableStructure;
 import dev.openfeature.sdk.NoOpProvider;
 import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.Value;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,6 +75,8 @@ public class AllocationBenchmark {
     public void context() {
 
         OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
+        OpenFeatureAPI.getInstance().setTransactionContextPropagator(new ThreadLocalTransactionContextPropagator());
+
         Map<String, Value> globalAttrs = new HashMap<>();
         globalAttrs.put("global", new Value(1));
         EvaluationContext globalContext = new ImmutableContext(globalAttrs);
