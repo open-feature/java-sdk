@@ -114,14 +114,20 @@ public class ProviderSteps {
             case FATAL:
             case ERROR:
                 mockProvider.emitProviderReady(details);
+                waitForProviderState(ProviderState.READY, client);
                 mockProvider.emitProviderError(details);
                 break;
             case STALE:
                 mockProvider.emitProviderReady(details);
+                waitForProviderState(ProviderState.READY, client);
                 mockProvider.emitProviderStale(details);
                 break;
             default:
         }
+        waitForProviderState(providerState, client);
+    }
+
+    private static void waitForProviderState(ProviderState providerState, Client client) {
         Awaitility.await().until(() -> {
             ProviderState providerState1 = client.getProviderState();
             return providerState1 == providerState;
