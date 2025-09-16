@@ -112,6 +112,8 @@ public class ProviderSteps {
                 ProviderEventDetails.builder().errorCode(errorCode).build();
         switch (providerState) {
             case FATAL:
+                // The FATAL state is set via an exception during initialization. No further events are needed.
+                break;
             case ERROR:
                 mockProvider.emitProviderReady(details);
                 waitForProviderState(ProviderState.READY, client);
