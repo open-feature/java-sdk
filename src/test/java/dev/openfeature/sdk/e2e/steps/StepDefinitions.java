@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.SneakyThrows;
 
+@Deprecated
 public class StepDefinitions {
 
     private static Client client;

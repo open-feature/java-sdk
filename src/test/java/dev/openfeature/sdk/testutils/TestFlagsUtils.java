@@ -1,18 +1,28 @@
 package dev.openfeature.sdk.testutils;
 
-import static dev.openfeature.sdk.Structure.mapToStructure;
+import static dev.openfeature.sdk.e2e.Utils.OBJECT_MAPPER;
 
-import com.google.common.collect.ImmutableMap;
+import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import dev.openfeature.sdk.ImmutableMetadata;
-import dev.openfeature.sdk.Value;
+import dev.openfeature.sdk.providers.memory.ContextEvaluator;
 import dev.openfeature.sdk.providers.memory.Flag;
-import java.util.HashMap;
+import dev.openfeature.sdk.testutils.jackson.ContextEvaluatorDeserializer;
+import dev.openfeature.sdk.testutils.jackson.ImmutableMetadataDeserializer;
+import dev.openfeature.sdk.testutils.jackson.InMemoryFlagMixin;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Map;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Test flags utils.
  */
+@Slf4j
 @UtilityClass
 public class TestFlagsUtils {
 
@@ -25,87 +35,37 @@ public class TestFlagsUtils {
     public static final String WRONG_FLAG_KEY = "wrong-flag";
     public static final String METADATA_FLAG_KEY = "metadata-flag";
 
+    private static Map<String, Flag<?>> flags;
     /**
      * Building flags for testing purposes.
      *
      * @return map of flags
      */
-    public static Map<String, Flag<?>> buildFlags() {
-        Map<String, Flag<?>> flags = new HashMap<>();
-        flags.put(
-                BOOLEAN_FLAG_KEY,
-                Flag.builder()
-                        .variant("on", true)
-                        .variant("off", false)
-                        .defaultVariant("on")
-                        .build());
-        flags.put(
-                STRING_FLAG_KEY,
-                Flag.builder()
-                        .variant("greeting", "hi")
-                        .variant("parting", "bye")
-                        .defaultVariant("greeting")
-                        .build());
-        flags.put(
-                INT_FLAG_KEY,
-                Flag.builder()
-                        .variant("one", 1)
-                        .variant("ten", 10)
-                        .defaultVariant("ten")
-                        .build());
-        flags.put(
-                FLOAT_FLAG_KEY,
-                Flag.builder()
-                        .variant("tenth", 0.1)
-                        .variant("half", 0.5)
-                        .defaultVariant("half")
-                        .build());
-        flags.put(
-                OBJECT_FLAG_KEY,
-                Flag.builder()
-                        .variant("empty", new HashMap<>())
-                        .variant(
-                                "template",
-                                new Value(mapToStructure(ImmutableMap.of(
-                                        "showImages", new Value(true),
-                                        "title", new Value("Check out these pics!"),
-                                        "imagesPerPage", new Value(100)))))
-                        .defaultVariant("template")
-                        .build());
-        flags.put(
-                CONTEXT_AWARE_FLAG_KEY,
-                Flag.<String>builder()
-                        .variant("internal", "INTERNAL")
-                        .variant("external", "EXTERNAL")
-                        .defaultVariant("external")
-                        .contextEvaluator((flag, evaluationContext) -> {
-                            if (new Value(false).equals(evaluationContext.getValue("customer"))) {
-                                return (String) flag.getVariants().get("internal");
-                            } else {
-                                return (String) flag.getVariants().get(flag.getDefaultVariant());
-                            }
-                        })
-                        .build());
-        flags.put(
-                WRONG_FLAG_KEY,
-                Flag.builder()
-                        .variant("one", "uno")
-                        .variant("two", "dos")
-                        .defaultVariant("one")
-                        .build());
-        flags.put(
-                METADATA_FLAG_KEY,
-                Flag.builder()
-                        .variant("on", true)
-                        .variant("off", false)
-                        .defaultVariant("on")
-                        .flagMetadata(ImmutableMetadata.builder()
-                                .addString("string", "1.0.2")
-                                .addInteger("integer", 2)
-                                .addBoolean("boolean", true)
-                                .addDouble("float", 0.1d)
-                                .build())
-                        .build());
+    public static synchronized Map<String, Flag<?>> buildFlags() {
+        if (flags == null) {
+            ObjectMapper objectMapper = OBJECT_MAPPER;
+            objectMapper.configure(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature(), true);
+            objectMapper.addMixIn(Flag.class, InMemoryFlagMixin.class);
+            objectMapper.addMixIn(Flag.FlagBuilder.class, InMemoryFlagMixin.FlagBuilderMixin.class);
+
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(ImmutableMetadata.class, new ImmutableMetadataDeserializer());
+            module.addDeserializer(ContextEvaluator.class, new ContextEvaluatorDeserializer());
+            objectMapper.registerModule(module);
+
+            Map<String, Flag<?>> flagsJson;
+            try {
+                flagsJson = objectMapper.readValue(
+                        Paths.get("spec/specification/assets/gherkin/test-flags.json")
+                                .toFile(),
+                        new TypeReference<>() {});
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            flags = Collections.unmodifiableMap(flagsJson);
+        }
+
         return flags;
     }
 }

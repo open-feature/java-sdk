@@ -2,6 +2,7 @@ package dev.openfeature.sdk.e2e.steps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.openfeature.sdk.ErrorCode;
 import dev.openfeature.sdk.FlagEvaluationDetails;
 import dev.openfeature.sdk.ImmutableMetadata;
 import dev.openfeature.sdk.Value;
@@ -23,7 +24,7 @@ public class FlagStepDefinitions {
         this.state = state;
     }
 
-    @Given("a {}-flag with key {string} and a default value {string}")
+    @Given("a {}-flag with key {string} and a fallback value {string}")
     public void givenAFlag(String type, String name, String defaultValue) {
         state.flag = new Flag(type, name, Utils.convert(defaultValue, type));
     }
@@ -60,7 +61,20 @@ public class FlagStepDefinitions {
 
     @Then("the resolved details value should be {string}")
     public void the_resolved_details_value_should_be(String value) {
-        assertThat(state.evaluation.getValue()).isEqualTo(Utils.convert(value, state.flag.type));
+        Object evaluationValue = state.evaluation.getValue();
+        if (state.flag.type.equalsIgnoreCase("object")) {
+            assertThat(((Value) evaluationValue).asStructure().asObjectMap())
+                    .isEqualTo(((Value) Utils.convert(value, state.flag.type))
+                            .asStructure()
+                            .asObjectMap());
+        } else {
+            assertThat(evaluationValue).isEqualTo(Utils.convert(value, state.flag.type));
+        }
+    }
+
+    @Then("the flag key should be {string}")
+    public void the_flag_key_should_be(String key) {
+        assertThat(state.evaluation.getFlagKey()).isEqualTo(key);
     }
 
     @Then("the reason should be {string}")
@@ -71,6 +85,20 @@ public class FlagStepDefinitions {
     @Then("the variant should be {string}")
     public void the_variant_should_be(String variant) {
         assertThat(state.evaluation.getVariant()).isEqualTo(variant);
+    }
+
+    @Then("the error-code should be {string}")
+    public void the_error_code_should_be(String errorCode) {
+        if (errorCode.isEmpty()) {
+            assertThat(state.evaluation.getErrorCode()).isNull();
+        } else {
+            assertThat(state.evaluation.getErrorCode()).isEqualTo(ErrorCode.valueOf(errorCode));
+        }
+    }
+
+    @Then("the error message should contain {string}")
+    public void the_error_message_should_contain(String messageSubstring) {
+        assertThat(state.evaluation.getErrorMessage()).contains(messageSubstring);
     }
 
     @Then("the resolved metadata value \"{}\" with type \"{}\" should be \"{}\"")
