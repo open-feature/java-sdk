@@ -351,7 +351,7 @@
                     <plugin>
                         <groupId>com.vmlens</groupId>
                         <artifactId>vmlens-maven-plugin</artifactId>
-                        <version>1.2.13</version>
+                        <version>1.2.14</version>
                         <executions>
                             <execution>
                                 <id>test</id>
