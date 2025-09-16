@@ -45,4 +45,11 @@ class HookContextWithoutData<T> implements HookContext<T> {
         return new HookContextWithoutData<>(
                 key, type, defaultValue, ImmutableContext.EMPTY, clientMetadata, providerMetadata);
     }
+
+    /**
+     * Make the builder visible for javadocs.
+     *
+     * @param <T>   flag value type
+     */
+    public static class HookContextWithoutDataBuilder<T> {}
 }
