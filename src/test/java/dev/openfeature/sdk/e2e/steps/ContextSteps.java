@@ -8,11 +8,14 @@ import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.Hook;
 import dev.openfeature.sdk.HookContext;
 import dev.openfeature.sdk.ImmutableContext;
+import dev.openfeature.sdk.ImmutableStructure;
+import dev.openfeature.sdk.MutableContext;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.e2e.ContextStoringProvider;
 import dev.openfeature.sdk.e2e.State;
+import dev.openfeature.sdk.e2e.Utils;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -100,5 +103,30 @@ public class ContextSteps {
                 return;
             }
         }
+    }
+
+    @Given("a context containing a key {string} with null value")
+    public void a_context_containing_a_key_with_null_value(String key) {
+        a_context_containing_a_key_with_type_and_with_value(key, "String", null);
+    }
+
+    @Given("a context containing a key {string}, with type {string} and with value {string}")
+    public void a_context_containing_a_key_with_type_and_with_value(String key, String type, String value) {
+        Map<String, Value> map = state.context.asMap();
+        map.put(key, Value.objectToValue(Utils.convert(value, type)));
+        state.context = new MutableContext(state.context.getTargetingKey(), map);
+    }
+
+    @Given("a context containing a targeting key with value {string}")
+    public void a_context_containing_a_targeting_key_with_value(String string) {
+        state.context.setTargetingKey(string);
+    }
+
+    @Given("a context containing a nested property with outer key {string} and inner key {string}, with value {string}")
+    public void a_context_containing_a_nested_property_with_outer_key_and_inner_key_with_value(
+            String outer, String inner, String value) {
+        Map<String, Value> innerMap = new HashMap<>();
+        innerMap.put(inner, new Value(value));
+        state.context.add(outer, new ImmutableStructure(innerMap));
     }
 }
