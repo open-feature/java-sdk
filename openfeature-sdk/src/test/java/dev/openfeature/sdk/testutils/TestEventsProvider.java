@@ -1,10 +1,10 @@
 package dev.openfeature.sdk.testutils;
 
 import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.Metadata;
 import dev.openfeature.api.ProviderEvaluation;
 import dev.openfeature.api.ProviderEvent;
 import dev.openfeature.api.ProviderEventDetails;
+import dev.openfeature.api.ProviderMetadata;
 import dev.openfeature.api.Reason;
 import dev.openfeature.api.Value;
 import dev.openfeature.api.exceptions.FatalError;
@@ -19,7 +19,7 @@ public class TestEventsProvider extends EventProvider {
     private boolean shutDown = false;
     private int initTimeoutMs = 0;
     private String name = "test";
-    private Metadata metadata = () -> name;
+    private ProviderMetadata providerMetadata = () -> name;
     private boolean isFatalInitError = false;
 
     public TestEventsProvider() {}
@@ -73,53 +73,33 @@ public class TestEventsProvider extends EventProvider {
     }
 
     @Override
-    public Metadata getMetadata() {
-        return this.metadata;
+    public ProviderMetadata getMetadata() {
+        return this.providerMetadata;
     }
 
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
-        return ProviderEvaluation.<Boolean>builder()
-                .value(defaultValue)
-                .variant(PASSED_IN_DEFAULT)
-                .reason(Reason.DEFAULT.toString())
-                .build();
+        return ProviderEvaluation.of(defaultValue, PASSED_IN_DEFAULT, Reason.DEFAULT.toString(), null);
     }
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
-        return ProviderEvaluation.<String>builder()
-                .value(defaultValue)
-                .variant(PASSED_IN_DEFAULT)
-                .reason(Reason.DEFAULT.toString())
-                .build();
+        return ProviderEvaluation.of(defaultValue, PASSED_IN_DEFAULT, Reason.DEFAULT.toString(), null);
     }
 
     @Override
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
-        return ProviderEvaluation.<Integer>builder()
-                .value(defaultValue)
-                .variant(PASSED_IN_DEFAULT)
-                .reason(Reason.DEFAULT.toString())
-                .build();
+        return ProviderEvaluation.of(defaultValue, PASSED_IN_DEFAULT, Reason.DEFAULT.toString(), null);
     }
 
     @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
-        return ProviderEvaluation.<Double>builder()
-                .value(defaultValue)
-                .variant(PASSED_IN_DEFAULT)
-                .reason(Reason.DEFAULT.toString())
-                .build();
+        return ProviderEvaluation.of(defaultValue, PASSED_IN_DEFAULT, Reason.DEFAULT.toString(), null);
     }
 
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(
             String key, Value defaultValue, EvaluationContext invocationContext) {
-        return ProviderEvaluation.<Value>builder()
-                .value(defaultValue)
-                .variant(PASSED_IN_DEFAULT)
-                .reason(Reason.DEFAULT.toString())
-                .build();
+        return ProviderEvaluation.of(defaultValue, PASSED_IN_DEFAULT, Reason.DEFAULT.toString(), null);
     }
 }

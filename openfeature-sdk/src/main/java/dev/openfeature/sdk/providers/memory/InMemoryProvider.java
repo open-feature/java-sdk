@@ -1,9 +1,9 @@
 package dev.openfeature.sdk.providers.memory;
 
 import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.Metadata;
 import dev.openfeature.api.ProviderEvaluation;
 import dev.openfeature.api.ProviderEventDetails;
+import dev.openfeature.api.ProviderMetadata;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.Reason;
 import dev.openfeature.api.Value;
@@ -42,7 +42,7 @@ public class InMemoryProvider extends EventProvider {
     }
 
     @Override
-    public Metadata getMetadata() {
+    public ProviderMetadata getMetadata() {
         return () -> NAME;
     }
 
@@ -150,11 +150,6 @@ public class InMemoryProvider extends EventProvider {
         } else {
             value = (T) flag.getVariants().get(flag.getDefaultVariant());
         }
-        return ProviderEvaluation.<T>builder()
-                .value(value)
-                .variant(flag.getDefaultVariant())
-                .reason(Reason.STATIC.toString())
-                .flagMetadata(flag.getFlagMetadata())
-                .build();
+        return ProviderEvaluation.of(value, flag.getDefaultVariant(), Reason.STATIC.toString(), flag.getFlagMetadata());
     }
 }

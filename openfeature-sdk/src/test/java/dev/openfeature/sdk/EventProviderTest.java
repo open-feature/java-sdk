@@ -7,12 +7,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.Metadata;
-import dev.openfeature.api.ProviderEvaluation;
-import dev.openfeature.api.ProviderEvent;
-import dev.openfeature.api.ProviderEventDetails;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.*;
+import dev.openfeature.api.ProviderMetadata;
 import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.internal.TriConsumer;
 import dev.openfeature.sdk.testutils.TestStackedEmitCallsProvider;
@@ -107,7 +103,7 @@ class EventProviderTest {
         private static final String NAME = "TestEventProvider";
 
         @Override
-        public Metadata getMetadata() {
+        public ProviderMetadata getMetadata() {
             return () -> NAME;
         }
 

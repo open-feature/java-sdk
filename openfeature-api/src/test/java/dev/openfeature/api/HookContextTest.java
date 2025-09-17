@@ -38,10 +38,10 @@ class HookContextTest {
         }
     }
 
-    private static class TestMetadata implements Metadata {
+    private static class TestProviderMetadata implements ProviderMetadata {
         private final String name;
 
-        TestMetadata(String name) {
+        TestProviderMetadata(String name) {
             this.name = name;
         }
 
@@ -53,8 +53,8 @@ class HookContextTest {
         @Override
         public boolean equals(Object obj) {
             if (this == obj) return true;
-            if (!(obj instanceof TestMetadata)) return false;
-            TestMetadata that = (TestMetadata) obj;
+            if (!(obj instanceof TestProviderMetadata)) return false;
+            TestProviderMetadata that = (TestProviderMetadata) obj;
             return name.equals(that.name);
         }
 
@@ -91,7 +91,7 @@ class HookContextTest {
         Integer defaultValue = 42;
         EvaluationContext context = new ImmutableContext();
         TestClientMetadata clientMetadata = new TestClientMetadata("test-client");
-        TestMetadata providerMetadata = new TestMetadata("test-provider");
+        TestProviderMetadata providerMetadata = new TestProviderMetadata("test-provider");
 
         HookContext<Integer> hookContext = HookContext.<Integer>builder()
                 .flagKey(flagKey)
@@ -203,7 +203,7 @@ class HookContextTest {
     void equals_shouldWorkCorrectly() {
         EvaluationContext context = new ImmutableContext();
         TestClientMetadata clientMetadata = new TestClientMetadata("client");
-        TestMetadata providerMetadata = new TestMetadata("provider");
+        TestProviderMetadata providerMetadata = new TestProviderMetadata("provider");
 
         HookContext<String> context1 = HookContext.<String>builder()
                 .flagKey("test-flag")
@@ -293,7 +293,7 @@ class HookContextTest {
     @Test
     void toString_shouldIncludeAllFields() {
         TestClientMetadata clientMetadata = new TestClientMetadata("client");
-        TestMetadata providerMetadata = new TestMetadata("provider");
+        TestProviderMetadata providerMetadata = new TestProviderMetadata("provider");
 
         HookContext<String> hookContext = HookContext.<String>builder()
                 .flagKey("test-flag")

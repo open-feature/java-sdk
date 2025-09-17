@@ -17,7 +17,6 @@ import com.google.common.collect.Maps;
 import dev.openfeature.api.Client;
 import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.ImmutableStructure;
 import dev.openfeature.api.ImmutableTrackingEventDetails;
 import dev.openfeature.api.MutableContext;
@@ -55,7 +54,7 @@ class TrackingSpecTest {
     @Test
     void trackMethodFulfillsSpec() throws Exception {
 
-        ImmutableContext ctx = new ImmutableContext();
+        var ctx = EvaluationContext.EMPTY;
         MutableTrackingEventDetails details = new MutableTrackingEventDetails(0.0f);
         assertThatCode(() -> client.track("event")).doesNotThrowAnyException();
         assertThatCode(() -> client.track("event", ctx)).doesNotThrowAnyException();
@@ -108,19 +107,19 @@ class TrackingSpecTest {
         Map<String, Value> apiAttr = new HashMap<>();
         apiAttr.put("my-key", new Value("hey"));
         apiAttr.put("my-api-key", new Value("333"));
-        EvaluationContext apiCtx = new ImmutableContext(apiAttr);
+        EvaluationContext apiCtx = EvaluationContext.immutableOf(apiAttr);
         api.setEvaluationContext(apiCtx);
 
         Map<String, Value> txAttr = new HashMap<>();
         txAttr.put("my-key", new Value("overwritten"));
         txAttr.put("my-tx-key", new Value("444"));
-        EvaluationContext txCtx = new ImmutableContext(txAttr);
+        EvaluationContext txCtx = EvaluationContext.immutableOf(txAttr);
         api.setTransactionContext(txCtx);
 
         Map<String, Value> clAttr = new HashMap<>();
         clAttr.put("my-key", new Value("overwritten-again"));
         clAttr.put("my-cl-key", new Value("555"));
-        EvaluationContext clCtx = new ImmutableContext(clAttr);
+        EvaluationContext clCtx = EvaluationContext.immutableOf(clAttr);
         client.setEvaluationContext(clCtx);
 
         FeatureProvider provider = ProviderFixture.createMockedProvider();
@@ -179,7 +178,7 @@ class TrackingSpecTest {
 
         assertEquals(expectedMap, details.asMap());
         assertThatCode(() -> api.getClient()
-                        .track("tracking-event-name", new ImmutableContext(), new MutableTrackingEventDetails()))
+                        .track("tracking-event-name", EvaluationContext.EMPTY, new MutableTrackingEventDetails()))
                 .doesNotThrowAnyException();
 
         // using immutable tracking event details
@@ -196,7 +195,7 @@ class TrackingSpecTest {
         ImmutableTrackingEventDetails immutableDetails = new ImmutableTrackingEventDetails(2, expectedMap);
         assertEquals(expectedImmutable, immutableDetails.asMap());
         assertThatCode(() -> api.getClient()
-                        .track("tracking-event-name", new ImmutableContext(), new ImmutableTrackingEventDetails()))
+                        .track("tracking-event-name", EvaluationContext.EMPTY, new ImmutableTrackingEventDetails()))
                 .doesNotThrowAnyException();
     }
 }

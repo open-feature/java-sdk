@@ -1,11 +1,9 @@
 package dev.openfeature.api;
 
-import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
  * The EvaluationContext is a container for arbitrary contextual data
@@ -15,7 +13,7 @@ import java.util.function.Function;
  * not be modified after instantiation.
  */
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
-public final class ImmutableContext implements EvaluationContext {
+final class ImmutableContext implements EvaluationContext {
 
     private final ImmutableStructure structure;
 
@@ -23,7 +21,7 @@ public final class ImmutableContext implements EvaluationContext {
      * Create an immutable context with an empty targeting_key and attributes
      * provided.
      */
-    public ImmutableContext() {
+    ImmutableContext() {
         this(new HashMap<>());
     }
 
@@ -32,7 +30,7 @@ public final class ImmutableContext implements EvaluationContext {
      *
      * @param targetingKey targeting key
      */
-    public ImmutableContext(String targetingKey) {
+    ImmutableContext(String targetingKey) {
         this(targetingKey, new HashMap<>());
     }
 
@@ -41,7 +39,7 @@ public final class ImmutableContext implements EvaluationContext {
      *
      * @param attributes evaluation context attributes
      */
-    public ImmutableContext(Map<String, Value> attributes) {
+    ImmutableContext(Map<String, Value> attributes) {
         this(null, attributes);
     }
 
@@ -51,7 +49,7 @@ public final class ImmutableContext implements EvaluationContext {
      * @param targetingKey targeting key
      * @param attributes   evaluation context attributes
      */
-    public ImmutableContext(String targetingKey, Map<String, Value> attributes) {
+    ImmutableContext(String targetingKey, Map<String, Value> attributes) {
         if (targetingKey != null && !targetingKey.trim().isEmpty()) {
             this.structure = new ImmutableStructure(targetingKey, attributes);
         } else {
@@ -143,31 +141,22 @@ public final class ImmutableContext implements EvaluationContext {
     }
 
     /**
-     * Returns a builder for creating ImmutableContext instances.
-     *
-     * @return a builder for ImmutableContext
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /**
      * Returns a builder initialized with the current state of this object.
      *
      * @return a builder for ImmutableContext
      */
-    public Builder toBuilder() {
-        return builder().targetingKey(this.getTargetingKey()).attributes(this.structure.asMap());
+    public ImmutableContextBuilder toBuilder() {
+        return new Builder().targetingKey(this.getTargetingKey()).attributes(this.structure.asMap());
     }
 
     /**
      * Builder class for creating instances of ImmutableContext.
      */
-    public static class Builder {
+    static class Builder implements ImmutableContextBuilder {
         private String targetingKey;
         private final Map<String, Value> attributes;
 
-        private Builder() {
+        Builder() {
             this.attributes = new HashMap<>();
         }
 
@@ -177,7 +166,8 @@ public final class ImmutableContext implements EvaluationContext {
          * @param targetingKey the targeting key
          * @return this builder
          */
-        public Builder targetingKey(String targetingKey) {
+        @Override
+        public ImmutableContextBuilder targetingKey(String targetingKey) {
             this.targetingKey = targetingKey;
             return this;
         }
@@ -188,7 +178,8 @@ public final class ImmutableContext implements EvaluationContext {
          * @param attributes map of attributes
          * @return this builder
          */
-        public Builder attributes(Map<String, Value> attributes) {
+        @Override
+        public ImmutableContextBuilder attributes(Map<String, Value> attributes) {
             if (attributes != null) {
                 this.attributes.clear();
                 this.attributes.putAll(attributes);
@@ -203,7 +194,8 @@ public final class ImmutableContext implements EvaluationContext {
          * @param value attribute value
          * @return this builder
          */
-        public Builder add(final String key, final String value) {
+        @Override
+        public ImmutableContextBuilder add(final String key, final String value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -215,7 +207,8 @@ public final class ImmutableContext implements EvaluationContext {
          * @param value attribute value
          * @return this builder
          */
-        public Builder add(final String key, final Integer value) {
+        @Override
+        public ImmutableContextBuilder add(final String key, final Integer value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -227,7 +220,8 @@ public final class ImmutableContext implements EvaluationContext {
          * @param value attribute value
          * @return this builder
          */
-        public Builder add(final String key, final Long value) {
+        @Override
+        public ImmutableContextBuilder add(final String key, final Long value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -239,7 +233,8 @@ public final class ImmutableContext implements EvaluationContext {
          * @param value attribute value
          * @return this builder
          */
-        public Builder add(final String key, final Float value) {
+        @Override
+        public ImmutableContextBuilder add(final String key, final Float value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -251,7 +246,8 @@ public final class ImmutableContext implements EvaluationContext {
          * @param value attribute value
          * @return this builder
          */
-        public Builder add(final String key, final Double value) {
+        @Override
+        public ImmutableContextBuilder add(final String key, final Double value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -263,7 +259,8 @@ public final class ImmutableContext implements EvaluationContext {
          * @param value attribute value
          * @return this builder
          */
-        public Builder add(final String key, final Boolean value) {
+        @Override
+        public ImmutableContextBuilder add(final String key, final Boolean value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -275,7 +272,8 @@ public final class ImmutableContext implements EvaluationContext {
          * @param value attribute value
          * @return this builder
          */
-        public Builder add(final String key, final Structure value) {
+        @Override
+        public ImmutableContextBuilder add(final String key, final Structure value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -287,7 +285,8 @@ public final class ImmutableContext implements EvaluationContext {
          * @param value attribute value
          * @return this builder
          */
-        public Builder add(final String key, final Value value) {
+        @Override
+        public ImmutableContextBuilder add(final String key, final Value value) {
             attributes.put(key, value);
             return this;
         }
@@ -297,19 +296,9 @@ public final class ImmutableContext implements EvaluationContext {
          *
          * @return a new ImmutableContext instance
          */
+        @Override
         public ImmutableContext build() {
             return new ImmutableContext(targetingKey, new HashMap<>(attributes));
-        }
-    }
-
-    @SuppressWarnings("all")
-    private static class DelegateExclusions {
-        @ExcludeFromGeneratedCoverageReport
-        public <T extends Structure> Map<String, Value> merge(
-                Function<Map<String, Value>, Structure> newStructure,
-                Map<String, Value> base,
-                Map<String, Value> overriding) {
-            return null;
         }
     }
 }

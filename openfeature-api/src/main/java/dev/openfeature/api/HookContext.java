@@ -13,7 +13,7 @@ public final class HookContext<T> {
     private final T defaultValue;
     private final EvaluationContext ctx;
     private final ClientMetadata clientMetadata;
-    private final Metadata providerMetadata;
+    private final ProviderMetadata providerMetadata;
 
     private HookContext(Builder<T> builder) {
         this.flagKey = Objects.requireNonNull(builder.flagKey, "flagKey cannot be null");
@@ -44,7 +44,7 @@ public final class HookContext<T> {
         return clientMetadata;
     }
 
-    public Metadata getProviderMetadata() {
+    public ProviderMetadata getProviderMetadata() {
         return providerMetadata;
     }
 
@@ -97,7 +97,7 @@ public final class HookContext<T> {
         private T defaultValue;
         private EvaluationContext ctx;
         private ClientMetadata clientMetadata;
-        private Metadata providerMetadata;
+        private ProviderMetadata providerMetadata;
 
         private Builder() {}
 
@@ -126,7 +126,7 @@ public final class HookContext<T> {
             return this;
         }
 
-        public Builder<T> providerMetadata(Metadata providerMetadata) {
+        public Builder<T> providerMetadata(ProviderMetadata providerMetadata) {
             this.providerMetadata = providerMetadata;
             return this;
         }

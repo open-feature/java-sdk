@@ -3,7 +3,7 @@ package dev.openfeature.sdk.testutils;
 import static dev.openfeature.api.Structure.mapToStructure;
 
 import com.google.common.collect.ImmutableMap;
-import dev.openfeature.api.ImmutableMetadata;
+import dev.openfeature.api.Metadata;
 import dev.openfeature.api.Value;
 import dev.openfeature.sdk.providers.memory.Flag;
 import java.util.HashMap;
@@ -101,11 +101,11 @@ public class TestFlagsUtils {
                         .variant("on", true)
                         .variant("off", false)
                         .defaultVariant("on")
-                        .flagMetadata(ImmutableMetadata.builder()
-                                .addString("string", "1.0.2")
-                                .addInteger("integer", 2)
-                                .addBoolean("boolean", true)
-                                .addDouble("float", 0.1d)
+                        .flagMetadata(Metadata.immutableBuilder()
+                                .add("string", "1.0.2")
+                                .add("integer", 2)
+                                .add("boolean", true)
+                                .add("float", 0.1d)
                                 .build())
                         .build());
         return flags;

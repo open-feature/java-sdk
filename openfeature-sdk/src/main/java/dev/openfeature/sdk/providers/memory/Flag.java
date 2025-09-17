@@ -1,6 +1,6 @@
 package dev.openfeature.sdk.providers.memory;
 
-import dev.openfeature.api.ImmutableMetadata;
+import dev.openfeature.api.Metadata;
 import java.util.Map;
 import java.util.Objects;
 
@@ -11,7 +11,7 @@ public class Flag<T> {
     private final Map<String, Object> variants;
     private final String defaultVariant;
     private final ContextEvaluator<T> contextEvaluator;
-    private final ImmutableMetadata flagMetadata;
+    private final Metadata flagMetadata;
 
     private Flag(Builder<T> builder) {
         this.variants = builder.variants;
@@ -32,7 +32,7 @@ public class Flag<T> {
         return contextEvaluator;
     }
 
-    public ImmutableMetadata getFlagMetadata() {
+    public Metadata getFlagMetadata() {
         return flagMetadata;
     }
 
@@ -78,7 +78,7 @@ public class Flag<T> {
         private Map<String, Object> variants = new java.util.HashMap<>();
         private String defaultVariant;
         private ContextEvaluator<T> contextEvaluator;
-        private ImmutableMetadata flagMetadata;
+        private Metadata flagMetadata;
 
         public Builder<T> variants(Map<String, Object> variants) {
             this.variants = Map.copyOf(variants);
@@ -100,7 +100,7 @@ public class Flag<T> {
             return this;
         }
 
-        public Builder<T> flagMetadata(ImmutableMetadata flagMetadata) {
+        public Builder<T> flagMetadata(Metadata flagMetadata) {
             this.flagMetadata = flagMetadata;
             return this;
         }

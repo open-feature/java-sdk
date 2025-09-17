@@ -15,8 +15,8 @@ import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FlagEvaluationDetails;
 import dev.openfeature.api.FlagValueType;
 import dev.openfeature.api.HookContext;
-import dev.openfeature.api.ImmutableContext;
-import dev.openfeature.api.Metadata;
+import dev.openfeature.api.ProviderMetadata;
+import dev.openfeature.api.Reason;
 import dev.openfeature.api.exceptions.GeneralError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ class LoggingHookTest {
     private static final String DEFAULT_VALUE = "default";
     private static final String DOMAIN = "some-domain";
     private static final String PROVIDER_NAME = "some-provider";
-    private static final String REASON = "some-reason";
+    private static final Reason REASON = Reason.DEFAULT;
     private static final String VALUE = "some-value";
     private static final String VARIANT = "some-variant";
     private static final String ERROR_MESSAGE = "some fake error!";
@@ -53,14 +53,14 @@ class LoggingHookTest {
                         return DOMAIN;
                     }
                 })
-                .providerMetadata(new Metadata() {
+                .providerMetadata(new ProviderMetadata() {
                     @Override
                     public String getName() {
                         return PROVIDER_NAME;
                     }
                 })
                 .type(FlagValueType.BOOLEAN)
-                .ctx(new ImmutableContext())
+                .ctx(EvaluationContext.EMPTY)
                 .build();
 
         // mock logging
@@ -97,11 +97,7 @@ class LoggingHookTest {
     @Test
     void afterLogsAllPropsExceptEvaluationContext() throws Exception {
         LoggingHook hook = new LoggingHook();
-        FlagEvaluationDetails<Object> details = FlagEvaluationDetails.builder()
-                .reason(REASON)
-                .variant(VARIANT)
-                .value(VALUE)
-                .build();
+        FlagEvaluationDetails<Object> details = FlagEvaluationDetails.of("", VALUE, VARIANT, REASON);
         hook.after(hookContext, details, null);
 
         verify(logger).atDebug();
@@ -114,11 +110,7 @@ class LoggingHookTest {
     @Test
     void afterLogsAllPropsAndEvaluationContext() throws Exception {
         LoggingHook hook = new LoggingHook(true);
-        FlagEvaluationDetails<Object> details = FlagEvaluationDetails.builder()
-                .reason(REASON)
-                .variant(VARIANT)
-                .value(VALUE)
-                .build();
+        FlagEvaluationDetails<Object> details = FlagEvaluationDetails.of("", VALUE, VARIANT, REASON);
         hook.after(hookContext, details, null);
 
         verify(logger).atDebug();
@@ -162,7 +154,7 @@ class LoggingHookTest {
     }
 
     private void verifyAfterProps(LoggingEventBuilder mockBuilder) {
-        verify(mockBuilder).addKeyValue(LoggingHook.REASON_KEY, REASON);
+        verify(mockBuilder).addKeyValue(LoggingHook.REASON_KEY, REASON.toString());
         verify(mockBuilder).addKeyValue(LoggingHook.VARIANT_KEY, VARIANT);
         verify(mockBuilder).addKeyValue(LoggingHook.VALUE_KEY, VALUE);
     }

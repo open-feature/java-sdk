@@ -3,11 +3,8 @@ package dev.openfeature.sdk;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import dev.openfeature.api.ClientMetadata;
-import dev.openfeature.api.FlagValueType;
-import dev.openfeature.api.HookContext;
-import dev.openfeature.api.ImmutableContext;
-import dev.openfeature.api.Metadata;
+import dev.openfeature.api.*;
+import dev.openfeature.api.ProviderMetadata;
 import org.junit.jupiter.api.Test;
 
 class HookContextTest {
@@ -20,18 +17,19 @@ class HookContextTest {
     @Test
     void metadata_field_is_type_metadata() {
         ClientMetadata clientMetadata = mock(ClientMetadata.class);
-        Metadata meta = mock(Metadata.class);
+        ProviderMetadata meta = mock(ProviderMetadata.class);
         HookContext<Boolean> hc = HookContext.<Boolean>builder()
                 .flagKey("key")
                 .type(FlagValueType.BOOLEAN)
                 .clientMetadata(clientMetadata)
                 .providerMetadata(meta)
-                .ctx(new ImmutableContext())
+                .ctx(EvaluationContext.EMPTY)
                 .defaultValue(false)
                 .build();
 
         assertTrue(ClientMetadata.class.isAssignableFrom(hc.getClientMetadata().getClass()));
-        assertTrue(Metadata.class.isAssignableFrom(hc.getProviderMetadata().getClass()));
+        assertTrue(
+                ProviderMetadata.class.isAssignableFrom(hc.getProviderMetadata().getClass()));
     }
 
     @Specification(

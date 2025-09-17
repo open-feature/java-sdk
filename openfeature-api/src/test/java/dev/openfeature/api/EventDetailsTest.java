@@ -110,8 +110,7 @@ class EventDetailsTest {
 
     @Test
     void builder_shouldSupportConvenienceMethodsForEventMetadata() {
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addString("version", "1.0").build();
+        var metadata = Metadata.immutableBuilder().add("version", "1.0").build();
 
         EventDetails eventDetails = EventDetails.builder()
                 .providerName("test-provider")
@@ -137,8 +136,7 @@ class EventDetailsTest {
     void builder_shouldCombineConvenienceMethods() {
         List<String> flags = Arrays.asList("flag1", "flag2");
         String message = "Configuration updated";
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addString("version", "1.0").build();
+        var metadata = Metadata.immutableBuilder().add("version", "1.0").build();
 
         EventDetails eventDetails = EventDetails.builder()
                 .providerName("test-provider")
@@ -187,8 +185,7 @@ class EventDetailsTest {
     void delegation_shouldWorkCorrectly() {
         List<String> flags = Arrays.asList("flag1", "flag2");
         String message = "Test message";
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addString("key", "value").build();
+        var metadata = Metadata.immutableBuilder().add("key", "value").build();
 
         ProviderEventDetails providerDetails = ProviderEventDetails.builder()
                 .flagsChanged(flags)

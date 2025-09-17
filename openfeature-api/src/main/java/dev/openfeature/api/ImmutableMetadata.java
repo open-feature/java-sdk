@@ -12,13 +12,15 @@ import org.slf4j.LoggerFactory;
  * Immutable Flag Metadata representation. Implementation is backed by a {@link Map} and immutability is provided
  * through builder and accessors.
  */
-public class ImmutableMetadata extends AbstractStructure {
+final class ImmutableMetadata extends AbstractStructure implements Metadata {
 
     private static final Logger log = LoggerFactory.getLogger(ImmutableMetadata.class);
 
-    private ImmutableMetadata(Map<String, Value> attributes) {
+    ImmutableMetadata(Map<String, Value> attributes) {
         super(attributes);
     }
+
+    ImmutableMetadata() {}
 
     @Override
     public Set<String> keySet() {
@@ -33,6 +35,7 @@ public class ImmutableMetadata extends AbstractStructure {
     /**
      * Generic value retrieval for the given key.
      */
+    @Override
     public <T> T getValue(final String key, final Class<T> type) {
         Value value = getValue(key);
         if (value == null) {
@@ -60,6 +63,7 @@ public class ImmutableMetadata extends AbstractStructure {
      *
      * @param key flag metadata key to retrieve
      */
+    @Override
     public String getString(final String key) {
         Value value = getValue(key);
         return value != null && value.isString() ? value.asString() : null;
@@ -71,6 +75,7 @@ public class ImmutableMetadata extends AbstractStructure {
      *
      * @param key flag metadata key to retrieve
      */
+    @Override
     public Integer getInteger(final String key) {
         Value value = getValue(key);
         if (value != null && value.isNumber()) {
@@ -88,6 +93,7 @@ public class ImmutableMetadata extends AbstractStructure {
      *
      * @param key flag metadata key to retrieve
      */
+    @Override
     public Long getLong(final String key) {
         Value value = getValue(key);
         if (value != null && value.isNumber()) {
@@ -105,6 +111,7 @@ public class ImmutableMetadata extends AbstractStructure {
      *
      * @param key flag metadata key to retrieve
      */
+    @Override
     public Float getFloat(final String key) {
         Value value = getValue(key);
         if (value != null && value.isNumber()) {
@@ -122,6 +129,7 @@ public class ImmutableMetadata extends AbstractStructure {
      *
      * @param key flag metadata key to retrieve
      */
+    @Override
     public Double getDouble(final String key) {
         Value value = getValue(key);
         if (value != null && value.isNumber()) {
@@ -139,6 +147,7 @@ public class ImmutableMetadata extends AbstractStructure {
      *
      * @param key flag metadata key to retrieve
      */
+    @Override
     public Boolean getBoolean(final String key) {
         Value value = getValue(key);
         return value != null && value.isBoolean() ? value.asBoolean() : null;
@@ -148,10 +157,12 @@ public class ImmutableMetadata extends AbstractStructure {
      * Returns an unmodifiable map of metadata as primitive objects.
      * This provides backward compatibility for the original ImmutableMetadata API.
      */
+    @Override
     public Map<String, Object> asUnmodifiableObjectMap() {
         return Collections.unmodifiableMap(asObjectMap());
     }
 
+    @Override
     public boolean isNotEmpty() {
         return !isEmpty();
     }
@@ -176,19 +187,12 @@ public class ImmutableMetadata extends AbstractStructure {
     }
 
     /**
-     * Obtain a builder for {@link ImmutableMetadata}.
+     * Immutable builder for {@link Metadata}.
      */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /**
-     * Immutable builder for {@link ImmutableMetadata}.
-     */
-    public static class Builder {
+    public static class Builder implements ImmutableMetadataBuilder {
         private final Map<String, Value> attributes;
 
-        private Builder() {
+        Builder() {
             attributes = new HashMap<>();
         }
 
@@ -198,7 +202,8 @@ public class ImmutableMetadata extends AbstractStructure {
          * @param key   flag metadata key to add
          * @param value flag metadata value to add
          */
-        public Builder addString(final String key, final String value) {
+        @Override
+        public ImmutableMetadataBuilder add(final String key, final String value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -209,7 +214,8 @@ public class ImmutableMetadata extends AbstractStructure {
          * @param key   flag metadata key to add
          * @param value flag metadata value to add
          */
-        public Builder addInteger(final String key, final Integer value) {
+        @Override
+        public ImmutableMetadataBuilder add(final String key, final Integer value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -220,7 +226,8 @@ public class ImmutableMetadata extends AbstractStructure {
          * @param key   flag metadata key to add
          * @param value flag metadata value to add
          */
-        public Builder addLong(final String key, final Long value) {
+        @Override
+        public ImmutableMetadataBuilder add(final String key, final Long value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -231,7 +238,8 @@ public class ImmutableMetadata extends AbstractStructure {
          * @param key   flag metadata key to add
          * @param value flag metadata value to add
          */
-        public Builder addFloat(final String key, final Float value) {
+        @Override
+        public ImmutableMetadataBuilder add(final String key, final Float value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -242,7 +250,8 @@ public class ImmutableMetadata extends AbstractStructure {
          * @param key   flag metadata key to add
          * @param value flag metadata value to add
          */
-        public Builder addDouble(final String key, final Double value) {
+        @Override
+        public ImmutableMetadataBuilder add(final String key, final Double value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -253,15 +262,17 @@ public class ImmutableMetadata extends AbstractStructure {
          * @param key   flag metadata key to add
          * @param value flag metadata value to add
          */
-        public Builder addBoolean(final String key, final Boolean value) {
+        @Override
+        public ImmutableMetadataBuilder add(final String key, final Boolean value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
 
         /**
-         * Retrieve {@link ImmutableMetadata} with provided key,value pairs.
+         * Retrieve {@link Metadata} with provided key,value pairs.
          */
-        public ImmutableMetadata build() {
+        @Override
+        public Metadata build() {
             return new ImmutableMetadata(new HashMap<>(this.attributes));
         }
     }

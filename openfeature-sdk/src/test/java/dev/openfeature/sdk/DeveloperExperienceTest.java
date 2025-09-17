@@ -14,7 +14,6 @@ import dev.openfeature.api.FlagEvaluationDetails;
 import dev.openfeature.api.FlagEvaluationOptions;
 import dev.openfeature.api.Hook;
 import dev.openfeature.api.HookContext;
-import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.MutableContext;
 import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.ProviderEventDetails;
@@ -94,7 +93,7 @@ class DeveloperExperienceTest implements HookFixtures {
         attributes.put("str-val", new Value("works"));
         attributes.put("bool-val", new Value(false));
         attributes.put("value-val", new Value(values));
-        EvaluationContext ctx = new ImmutableContext(attributes);
+        EvaluationContext ctx = EvaluationContext.immutableOf(attributes);
         Boolean retval = client.getBooleanValue(flagKey, false, ctx);
         assertFalse(retval);
     }

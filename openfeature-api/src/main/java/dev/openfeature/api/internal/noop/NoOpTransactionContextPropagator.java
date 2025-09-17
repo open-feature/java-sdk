@@ -1,7 +1,6 @@
 package dev.openfeature.api.internal.noop;
 
 import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.TransactionContextPropagator;
 import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
 
@@ -20,7 +19,7 @@ public class NoOpTransactionContextPropagator implements TransactionContextPropa
      */
     @Override
     public EvaluationContext getTransactionContext() {
-        return new ImmutableContext();
+        return EvaluationContext.EMPTY;
     }
 
     /**

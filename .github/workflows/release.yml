@@ -24,6 +24,8 @@ jobs:
         id: release
         with:
           token: ${{secrets.RELEASE_PLEASE_ACTION_TOKEN}}
+          prerelease: ${{ github.ref == 'refs/heads/beta' }}
+          prerelease-type: "beta"
     outputs:
       release_created: ${{ fromJSON(steps.release.outputs.paths_released)[0] != null }} # if we have a single release path, do the release
 

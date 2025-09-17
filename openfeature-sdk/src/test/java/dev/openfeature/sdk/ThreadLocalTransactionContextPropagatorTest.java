@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.ImmutableContext;
+import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import org.junit.jupiter.api.Test;
@@ -16,10 +16,10 @@ public class ThreadLocalTransactionContextPropagatorTest {
 
     @Test
     public void setTransactionContextOneThread() {
-        EvaluationContext firstContext = new ImmutableContext();
+        EvaluationContext firstContext = EvaluationContext.EMPTY;
         contextPropagator.setTransactionContext(firstContext);
         assertSame(firstContext, contextPropagator.getTransactionContext());
-        EvaluationContext secondContext = new ImmutableContext();
+        EvaluationContext secondContext = EvaluationContext.immutableOf(new HashMap<>());
         contextPropagator.setTransactionContext(secondContext);
         assertNotSame(firstContext, contextPropagator.getTransactionContext());
         assertSame(secondContext, contextPropagator.getTransactionContext());
@@ -33,8 +33,8 @@ public class ThreadLocalTransactionContextPropagatorTest {
 
     @Test
     public void setTransactionContextTwoThreads() throws Exception {
-        EvaluationContext firstContext = new ImmutableContext();
-        EvaluationContext secondContext = new ImmutableContext();
+        EvaluationContext firstContext = EvaluationContext.EMPTY;
+        EvaluationContext secondContext = EvaluationContext.EMPTY;
 
         Callable<EvaluationContext> callable = () -> {
             assertNull(contextPropagator.getTransactionContext());

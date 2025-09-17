@@ -10,7 +10,6 @@ import static org.mockito.Mockito.verify;
 
 import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.MutableTrackingEventDetails;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.internal.noop.NoOpProvider;
@@ -93,7 +92,7 @@ class OpenFeatureAPITest {
     @Test
     void setEvaluationContextShouldAllowChaining() {
         OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
-        EvaluationContext ctx = new ImmutableContext("targeting key", new HashMap<>());
+        EvaluationContext ctx = EvaluationContext.immutableOf("targeting key", new HashMap<>());
         OpenFeatureClient result = client.setEvaluationContext(ctx);
         assertEquals(client, result);
     }
@@ -116,7 +115,7 @@ class OpenFeatureAPITest {
         FeatureProvider featureProvider = mock(FeatureProvider.class);
         api.setProviderAndWait(featureProvider);
 
-        api.getClient().track("track-event", new ImmutableContext(), new MutableTrackingEventDetails(22.2f));
+        api.getClient().track("track-event", EvaluationContext.EMPTY, new MutableTrackingEventDetails(22.2f));
 
         verify(featureProvider).initialize(any());
         verify(featureProvider, times(2)).getMetadata();

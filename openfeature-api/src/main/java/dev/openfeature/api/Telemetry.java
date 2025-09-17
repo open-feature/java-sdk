@@ -41,7 +41,7 @@ public class Telemetry {
      */
     public static EvaluationEvent createEvaluationEvent(
             HookContext<?> hookContext, FlagEvaluationDetails<?> evaluationDetails) {
-        EvaluationEvent.Builder evaluationEventBuilder = EvaluationEvent.builder()
+        DefaultEvaluationEvent.Builder evaluationEventBuilder = DefaultEvaluationEvent.builder()
                 .name(FLAG_EVALUATION_EVENT_NAME)
                 .attribute(TELEMETRY_KEY, hookContext.getFlagKey())
                 .attribute(TELEMETRY_PROVIDER, hookContext.getProviderMetadata().getName());

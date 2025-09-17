@@ -29,7 +29,7 @@ public interface EventDetailsInterface {
      *
      * @return event metadata, or null if none
      */
-    ImmutableMetadata getEventMetadata();
+    Metadata getEventMetadata();
 
     /**
      * Gets the error code associated with this event.

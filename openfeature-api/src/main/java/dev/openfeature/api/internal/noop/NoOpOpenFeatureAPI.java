@@ -5,9 +5,9 @@ import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.EventDetails;
 import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.Hook;
-import dev.openfeature.api.Metadata;
 import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.ProviderEvent;
+import dev.openfeature.api.ProviderMetadata;
 import dev.openfeature.api.TransactionContextPropagator;
 import dev.openfeature.api.exceptions.OpenFeatureError;
 import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
@@ -76,12 +76,12 @@ public class NoOpOpenFeatureAPI extends OpenFeatureAPI {
     }
 
     @Override
-    public Metadata getProviderMetadata() {
+    public ProviderMetadata getProviderMetadata() {
         return () -> "No-op Provider";
     }
 
     @Override
-    public Metadata getProviderMetadata(String domain) {
+    public ProviderMetadata getProviderMetadata(String domain) {
         return getProviderMetadata();
     }
 

@@ -10,28 +10,23 @@ import org.junit.jupiter.api.Test;
 class ImmutableMetadataTest {
     @Test
     void unequalImmutableMetadataAreUnequal() {
-        ImmutableMetadata i1 =
-                ImmutableMetadata.builder().addString("key1", "value1").build();
-        ImmutableMetadata i2 =
-                ImmutableMetadata.builder().addString("key1", "value2").build();
+        var i1 = Metadata.immutableBuilder().add("key1", "value1").build();
+        var i2 = Metadata.immutableBuilder().add("key1", "value2").build();
 
         assertNotEquals(i1, i2);
     }
 
     @Test
     void equalImmutableMetadataAreEqual() {
-        ImmutableMetadata i1 =
-                ImmutableMetadata.builder().addString("key1", "value1").build();
-        ImmutableMetadata i2 =
-                ImmutableMetadata.builder().addString("key1", "value1").build();
+        var i1 = Metadata.immutableBuilder().add("key1", "value1").build();
+        var i2 = Metadata.immutableBuilder().add("key1", "value1").build();
 
         assertEquals(i1, i2);
     }
 
     @Test
     void retrieveAsUnmodifiableMap() {
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addString("key1", "value1").build();
+        var metadata = Metadata.immutableBuilder().add("key1", "value1").build();
 
         Map<String, Object> unmodifiableMap = metadata.asUnmodifiableObjectMap();
         assertEquals(unmodifiableMap.size(), 1);

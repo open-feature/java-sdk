@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.Hook;
 import dev.openfeature.api.HookContext;
-import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.Value;
 import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.e2e.ContextStoringProvider;
@@ -45,7 +44,7 @@ public class ContextSteps {
     private void addContextEntry(String contextKey, String contextValue, String level) {
         Map<String, Value> data = new HashMap<>();
         data.put(contextKey, new Value(contextValue));
-        EvaluationContext context = new ImmutableContext(data);
+        EvaluationContext context = EvaluationContext.immutableOf(data);
         if ("API".equals(level)) {
             state.api.setEvaluationContext(context);
         } else if ("Transaction".equals(level)) {

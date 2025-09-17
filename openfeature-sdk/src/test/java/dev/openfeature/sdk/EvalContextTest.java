@@ -4,7 +4,6 @@ import static dev.openfeature.api.EvaluationContext.TARGETING_KEY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.MutableContext;
 import dev.openfeature.api.MutableStructure;
 import dev.openfeature.api.Structure;
@@ -24,7 +23,10 @@ public class EvalContextTest {
                     + "type string, identifying the subject of the flag evaluation.")
     @Test
     void requires_targeting_key() {
-        EvaluationContext ec = new ImmutableContext("targeting-key", new HashMap<>());
+        EvaluationContext ec = EvaluationContext.immutableBuilder()
+                .targetingKey("targeting-key")
+                .attributes(new HashMap<>())
+                .build();
         assertEquals("targeting-key", ec.getTargetingKey());
     }
 
@@ -41,7 +43,7 @@ public class EvalContextTest {
         attributes.put("bool", new Value(true));
         attributes.put("int", new Value(4));
         attributes.put("dt", new Value(dt));
-        EvaluationContext ec = new ImmutableContext(attributes);
+        EvaluationContext ec = EvaluationContext.immutableOf(attributes);
 
         assertEquals("test", ec.getValue("str").asString());
 
@@ -68,7 +70,7 @@ public class EvalContextTest {
             }
         };
         attributes.put("arr", new Value(values));
-        EvaluationContext ec = new ImmutableContext(attributes);
+        EvaluationContext ec = EvaluationContext.immutableOf(attributes);
 
         Structure str = ec.getValue("obj").asStructure();
         assertEquals(1, str.getValue("val1").asInteger());
@@ -97,7 +99,7 @@ public class EvalContextTest {
         attributes.put("int2", new Value(2));
         attributes.put("dt", new Value(dt));
         attributes.put("obj", new Value(mutableStructure));
-        EvaluationContext ec = new ImmutableContext(attributes);
+        EvaluationContext ec = EvaluationContext.immutableOf(attributes);
 
         Map<String, Value> foundStr = ec.asMap();
         assertEquals(ec.getValue("str").asString(), foundStr.get("str").asString());
@@ -134,7 +136,7 @@ public class EvalContextTest {
         attributes.put("key", new Value("val"));
         attributes.put("key", new Value("val2"));
         attributes.put("key", new Value(3));
-        EvaluationContext ec = new ImmutableContext(attributes);
+        EvaluationContext ec = EvaluationContext.immutableOf(attributes);
         assertEquals(null, ec.getValue("key").asString());
         assertEquals(3, ec.getValue("key").asInteger());
     }
@@ -168,18 +170,27 @@ public class EvalContextTest {
     @Test
     void Immutable_context_merge_targeting_key() {
         String key1 = "key1";
-        EvaluationContext ctx1 = new ImmutableContext(key1, new HashMap<>());
-        EvaluationContext ctx2 = new ImmutableContext(new HashMap<>());
+        EvaluationContext ctx1 = EvaluationContext.immutableBuilder()
+                .targetingKey(key1)
+                .attributes(new HashMap<>())
+                .build();
+        EvaluationContext ctx2 = EvaluationContext.immutableOf(new HashMap<>());
 
         EvaluationContext ctxMerged = ctx1.merge(ctx2);
         assertEquals(key1, ctxMerged.getTargetingKey());
 
         String key2 = "key2";
-        ctx2 = new ImmutableContext(key2, new HashMap<>());
+        ctx2 = EvaluationContext.immutableBuilder()
+                .targetingKey(key2)
+                .attributes(new HashMap<>())
+                .build();
         ctxMerged = ctx1.merge(ctx2);
         assertEquals(key2, ctxMerged.getTargetingKey());
 
-        ctx2 = new ImmutableContext(" ", new HashMap<>());
+        ctx2 = EvaluationContext.immutableBuilder()
+                .targetingKey(" ")
+                .attributes(new HashMap<>())
+                .build();
         ctxMerged = ctx1.merge(ctx2);
         assertEquals(key1, ctxMerged.getTargetingKey());
     }

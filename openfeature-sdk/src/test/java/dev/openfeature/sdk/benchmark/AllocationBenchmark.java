@@ -10,7 +10,6 @@ import dev.openfeature.api.Client;
 import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.Hook;
 import dev.openfeature.api.HookContext;
-import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.ImmutableStructure;
 import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.Value;
@@ -42,24 +41,24 @@ public class AllocationBenchmark {
         api.setProviderAndWait(new NoOpProvider());
         Map<String, Value> globalAttrs = new HashMap<>();
         globalAttrs.put("global", new Value(1));
-        EvaluationContext globalContext = new ImmutableContext(globalAttrs);
+        EvaluationContext globalContext = EvaluationContext.immutableOf(globalAttrs);
         api.setEvaluationContext(globalContext);
 
         Client client = api.getClient();
 
         Map<String, Value> clientAttrs = new HashMap<>();
         clientAttrs.put("client", new Value(2));
-        client.setEvaluationContext(new ImmutableContext(clientAttrs));
+        client.setEvaluationContext(EvaluationContext.immutableOf(clientAttrs));
         client.addHooks(new Hook<Object>() {
             @Override
             public Optional<EvaluationContext> before(HookContext<Object> ctx, Map<String, Object> hints) {
-                return Optional.ofNullable(new ImmutableContext());
+                return Optional.ofNullable(EvaluationContext.EMPTY);
             }
         });
 
         Map<String, Value> invocationAttrs = new HashMap<>();
         invocationAttrs.put("invoke", new Value(3));
-        EvaluationContext invocationContext = new ImmutableContext(invocationAttrs);
+        EvaluationContext invocationContext = EvaluationContext.immutableOf(invocationAttrs);
 
         for (int i = 0; i < ITERATIONS; i++) {
             client.getBooleanValue(BOOLEAN_FLAG_KEY, false);

@@ -11,8 +11,7 @@ class ProviderEvaluationTest {
     @Test
     @DisplayName("Should create empty evaluation with builder")
     public void empty() {
-        ProviderEvaluation<Integer> details =
-                ProviderEvaluation.<Integer>builder().build();
+        ProviderEvaluation<Integer> details = new DefaultProviderEvaluation<>();
         assertNotNull(details);
     }
 
@@ -25,16 +24,10 @@ class ProviderEvaluationTest {
         Reason reason = Reason.DEFAULT;
         ErrorCode errorCode = ErrorCode.GENERAL;
         String errorMessage = "message";
-        ImmutableMetadata metadata = ImmutableMetadata.builder().build();
+        var metadata = Metadata.EMPTY;
 
-        ProviderEvaluation<Integer> details = ProviderEvaluation.<Integer>builder()
-                .value(value)
-                .variant(variant)
-                .reason(reason.toString())
-                .errorCode(errorCode)
-                .errorMessage(errorMessage)
-                .flagMetadata(metadata)
-                .build();
+        ProviderEvaluation<Integer> details =
+                new DefaultProviderEvaluation<>(value, variant, reason.toString(), errorCode, errorMessage, metadata);
 
         assertEquals(value, details.getValue());
         assertEquals(variant, details.getVariant());

@@ -41,4 +41,6 @@ public interface BaseEvaluation<T> {
      * @return {String}
      */
     String getErrorMessage();
+
+    Metadata getFlagMetadata();
 }

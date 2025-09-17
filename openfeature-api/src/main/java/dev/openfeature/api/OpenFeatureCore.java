@@ -98,7 +98,7 @@ public interface OpenFeatureCore {
      *
      * @return the provider metadata
      */
-    Metadata getProviderMetadata();
+    ProviderMetadata getProviderMetadata();
 
     /**
      * Get metadata about a registered provider using the client name.
@@ -107,5 +107,5 @@ public interface OpenFeatureCore {
      * @param domain an identifier which logically binds clients with providers
      * @return the provider metadata
      */
-    Metadata getProviderMetadata(String domain);
+    ProviderMetadata getProviderMetadata(String domain);
 }

@@ -5,10 +5,10 @@ import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.EventDetails;
 import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.Hook;
-import dev.openfeature.api.Metadata;
 import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.ProviderEvent;
 import dev.openfeature.api.ProviderEventDetails;
+import dev.openfeature.api.ProviderMetadata;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.TransactionContextPropagator;
 import dev.openfeature.api.exceptions.OpenFeatureError;
@@ -63,7 +63,7 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
      * @return the provider metadata
      */
     @Override
-    public Metadata getProviderMetadata() {
+    public ProviderMetadata getProviderMetadata() {
         return getProvider().getMetadata();
     }
 
@@ -75,7 +75,7 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
      * @return the provider metadata
      */
     @Override
-    public Metadata getProviderMetadata(String domain) {
+    public ProviderMetadata getProviderMetadata(String domain) {
         return getProvider(domain).getMetadata();
     }
 
@@ -468,7 +468,7 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
             List<String> domainsForProvider = providerRepository.getDomainsForProvider(provider);
 
             final String providerName = Optional.ofNullable(provider.getMetadata())
-                    .map(Metadata::getName)
+                    .map(ProviderMetadata::getName)
                     .filter(name -> name != null && !name.trim().isEmpty())
                     .orElse("unknown");
 

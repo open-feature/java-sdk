@@ -58,11 +58,7 @@ public class NoOpClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue) {
-        return FlagEvaluationDetails.<Boolean>builder()
-                .flagKey(key)
-                .value(defaultValue)
-                .reason(Reason.DEFAULT.toString())
-                .build();
+        return FlagEvaluationDetails.of(key, defaultValue, Reason.DEFAULT);
     }
 
     @Override
@@ -94,11 +90,7 @@ public class NoOpClient implements Client {
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue) {
-        return FlagEvaluationDetails.<String>builder()
-                .flagKey(key)
-                .value(defaultValue)
-                .reason(Reason.DEFAULT.toString())
-                .build();
+        return FlagEvaluationDetails.of(key, defaultValue, Reason.DEFAULT);
     }
 
     @Override
@@ -130,11 +122,7 @@ public class NoOpClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue) {
-        return FlagEvaluationDetails.<Integer>builder()
-                .flagKey(key)
-                .value(defaultValue)
-                .reason(Reason.DEFAULT.toString())
-                .build();
+        return FlagEvaluationDetails.of(key, defaultValue, Reason.DEFAULT);
     }
 
     @Override
@@ -166,11 +154,7 @@ public class NoOpClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue) {
-        return FlagEvaluationDetails.<Double>builder()
-                .flagKey(key)
-                .value(defaultValue)
-                .reason(Reason.DEFAULT.toString())
-                .build();
+        return FlagEvaluationDetails.of(key, defaultValue, Reason.DEFAULT);
     }
 
     @Override
@@ -202,11 +186,7 @@ public class NoOpClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue) {
-        return FlagEvaluationDetails.<Value>builder()
-                .flagKey(key)
-                .value(defaultValue)
-                .reason(Reason.DEFAULT.toString())
-                .build();
+        return FlagEvaluationDetails.of(key, defaultValue, Reason.DEFAULT);
     }
 
     @Override

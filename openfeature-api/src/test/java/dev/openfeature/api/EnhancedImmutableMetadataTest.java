@@ -14,7 +14,7 @@ class EnhancedImmutableMetadataTest {
 
     @Test
     void builder_shouldCreateEmptyMetadata() {
-        ImmutableMetadata metadata = ImmutableMetadata.builder().build();
+        var metadata = Metadata.EMPTY;
 
         assertNotNull(metadata);
         assertTrue(metadata.asUnmodifiableObjectMap().isEmpty());
@@ -25,8 +25,7 @@ class EnhancedImmutableMetadataTest {
         String key = "stringKey";
         String value = "stringValue";
 
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addString(key, value).build();
+        var metadata = Metadata.immutableBuilder().add(key, value).build();
 
         assertEquals(1, metadata.asUnmodifiableObjectMap().size());
         assertEquals(value, metadata.asUnmodifiableObjectMap().get(key));
@@ -38,8 +37,7 @@ class EnhancedImmutableMetadataTest {
         String key = "intKey";
         Integer value = 42;
 
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addInteger(key, value).build();
+        var metadata = Metadata.immutableBuilder().add(key, value).build();
 
         assertEquals(1, metadata.asUnmodifiableObjectMap().size());
         assertEquals(value, metadata.getInteger(key));
@@ -50,8 +48,7 @@ class EnhancedImmutableMetadataTest {
         String key = "longKey";
         Long value = 1234567890L;
 
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addLong(key, value).build();
+        var metadata = Metadata.immutableBuilder().add(key, value).build();
 
         assertEquals(1, metadata.asUnmodifiableObjectMap().size());
         assertEquals(value, metadata.getLong(key));
@@ -62,8 +59,7 @@ class EnhancedImmutableMetadataTest {
         String key = "floatKey";
         Float value = 3.14f;
 
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addFloat(key, value).build();
+        var metadata = Metadata.immutableBuilder().add(key, value).build();
 
         assertEquals(1, metadata.asUnmodifiableObjectMap().size());
         assertEquals(value, metadata.getFloat(key));
@@ -74,8 +70,7 @@ class EnhancedImmutableMetadataTest {
         String key = "doubleKey";
         Double value = 3.141592653589793;
 
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addDouble(key, value).build();
+        var metadata = Metadata.immutableBuilder().add(key, value).build();
 
         assertEquals(1, metadata.asUnmodifiableObjectMap().size());
         assertEquals(value, metadata.getDouble(key));
@@ -86,8 +81,7 @@ class EnhancedImmutableMetadataTest {
         String key = "boolKey";
         Boolean value = true;
 
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addBoolean(key, value).build();
+        var metadata = Metadata.immutableBuilder().add(key, value).build();
 
         assertEquals(1, metadata.asUnmodifiableObjectMap().size());
         assertEquals(value, metadata.getBoolean(key));
@@ -95,13 +89,13 @@ class EnhancedImmutableMetadataTest {
 
     @Test
     void builder_shouldAddMultipleValuesOfDifferentTypes() {
-        ImmutableMetadata metadata = ImmutableMetadata.builder()
-                .addString("stringKey", "stringValue")
-                .addInteger("intKey", 42)
-                .addLong("longKey", 1234567890L)
-                .addFloat("floatKey", 3.14f)
-                .addDouble("doubleKey", 3.141592653589793)
-                .addBoolean("boolKey", true)
+        var metadata = Metadata.immutableBuilder()
+                .add("stringKey", "stringValue")
+                .add("intKey", 42)
+                .add("longKey", 1234567890L)
+                .add("floatKey", 3.14f)
+                .add("doubleKey", 3.141592653589793)
+                .add("boolKey", true)
                 .build();
 
         assertEquals(6, metadata.asUnmodifiableObjectMap().size());
@@ -115,13 +109,13 @@ class EnhancedImmutableMetadataTest {
 
     @Test
     void builder_shouldHandleNullValues() {
-        ImmutableMetadata metadata = ImmutableMetadata.builder()
-                .addString("stringKey", null)
-                .addInteger("intKey", null)
-                .addLong("longKey", null)
-                .addFloat("floatKey", null)
-                .addDouble("doubleKey", null)
-                .addBoolean("boolKey", null)
+        var metadata = Metadata.immutableBuilder()
+                .add("stringKey", (String) null)
+                .add("intKey", (Integer) null)
+                .add("longKey", (Long) null)
+                .add("floatKey", (Float) null)
+                .add("doubleKey", (Double) null)
+                .add("boolKey", (Boolean) null)
                 .build();
 
         assertEquals(6, metadata.asUnmodifiableObjectMap().size());
@@ -135,9 +129,9 @@ class EnhancedImmutableMetadataTest {
 
     @Test
     void builder_shouldOverwriteExistingKeys() {
-        ImmutableMetadata metadata = ImmutableMetadata.builder()
-                .addString("key", "firstValue")
-                .addString("key", "secondValue")
+        var metadata = Metadata.immutableBuilder()
+                .add("key", "firstValue")
+                .add("key", "secondValue")
                 .build();
 
         assertEquals(1, metadata.asUnmodifiableObjectMap().size());
@@ -146,10 +140,10 @@ class EnhancedImmutableMetadataTest {
 
     @Test
     void builder_shouldAllowChaining() {
-        ImmutableMetadata metadata = ImmutableMetadata.builder()
-                .addString("key1", "value1")
-                .addInteger("key2", 42)
-                .addBoolean("key3", true)
+        var metadata = Metadata.immutableBuilder()
+                .add("key1", "value1")
+                .add("key2", 42)
+                .add("key3", true)
                 .build();
 
         assertEquals(3, metadata.asUnmodifiableObjectMap().size());
@@ -160,7 +154,7 @@ class EnhancedImmutableMetadataTest {
 
     @Test
     void getters_shouldReturnNullForMissingKeys() {
-        ImmutableMetadata metadata = ImmutableMetadata.builder().build();
+        var metadata = Metadata.immutableBuilder().build();
 
         assertNull(metadata.getString("missing"));
         assertNull(metadata.getInteger("missing"));
@@ -172,8 +166,7 @@ class EnhancedImmutableMetadataTest {
 
     @Test
     void getters_shouldReturnNullForWrongType() {
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addString("key", "stringValue").build();
+        var metadata = Metadata.immutableBuilder().add("key", "stringValue").build();
 
         assertEquals("stringValue", metadata.getString("key"));
         assertNull(metadata.getInteger("key")); // Wrong type should return null
@@ -185,8 +178,7 @@ class EnhancedImmutableMetadataTest {
 
     @Test
     void asUnmodifiableObjectMap_shouldReturnUnmodifiableMap() {
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addString("key", "value").build();
+        var metadata = Metadata.immutableBuilder().add("key", "value").build();
 
         Map<String, Object> map = metadata.asUnmodifiableObjectMap();
         assertEquals(1, map.size());
@@ -208,19 +200,19 @@ class EnhancedImmutableMetadataTest {
 
     @Test
     void equals_shouldWorkCorrectly() {
-        ImmutableMetadata metadata1 = ImmutableMetadata.builder()
-                .addString("key1", "value1")
-                .addInteger("key2", 42)
+        var metadata1 = Metadata.immutableBuilder()
+                .add("key1", "value1")
+                .add("key2", 42)
                 .build();
 
-        ImmutableMetadata metadata2 = ImmutableMetadata.builder()
-                .addString("key1", "value1")
-                .addInteger("key2", 42)
+        var metadata2 = Metadata.immutableBuilder()
+                .add("key1", "value1")
+                .add("key2", 42)
                 .build();
 
-        ImmutableMetadata metadata3 = ImmutableMetadata.builder()
-                .addString("key1", "different")
-                .addInteger("key2", 42)
+        var metadata3 = Metadata.immutableBuilder()
+                .add("key1", "different")
+                .add("key2", 42)
                 .build();
 
         // Same content should be equal
@@ -242,14 +234,14 @@ class EnhancedImmutableMetadataTest {
 
     @Test
     void hashCode_shouldBeConsistent() {
-        ImmutableMetadata metadata1 = ImmutableMetadata.builder()
-                .addString("key1", "value1")
-                .addInteger("key2", 42)
+        var metadata1 = Metadata.immutableBuilder()
+                .add("key1", "value1")
+                .add("key2", 42)
                 .build();
 
-        ImmutableMetadata metadata2 = ImmutableMetadata.builder()
-                .addString("key1", "value1")
-                .addInteger("key2", 42)
+        var metadata2 = Metadata.immutableBuilder()
+                .add("key1", "value1")
+                .add("key2", 42)
                 .build();
 
         assertEquals(metadata1.hashCode(), metadata2.hashCode());
@@ -257,9 +249,9 @@ class EnhancedImmutableMetadataTest {
 
     @Test
     void toString_shouldIncludeContent() {
-        ImmutableMetadata metadata = ImmutableMetadata.builder()
-                .addString("stringKey", "stringValue")
-                .addInteger("intKey", 42)
+        var metadata = Metadata.immutableBuilder()
+                .add("stringKey", "stringValue")
+                .add("intKey", 42)
                 .build();
 
         String toString = metadata.toString();
@@ -270,13 +262,13 @@ class EnhancedImmutableMetadataTest {
 
     @Test
     void builder_shouldCreateIndependentInstances() {
-        ImmutableMetadata.Builder builder = ImmutableMetadata.builder().addString("key1", "value1");
+        var builder = Metadata.immutableBuilder().add("key1", "value1");
 
-        ImmutableMetadata metadata1 = builder.build();
+        var metadata1 = builder.build();
 
         // Adding to builder after first build should not affect first instance
-        builder.addString("key2", "value2");
-        ImmutableMetadata metadata2 = builder.build();
+        builder.add("key2", "value2");
+        var metadata2 = builder.build();
 
         assertEquals(1, metadata1.asUnmodifiableObjectMap().size());
         assertEquals(2, metadata2.asUnmodifiableObjectMap().size());
@@ -287,15 +279,15 @@ class EnhancedImmutableMetadataTest {
     @Test
     void numberTypes_shouldBeStoredCorrectly() {
         // Test edge cases for numeric types
-        ImmutableMetadata metadata = ImmutableMetadata.builder()
-                .addInteger("maxInt", Integer.MAX_VALUE)
-                .addInteger("minInt", Integer.MIN_VALUE)
-                .addLong("maxLong", Long.MAX_VALUE)
-                .addLong("minLong", Long.MIN_VALUE)
-                .addFloat("maxFloat", Float.MAX_VALUE)
-                .addFloat("minFloat", Float.MIN_VALUE)
-                .addDouble("maxDouble", Double.MAX_VALUE)
-                .addDouble("minDouble", Double.MIN_VALUE)
+        var metadata = Metadata.immutableBuilder()
+                .add("maxInt", Integer.MAX_VALUE)
+                .add("minInt", Integer.MIN_VALUE)
+                .add("maxLong", Long.MAX_VALUE)
+                .add("minLong", Long.MIN_VALUE)
+                .add("maxFloat", Float.MAX_VALUE)
+                .add("minFloat", Float.MIN_VALUE)
+                .add("maxDouble", Double.MAX_VALUE)
+                .add("minDouble", Double.MIN_VALUE)
                 .build();
 
         assertEquals(Integer.MAX_VALUE, metadata.getInteger("maxInt"));

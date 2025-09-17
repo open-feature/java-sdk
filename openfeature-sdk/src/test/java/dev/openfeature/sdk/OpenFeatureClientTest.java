@@ -14,7 +14,6 @@ import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.FlagEvaluationDetails;
 import dev.openfeature.api.Hook;
-import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.exceptions.FatalError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
@@ -80,7 +79,7 @@ class OpenFeatureClientTest implements HookFixtures {
     void setEvaluationContextShouldAllowChaining() {
         DefaultOpenFeatureAPI api = mock(DefaultOpenFeatureAPI.class);
         OpenFeatureClient client = new OpenFeatureClient(api, "name", "version");
-        EvaluationContext ctx = new ImmutableContext("targeting key", new HashMap<>());
+        EvaluationContext ctx = EvaluationContext.immutableOf("targeting key", new HashMap<>());
 
         OpenFeatureClient result = client.setEvaluationContext(ctx);
         assertEquals(client, result);

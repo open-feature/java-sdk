@@ -7,19 +7,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class FlagMetadataTest {
+class MetadataTest {
 
     @Test
     @DisplayName("Test metadata payload construction and retrieval")
     void builder_validation() {
         // given
-        ImmutableMetadata flagMetadata = ImmutableMetadata.builder()
-                .addString("string", "string")
-                .addInteger("integer", 1)
-                .addLong("long", 1L)
-                .addFloat("float", 1.5f)
-                .addDouble("double", Double.MAX_VALUE)
-                .addBoolean("boolean", Boolean.FALSE)
+        var flagMetadata = Metadata.immutableBuilder()
+                .add("string", "string")
+                .add("integer", 1)
+                .add("long", 1L)
+                .add("float", 1.5f)
+                .add("double", Double.MAX_VALUE)
+                .add("boolean", Boolean.FALSE)
                 .build();
 
         // then
@@ -46,8 +46,7 @@ class FlagMetadataTest {
     @DisplayName("Value type mismatch returns a null")
     void value_type_validation() {
         // given
-        ImmutableMetadata flagMetadata =
-                ImmutableMetadata.builder().addString("string", "string").build();
+        var flagMetadata = Metadata.immutableBuilder().add("string", "string").build();
 
         // then
         assertThat(flagMetadata.getBoolean("string")).isNull();
@@ -57,7 +56,7 @@ class FlagMetadataTest {
     @DisplayName("A null is returned if key does not exist")
     void notfound_error_validation() {
         // given
-        ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
+        var flagMetadata = Metadata.immutableBuilder().build();
 
         // then
         assertThat(flagMetadata.getBoolean("string")).isNull();
@@ -67,7 +66,7 @@ class FlagMetadataTest {
     @DisplayName("isEmpty and isNotEmpty return correctly when the metadata is empty")
     void isEmpty_isNotEmpty_return_correctly_when_metadata_is_empty() {
         // given
-        ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
+        var flagMetadata = Metadata.immutableBuilder().build();
 
         // then
         assertTrue(flagMetadata.isEmpty());
@@ -78,8 +77,7 @@ class FlagMetadataTest {
     @DisplayName("isEmpty and isNotEmpty return correctly when the metadata is not empty")
     void isEmpty_isNotEmpty_return_correctly_when_metadata_is_not_empty() {
         // given
-        ImmutableMetadata flagMetadata =
-                ImmutableMetadata.builder().addString("a", "b").build();
+        var flagMetadata = Metadata.immutableBuilder().add("a", "b").build();
 
         // then
         assertFalse(flagMetadata.isEmpty());

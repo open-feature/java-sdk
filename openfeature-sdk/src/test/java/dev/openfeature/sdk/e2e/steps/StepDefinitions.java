@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import dev.openfeature.api.Client;
 import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FlagEvaluationDetails;
-import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.Reason;
 import dev.openfeature.api.Structure;
@@ -245,7 +244,7 @@ public class StepDefinitions {
         attributes.put(field2, new Value(value2));
         attributes.put(field3, new Value(value3));
         attributes.put(field4, new Value(Boolean.valueOf(value4)));
-        this.context = new ImmutableContext(attributes);
+        this.context = EvaluationContext.immutableOf(attributes);
     }
 
     @When("a flag with key {string} is evaluated with default value {string}")
@@ -263,7 +262,7 @@ public class StepDefinitions {
     @Then("the resolved flag value is {string} when the context is empty")
     public void the_resolved_flag_value_is_when_the_context_is_empty(String expected) {
         String emptyContextValue =
-                client.getStringValue(contextAwareFlagKey, contextAwareDefaultValue, new ImmutableContext());
+                client.getStringValue(contextAwareFlagKey, contextAwareDefaultValue, EvaluationContext.EMPTY);
         assertEquals(expected, emptyContextValue);
     }
 

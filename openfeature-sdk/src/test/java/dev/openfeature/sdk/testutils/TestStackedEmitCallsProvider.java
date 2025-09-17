@@ -1,10 +1,10 @@
 package dev.openfeature.sdk.testutils;
 
 import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.Metadata;
 import dev.openfeature.api.ProviderEvaluation;
 import dev.openfeature.api.ProviderEvent;
 import dev.openfeature.api.ProviderEventDetails;
+import dev.openfeature.api.ProviderMetadata;
 import dev.openfeature.api.Value;
 import dev.openfeature.sdk.EventProvider;
 import java.util.function.Consumer;
@@ -13,7 +13,7 @@ public class TestStackedEmitCallsProvider extends EventProvider {
     private final NestedBlockingEmitter nestedBlockingEmitter = new NestedBlockingEmitter(this::onProviderEvent);
 
     @Override
-    public Metadata getMetadata() {
+    public ProviderMetadata getMetadata() {
         return () -> getClass().getSimpleName();
     }
 

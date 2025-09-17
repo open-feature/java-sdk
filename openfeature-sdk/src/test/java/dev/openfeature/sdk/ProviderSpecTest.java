@@ -5,12 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import dev.openfeature.api.ImmutableContext;
-import dev.openfeature.api.ImmutableMetadata;
-import dev.openfeature.api.ProviderEvaluation;
-import dev.openfeature.api.ProviderState;
-import dev.openfeature.api.Reason;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.*;
 import dev.openfeature.api.internal.noop.NoOpProvider;
 import org.junit.jupiter.api.Test;
 
@@ -44,19 +39,19 @@ public class ProviderSpecTest {
                     "The `resolution details` structure SHOULD accept a generic argument (or use an equivalent language feature) which indicates the type of the wrapped `value` field.")
     @Test
     void flag_value_set() {
-        ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new ImmutableContext());
+        ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, EvaluationContext.EMPTY);
         assertNotNull(int_result.getValue());
 
-        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new ImmutableContext());
+        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, EvaluationContext.EMPTY);
         assertNotNull(double_result.getValue());
 
-        ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", new ImmutableContext());
+        ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", EvaluationContext.EMPTY);
         assertNotNull(string_result.getValue());
 
-        ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, new ImmutableContext());
+        ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, EvaluationContext.EMPTY);
         assertNotNull(boolean_result.getValue());
 
-        ProviderEvaluation<Value> object_result = p.getObjectEvaluation("key", new Value(), new ImmutableContext());
+        ProviderEvaluation<Value> object_result = p.getObjectEvaluation("key", new Value(), EvaluationContext.EMPTY);
         assertNotNull(object_result.getValue());
     }
 
@@ -66,7 +61,7 @@ public class ProviderSpecTest {
                     "The `provider` SHOULD populate the `resolution details` structure's `reason` field with `\"STATIC\"`, `\"DEFAULT\",` `\"TARGETING_MATCH\"`, `\"SPLIT\"`, `\"CACHED\"`, `\"DISABLED\"`, `\"UNKNOWN\"`, `\"STALE\"`, `\"ERROR\"` or some other string indicating the semantic reason for the returned flag value.")
     @Test
     void has_reason() {
-        ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new ImmutableContext());
+        ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, EvaluationContext.EMPTY);
         assertEquals(Reason.DEFAULT.toString(), result.getReason());
     }
 
@@ -76,7 +71,7 @@ public class ProviderSpecTest {
                     "In cases of normal execution, the `provider` MUST NOT populate the `resolution details` structure's `error code` field, or otherwise must populate it with a null or falsy value.")
     @Test
     void no_error_code_by_default() {
-        ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, new ImmutableContext());
+        ProviderEvaluation<Boolean> result = p.getBooleanEvaluation("key", false, EvaluationContext.EMPTY);
         assertNull(result.getErrorCode());
     }
 
@@ -101,16 +96,16 @@ public class ProviderSpecTest {
                     "In cases of normal execution, the `provider` SHOULD populate the `resolution details` structure's `variant` field with a string identifier corresponding to the returned flag value.")
     @Test
     void variant_set() {
-        ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, new ImmutableContext());
+        ProviderEvaluation<Integer> int_result = p.getIntegerEvaluation("key", 4, EvaluationContext.EMPTY);
         assertNotNull(int_result.getReason());
 
-        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, new ImmutableContext());
+        ProviderEvaluation<Double> double_result = p.getDoubleEvaluation("key", 0.4, EvaluationContext.EMPTY);
         assertNotNull(double_result.getReason());
 
-        ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", new ImmutableContext());
+        ProviderEvaluation<String> string_result = p.getStringEvaluation("key", "works", EvaluationContext.EMPTY);
         assertNotNull(string_result.getReason());
 
-        ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, new ImmutableContext());
+        ProviderEvaluation<Boolean> boolean_result = p.getBooleanEvaluation("key", false, EvaluationContext.EMPTY);
         assertNotNull(boolean_result.getReason());
     }
 
@@ -120,13 +115,13 @@ public class ProviderSpecTest {
                     "`flag metadata` MUST be a structure supporting the definition of arbitrary properties, with keys of type `string`, and values of type `boolean | string | number`.")
     @Test
     void flag_metadata_structure() {
-        ImmutableMetadata metadata = ImmutableMetadata.builder()
-                .addBoolean("bool", true)
-                .addDouble("double", 1.1d)
-                .addFloat("float", 2.2f)
-                .addInteger("int", 3)
-                .addLong("long", 1l)
-                .addString("string", "str")
+        var metadata = Metadata.immutableBuilder()
+                .add("bool", true)
+                .add("double", 1.1d)
+                .add("float", 2.2f)
+                .add("int", 3)
+                .add("long", 1l)
+                .add("string", "str")
                 .build();
 
         assertEquals(true, metadata.getBoolean("bool"));

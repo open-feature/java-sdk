@@ -11,7 +11,7 @@ public class TelemetryTest {
     String flagKey = "test-flag";
     String providerName = "test-provider";
     String reason = "static";
-    Metadata providerMetadata = () -> providerName;
+    ProviderMetadata providerMetadata = () -> providerName;
 
     @Test
     void testCreatesEvaluationEventWithMandatoryFields() {
@@ -23,10 +23,8 @@ public class TelemetryTest {
                 .ctx(new ImmutableContext())
                 .build();
 
-        FlagEvaluationDetails<Boolean> evaluation = FlagEvaluationDetails.<Boolean>builder()
-                .reason(reason)
-                .value(true)
-                .build();
+        FlagEvaluationDetails<Boolean> evaluation =
+                new DefaultFlagEvaluationDetails<>(flagKey, true, null, reason, null, null, null);
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, evaluation);
 
@@ -46,10 +44,8 @@ public class TelemetryTest {
                 .ctx(new ImmutableContext())
                 .build();
 
-        FlagEvaluationDetails<Boolean> evaluation = FlagEvaluationDetails.<Boolean>builder()
-                .reason(null)
-                .value(true)
-                .build();
+        FlagEvaluationDetails<Boolean> evaluation =
+                new DefaultFlagEvaluationDetails<>(flagKey, true, null, null, null, null, null);
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, evaluation);
 
@@ -67,10 +63,8 @@ public class TelemetryTest {
                 .providerMetadata(providerMetadata)
                 .build();
 
-        FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
-                .variant("testVariant")
-                .flagMetadata(ImmutableMetadata.builder().build())
-                .build();
+        FlagEvaluationDetails<String> providerEvaluation =
+                new DefaultFlagEvaluationDetails<>(null, null, "testVariant", reason, null, null, Metadata.EMPTY);
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, providerEvaluation);
 
@@ -88,10 +82,8 @@ public class TelemetryTest {
                 .providerMetadata(providerMetadata)
                 .build();
 
-        FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
-                .value("testValue")
-                .flagMetadata(ImmutableMetadata.builder().build())
-                .build();
+        FlagEvaluationDetails<String> providerEvaluation =
+                new DefaultFlagEvaluationDetails<>(null, "testValue", null, reason, null, null, Metadata.EMPTY);
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, providerEvaluation);
 
@@ -109,15 +101,18 @@ public class TelemetryTest {
                 .providerMetadata(() -> "realProviderName")
                 .build();
 
-        FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
-                .flagMetadata(ImmutableMetadata.builder()
-                        .addString("contextId", "realContextId")
-                        .addString("flagSetId", "realFlagSetId")
-                        .addString("version", "realVersion")
-                        .build())
-                .reason(Reason.DEFAULT.name())
-                .variant("realVariant")
-                .build();
+        FlagEvaluationDetails<String> providerEvaluation = new DefaultFlagEvaluationDetails<>(
+                null,
+                null,
+                "realVariant",
+                Reason.DEFAULT.name(),
+                null,
+                null,
+                Metadata.immutableBuilder()
+                        .add("contextId", "realContextId")
+                        .add("flagSetId", "realFlagSetId")
+                        .add("version", "realVersion")
+                        .build());
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, providerEvaluation);
 
@@ -142,15 +137,18 @@ public class TelemetryTest {
                 .providerMetadata(() -> "realProviderName")
                 .build();
 
-        FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
-                .flagMetadata(ImmutableMetadata.builder()
-                        .addString("contextId", "realContextId")
-                        .addString("flagSetId", "realFlagSetId")
-                        .addString("version", "realVersion")
-                        .build())
-                .reason(Reason.ERROR.name())
-                .errorMessage("realErrorMessage")
-                .build();
+        FlagEvaluationDetails<String> providerEvaluation = new DefaultFlagEvaluationDetails<>(
+                null,
+                null,
+                null,
+                Reason.ERROR.name(),
+                null,
+                "realErrorMessage",
+                Metadata.immutableBuilder()
+                        .add("contextId", "realContextId")
+                        .add("flagSetId", "realFlagSetId")
+                        .add("version", "realVersion")
+                        .build());
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, providerEvaluation);
 
@@ -176,16 +174,18 @@ public class TelemetryTest {
                 .providerMetadata(() -> "realProviderName")
                 .build();
 
-        FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.<String>builder()
-                .flagMetadata(ImmutableMetadata.builder()
-                        .addString("contextId", "realContextId")
-                        .addString("flagSetId", "realFlagSetId")
-                        .addString("version", "realVersion")
-                        .build())
-                .reason(Reason.ERROR.name())
-                .errorMessage("realErrorMessage")
-                .errorCode(ErrorCode.INVALID_CONTEXT)
-                .build();
+        FlagEvaluationDetails<String> providerEvaluation = new DefaultFlagEvaluationDetails<>(
+                null,
+                null,
+                null,
+                Reason.ERROR.name(),
+                ErrorCode.INVALID_CONTEXT,
+                "realErrorMessage",
+                Metadata.immutableBuilder()
+                        .add("contextId", "realContextId")
+                        .add("flagSetId", "realFlagSetId")
+                        .add("version", "realVersion")
+                        .build());
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, providerEvaluation);
 

@@ -11,7 +11,7 @@ import java.util.Objects;
 public class ProviderEventDetails implements EventDetailsInterface {
     private final List<String> flagsChanged;
     private final String message;
-    private final ImmutableMetadata eventMetadata;
+    private final Metadata eventMetadata;
     private final ErrorCode errorCode;
 
     /**
@@ -33,7 +33,7 @@ public class ProviderEventDetails implements EventDetailsInterface {
      * @param errorCode error code (should be populated for PROVIDER_ERROR events)
      */
     private ProviderEventDetails(
-            List<String> flagsChanged, String message, ImmutableMetadata eventMetadata, ErrorCode errorCode) {
+            List<String> flagsChanged, String message, Metadata eventMetadata, ErrorCode errorCode) {
         this.flagsChanged = flagsChanged != null ? List.copyOf(flagsChanged) : null;
         this.message = message;
         this.eventMetadata = eventMetadata;
@@ -48,7 +48,7 @@ public class ProviderEventDetails implements EventDetailsInterface {
         return message;
     }
 
-    public ImmutableMetadata getEventMetadata() {
+    public Metadata getEventMetadata() {
         return eventMetadata;
     }
 
@@ -108,7 +108,7 @@ public class ProviderEventDetails implements EventDetailsInterface {
     public static class Builder {
         private List<String> flagsChanged;
         private String message;
-        private ImmutableMetadata eventMetadata;
+        private Metadata eventMetadata;
         private ErrorCode errorCode;
 
         private Builder() {}
@@ -123,7 +123,7 @@ public class ProviderEventDetails implements EventDetailsInterface {
             return this;
         }
 
-        public Builder eventMetadata(ImmutableMetadata eventMetadata) {
+        public Builder eventMetadata(Metadata eventMetadata) {
             this.eventMetadata = eventMetadata;
             return this;
         }

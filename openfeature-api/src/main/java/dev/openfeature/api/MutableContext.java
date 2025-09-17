@@ -1,13 +1,11 @@
 package dev.openfeature.api;
 
-import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
  * The EvaluationContext is a container for arbitrary contextual data
@@ -172,53 +170,5 @@ public class MutableContext implements EvaluationContext {
     @Override
     public String toString() {
         return "MutableContext{" + "structure=" + structure + '}';
-    }
-
-    /**
-     * Hidden class to tell Lombok not to copy these methods over via delegation.
-     */
-    @SuppressWarnings("all")
-    private static class DelegateExclusions {
-
-        @ExcludeFromGeneratedCoverageReport
-        public <T extends Structure> Map<String, Value> merge(
-                Function<Map<String, Value>, Structure> newStructure,
-                Map<String, Value> base,
-                Map<String, Value> overriding) {
-
-            return null;
-        }
-
-        public MutableStructure add(String ignoredKey, Boolean ignoredValue) {
-            return null;
-        }
-
-        public MutableStructure add(String ignoredKey, Double ignoredValue) {
-            return null;
-        }
-
-        public MutableStructure add(String ignoredKey, String ignoredValue) {
-            return null;
-        }
-
-        public MutableStructure add(String ignoredKey, Value ignoredValue) {
-            return null;
-        }
-
-        public MutableStructure add(String ignoredKey, Integer ignoredValue) {
-            return null;
-        }
-
-        public MutableStructure add(String ignoredKey, List<Value> ignoredValue) {
-            return null;
-        }
-
-        public MutableStructure add(String ignoredKey, Structure ignoredValue) {
-            return null;
-        }
-
-        public MutableStructure add(String ignoredKey, Instant ignoredValue) {
-            return null;
-        }
     }
 }

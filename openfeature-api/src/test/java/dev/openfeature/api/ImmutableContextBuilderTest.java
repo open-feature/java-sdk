@@ -14,7 +14,7 @@ class ImmutableContextBuilderTest {
 
     @Test
     void builder_shouldCreateEmptyContext() {
-        ImmutableContext context = ImmutableContext.builder().build();
+        EvaluationContext context = (new ImmutableContext.Builder()).build();
 
         assertNull(context.getTargetingKey());
         assertTrue(context.isEmpty());
@@ -24,8 +24,8 @@ class ImmutableContextBuilderTest {
     @Test
     void builder_shouldCreateContextWithTargetingKeyOnly() {
         String targetingKey = "user123";
-        ImmutableContext context =
-                ImmutableContext.builder().targetingKey(targetingKey).build();
+        EvaluationContext context =
+                (new ImmutableContext.Builder()).targetingKey(targetingKey).build();
 
         assertEquals(targetingKey, context.getTargetingKey());
         assertFalse(context.isEmpty()); // Contains targeting key
@@ -35,7 +35,7 @@ class ImmutableContextBuilderTest {
 
     @Test
     void builder_shouldCreateContextWithAttributesOnly() {
-        ImmutableContext context = ImmutableContext.builder()
+        EvaluationContext context = (new ImmutableContext.Builder())
                 .add("stringKey", "stringValue")
                 .add("intKey", 42)
                 .add("boolKey", true)
@@ -52,7 +52,7 @@ class ImmutableContextBuilderTest {
     @Test
     void builder_shouldCreateContextWithTargetingKeyAndAttributes() {
         String targetingKey = "user456";
-        ImmutableContext context = ImmutableContext.builder()
+        EvaluationContext context = (new ImmutableContext.Builder())
                 .targetingKey(targetingKey)
                 .add("stringKey", "stringValue")
                 .add("intKey", 42)
@@ -71,7 +71,7 @@ class ImmutableContextBuilderTest {
         MutableStructure nestedStructure = new MutableStructure().add("nested", "value");
         Value customValue = new Value("customValue");
 
-        ImmutableContext context = ImmutableContext.builder()
+        EvaluationContext context = (new ImmutableContext.Builder())
                 .targetingKey("user789")
                 .add("stringKey", "stringValue")
                 .add("intKey", 42)
@@ -97,7 +97,7 @@ class ImmutableContextBuilderTest {
 
     @Test
     void builder_shouldHandleNullValues() {
-        ImmutableContext context = ImmutableContext.builder()
+        EvaluationContext context = (new ImmutableContext.Builder())
                 .targetingKey(null)
                 .add("stringKey", (String) null)
                 .add("intKey", (Integer) null)
@@ -114,7 +114,7 @@ class ImmutableContextBuilderTest {
 
     @Test
     void builder_shouldOverwriteExistingKeys() {
-        ImmutableContext context = ImmutableContext.builder()
+        EvaluationContext context = (new ImmutableContext.Builder())
                 .add("key", "firstValue")
                 .add("key", "secondValue")
                 .build();
@@ -125,7 +125,7 @@ class ImmutableContextBuilderTest {
 
     @Test
     void builder_shouldOverwriteTargetingKey() {
-        ImmutableContext context = ImmutableContext.builder()
+        EvaluationContext context = (new ImmutableContext.Builder())
                 .targetingKey("firstKey")
                 .targetingKey("secondKey")
                 .build();
@@ -140,7 +140,7 @@ class ImmutableContextBuilderTest {
         attributes.put("key1", new Value("value1"));
         attributes.put("key2", new Value(123));
 
-        ImmutableContext context = ImmutableContext.builder()
+        EvaluationContext context = (new ImmutableContext.Builder())
                 .targetingKey("user123")
                 .attributes(attributes)
                 .build();
@@ -153,7 +153,7 @@ class ImmutableContextBuilderTest {
 
     @Test
     void builder_shouldHandleNullAttributesMap() {
-        ImmutableContext context = ImmutableContext.builder()
+        EvaluationContext context = (new ImmutableContext.Builder())
                 .targetingKey("user123")
                 .attributes(null)
                 .add("key", "value")
@@ -166,7 +166,7 @@ class ImmutableContextBuilderTest {
 
     @Test
     void builder_shouldAllowChaining() {
-        ImmutableContext context = ImmutableContext.builder()
+        EvaluationContext context = (new ImmutableContext.Builder())
                 .targetingKey("user123")
                 .add("key1", "value1")
                 .add("key2", 100)
@@ -182,14 +182,14 @@ class ImmutableContextBuilderTest {
 
     @Test
     void builder_shouldCreateIndependentInstances() {
-        ImmutableContext.Builder builder =
-                ImmutableContext.builder().targetingKey("user123").add("key1", "value1");
+        ImmutableContextBuilder immutableContextBuilder =
+                (new ImmutableContext.Builder()).targetingKey("user123").add("key1", "value1");
 
-        ImmutableContext context1 = builder.build();
+        EvaluationContext context1 = immutableContextBuilder.build();
 
         // Adding to builder after first build should not affect first instance
-        builder.add("key2", "value2");
-        ImmutableContext context2 = builder.build();
+        immutableContextBuilder.add("key2", "value2");
+        EvaluationContext context2 = immutableContextBuilder.build();
 
         assertEquals(2, context1.keySet().size()); // targeting key + 1 attribute
         assertEquals(3, context2.keySet().size()); // targeting key + 2 attributes
@@ -201,13 +201,15 @@ class ImmutableContextBuilderTest {
 
     @Test
     void toBuilder_shouldCreateBuilderWithCurrentState() {
-        ImmutableContext original = ImmutableContext.builder()
+        EvaluationContext original = (new ImmutableContext.Builder())
                 .targetingKey("user123")
                 .add("key1", "value1")
                 .add("key2", 42)
                 .build();
 
-        ImmutableContext copy = original.toBuilder().add("key3", "value3").build();
+        EvaluationContext copy = EvaluationContext.immutableBuilder(original)
+                .add("key3", "value3")
+                .build();
 
         // Original should be unchanged
         assertEquals("user123", original.getTargetingKey());
@@ -223,9 +225,9 @@ class ImmutableContextBuilderTest {
 
     @Test
     void toBuilder_shouldWorkWithEmptyContext() {
-        ImmutableContext original = ImmutableContext.builder().build();
+        ImmutableContext original = new ImmutableContext();
 
-        ImmutableContext copy =
+        EvaluationContext copy =
                 original.toBuilder().targetingKey("user123").add("key", "value").build();
 
         assertNull(original.getTargetingKey());
@@ -238,12 +240,12 @@ class ImmutableContextBuilderTest {
 
     @Test
     void toBuilder_shouldPreserveTargetingKey() {
-        ImmutableContext original = ImmutableContext.builder()
+        EvaluationContext original = (new ImmutableContext.Builder())
                 .targetingKey("originalUser")
                 .add("key1", "value1")
                 .build();
 
-        ImmutableContext copy = original.toBuilder()
+        EvaluationContext copy = EvaluationContext.immutableBuilder(original)
                 .targetingKey("newUser")
                 .add("key2", "value2")
                 .build();
@@ -259,7 +261,7 @@ class ImmutableContextBuilderTest {
         Map<String, Value> originalAttributes = new HashMap<>();
         originalAttributes.put("key1", new Value("value1"));
 
-        ImmutableContext context = ImmutableContext.builder()
+        EvaluationContext context = (new ImmutableContext.Builder())
                 .targetingKey("user123")
                 .attributes(originalAttributes)
                 .build();
@@ -281,7 +283,7 @@ class ImmutableContextBuilderTest {
         ImmutableContext constructorContext = new ImmutableContext(targetingKey, attributes);
 
         // Create via builder
-        ImmutableContext builderContext = ImmutableContext.builder()
+        EvaluationContext builderContext = (new ImmutableContext.Builder())
                 .targetingKey(targetingKey)
                 .attributes(attributes)
                 .build();
@@ -300,11 +302,13 @@ class ImmutableContextBuilderTest {
     @Test
     void builder_shouldHandleEmptyAndWhitespaceTargetingKeys() {
         // Empty string targeting key should be treated as null
-        ImmutableContext emptyContext =
-                ImmutableContext.builder().targetingKey("").add("key", "value").build();
+        EvaluationContext emptyContext = (new ImmutableContext.Builder())
+                .targetingKey("")
+                .add("key", "value")
+                .build();
 
         // Whitespace targeting key should be treated as null
-        ImmutableContext whitespaceContext = ImmutableContext.builder()
+        EvaluationContext whitespaceContext = (new ImmutableContext.Builder())
                 .targetingKey("   ")
                 .add("key", "value")
                 .build();
@@ -324,7 +328,7 @@ class ImmutableContextBuilderTest {
                         ImmutableStructure.builder().add("level2", "deepValue").build())
                 .build();
 
-        ImmutableContext context = ImmutableContext.builder()
+        EvaluationContext context = (new ImmutableContext.Builder())
                 .targetingKey("user123")
                 .add("nested", nestedStructure)
                 .build();
@@ -343,17 +347,17 @@ class ImmutableContextBuilderTest {
 
     @Test
     void equals_shouldWorkWithBuiltContexts() {
-        ImmutableContext context1 = ImmutableContext.builder()
+        EvaluationContext context1 = (new ImmutableContext.Builder())
                 .targetingKey("user123")
                 .add("key1", "value1")
                 .build();
 
-        ImmutableContext context2 = ImmutableContext.builder()
+        EvaluationContext context2 = (new ImmutableContext.Builder())
                 .targetingKey("user123")
                 .add("key1", "value1")
                 .build();
 
-        ImmutableContext context3 = ImmutableContext.builder()
+        EvaluationContext context3 = (new ImmutableContext.Builder())
                 .targetingKey("user456")
                 .add("key1", "value1")
                 .build();
@@ -371,12 +375,12 @@ class ImmutableContextBuilderTest {
 
     @Test
     void hashCode_shouldBeConsistentWithBuiltContexts() {
-        ImmutableContext context1 = ImmutableContext.builder()
+        EvaluationContext context1 = (new ImmutableContext.Builder())
                 .targetingKey("user123")
                 .add("key1", "value1")
                 .build();
 
-        ImmutableContext context2 = ImmutableContext.builder()
+        EvaluationContext context2 = (new ImmutableContext.Builder())
                 .targetingKey("user123")
                 .add("key1", "value1")
                 .build();
@@ -386,13 +390,13 @@ class ImmutableContextBuilderTest {
 
     @Test
     void merge_shouldWorkWithBuiltContexts() {
-        ImmutableContext context1 = ImmutableContext.builder()
+        EvaluationContext context1 = (new ImmutableContext.Builder())
                 .targetingKey("user123")
                 .add("key1", "value1")
                 .add("shared", "original")
                 .build();
 
-        ImmutableContext context2 = ImmutableContext.builder()
+        EvaluationContext context2 = (new ImmutableContext.Builder())
                 .add("key2", "value2")
                 .add("shared", "override")
                 .build();

@@ -9,7 +9,7 @@ import java.util.List;
  * should implement {@link EventProvider}
  */
 public interface FeatureProvider {
-    Metadata getMetadata();
+    ProviderMetadata getMetadata();
 
     default List<Hook> getProviderHooks() {
         return new ArrayList<>();

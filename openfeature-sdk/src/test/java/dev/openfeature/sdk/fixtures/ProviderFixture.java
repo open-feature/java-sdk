@@ -7,8 +7,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
+import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.ProviderState;
 import java.io.FileNotFoundException;
 import java.util.concurrent.CountDownLatch;
@@ -41,7 +41,7 @@ public class ProviderFixture {
 
     public static FeatureProvider createBlockedProvider(CountDownLatch latch, Runnable onAnswer) throws Exception {
         FeatureProvider provider = createMockedProvider();
-        doBlock(latch, createAnswerExecutingCode(onAnswer)).when(provider).initialize(new ImmutableContext());
+        doBlock(latch, createAnswerExecutingCode(onAnswer)).when(provider).initialize(EvaluationContext.EMPTY);
         doReturn("blockedProvider").when(provider).toString();
         return provider;
     }
@@ -60,7 +60,7 @@ public class ProviderFixture {
                     return null;
                 })
                 .when(provider)
-                .initialize(new ImmutableContext());
+                .initialize(EvaluationContext.EMPTY);
         doReturn("unblockingProvider").when(provider).toString();
         return provider;
     }

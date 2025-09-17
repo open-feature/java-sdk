@@ -12,12 +12,12 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-class EvaluationEventTest {
+class DefaultEvaluationEventTest {
 
     @Test
     void builder_shouldCreateEventWithName() {
         String eventName = "test-event";
-        EvaluationEvent event = EvaluationEvent.builder().name(eventName).build();
+        EvaluationEvent event = DefaultEvaluationEvent.builder().name(eventName).build();
 
         assertEquals(eventName, event.getName());
         assertNotNull(event.getAttributes());
@@ -30,8 +30,10 @@ class EvaluationEventTest {
         attributes.put("key1", "value1");
         attributes.put("key2", 42);
 
-        EvaluationEvent event =
-                EvaluationEvent.builder().name("test").attributes(attributes).build();
+        EvaluationEvent event = DefaultEvaluationEvent.builder()
+                .name("test")
+                .attributes(attributes)
+                .build();
 
         assertEquals("test", event.getName());
         assertEquals(2, event.getAttributes().size());
@@ -41,7 +43,7 @@ class EvaluationEventTest {
 
     @Test
     void builder_shouldCreateEventWithIndividualAttribute() {
-        EvaluationEvent event = EvaluationEvent.builder()
+        EvaluationEvent event = DefaultEvaluationEvent.builder()
                 .name("test")
                 .attribute("key1", "value1")
                 .attribute("key2", 42)
@@ -56,7 +58,7 @@ class EvaluationEventTest {
     @Test
     void builder_shouldHandleNullAttributes() {
         EvaluationEvent event =
-                EvaluationEvent.builder().name("test").attributes(null).build();
+                DefaultEvaluationEvent.builder().name("test").attributes(null).build();
 
         assertEquals("test", event.getName());
         assertNotNull(event.getAttributes());
@@ -65,7 +67,7 @@ class EvaluationEventTest {
 
     @Test
     void builder_shouldAllowChaining() {
-        EvaluationEvent event = EvaluationEvent.builder()
+        EvaluationEvent event = DefaultEvaluationEvent.builder()
                 .name("test")
                 .attribute("key1", "value1")
                 .attribute("key2", "value2")
@@ -84,8 +86,10 @@ class EvaluationEventTest {
         Map<String, Object> original = new HashMap<>();
         original.put("key", "value");
 
-        EvaluationEvent event =
-                EvaluationEvent.builder().name("test").attributes(original).build();
+        EvaluationEvent event = DefaultEvaluationEvent.builder()
+                .name("test")
+                .attributes(original)
+                .build();
 
         Map<String, Object> returned = event.getAttributes();
 
@@ -104,18 +108,22 @@ class EvaluationEventTest {
 
     @Test
     void equals_shouldWorkCorrectly() {
-        EvaluationEvent event1 =
-                EvaluationEvent.builder().name("test").attribute("key", "value").build();
+        EvaluationEvent event1 = DefaultEvaluationEvent.builder()
+                .name("test")
+                .attribute("key", "value")
+                .build();
 
-        EvaluationEvent event2 =
-                EvaluationEvent.builder().name("test").attribute("key", "value").build();
+        EvaluationEvent event2 = DefaultEvaluationEvent.builder()
+                .name("test")
+                .attribute("key", "value")
+                .build();
 
-        EvaluationEvent event3 = EvaluationEvent.builder()
+        EvaluationEvent event3 = DefaultEvaluationEvent.builder()
                 .name("different")
                 .attribute("key", "value")
                 .build();
 
-        EvaluationEvent event4 = EvaluationEvent.builder()
+        EvaluationEvent event4 = DefaultEvaluationEvent.builder()
                 .name("test")
                 .attribute("key", "different")
                 .build();
@@ -144,18 +152,22 @@ class EvaluationEventTest {
 
     @Test
     void hashCode_shouldBeConsistent() {
-        EvaluationEvent event1 =
-                EvaluationEvent.builder().name("test").attribute("key", "value").build();
+        EvaluationEvent event1 = DefaultEvaluationEvent.builder()
+                .name("test")
+                .attribute("key", "value")
+                .build();
 
-        EvaluationEvent event2 =
-                EvaluationEvent.builder().name("test").attribute("key", "value").build();
+        EvaluationEvent event2 = DefaultEvaluationEvent.builder()
+                .name("test")
+                .attribute("key", "value")
+                .build();
 
         assertEquals(event1.hashCode(), event2.hashCode());
     }
 
     @Test
     void toString_shouldIncludeNameAndAttributes() {
-        EvaluationEvent event = EvaluationEvent.builder()
+        EvaluationEvent event = DefaultEvaluationEvent.builder()
                 .name("test-event")
                 .attribute("key", "value")
                 .build();
@@ -169,21 +181,22 @@ class EvaluationEventTest {
 
     @Test
     void builder_shouldHandleEmptyName() {
-        EvaluationEvent event = EvaluationEvent.builder().name("").build();
+        EvaluationEvent event = DefaultEvaluationEvent.builder().name("").build();
 
         assertEquals("", event.getName());
     }
 
     @Test
     void builder_shouldHandleNullName() {
-        EvaluationEvent event = EvaluationEvent.builder().name(null).build();
+        EvaluationEvent event = DefaultEvaluationEvent.builder().name(null).build();
 
         assertNull(event.getName());
     }
 
     @Test
     void immutability_shouldPreventModificationViaBuilder() {
-        EvaluationEvent.Builder builder = EvaluationEvent.builder().name("test").attribute("key1", "value1");
+        DefaultEvaluationEvent.Builder builder =
+                DefaultEvaluationEvent.builder().name("test").attribute("key1", "value1");
 
         EvaluationEvent event = builder.build();
 

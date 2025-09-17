@@ -53,9 +53,9 @@ class ProviderEventDetailsTest {
 
     @Test
     void builder_shouldCreateProviderEventDetailsWithEventMetadata() {
-        ImmutableMetadata metadata = ImmutableMetadata.builder()
-                .addString("version", "1.0")
-                .addInteger("count", 5)
+        var metadata = Metadata.immutableBuilder()
+                .add("version", "1.0")
+                .add("count", 5)
                 .build();
 
         ProviderEventDetails details =
@@ -82,8 +82,7 @@ class ProviderEventDetailsTest {
     void builder_shouldCreateProviderEventDetailsWithAllFields() {
         List<String> flags = Arrays.asList("flag1", "flag2");
         String message = "Provider error occurred";
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addString("error", "timeout").build();
+        var metadata = Metadata.immutableBuilder().add("error", "timeout").build();
         ErrorCode errorCode = ErrorCode.GENERAL;
 
         ProviderEventDetails details = ProviderEventDetails.builder()
@@ -176,8 +175,7 @@ class ProviderEventDetailsTest {
     void toBuilder_shouldCreateBuilderWithCurrentState() {
         List<String> flags = Arrays.asList("flag1", "flag2");
         String message = "Original message";
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addString("key", "value").build();
+        var metadata = Metadata.immutableBuilder().add("key", "value").build();
 
         ProviderEventDetails original = ProviderEventDetails.builder()
                 .flagsChanged(flags)
@@ -206,8 +204,7 @@ class ProviderEventDetailsTest {
     void equals_shouldWorkCorrectly() {
         List<String> flags = Arrays.asList("flag1", "flag2");
         String message = "Test message";
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addString("key", "value").build();
+        var metadata = Metadata.immutableBuilder().add("key", "value").build();
 
         ProviderEventDetails details1 = ProviderEventDetails.builder()
                 .flagsChanged(flags)
@@ -250,8 +247,7 @@ class ProviderEventDetailsTest {
     @Test
     void hashCode_shouldBeConsistent() {
         List<String> flags = Arrays.asList("flag1", "flag2");
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addString("key", "value").build();
+        var metadata = Metadata.immutableBuilder().add("key", "value").build();
 
         ProviderEventDetails details1 = ProviderEventDetails.builder()
                 .flagsChanged(flags)
@@ -274,8 +270,7 @@ class ProviderEventDetailsTest {
     void toString_shouldIncludeAllFields() {
         List<String> flags = Arrays.asList("flag1", "flag2");
         String message = "Test message";
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addString("key", "value").build();
+        var metadata = Metadata.immutableBuilder().add("key", "value").build();
 
         ProviderEventDetails details = ProviderEventDetails.builder()
                 .flagsChanged(flags)
@@ -296,8 +291,7 @@ class ProviderEventDetailsTest {
     void implementsEventDetailsInterface() {
         List<String> flags = Arrays.asList("flag1", "flag2");
         String message = "Test message";
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addString("key", "value").build();
+        var metadata = Metadata.immutableBuilder().add("key", "value").build();
 
         ProviderEventDetails details = ProviderEventDetails.builder()
                 .flagsChanged(flags)
@@ -321,7 +315,7 @@ class ProviderEventDetailsTest {
         ProviderEventDetails details = ProviderEventDetails.builder()
                 .flagsChanged(Arrays.asList("flag1"))
                 .message("message")
-                .eventMetadata(ImmutableMetadata.builder().build())
+                .eventMetadata(Metadata.EMPTY)
                 .errorCode(ErrorCode.GENERAL)
                 .build();
 

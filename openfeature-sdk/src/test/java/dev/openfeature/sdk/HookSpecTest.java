@@ -26,8 +26,7 @@ import dev.openfeature.api.FlagEvaluationOptions;
 import dev.openfeature.api.FlagValueType;
 import dev.openfeature.api.Hook;
 import dev.openfeature.api.HookContext;
-import dev.openfeature.api.ImmutableContext;
-import dev.openfeature.api.ImmutableMetadata;
+import dev.openfeature.api.Metadata;
 import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.ProviderEvaluation;
 import dev.openfeature.api.Value;
@@ -131,7 +130,7 @@ class HookSpecTest implements HookFixtures {
             HookContext.<Integer>builder()
                     .flagKey("key")
                     .type(FlagValueType.INTEGER)
-                    .ctx(new ImmutableContext())
+                    .ctx(EvaluationContext.EMPTY)
                     .build();
             fail("Missing default value shouldn't be valid");
         } catch (NullPointerException e) {
@@ -143,7 +142,7 @@ class HookSpecTest implements HookFixtures {
             HookContext.<Integer>builder()
                     .flagKey("key")
                     .type(FlagValueType.INTEGER)
-                    .ctx(new ImmutableContext())
+                    .ctx(EvaluationContext.EMPTY)
                     .defaultValue(1)
                     .build();
         } catch (NullPointerException e) {
@@ -160,7 +159,7 @@ class HookSpecTest implements HookFixtures {
         HookContext.<Integer>builder()
                 .flagKey("key")
                 .type(FlagValueType.INTEGER)
-                .ctx(new ImmutableContext())
+                .ctx(EvaluationContext.EMPTY)
                 .defaultValue(1)
                 .build();
 
@@ -168,7 +167,7 @@ class HookSpecTest implements HookFixtures {
         HookContext.<Integer>builder()
                 .flagKey("key")
                 .type(FlagValueType.INTEGER)
-                .ctx(new ImmutableContext())
+                .ctx(EvaluationContext.EMPTY)
                 .providerMetadata(new NoOpProvider().getMetadata())
                 .defaultValue(1)
                 .build();
@@ -177,7 +176,7 @@ class HookSpecTest implements HookFixtures {
         HookContext.<Integer>builder()
                 .flagKey("key")
                 .type(FlagValueType.INTEGER)
-                .ctx(new ImmutableContext())
+                .ctx(EvaluationContext.EMPTY)
                 .defaultValue(1)
                 .clientMetadata(api.getClient().getMetadata())
                 .build();
@@ -197,7 +196,7 @@ class HookSpecTest implements HookFixtures {
         client.getBooleanValue(
                 "key",
                 false,
-                new ImmutableContext(),
+                EvaluationContext.EMPTY,
                 FlagEvaluationOptions.builder().hook(evalHook).build());
 
         verify(evalHook, times(1)).before(any(), any());
@@ -223,14 +222,11 @@ class HookSpecTest implements HookFixtures {
 
         String errorMessage = "not found...";
 
-        EvaluationContext invocationCtx = new ImmutableContext();
+        EvaluationContext invocationCtx = EvaluationContext.EMPTY;
         Hook<Boolean> hook = mockBooleanHook();
         FeatureProvider provider = mock(FeatureProvider.class);
         when(provider.getBooleanEvaluation(any(), any(), any()))
-                .thenReturn(ProviderEvaluation.<Boolean>builder()
-                        .errorCode(ErrorCode.FLAG_NOT_FOUND)
-                        .errorMessage(errorMessage)
-                        .build());
+                .thenReturn(ProviderEvaluation.of(ErrorCode.FLAG_NOT_FOUND, errorMessage));
 
         api.setProviderAndWait("errorHookMustRun", provider);
         Client client = api.getClient("errorHookMustRun");
@@ -506,7 +502,7 @@ class HookSpecTest implements HookFixtures {
         client.getBooleanValue(
                 "key",
                 false,
-                new ImmutableContext(),
+                EvaluationContext.EMPTY,
                 FlagEvaluationOptions.builder().hook(mutatingHook).hookHints(hh).build());
     }
 
@@ -525,7 +521,7 @@ class HookSpecTest implements HookFixtures {
         Hook hook = mockBooleanHook();
         FeatureProvider provider = mock(FeatureProvider.class);
         when(provider.getBooleanEvaluation(any(), any(), any()))
-                .thenReturn(ProviderEvaluation.<Boolean>builder().value(true).build());
+                .thenReturn(ProviderEvaluation.of(true, null, null, null));
         InOrder order = inOrder(hook, provider);
 
         api.setProviderAndWait(provider);
@@ -533,7 +529,7 @@ class HookSpecTest implements HookFixtures {
         client.getBooleanValue(
                 "key",
                 false,
-                new ImmutableContext(),
+                EvaluationContext.EMPTY,
                 FlagEvaluationOptions.builder().hook(hook).build());
 
         order.verify(hook).before(any(), any());
@@ -556,7 +552,7 @@ class HookSpecTest implements HookFixtures {
         Boolean value = client.getBooleanValue(
                 "key",
                 false,
-                new ImmutableContext(),
+                EvaluationContext.EMPTY,
                 FlagEvaluationOptions.builder().hook(hook).build());
         verify(hook, times(1)).before(any(), any());
         verify(hook, times(1)).error(any(), any(), any());
@@ -574,7 +570,7 @@ class HookSpecTest implements HookFixtures {
         client.getBooleanValue(
                 "key",
                 false,
-                new ImmutableContext(),
+                EvaluationContext.EMPTY,
                 FlagEvaluationOptions.builder().hook(hook).build());
         verify(hook, times(1)).after(any(), any(), any());
         verify(hook, times(1)).error(any(), any(), any());
@@ -589,7 +585,7 @@ class HookSpecTest implements HookFixtures {
         client.getBooleanValue(
                 flagKey,
                 true,
-                new ImmutableContext(),
+                EvaluationContext.EMPTY,
                 FlagEvaluationOptions.builder().hook(hook).build());
 
         ArgumentCaptor<FlagEvaluationDetails<Boolean>> captor = ArgumentCaptor.forClass(FlagEvaluationDetails.class);
@@ -602,8 +598,7 @@ class HookSpecTest implements HookFixtures {
         assertThat(evaluationDetails.getReason()).isEqualTo("ERROR");
         assertThat(evaluationDetails.getVariant()).isEqualTo("Passed in default");
         assertThat(evaluationDetails.getFlagKey()).isEqualTo(flagKey);
-        assertThat(evaluationDetails.getFlagMetadata())
-                .isEqualTo(ImmutableMetadata.builder().build());
+        assertThat(evaluationDetails.getFlagMetadata()).isEqualTo(Metadata.EMPTY);
         assertThat(evaluationDetails.getValue()).isTrue();
     }
 
@@ -618,7 +613,7 @@ class HookSpecTest implements HookFixtures {
         client.getBooleanValue(
                 flagKey,
                 true,
-                new ImmutableContext(),
+                EvaluationContext.EMPTY,
                 FlagEvaluationOptions.builder().hook(hook).build());
 
         verify(hook).before(any(), any());
@@ -634,7 +629,7 @@ class HookSpecTest implements HookFixtures {
         client.getBooleanValue(
                 flagKey,
                 true,
-                new ImmutableContext(),
+                EvaluationContext.EMPTY,
                 FlagEvaluationOptions.builder().hook(hook).build());
 
         ArgumentCaptor<FlagEvaluationDetails<Boolean>> captor = ArgumentCaptor.forClass(FlagEvaluationDetails.class);
@@ -646,8 +641,7 @@ class HookSpecTest implements HookFixtures {
         assertThat(evaluationDetails.getReason()).isEqualTo("DEFAULT");
         assertThat(evaluationDetails.getVariant()).isEqualTo("Passed in default");
         assertThat(evaluationDetails.getFlagKey()).isEqualTo(flagKey);
-        assertThat(evaluationDetails.getFlagMetadata())
-                .isEqualTo(ImmutableMetadata.builder().build());
+        assertThat(evaluationDetails.getFlagMetadata()).isEqualTo(Metadata.EMPTY);
         assertThat(evaluationDetails.getValue()).isTrue();
     }
 
@@ -662,7 +656,7 @@ class HookSpecTest implements HookFixtures {
         client.getBooleanValue(
                 "key",
                 false,
-                new ImmutableContext(),
+                EvaluationContext.EMPTY,
                 FlagEvaluationOptions.builder().hook(hook2).hook(hook).build());
 
         verify(hook, times(1)).before(any(), any());
@@ -680,7 +674,7 @@ class HookSpecTest implements HookFixtures {
     @Test
     void beforeContextUpdated() throws Exception {
         String targetingKey = "test-key";
-        EvaluationContext ctx = new ImmutableContext(targetingKey);
+        EvaluationContext ctx = EvaluationContext.immutableOf(targetingKey, new HashMap<>());
         Hook<Boolean> hook = mockBooleanHook();
         when(hook.before(any(), any())).thenReturn(Optional.of(ctx));
         Hook<Boolean> hook2 = mockBooleanHook();
@@ -711,19 +705,19 @@ class HookSpecTest implements HookFixtures {
         Map<String, Value> attributes = new HashMap<>();
         attributes.put("test", new Value("works"));
         attributes.put("another", new Value("exists"));
-        EvaluationContext hookCtx = new ImmutableContext(attributes);
+        EvaluationContext hookCtx = EvaluationContext.immutableOf(attributes);
 
         Map<String, Value> attributes1 = new HashMap<>();
         attributes1.put("something", new Value("here"));
         attributes1.put("test", new Value("broken"));
-        EvaluationContext invocationCtx = new ImmutableContext(attributes1);
+        EvaluationContext invocationCtx = EvaluationContext.immutableOf(attributes1);
 
         Hook<Boolean> hook = mockBooleanHook();
         when(hook.before(any(), any())).thenReturn(Optional.of(hookCtx));
 
         FeatureProvider provider = mock(FeatureProvider.class);
         when(provider.getBooleanEvaluation(any(), any(), any()))
-                .thenReturn(ProviderEvaluation.<Boolean>builder().value(true).build());
+                .thenReturn(ProviderEvaluation.of(true, null, null, null));
 
         api.setProviderAndWait(provider);
         Client client = api.getClient();
@@ -733,7 +727,7 @@ class HookSpecTest implements HookFixtures {
                 invocationCtx,
                 FlagEvaluationOptions.builder().hook(hook).build());
 
-        ArgumentCaptor<ImmutableContext> captor = ArgumentCaptor.forClass(ImmutableContext.class);
+        ArgumentCaptor<EvaluationContext> captor = ArgumentCaptor.forClass(EvaluationContext.class);
         verify(provider).getBooleanEvaluation(any(), any(), captor.capture());
         EvaluationContext ec = captor.getValue();
         assertEquals("works", ec.getValue("test").asString());
@@ -757,7 +751,7 @@ class HookSpecTest implements HookFixtures {
         client.getBooleanValue(
                 "key",
                 false,
-                new ImmutableContext(),
+                EvaluationContext.EMPTY,
                 FlagEvaluationOptions.builder().hook(hook2).hook(hook).build());
 
         order.verify(hook).before(any(), any());
@@ -781,7 +775,7 @@ class HookSpecTest implements HookFixtures {
         client.getBooleanValue(
                 "key",
                 false,
-                new ImmutableContext(),
+                EvaluationContext.EMPTY,
                 FlagEvaluationOptions.builder().hook(hook2).hook(hook).build());
 
         order.verify(hook).before(any(), any());

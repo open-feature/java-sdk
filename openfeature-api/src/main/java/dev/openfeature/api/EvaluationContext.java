@@ -18,6 +18,22 @@ public interface EvaluationContext extends Structure {
      */
     EvaluationContext EMPTY = new ImmutableContext();
 
+    static EvaluationContext immutableOf(Map<String, Value> attributes) {
+        return new ImmutableContext(attributes);
+    }
+
+    static EvaluationContext immutableOf(String targetingKey, Map<String, Value> attributes) {
+        return new ImmutableContext(targetingKey, attributes);
+    }
+
+    static ImmutableContextBuilder immutableBuilder() {
+        return new ImmutableContext.Builder();
+    }
+
+    static ImmutableContextBuilder immutableBuilder(EvaluationContext original) {
+        return new ImmutableContext.Builder().attributes(original.asMap()).targetingKey(original.getTargetingKey());
+    }
+
     String getTargetingKey();
 
     /**

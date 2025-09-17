@@ -62,7 +62,7 @@ public class EventDetails implements EventDetailsInterface {
     }
 
     @Override
-    public ImmutableMetadata getEventMetadata() {
+    public Metadata getEventMetadata() {
         return providerEventDetails.getEventMetadata();
     }
 
@@ -180,7 +180,7 @@ public class EventDetails implements EventDetailsInterface {
          * @param eventMetadata metadata associated with the event
          * @return this builder
          */
-        public Builder eventMetadata(ImmutableMetadata eventMetadata) {
+        public Builder eventMetadata(Metadata eventMetadata) {
             ensureProviderEventDetailsBuilder();
             this.providerEventDetails = ProviderEventDetails.builder()
                     .flagsChanged(getProviderEventDetailsOrEmpty().getFlagsChanged())

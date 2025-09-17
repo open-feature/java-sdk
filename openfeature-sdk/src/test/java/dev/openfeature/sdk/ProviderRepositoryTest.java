@@ -14,8 +14,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.exceptions.OpenFeatureError;
 import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.testutils.exception.TestException;
@@ -70,7 +70,7 @@ class ProviderRepositoryTest {
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() throws Exception {
                 FeatureProvider featureProvider = createMockedProvider();
-                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(new ImmutableContext());
+                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(EvaluationContext.EMPTY);
 
                 await().alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))

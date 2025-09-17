@@ -11,9 +11,8 @@ import dev.openfeature.api.FlagEvaluationOptions;
 import dev.openfeature.api.FlagValueType;
 import dev.openfeature.api.Hook;
 import dev.openfeature.api.HookContext;
-import dev.openfeature.api.ImmutableContext;
-import dev.openfeature.api.ImmutableMetadata;
 import dev.openfeature.api.ImmutableStructure;
+import dev.openfeature.api.Metadata;
 import dev.openfeature.api.ProviderEvaluation;
 import dev.openfeature.api.ProviderEvent;
 import dev.openfeature.api.ProviderState;
@@ -47,7 +46,6 @@ import org.slf4j.LoggerFactory;
  * Use the dev.openfeature.sdk.Client interface instead.
  *
  * @see Client
- * @deprecated // TODO: eventually we will make this non-public. See issue #872
  */
 @SuppressWarnings({
     "PMD.DataflowAnomalyAnalysis",
@@ -56,8 +54,7 @@ import org.slf4j.LoggerFactory;
     "unchecked",
     "rawtypes"
 })
-@Deprecated() // TODO: eventually we will make this non-public. See issue #872
-public class OpenFeatureClient implements Client {
+class OpenFeatureClient implements Client {
     private static final Logger log = LoggerFactory.getLogger(OpenFeatureClient.class);
 
     private final DefaultOpenFeatureAPI openfeatureApi;
@@ -77,18 +74,16 @@ public class OpenFeatureClient implements Client {
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
 
     /**
-     * Deprecated public constructor. Use OpenFeature.API.getClient() instead.
+     * Do not use this constructor. It's for internal use only.
+     *      Clients created using it will not run event handlers.
+     *      Use the OpenFeatureAPI's getClient factory method instead.
      *
      * @param openFeatureAPI Backing global singleton
      * @param domain         An identifier which logically binds clients with
      *                       providers (used by observability tools).
      * @param version        Version of the client (used by observability tools).
-     * @deprecated Do not use this constructor. It's for internal use only.
-     *         Clients created using it will not run event handlers.
-     *         Use the OpenFeatureAPI's getClient factory method instead.
      */
-    @Deprecated() // TODO: eventually we will make this non-public. See issue #872
-    public OpenFeatureClient(DefaultOpenFeatureAPI openFeatureAPI, String domain, String version) {
+    OpenFeatureClient(DefaultOpenFeatureAPI openFeatureAPI, String domain, String version) {
         this.openfeatureApi = openFeatureAPI;
         this.domain = domain;
         this.version = version;
@@ -189,9 +184,9 @@ public class OpenFeatureClient implements Client {
         var hints = Collections.unmodifiableMap(flagOptions.getHookHints());
 
         FlagEvaluationDetails<T> details = null;
-        FlagEvaluationDetails.Builder<T> detailsBuilder = null;
         List<Hook> mergedHooks = null;
         HookContext<T> afterHookContext = null;
+        ProviderEvaluation<T> providerEval = null;
 
         try {
             var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
@@ -232,46 +227,46 @@ public class OpenFeatureClient implements Client {
                 throw new FatalError("Provider is in an irrecoverable error state");
             }
 
-            var providerEval =
+            providerEval =
                     (ProviderEvaluation<T>) createProviderEvaluation(type, key, defaultValue, provider, mergedCtx);
 
-            detailsBuilder = FlagEvaluationDetails.<T>builder()
-                    .flagKey(key)
-                    .value(providerEval.getValue())
-                    .variant(providerEval.getVariant())
-                    .reason(providerEval.getReason())
-                    .errorMessage(providerEval.getErrorMessage())
-                    .errorCode(providerEval.getErrorCode())
-                    .flagMetadata(Optional.ofNullable(providerEval.getFlagMetadata())
-                            .orElse(ImmutableMetadata.builder().build()));
+            var flagMetadata =
+                    Optional.ofNullable(providerEval.getFlagMetadata()).orElseGet(() -> Metadata.EMPTY);
             if (providerEval.getErrorCode() != null) {
                 var error = ExceptionUtils.instantiateErrorByErrorCode(
                         providerEval.getErrorCode(), providerEval.getErrorMessage());
+
                 // Create new details with error defaults since object is immutable
-                detailsBuilder
-                        .value(defaultValue) // Use default value for errors
-                        .reason(Reason.ERROR.toString()); // Use ERROR reason
-                details = detailsBuilder.build();
+                details = FlagEvaluationDetails.of(
+                        key,
+                        defaultValue,
+                        providerEval.getVariant(),
+                        Reason.ERROR,
+                        providerEval.getErrorCode(),
+                        providerEval.getErrorMessage(),
+                        flagMetadata);
+
                 hookSupport.errorHooks(type, afterHookContext, error, mergedHooks, hints);
             } else {
-                details = detailsBuilder.build();
+                details = FlagEvaluationDetails.of(
+                        key,
+                        providerEval.getValue(),
+                        providerEval.getVariant(),
+                        providerEval.getReason(),
+                        providerEval.getErrorCode(),
+                        providerEval.getErrorMessage(),
+                        flagMetadata);
+
                 hookSupport.afterHooks(type, afterHookContext, details, mergedHooks, hints);
             }
         } catch (Exception e) {
             ErrorCode errorCode =
                     (e instanceof OpenFeatureError) ? ((OpenFeatureError) e).getErrorCode() : ErrorCode.GENERAL;
 
-            if (detailsBuilder == null) {
-                detailsBuilder = FlagEvaluationDetails.<T>builder()
-                        .flagKey(key)
-                        .flagMetadata(ImmutableMetadata.builder().build());
-            }
-            details = detailsBuilder
-                    .value(defaultValue)
-                    .reason(Reason.ERROR.toString())
-                    .errorCode(errorCode)
-                    .errorMessage(e.getMessage())
-                    .build();
+            details = FlagEvaluationDetails.of(
+                    key, defaultValue, (providerEval != null) ? providerEval.getVariant() : null, Reason.ERROR,
+                    errorCode, e.getMessage(), Metadata.EMPTY);
+
             hookSupport.errorHooks(type, afterHookContext, e, mergedHooks, hints);
         } finally {
             hookSupport.afterAllHooks(type, afterHookContext, details, mergedHooks, hints);
@@ -317,7 +312,8 @@ public class OpenFeatureClient implements Client {
                 EvaluationContext.mergeMaps(ImmutableStructure::new, merged, evaluationContext.asUnmodifiableMap());
             }
         }
-        return new ImmutableContext(merged);
+        // TODO: this might add object churn, do we need the immutableContext in the api?
+        return EvaluationContext.immutableOf(merged);
     }
 
     private <T> ProviderEvaluation<?> createProviderEvaluation(

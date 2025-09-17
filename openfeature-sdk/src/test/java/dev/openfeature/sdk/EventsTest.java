@@ -11,13 +11,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import dev.openfeature.api.Client;
-import dev.openfeature.api.EventDetails;
-import dev.openfeature.api.ImmutableMetadata;
-import dev.openfeature.api.OpenFeatureAPI;
-import dev.openfeature.api.ProviderEvent;
-import dev.openfeature.api.ProviderEventDetails;
-import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.*;
 import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.Arrays;
@@ -560,8 +554,7 @@ class EventsTest {
         client.onProviderConfigurationChanged(handler2);
 
         List<String> flagsChanged = Arrays.asList("flag");
-        ImmutableMetadata metadata =
-                ImmutableMetadata.builder().addInteger("int", 1).build();
+        var metadata = Metadata.immutableBuilder().add("int", 1).build();
         String message = "a message";
         ProviderEventDetails details = ProviderEventDetails.builder()
                 .eventMetadata(metadata)

@@ -14,8 +14,8 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableMap;
 import dev.openfeature.api.Client;
+import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.EventDetails;
-import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.Value;
 import dev.openfeature.api.exceptions.FlagNotFoundError;
@@ -92,14 +92,14 @@ class InMemoryProviderTest {
     @Test
     void notFound() {
         assertThrows(FlagNotFoundError.class, () -> {
-            provider.getBooleanEvaluation("not-found-flag", false, new ImmutableContext());
+            provider.getBooleanEvaluation("not-found-flag", false, EvaluationContext.EMPTY);
         });
     }
 
     @Test
     void typeMismatch() {
         assertThrows(TypeMismatchError.class, () -> {
-            provider.getBooleanEvaluation("string-flag", false, new ImmutableContext());
+            provider.getBooleanEvaluation("string-flag", false, EvaluationContext.EMPTY);
         });
     }
 
@@ -110,7 +110,7 @@ class InMemoryProviderTest {
         // ErrorCode.PROVIDER_NOT_READY should be returned when evaluated via the client
         assertThrows(
                 ProviderNotReadyError.class,
-                () -> inMemoryProvider.getBooleanEvaluation("fail_not_initialized", false, new ImmutableContext()));
+                () -> inMemoryProvider.getBooleanEvaluation("fail_not_initialized", false, EvaluationContext.EMPTY));
     }
 
     @SuppressWarnings("unchecked")

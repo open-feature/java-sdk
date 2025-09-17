@@ -10,7 +10,6 @@ import dev.openfeature.api.FlagEvaluationDetails;
 import dev.openfeature.api.FlagValueType;
 import dev.openfeature.api.Hook;
 import dev.openfeature.api.HookContext;
-import dev.openfeature.api.ImmutableContext;
 import dev.openfeature.api.Value;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import java.util.Arrays;
@@ -29,7 +28,7 @@ class HookSupportTest implements HookFixtures {
     void shouldMergeEvaluationContextsOnBeforeHooksCorrectly() {
         Map<String, Value> attributes = new HashMap<>();
         attributes.put("baseKey", new Value("baseValue"));
-        EvaluationContext baseContext = new ImmutableContext(attributes);
+        EvaluationContext baseContext = EvaluationContext.immutableOf(attributes);
         HookContext<String> hookContext = HookContext.<String>builder()
                 .flagKey("flagKey")
                 .type(FlagValueType.STRING)
@@ -56,7 +55,7 @@ class HookSupportTest implements HookFixtures {
     void shouldAlwaysCallGenericHook(FlagValueType flagValueType) {
         Hook<?> genericHook = mockGenericHook();
         HookSupport hookSupport = new HookSupport();
-        EvaluationContext baseContext = new ImmutableContext();
+        EvaluationContext baseContext = EvaluationContext.EMPTY;
         IllegalStateException expectedException = new IllegalStateException("All fine, just a test");
         HookContext<Object> hookContext = HookContext.builder()
                 .flagKey("flagKey")
@@ -70,13 +69,13 @@ class HookSupportTest implements HookFixtures {
         hookSupport.afterHooks(
                 flagValueType,
                 hookContext,
-                FlagEvaluationDetails.builder().build(),
+                FlagEvaluationDetails.EMPTY,
                 Collections.singletonList(genericHook),
                 Collections.emptyMap());
         hookSupport.afterAllHooks(
                 flagValueType,
                 hookContext,
-                FlagEvaluationDetails.builder().build(),
+                FlagEvaluationDetails.EMPTY,
                 Collections.singletonList(genericHook),
                 Collections.emptyMap());
         hookSupport.errorHooks(
@@ -112,7 +111,7 @@ class HookSupportTest implements HookFixtures {
     private EvaluationContext evaluationContextWithValue(String key, String value) {
         Map<String, Value> attributes = new HashMap<>();
         attributes.put(key, new Value(value));
-        EvaluationContext baseContext = new ImmutableContext(attributes);
+        EvaluationContext baseContext = EvaluationContext.immutableOf(attributes);
         return baseContext;
     }
 }

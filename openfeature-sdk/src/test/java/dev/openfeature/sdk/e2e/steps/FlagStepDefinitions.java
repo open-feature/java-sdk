@@ -3,7 +3,7 @@ package dev.openfeature.sdk.e2e.steps;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.openfeature.api.FlagEvaluationDetails;
-import dev.openfeature.api.ImmutableMetadata;
+import dev.openfeature.api.Metadata;
 import dev.openfeature.api.Value;
 import dev.openfeature.sdk.e2e.Flag;
 import dev.openfeature.sdk.e2e.State;
@@ -89,7 +89,7 @@ public class FlagStepDefinitions {
 
     @Then("the resolved metadata should contain")
     public void theResolvedMetadataShouldContain(DataTable dataTable) {
-        ImmutableMetadata evaluationMetadata = state.evaluation.getFlagMetadata();
+        Metadata evaluationMetadata = state.evaluation.getFlagMetadata();
         List<List<String>> asLists = dataTable.asLists();
         for (int i = 1; i < asLists.size(); i++) { // skip the header of the table
             List<String> line = asLists.get(i);
