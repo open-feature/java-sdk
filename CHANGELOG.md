@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.19.0](https://github.com/open-feature/java-sdk/compare/v1.18.0...v1.19.0) (2025-09-17)
+## [1.18.1](https://github.com/open-feature/java-sdk/compare/v1.18.0...v1.18.1) (2025-09-17)
 
 
 ### 🐛 Bug Fixes
@@ -8,11 +8,6 @@
 * **deps:** update dependency com.fasterxml.jackson:jackson-bom to v2.20.0 ([#1604](https://github.com/open-feature/java-sdk/issues/1604)) ([b693390](https://github.com/open-feature/java-sdk/commit/b69339067a75a524911dded9798a06e58d628bce))
 * **deps:** update dependency com.github.spotbugs:spotbugs to v4.9.6 ([#1609](https://github.com/open-feature/java-sdk/issues/1609)) ([45ff89f](https://github.com/open-feature/java-sdk/commit/45ff89f530e8c73636618676b9db46c61235df57))
 * revert hook data to resolve bytecode incompatibility ([#1613](https://github.com/open-feature/java-sdk/issues/1613)) ([9845601](https://github.com/open-feature/java-sdk/commit/984560196d4a34fb21c8946d1dc675cf6565e90f))
-
-
-### ✨ New Features
-
-* Add vmlens checks ([#1567](https://github.com/open-feature/java-sdk/issues/1567)) ([af189f8](https://github.com/open-feature/java-sdk/commit/af189f8fedecfc7fc126730dae48c5437876892c))
 
 
 ### 🧹 Chore
