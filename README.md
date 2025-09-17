@@ -18,8 +18,8 @@
   </a>
   <!-- x-release-please-start-version -->
 
-  <a href="https://github.com/open-feature/java-sdk/releases/tag/v1.19.0">
-    <img alt="Release" src="https://img.shields.io/static/v1?label=release&message=v1.19.0&color=blue&style=for-the-badge" />
+  <a href="https://github.com/open-feature/java-sdk/releases/tag/v1.18.1">
+    <img alt="Release" src="https://img.shields.io/static/v1?label=release&message=v1.18.1&color=blue&style=for-the-badge" />
   </a>  
 
   <!-- x-release-please-end -->
