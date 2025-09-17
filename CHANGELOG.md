@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.19.0](https://github.com/open-feature/java-sdk/compare/v1.18.0...v1.19.0) (2025-09-17)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency com.fasterxml.jackson:jackson-bom to v2.20.0 ([#1604](https://github.com/open-feature/java-sdk/issues/1604)) ([b693390](https://github.com/open-feature/java-sdk/commit/b69339067a75a524911dded9798a06e58d628bce))
+* **deps:** update dependency com.github.spotbugs:spotbugs to v4.9.6 ([#1609](https://github.com/open-feature/java-sdk/issues/1609)) ([45ff89f](https://github.com/open-feature/java-sdk/commit/45ff89f530e8c73636618676b9db46c61235df57))
+* revert hook data to resolve bytecode incompatibility ([#1613](https://github.com/open-feature/java-sdk/issues/1613)) ([9845601](https://github.com/open-feature/java-sdk/commit/984560196d4a34fb21c8946d1dc675cf6565e90f))
+
+
+### ✨ New Features
+
+* Add vmlens checks ([#1567](https://github.com/open-feature/java-sdk/issues/1567)) ([af189f8](https://github.com/open-feature/java-sdk/commit/af189f8fedecfc7fc126730dae48c5437876892c))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/setup-java digest to ead9eaa ([#1608](https://github.com/open-feature/java-sdk/issues/1608)) ([a40667e](https://github.com/open-feature/java-sdk/commit/a40667e9cb635f9ba31f6975ba72bc5932fca094))
+* **deps:** update dependency com.github.spotbugs:spotbugs-maven-plugin to v4.9.6.0 ([#1612](https://github.com/open-feature/java-sdk/issues/1612)) ([fa23e96](https://github.com/open-feature/java-sdk/commit/fa23e960ff9dc52b5c44b56e521485ca03e0e650))
+* **deps:** update dependency com.vmlens:vmlens-maven-plugin to v1.2.14 ([#1606](https://github.com/open-feature/java-sdk/issues/1606)) ([a92a367](https://github.com/open-feature/java-sdk/commit/a92a367fef71cc9ec26f6b1b6609fb8e6b2543bc))
+* **deps:** update dependency dev.cel:cel to v0.11.0 ([#1603](https://github.com/open-feature/java-sdk/issues/1603)) ([e792221](https://github.com/open-feature/java-sdk/commit/e7922212d8cd964a8a24dacc518ff31c77fcfae6))
+* **deps:** update github/codeql-action digest to 573acd9 ([#1600](https://github.com/open-feature/java-sdk/issues/1600)) ([6fb139f](https://github.com/open-feature/java-sdk/commit/6fb139f8425fb76368b1e1baa745aa182f8c13f7))
+* fix checkout ([#1614](https://github.com/open-feature/java-sdk/issues/1614)) ([fbf2a75](https://github.com/open-feature/java-sdk/commit/fbf2a752647817d3e25d4f8b67893ba5e8f89b7a))
+* relax coverage ([69c5a12](https://github.com/open-feature/java-sdk/commit/69c5a1244283d22af0119f534270726a8c520367))
+
 ## [1.18.0](https://github.com/open-feature/java-sdk/compare/v1.17.0...v1.18.0) (2025-09-16)
 
 
