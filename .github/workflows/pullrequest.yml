@@ -20,6 +20,9 @@ jobs:
     steps:
       - name: Check out the code
         uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493
+        with:
+          fetch-depth: 0
+          submodules: recursive
 
       - name: Set up JDK ${{ matrix.build.java }}
         uses: actions/setup-java@ead9eaa3cfe0b0fc2fa749519ae09c3d4f4080b0
