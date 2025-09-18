@@ -1,140 +1,63 @@
 package dev.openfeature.api;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
- * Details of a provider event, as emitted by providers.
- * This represents the "provider event details" structure defined in the OpenFeature specification.
- * Providers emit these events, which are then enriched by the SDK with provider context.
+ * Common interface for event details providing access to event information.
+ * This interface defines the common methods available on both ProviderEventDetails
+ * and EventDetails, ensuring consistent access patterns.
  */
-public class ProviderEventDetails implements EventDetailsInterface {
-    private final List<String> flagsChanged;
-    private final String message;
-    private final Metadata eventMetadata;
-    private final ErrorCode errorCode;
+public interface ProviderEventDetails {
+
+    ProviderEventDetails EMPTY = new DefaultProviderEventDetails();
+
+    static ProviderEventDetails of(String message) {
+        return of(message, null);
+    }
+
+    static ProviderEventDetails of(ErrorCode errorCode) {
+        return of(null, null, null, errorCode);
+    }
+
+    static ProviderEventDetails of(String message, List<String> flagsChanged) {
+        return of(message, flagsChanged, null);
+    }
+
+    static ProviderEventDetails of(String message, List<String> flagsChanged, Metadata metadata) {
+        return of(message, flagsChanged, metadata, null);
+    }
+
+    static ProviderEventDetails of(String message, List<String> flags, Metadata metadata, ErrorCode errorCode) {
+        return new DefaultProviderEventDetails(flags, message, metadata, errorCode);
+    }
 
     /**
-     * Creates an empty ProviderEventDetails for backwards compatibility.
+     * Gets the list of flag keys that changed in this event.
      *
-     * @deprecated Use builder() instead
+     * @return list of changed flag keys, or null if not applicable
      */
-    @Deprecated
-    private ProviderEventDetails() {
-        this(null, null, null, null);
-    }
+    List<String> getFlagsChanged();
 
     /**
-     * Constructs a ProviderEventDetails with the specified parameters.
+     * Gets the message associated with this event.
+     * For PROVIDER_ERROR events, this should contain the error message.
      *
-     * @param flagsChanged list of flags that changed (may be null)
-     * @param message message describing the event (should be populated for PROVIDER_ERROR events)
-     * @param eventMetadata metadata associated with the event (may be null)
-     * @param errorCode error code (should be populated for PROVIDER_ERROR events)
+     * @return event message, or null if none
      */
-    private ProviderEventDetails(
-            List<String> flagsChanged, String message, Metadata eventMetadata, ErrorCode errorCode) {
-        this.flagsChanged = flagsChanged != null ? List.copyOf(flagsChanged) : null;
-        this.message = message;
-        this.eventMetadata = eventMetadata;
-        this.errorCode = errorCode;
-    }
-
-    public List<String> getFlagsChanged() {
-        return flagsChanged;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public Metadata getEventMetadata() {
-        return eventMetadata;
-    }
-
-    public ErrorCode getErrorCode() {
-        return errorCode;
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
+    String getMessage();
 
     /**
-     * Returns a builder initialized with the current state of this object.
+     * Gets the metadata associated with this event.
      *
-     * @return a builder for ProviderEventDetails
+     * @return event metadata, or null if none
      */
-    public Builder toBuilder() {
-        return builder()
-                .flagsChanged(this.flagsChanged)
-                .message(this.message)
-                .eventMetadata(this.eventMetadata)
-                .errorCode(this.errorCode);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        ProviderEventDetails that = (ProviderEventDetails) obj;
-        return Objects.equals(flagsChanged, that.flagsChanged)
-                && Objects.equals(message, that.message)
-                && Objects.equals(eventMetadata, that.eventMetadata)
-                && errorCode == that.errorCode;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(flagsChanged, message, eventMetadata, errorCode);
-    }
-
-    @Override
-    public String toString() {
-        return "ProviderEventDetails{" + "flagsChanged="
-                + flagsChanged + ", message='"
-                + message + '\'' + ", eventMetadata="
-                + eventMetadata + ", errorCode="
-                + errorCode + '}';
-    }
+    Metadata getEventMetadata();
 
     /**
-     * Builder class for creating instances of ProviderEventDetails.
+     * Gets the error code associated with this event.
+     * For PROVIDER_ERROR events, this should contain the error code.
+     *
+     * @return error code, or null if not applicable
      */
-    public static class Builder {
-        private List<String> flagsChanged;
-        private String message;
-        private Metadata eventMetadata;
-        private ErrorCode errorCode;
-
-        private Builder() {}
-
-        public Builder flagsChanged(List<String> flagsChanged) {
-            this.flagsChanged = flagsChanged != null ? List.copyOf(flagsChanged) : null;
-            return this;
-        }
-
-        public Builder message(String message) {
-            this.message = message;
-            return this;
-        }
-
-        public Builder eventMetadata(Metadata eventMetadata) {
-            this.eventMetadata = eventMetadata;
-            return this;
-        }
-
-        public Builder errorCode(ErrorCode errorCode) {
-            this.errorCode = errorCode;
-            return this;
-        }
-
-        public ProviderEventDetails build() {
-            return new ProviderEventDetails(flagsChanged, message, eventMetadata, errorCode);
-        }
-    }
+    ErrorCode getErrorCode();
 }

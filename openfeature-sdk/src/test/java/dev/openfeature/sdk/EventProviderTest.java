@@ -42,7 +42,7 @@ class EventProviderTest {
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = mockOnEmit();
         eventProvider.attach(onEmit);
 
-        ProviderEventDetails details = ProviderEventDetails.builder().build();
+        EventDetails details = EventDetails.EMPTY;
         eventProvider.emit(ProviderEvent.PROVIDER_READY, details);
         eventProvider.emitProviderReady(details);
         eventProvider.emitProviderConfigurationChanged(details);
@@ -61,7 +61,7 @@ class EventProviderTest {
         // don't attach this emitter
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = mockOnEmit();
 
-        ProviderEventDetails details = ProviderEventDetails.builder().build();
+        EventDetails details = EventDetails.EMPTY;
         eventProvider.emit(ProviderEvent.PROVIDER_READY, details);
         eventProvider.emitProviderReady(details);
         eventProvider.emitProviderConfigurationChanged(details);

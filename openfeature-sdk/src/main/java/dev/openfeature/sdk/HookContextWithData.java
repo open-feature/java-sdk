@@ -1,5 +1,12 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.api.ClientMetadata;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.FlagValueType;
+import dev.openfeature.api.HookContext;
+import dev.openfeature.api.HookData;
+import dev.openfeature.api.ProviderMetadata;
+
 class HookContextWithData<T> implements HookContext<T> {
     private final HookContext<T> context;
     private final HookData data;
@@ -39,7 +46,7 @@ class HookContextWithData<T> implements HookContext<T> {
     }
 
     @Override
-    public Metadata getProviderMetadata() {
+    public ProviderMetadata getProviderMetadata() {
         return context.getProviderMetadata();
     }
 

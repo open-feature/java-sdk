@@ -1,8 +1,13 @@
 package dev.openfeature.sdk.e2e;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.openfeature.api.Value;
 import java.util.Objects;
 
 public final class Utils {
+
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private Utils() {}
 
@@ -22,6 +27,12 @@ public final class Utils {
                 return Double.parseDouble(value);
             case "long":
                 return Long.parseLong(value);
+            case "object":
+                try {
+                    return Value.objectToValue(OBJECT_MAPPER.readValue(value, Object.class));
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
         }
         throw new RuntimeException("Unknown config type: " + type);
     }

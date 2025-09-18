@@ -3,6 +3,7 @@ package dev.openfeature.api;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -17,8 +18,8 @@ import org.junit.jupiter.api.Test;
 class ProviderEventDetailsTest {
 
     @Test
-    void builder_shouldCreateEmptyProviderEventDetails() {
-        ProviderEventDetails details = ProviderEventDetails.builder().build();
+    void of_shouldCreateEmptyProviderEventDetails() {
+        ProviderEventDetails details = ProviderEventDetails.EMPTY;
 
         assertNull(details.getFlagsChanged());
         assertNull(details.getMessage());
@@ -27,10 +28,9 @@ class ProviderEventDetailsTest {
     }
 
     @Test
-    void builder_shouldCreateProviderEventDetailsWithMessage() {
+    void ofMessage_shouldCreateProviderEventDetailsWithMessage() {
         String message = "Configuration updated";
-        ProviderEventDetails details =
-                ProviderEventDetails.builder().message(message).build();
+        ProviderEventDetails details = ProviderEventDetails.of(message);
 
         assertEquals(message, details.getMessage());
         assertNull(details.getFlagsChanged());
@@ -39,58 +39,46 @@ class ProviderEventDetailsTest {
     }
 
     @Test
-    void builder_shouldCreateProviderEventDetailsWithFlagsChanged() {
+    void ofMessageAndFlags_shouldCreateProviderEventDetailsWithMessageAndFlagsChanged() {
         List<String> flags = Arrays.asList("flag1", "flag2", "flag3");
-        ProviderEventDetails details =
-                ProviderEventDetails.builder().flagsChanged(flags).build();
+        String message = "Configuration updated";
+        ProviderEventDetails details = ProviderEventDetails.of(message, flags);
 
         assertEquals(flags, details.getFlagsChanged());
         assertNotSame(flags, details.getFlagsChanged()); // Should be a copy
-        assertNull(details.getMessage());
+
+        assertEquals(message, details.getMessage());
         assertNull(details.getEventMetadata());
         assertNull(details.getErrorCode());
     }
 
     @Test
-    void builder_shouldCreateProviderEventDetailsWithEventMetadata() {
+    void ofMessageAndFlagsAndMetadata_shouldCreateProviderEventDetailsWithEventMetadata() {
         var metadata = Metadata.immutableBuilder()
                 .add("version", "1.0")
                 .add("count", 5)
                 .build();
 
-        ProviderEventDetails details =
-                ProviderEventDetails.builder().eventMetadata(metadata).build();
+        List<String> flags = Arrays.asList("flag1", "flag2", "flag3");
+        String message = "Configuration updated";
+        ProviderEventDetails details = ProviderEventDetails.of(message, flags, metadata);
 
         assertSame(metadata, details.getEventMetadata());
-        assertNull(details.getFlagsChanged());
-        assertNull(details.getMessage());
+        assertEquals(flags, details.getFlagsChanged());
+        assertNotSame(flags, details.getFlagsChanged()); // Should be a copy
+
+        assertEquals(message, details.getMessage());
         assertNull(details.getErrorCode());
     }
 
     @Test
-    void builder_shouldCreateProviderEventDetailsWithErrorCode() {
-        ProviderEventDetails details =
-                ProviderEventDetails.builder().errorCode(ErrorCode.GENERAL).build();
-
-        assertEquals(ErrorCode.GENERAL, details.getErrorCode());
-        assertNull(details.getFlagsChanged());
-        assertNull(details.getMessage());
-        assertNull(details.getEventMetadata());
-    }
-
-    @Test
-    void builder_shouldCreateProviderEventDetailsWithAllFields() {
+    void ofAll_shouldCreateProviderEventDetailsWithAllFields() {
         List<String> flags = Arrays.asList("flag1", "flag2");
         String message = "Provider error occurred";
         var metadata = Metadata.immutableBuilder().add("error", "timeout").build();
         ErrorCode errorCode = ErrorCode.GENERAL;
 
-        ProviderEventDetails details = ProviderEventDetails.builder()
-                .flagsChanged(flags)
-                .message(message)
-                .eventMetadata(metadata)
-                .errorCode(errorCode)
-                .build();
+        ProviderEventDetails details = ProviderEventDetails.of(message, flags, metadata, errorCode);
 
         assertEquals(flags, details.getFlagsChanged());
         assertEquals(message, details.getMessage());
@@ -99,42 +87,19 @@ class ProviderEventDetailsTest {
     }
 
     @Test
-    void builder_shouldHandleNullFlagsChanged() {
-        ProviderEventDetails details =
-                ProviderEventDetails.builder().flagsChanged(null).build();
+    void ofAllNull_shouldCreateProviderEventDetailsWithAllFields() {
+        ProviderEventDetails details = ProviderEventDetails.of(null, null, null, null);
 
         assertNull(details.getFlagsChanged());
-    }
-
-    @Test
-    void builder_shouldHandleNullMessage() {
-        ProviderEventDetails details =
-                ProviderEventDetails.builder().message(null).build();
-
         assertNull(details.getMessage());
-    }
-
-    @Test
-    void builder_shouldHandleNullEventMetadata() {
-        ProviderEventDetails details =
-                ProviderEventDetails.builder().eventMetadata(null).build();
-
         assertNull(details.getEventMetadata());
-    }
-
-    @Test
-    void builder_shouldHandleNullErrorCode() {
-        ProviderEventDetails details =
-                ProviderEventDetails.builder().errorCode(null).build();
-
         assertNull(details.getErrorCode());
     }
 
     @Test
     void flagsChanged_shouldReturnImmutableCopy() {
         List<String> originalFlags = new ArrayList<>(Arrays.asList("flag1", "flag2"));
-        ProviderEventDetails details =
-                ProviderEventDetails.builder().flagsChanged(originalFlags).build();
+        ProviderEventDetails details = ProviderEventDetails.of("flags changed", originalFlags);
 
         List<String> returnedFlags = details.getFlagsChanged();
 
@@ -157,8 +122,7 @@ class ProviderEventDetailsTest {
     @Test
     void flagsChanged_shouldReturnImmutableCopyWithMutableInput() {
         List<String> originalFlags = Arrays.asList("flag1", "flag2");
-        ProviderEventDetails details =
-                ProviderEventDetails.builder().flagsChanged(originalFlags).build();
+        ProviderEventDetails details = ProviderEventDetails.of("flags changed", originalFlags);
 
         List<String> returnedFlags = details.getFlagsChanged();
 
@@ -172,60 +136,17 @@ class ProviderEventDetailsTest {
     }
 
     @Test
-    void toBuilder_shouldCreateBuilderWithCurrentState() {
-        List<String> flags = Arrays.asList("flag1", "flag2");
-        String message = "Original message";
-        var metadata = Metadata.immutableBuilder().add("key", "value").build();
-
-        ProviderEventDetails original = ProviderEventDetails.builder()
-                .flagsChanged(flags)
-                .message(message)
-                .eventMetadata(metadata)
-                .errorCode(ErrorCode.GENERAL)
-                .build();
-
-        ProviderEventDetails modified = original.toBuilder()
-                .message("Modified message")
-                .errorCode(ErrorCode.PARSE_ERROR)
-                .build();
-
-        // Original should be unchanged
-        assertEquals(message, original.getMessage());
-        assertEquals(ErrorCode.GENERAL, original.getErrorCode());
-
-        // Modified should have new values but preserve other fields
-        assertEquals(flags, modified.getFlagsChanged());
-        assertEquals("Modified message", modified.getMessage());
-        assertSame(metadata, modified.getEventMetadata());
-        assertEquals(ErrorCode.PARSE_ERROR, modified.getErrorCode());
-    }
-
-    @Test
     void equals_shouldWorkCorrectly() {
         List<String> flags = Arrays.asList("flag1", "flag2");
         String message = "Test message";
         var metadata = Metadata.immutableBuilder().add("key", "value").build();
 
-        ProviderEventDetails details1 = ProviderEventDetails.builder()
-                .flagsChanged(flags)
-                .message(message)
-                .eventMetadata(metadata)
-                .errorCode(ErrorCode.GENERAL)
-                .build();
+        ProviderEventDetails details1 = ProviderEventDetails.of(message, flags, metadata, ErrorCode.GENERAL);
 
-        ProviderEventDetails details2 = ProviderEventDetails.builder()
-                .flagsChanged(flags)
-                .message(message)
-                .eventMetadata(metadata)
-                .errorCode(ErrorCode.GENERAL)
-                .build();
+        ProviderEventDetails details2 = ProviderEventDetails.of(message, flags, metadata, ErrorCode.GENERAL);
 
-        ProviderEventDetails details3 = ProviderEventDetails.builder()
-                .flagsChanged(flags)
-                .message("Different message")
-                .eventMetadata(metadata)
-                .errorCode(ErrorCode.GENERAL)
-                .build();
+        ProviderEventDetails details3 =
+                ProviderEventDetails.of("different message", flags, metadata, ErrorCode.GENERAL);
 
         // Same content should be equal
         assertEquals(details1, details2);
@@ -238,10 +159,10 @@ class ProviderEventDetailsTest {
         assertEquals(details1, details1);
 
         // Null comparison
-        assertNotEquals(details1, null);
+        assertNotEquals(null, details1);
 
         // Different class comparison
-        assertNotEquals(details1, "not details");
+        assertNotEquals("not details", details1);
     }
 
     @Test
@@ -249,19 +170,9 @@ class ProviderEventDetailsTest {
         List<String> flags = Arrays.asList("flag1", "flag2");
         var metadata = Metadata.immutableBuilder().add("key", "value").build();
 
-        ProviderEventDetails details1 = ProviderEventDetails.builder()
-                .flagsChanged(flags)
-                .message("message")
-                .eventMetadata(metadata)
-                .errorCode(ErrorCode.GENERAL)
-                .build();
+        ProviderEventDetails details1 = ProviderEventDetails.of("message", flags, metadata, ErrorCode.GENERAL);
 
-        ProviderEventDetails details2 = ProviderEventDetails.builder()
-                .flagsChanged(flags)
-                .message("message")
-                .eventMetadata(metadata)
-                .errorCode(ErrorCode.GENERAL)
-                .build();
+        ProviderEventDetails details2 = ProviderEventDetails.of("message", flags, metadata, ErrorCode.GENERAL);
 
         assertEquals(details1.hashCode(), details2.hashCode());
     }
@@ -272,12 +183,7 @@ class ProviderEventDetailsTest {
         String message = "Test message";
         var metadata = Metadata.immutableBuilder().add("key", "value").build();
 
-        ProviderEventDetails details = ProviderEventDetails.builder()
-                .flagsChanged(flags)
-                .message(message)
-                .eventMetadata(metadata)
-                .errorCode(ErrorCode.GENERAL)
-                .build();
+        ProviderEventDetails details = ProviderEventDetails.of(message, flags, metadata, ErrorCode.GENERAL);
 
         String toString = details.toString();
         assertTrue(toString.contains("ProviderEventDetails"));
@@ -293,15 +199,10 @@ class ProviderEventDetailsTest {
         String message = "Test message";
         var metadata = Metadata.immutableBuilder().add("key", "value").build();
 
-        ProviderEventDetails details = ProviderEventDetails.builder()
-                .flagsChanged(flags)
-                .message(message)
-                .eventMetadata(metadata)
-                .errorCode(ErrorCode.GENERAL)
-                .build();
+        ProviderEventDetails details = ProviderEventDetails.of(message, flags, metadata, ErrorCode.GENERAL);
 
         // Test that it implements EventDetailsInterface
-        assertTrue(details instanceof EventDetailsInterface);
+        assertNotNull(details);
 
         // Test interface methods
         assertEquals(flags, details.getFlagsChanged());
@@ -312,14 +213,9 @@ class ProviderEventDetailsTest {
 
     @Test
     void builder_shouldAllowChaining() {
-        ProviderEventDetails details = ProviderEventDetails.builder()
-                .flagsChanged(Arrays.asList("flag1"))
-                .message("message")
-                .eventMetadata(Metadata.EMPTY)
-                .errorCode(ErrorCode.GENERAL)
-                .build();
+        var details = ProviderEventDetails.of("message", List.of("flag1"), Metadata.EMPTY, ErrorCode.GENERAL);
 
-        assertEquals(Arrays.asList("flag1"), details.getFlagsChanged());
+        assertEquals(List.of("flag1"), details.getFlagsChanged());
         assertEquals("message", details.getMessage());
         assertEquals(ErrorCode.GENERAL, details.getErrorCode());
     }

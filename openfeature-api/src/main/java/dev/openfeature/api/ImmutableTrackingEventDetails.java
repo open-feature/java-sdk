@@ -11,7 +11,7 @@ import java.util.function.Function;
 /**
  * ImmutableTrackingEventDetails represents data pertinent to a particular tracking event.
  */
-public class ImmutableTrackingEventDetails implements TrackingEventDetails {
+class ImmutableTrackingEventDetails implements TrackingEventDetails {
 
     private final ImmutableStructure structure;
     private final Number value;
@@ -92,31 +92,22 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
     }
 
     /**
-     * Returns a builder for creating ImmutableTrackingEventDetails instances.
-     *
-     * @return a builder for ImmutableTrackingEventDetails
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /**
      * Returns a builder initialized with the current state of this object.
      *
      * @return a builder for ImmutableTrackingEventDetails
      */
     public Builder toBuilder() {
-        return builder().value(this.value).attributes(this.structure.asMap());
+        return new Builder().value(this.value).attributes(this.structure.asMap());
     }
 
     /**
      * Builder class for creating instances of ImmutableTrackingEventDetails.
      */
-    public static class Builder {
+    public static class Builder implements ImmutableTrackingEventDetailsBuilder {
         private Number value;
         private final Map<String, Value> attributes;
 
-        private Builder() {
+        Builder() {
             this.attributes = new HashMap<>();
         }
 
@@ -126,6 +117,7 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
          * @param value the tracking value
          * @return this builder
          */
+        @Override
         public Builder value(Number value) {
             this.value = value;
             return this;
@@ -137,6 +129,7 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
          * @param attributes map of attributes
          * @return this builder
          */
+        @Override
         public Builder attributes(Map<String, Value> attributes) {
             if (attributes != null) {
                 this.attributes.clear();
@@ -152,7 +145,8 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
          * @param value attribute value
          * @return this builder
          */
-        public Builder addString(final String key, final String value) {
+        @Override
+        public Builder add(final String key, final String value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -164,7 +158,8 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
          * @param value attribute value
          * @return this builder
          */
-        public Builder addInteger(final String key, final Integer value) {
+        @Override
+        public Builder add(final String key, final Integer value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -176,7 +171,8 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
          * @param value attribute value
          * @return this builder
          */
-        public Builder addLong(final String key, final Long value) {
+        @Override
+        public Builder add(final String key, final Long value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -188,7 +184,8 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
          * @param value attribute value
          * @return this builder
          */
-        public Builder addFloat(final String key, final Float value) {
+        @Override
+        public Builder add(final String key, final Float value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -200,7 +197,8 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
          * @param value attribute value
          * @return this builder
          */
-        public Builder addDouble(final String key, final Double value) {
+        @Override
+        public Builder add(final String key, final Double value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -212,7 +210,8 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
          * @param value attribute value
          * @return this builder
          */
-        public Builder addBoolean(final String key, final Boolean value) {
+        @Override
+        public Builder add(final String key, final Boolean value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -224,7 +223,8 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
          * @param value attribute value
          * @return this builder
          */
-        public Builder addStructure(final String key, final Structure value) {
+        @Override
+        public Builder add(final String key, final Structure value) {
             attributes.put(key, Value.objectToValue(value));
             return this;
         }
@@ -236,7 +236,8 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
          * @param value attribute value
          * @return this builder
          */
-        public Builder addValue(final String key, final Value value) {
+        @Override
+        public Builder add(final String key, final Value value) {
             attributes.put(key, value);
             return this;
         }
@@ -246,7 +247,8 @@ public class ImmutableTrackingEventDetails implements TrackingEventDetails {
          *
          * @return a new ImmutableTrackingEventDetails instance
          */
-        public ImmutableTrackingEventDetails build() {
+        @Override
+        public TrackingEventDetails build() {
             return new ImmutableTrackingEventDetails(value, new HashMap<>(attributes));
         }
     }

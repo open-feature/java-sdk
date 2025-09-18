@@ -129,9 +129,7 @@ class FeatureProviderStateManagerTest {
     @Test
     void shouldSetTheStateToErrorWhenAnErrorEventIsEmitted() {
         assertThat(wrapper.getState()).isEqualTo(ProviderState.NOT_READY);
-        wrapper.onEmit(
-                ProviderEvent.PROVIDER_ERROR,
-                ProviderEventDetails.builder().errorCode(ErrorCode.GENERAL).build());
+        wrapper.onEmit(ProviderEvent.PROVIDER_ERROR, ProviderEventDetails.of(ErrorCode.GENERAL));
         assertThat(wrapper.getState()).isEqualTo(ProviderState.ERROR);
     }
 
@@ -142,11 +140,7 @@ class FeatureProviderStateManagerTest {
     @Test
     void shouldSetTheStateToFatalWhenAFatalErrorEventIsEmitted() {
         assertThat(wrapper.getState()).isEqualTo(ProviderState.NOT_READY);
-        wrapper.onEmit(
-                ProviderEvent.PROVIDER_ERROR,
-                ProviderEventDetails.builder()
-                        .errorCode(ErrorCode.PROVIDER_FATAL)
-                        .build());
+        wrapper.onEmit(ProviderEvent.PROVIDER_ERROR, ProviderEventDetails.of(ErrorCode.PROVIDER_FATAL));
         assertThat(wrapper.getState()).isEqualTo(ProviderState.FATAL);
     }
 

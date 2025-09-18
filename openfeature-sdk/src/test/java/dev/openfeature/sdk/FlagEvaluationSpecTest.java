@@ -287,8 +287,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
         Client c = api.getClient();
         String key = "key";
 
-        FlagEvaluationDetails<Boolean> bd = FlagEvaluationDetails.of(key, false, null, Reason.DEFAULT, null, null,
-                DEFAULT_METADATA);
+        FlagEvaluationDetails<Boolean> bd =
+                FlagEvaluationDetails.of(key, false, null, Reason.DEFAULT, null, null, DEFAULT_METADATA);
 
         assertEquals(bd, c.getBooleanDetails(key, true));
         assertEquals(bd, c.getBooleanDetails(key, true, EvaluationContext.EMPTY));
@@ -300,8 +300,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
                         EvaluationContext.EMPTY,
                         FlagEvaluationOptions.builder().build()));
 
-        FlagEvaluationDetails<String> sd = FlagEvaluationDetails.of(key, "tset", null, Reason.DEFAULT, null, null,
-                DEFAULT_METADATA);
+        FlagEvaluationDetails<String> sd =
+                FlagEvaluationDetails.of(key, "tset", null, Reason.DEFAULT, null, null, DEFAULT_METADATA);
 
         assertEquals(sd, c.getStringDetails(key, "test"));
         assertEquals(sd, c.getStringDetails(key, "test", EvaluationContext.EMPTY));
@@ -313,8 +313,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
                         EvaluationContext.EMPTY,
                         FlagEvaluationOptions.builder().build()));
 
-        FlagEvaluationDetails<Integer> id = FlagEvaluationDetails.of(key, 400, null, Reason.DEFAULT, null, null,
-                        DEFAULT_METADATA);
+        FlagEvaluationDetails<Integer> id =
+                FlagEvaluationDetails.of(key, 400, null, Reason.DEFAULT, null, null, DEFAULT_METADATA);
         assertEquals(id, c.getIntegerDetails(key, 4));
         assertEquals(id, c.getIntegerDetails(key, 4, EvaluationContext.EMPTY));
         assertEquals(
@@ -325,8 +325,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
                         EvaluationContext.EMPTY,
                         FlagEvaluationOptions.builder().build()));
 
-        FlagEvaluationDetails<Double> dd = FlagEvaluationDetails.of(key, 40.0, null, Reason.DEFAULT, null, null,
-                DEFAULT_METADATA);
+        FlagEvaluationDetails<Double> dd =
+                FlagEvaluationDetails.of(key, 40.0, null, Reason.DEFAULT, null, null, DEFAULT_METADATA);
         assertEquals(dd, c.getDoubleDetails(key, .4));
         assertEquals(dd, c.getDoubleDetails(key, .4, EvaluationContext.EMPTY));
         assertEquals(
@@ -578,41 +578,41 @@ class FlagEvaluationSpecTest implements HookFixtures {
                             EvaluationContext evaluationContext = arg.getCtx();
                             return evaluationContext.getValue("api").asString().equals("1")
                                     && evaluationContext
-                                    .getValue("transaction")
-                                    .asString()
-                                    .equals("2")
+                                            .getValue("transaction")
+                                            .asString()
+                                            .equals("2")
                                     && evaluationContext
-                                    .getValue("client")
-                                    .asString()
-                                    .equals("3")
+                                            .getValue("client")
+                                            .asString()
+                                            .equals("3")
                                     && evaluationContext
-                                    .getValue("invocation")
-                                    .asString()
-                                    .equals("4")
+                                            .getValue("invocation")
+                                            .asString()
+                                            .equals("4")
                                     && evaluationContext
-                                    .getValue("common1")
-                                    .asString()
-                                    .equals("2")
+                                            .getValue("common1")
+                                            .asString()
+                                            .equals("2")
                                     && evaluationContext
-                                    .getValue("common2")
-                                    .asString()
-                                    .equals("3")
+                                            .getValue("common2")
+                                            .asString()
+                                            .equals("3")
                                     && evaluationContext
-                                    .getValue("common3")
-                                    .asString()
-                                    .equals("4")
+                                            .getValue("common3")
+                                            .asString()
+                                            .equals("4")
                                     && evaluationContext
-                                    .getValue("common4")
-                                    .asString()
-                                    .equals("3")
+                                            .getValue("common4")
+                                            .asString()
+                                            .equals("3")
                                     && evaluationContext
-                                    .getValue("common5")
-                                    .asString()
-                                    .equals("4")
+                                            .getValue("common5")
+                                            .asString()
+                                            .equals("4")
                                     && evaluationContext
-                                    .getValue("common6")
-                                    .asString()
-                                    .equals("4");
+                                            .getValue("common6")
+                                            .asString()
+                                            .equals("4");
                         }),
                         any());
 
@@ -639,49 +639,49 @@ class FlagEvaluationSpecTest implements HookFixtures {
                             EvaluationContext evaluationContext = arg.getCtx();
                             return evaluationContext.getValue("api").asString().equals("1")
                                     && evaluationContext
-                                    .getValue("transaction")
-                                    .asString()
-                                    .equals("2")
+                                            .getValue("transaction")
+                                            .asString()
+                                            .equals("2")
                                     && evaluationContext
-                                    .getValue("client")
-                                    .asString()
-                                    .equals("3")
+                                            .getValue("client")
+                                            .asString()
+                                            .equals("3")
                                     && evaluationContext
-                                    .getValue("invocation")
-                                    .asString()
-                                    .equals("4")
+                                            .getValue("invocation")
+                                            .asString()
+                                            .equals("4")
                                     && evaluationContext
-                                    .getValue("before")
-                                    .asString()
-                                    .equals("5")
+                                            .getValue("before")
+                                            .asString()
+                                            .equals("5")
                                     && evaluationContext
-                                    .getValue("common1")
-                                    .asString()
-                                    .equals("2")
+                                            .getValue("common1")
+                                            .asString()
+                                            .equals("2")
                                     && evaluationContext
-                                    .getValue("common2")
-                                    .asString()
-                                    .equals("3")
+                                            .getValue("common2")
+                                            .asString()
+                                            .equals("3")
                                     && evaluationContext
-                                    .getValue("common3")
-                                    .asString()
-                                    .equals("4")
+                                            .getValue("common3")
+                                            .asString()
+                                            .equals("4")
                                     && evaluationContext
-                                    .getValue("common4")
-                                    .asString()
-                                    .equals("3")
+                                            .getValue("common4")
+                                            .asString()
+                                            .equals("3")
                                     && evaluationContext
-                                    .getValue("common5")
-                                    .asString()
-                                    .equals("4")
+                                            .getValue("common5")
+                                            .asString()
+                                            .equals("4")
                                     && evaluationContext
-                                    .getValue("common6")
-                                    .asString()
-                                    .equals("4")
+                                            .getValue("common6")
+                                            .asString()
+                                            .equals("4")
                                     && evaluationContext
-                                    .getValue("common7")
-                                    .asString()
-                                    .equals("5");
+                                            .getValue("common7")
+                                            .asString()
+                                            .equals("5");
                         }),
                         any(),
                         any());

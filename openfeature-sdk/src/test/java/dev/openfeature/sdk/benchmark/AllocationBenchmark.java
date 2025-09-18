@@ -14,7 +14,6 @@ import dev.openfeature.api.ImmutableStructure;
 import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.Value;
 import dev.openfeature.api.internal.noop.NoOpProvider;
-import dev.openfeature.sdk.DefaultOpenFeatureAPIProvider;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -37,14 +36,13 @@ public class AllocationBenchmark {
     @Fork(jvmArgsAppend = {"-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
     public void run() {
 
-        OpenFeatureAPI api = new DefaultOpenFeatureAPIProvider().createAPI();
-        api.setProviderAndWait(new NoOpProvider());
+        OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
         Map<String, Value> globalAttrs = new HashMap<>();
         globalAttrs.put("global", new Value(1));
         EvaluationContext globalContext = EvaluationContext.immutableOf(globalAttrs);
-        api.setEvaluationContext(globalContext);
+        OpenFeatureAPI.getInstance().setEvaluationContext(globalContext);
 
-        Client client = api.getClient();
+        Client client = OpenFeatureAPI.getInstance().getClient();
 
         Map<String, Value> clientAttrs = new HashMap<>();
         clientAttrs.put("client", new Value(2));
@@ -52,7 +50,31 @@ public class AllocationBenchmark {
         client.addHooks(new Hook<Object>() {
             @Override
             public Optional<EvaluationContext> before(HookContext<Object> ctx, Map<String, Object> hints) {
-                return Optional.ofNullable(EvaluationContext.EMPTY);
+                return Optional.of(EvaluationContext.EMPTY);
+            }
+        });
+        client.addHooks(new Hook<String>() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<String> ctx, Map<String, Object> hints) {
+                return Optional.of(EvaluationContext.EMPTY);
+            }
+        });
+        client.addHooks(new Hook<Boolean>() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
+                return Optional.of(EvaluationContext.EMPTY);
+            }
+        });
+        client.addHooks(new Hook<Integer>() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<Integer> ctx, Map<String, Object> hints) {
+                return Optional.of(EvaluationContext.EMPTY);
+            }
+        });
+        client.addHooks(new Hook<Double>() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<Double> ctx, Map<String, Object> hints) {
+                return Optional.of(EvaluationContext.EMPTY);
             }
         });
 

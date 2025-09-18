@@ -15,14 +15,9 @@ public class TelemetryTest {
 
     @Test
     void testCreatesEvaluationEventWithMandatoryFields() {
-        HookContext<Boolean> hookContext = HookContext.<Boolean>builder()
-                .flagKey(flagKey)
-                .providerMetadata(providerMetadata)
-                .type(FlagValueType.BOOLEAN)
-                .defaultValue(false)
-                .ctx(new ImmutableContext())
-                .build();
 
+        var hookContext = generateHookContext(
+                flagKey, FlagValueType.BOOLEAN, false, EvaluationContext.EMPTY, null, providerMetadata);
         FlagEvaluationDetails<Boolean> evaluation =
                 new DefaultFlagEvaluationDetails<>(flagKey, true, null, reason, null, null, null);
 
@@ -36,14 +31,8 @@ public class TelemetryTest {
 
     @Test
     void testHandlesNullReason() {
-        HookContext<Boolean> hookContext = HookContext.<Boolean>builder()
-                .flagKey(flagKey)
-                .providerMetadata(providerMetadata)
-                .type(FlagValueType.BOOLEAN)
-                .defaultValue(false)
-                .ctx(new ImmutableContext())
-                .build();
-
+        var hookContext = generateHookContext(
+                flagKey, FlagValueType.BOOLEAN, false, EvaluationContext.EMPTY, null, providerMetadata);
         FlagEvaluationDetails<Boolean> evaluation =
                 new DefaultFlagEvaluationDetails<>(flagKey, true, null, null, null, null, null);
 
@@ -54,14 +43,8 @@ public class TelemetryTest {
 
     @Test
     void testSetsVariantAttributeWhenVariantExists() {
-        HookContext<String> hookContext = HookContext.<String>builder()
-                .flagKey("testFlag")
-                .type(FlagValueType.STRING)
-                .defaultValue("default")
-                .ctx(EvaluationContext.EMPTY)
-                .clientMetadata(() -> "")
-                .providerMetadata(providerMetadata)
-                .build();
+        var hookContext = generateHookContext(
+                "testFlag", FlagValueType.STRING, "default", EvaluationContext.EMPTY, () -> "", providerMetadata);
 
         FlagEvaluationDetails<String> providerEvaluation =
                 new DefaultFlagEvaluationDetails<>(null, null, "testVariant", reason, null, null, Metadata.EMPTY);
@@ -73,14 +56,8 @@ public class TelemetryTest {
 
     @Test
     void test_sets_value_in_body_when_variant_is_null() {
-        HookContext<String> hookContext = HookContext.<String>builder()
-                .flagKey("testFlag")
-                .type(FlagValueType.STRING)
-                .defaultValue("default")
-                .ctx(EvaluationContext.EMPTY)
-                .clientMetadata(() -> "")
-                .providerMetadata(providerMetadata)
-                .build();
+        var hookContext = generateHookContext(
+                "testFlag", FlagValueType.STRING, "default", EvaluationContext.EMPTY, () -> "", providerMetadata);
 
         FlagEvaluationDetails<String> providerEvaluation =
                 new DefaultFlagEvaluationDetails<>(null, "testValue", null, reason, null, null, Metadata.EMPTY);
@@ -92,15 +69,13 @@ public class TelemetryTest {
 
     @Test
     void testAllFieldsPopulated() {
-        HookContext<String> hookContext = HookContext.<String>builder()
-                .flagKey("realFlag")
-                .type(FlagValueType.STRING)
-                .defaultValue("realDefault")
-                .ctx(new ImmutableContext("realTargetingKey", Map.of()))
-                .clientMetadata(() -> "")
-                .providerMetadata(() -> "realProviderName")
-                .build();
-
+        var hookContext = generateHookContext(
+                "realFlag",
+                FlagValueType.STRING,
+                "realDefault",
+                EvaluationContext.immutableOf("realTargetingKey", Map.of()),
+                () -> "",
+                () -> "realProviderName");
         FlagEvaluationDetails<String> providerEvaluation = new DefaultFlagEvaluationDetails<>(
                 null,
                 null,
@@ -128,14 +103,13 @@ public class TelemetryTest {
 
     @Test
     void testErrorEvaluation() {
-        HookContext<String> hookContext = HookContext.<String>builder()
-                .flagKey("realFlag")
-                .type(FlagValueType.STRING)
-                .defaultValue("realDefault")
-                .ctx(new ImmutableContext("realTargetingKey", Map.of()))
-                .clientMetadata(() -> "")
-                .providerMetadata(() -> "realProviderName")
-                .build();
+        var hookContext = generateHookContext(
+                "realFlag",
+                FlagValueType.STRING,
+                "realDefault",
+                EvaluationContext.immutableOf("realTargetingKey", Map.of()),
+                () -> "",
+                () -> "realProviderName");
 
         FlagEvaluationDetails<String> providerEvaluation = new DefaultFlagEvaluationDetails<>(
                 null,
@@ -165,14 +139,13 @@ public class TelemetryTest {
 
     @Test
     void testErrorCodeEvaluation() {
-        HookContext<String> hookContext = HookContext.<String>builder()
-                .flagKey("realFlag")
-                .type(FlagValueType.STRING)
-                .defaultValue("realDefault")
-                .ctx(new ImmutableContext("realTargetingKey", Map.of()))
-                .clientMetadata(() -> "")
-                .providerMetadata(() -> "realProviderName")
-                .build();
+        var hookContext = generateHookContext(
+                "realFlag",
+                FlagValueType.STRING,
+                "realDefault",
+                EvaluationContext.immutableOf("realTargetingKey", Map.of()),
+                () -> "",
+                () -> "realProviderName");
 
         FlagEvaluationDetails<String> providerEvaluation = new DefaultFlagEvaluationDetails<>(
                 null,
@@ -198,5 +171,46 @@ public class TelemetryTest {
         assertEquals(ErrorCode.INVALID_CONTEXT, event.getAttributes().get(Telemetry.TELEMETRY_ERROR_CODE));
         assertEquals("realErrorMessage", event.getAttributes().get(Telemetry.TELEMETRY_ERROR_MSG));
         assertNull(event.getAttributes().get(Telemetry.TELEMETRY_VARIANT));
+    }
+
+    private <T> HookContext<T> generateHookContext(
+            final String flagKey,
+            final FlagValueType type,
+            final T defaultValue,
+            final EvaluationContext ctx,
+            final ClientMetadata clientMetadata,
+            final ProviderMetadata providerMeta) {
+        return new HookContext<T>() {
+
+            @Override
+            public String getFlagKey() {
+                return flagKey;
+            }
+
+            @Override
+            public FlagValueType getType() {
+                return type;
+            }
+
+            @Override
+            public T getDefaultValue() {
+                return defaultValue;
+            }
+
+            @Override
+            public EvaluationContext getCtx() {
+                return ctx;
+            }
+
+            @Override
+            public ClientMetadata getClientMetadata() {
+                return clientMetadata;
+            }
+
+            @Override
+            public ProviderMetadata getProviderMetadata() {
+                return providerMeta;
+            }
+        };
     }
 }

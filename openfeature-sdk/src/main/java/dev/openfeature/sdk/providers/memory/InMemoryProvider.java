@@ -14,9 +14,9 @@ import dev.openfeature.api.exceptions.OpenFeatureError;
 import dev.openfeature.api.exceptions.ProviderNotReadyError;
 import dev.openfeature.api.exceptions.TypeMismatchError;
 import dev.openfeature.sdk.EventProvider;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,10 +74,7 @@ public class InMemoryProvider extends EventProvider {
         Set<String> flagsChanged = new HashSet<>(newFlags.keySet());
         this.flags.putAll(newFlags);
 
-        ProviderEventDetails details = ProviderEventDetails.builder()
-                .flagsChanged(new ArrayList<>(flagsChanged))
-                .message("flags changed")
-                .build();
+        ProviderEventDetails details = ProviderEventDetails.of("flags changed", List.copyOf(flagsChanged));
         emitProviderConfigurationChanged(details);
     }
 
@@ -90,45 +87,45 @@ public class InMemoryProvider extends EventProvider {
      */
     public void updateFlag(String flagKey, Flag<?> newFlag) {
         this.flags.put(flagKey, newFlag);
-        ProviderEventDetails details = ProviderEventDetails.builder()
-                .flagsChanged(Collections.singletonList(flagKey))
-                .message("flag added/updated")
-                .build();
+        ProviderEventDetails details =
+                ProviderEventDetails.of("flag added/updated", Collections.singletonList(flagKey));
+
         emitProviderConfigurationChanged(details);
     }
 
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(
             String key, Boolean defaultValue, EvaluationContext evaluationContext) {
-        return getEvaluation(key, evaluationContext, Boolean.class);
+        return getEvaluation(key, defaultValue, evaluationContext, Boolean.class);
     }
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(
             String key, String defaultValue, EvaluationContext evaluationContext) {
-        return getEvaluation(key, evaluationContext, String.class);
+        return getEvaluation(key, defaultValue, evaluationContext, String.class);
     }
 
     @Override
     public ProviderEvaluation<Integer> getIntegerEvaluation(
             String key, Integer defaultValue, EvaluationContext evaluationContext) {
-        return getEvaluation(key, evaluationContext, Integer.class);
+        return getEvaluation(key, defaultValue, evaluationContext, Integer.class);
     }
 
     @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(
             String key, Double defaultValue, EvaluationContext evaluationContext) {
-        return getEvaluation(key, evaluationContext, Double.class);
+        return getEvaluation(key, defaultValue, evaluationContext, Double.class);
     }
 
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(
             String key, Value defaultValue, EvaluationContext evaluationContext) {
-        return getEvaluation(key, evaluationContext, Value.class);
+        return getEvaluation(key, defaultValue, evaluationContext, Value.class);
     }
 
     private <T> ProviderEvaluation<T> getEvaluation(
-            String key, EvaluationContext evaluationContext, Class<?> expectedType) throws OpenFeatureError {
+            String key, T defaultValue, EvaluationContext evaluationContext, Class<?> expectedType)
+            throws OpenFeatureError {
         if (!ProviderState.READY.equals(state)) {
             if (ProviderState.NOT_READY.equals(state)) {
                 throw new ProviderNotReadyError("provider not yet initialized");
@@ -140,16 +137,29 @@ public class InMemoryProvider extends EventProvider {
         }
         Flag<?> flag = flags.get(key);
         if (flag == null) {
-            throw new FlagNotFoundError("flag " + key + "not found");
+            throw new FlagNotFoundError("flag " + key + " not found");
+        }
+        if (flag.isDisabled()) {
+            return ProviderEvaluation.of(defaultValue, null, Reason.DISABLED.toString(), flag.getFlagMetadata());
         }
         T value;
+        Reason reason = Reason.STATIC;
         if (flag.getContextEvaluator() != null) {
-            value = (T) flag.getContextEvaluator().evaluate(flag, evaluationContext);
+            try {
+                value = (T) flag.getContextEvaluator().evaluate(flag, evaluationContext);
+                reason = Reason.TARGETING_MATCH;
+            } catch (Exception e) {
+                value = null;
+            }
+            if (value == null) {
+                value = (T) flag.getVariants().get(flag.getDefaultVariant());
+                reason = Reason.DEFAULT;
+            }
         } else if (!expectedType.isInstance(flag.getVariants().get(flag.getDefaultVariant()))) {
             throw new TypeMismatchError("flag " + key + "is not of expected type");
         } else {
             value = (T) flag.getVariants().get(flag.getDefaultVariant());
         }
-        return ProviderEvaluation.of(value, flag.getDefaultVariant(), Reason.STATIC.toString(), flag.getFlagMetadata());
+        return ProviderEvaluation.of(value, flag.getDefaultVariant(), reason.toString(), flag.getFlagMetadata());
     }
 }

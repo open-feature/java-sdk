@@ -18,12 +18,12 @@ public class AlwaysBrokenWithDetailsProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
-        return ProviderEvaluation.of( ErrorCode.FLAG_NOT_FOUND, TestConstants.BROKEN_MESSAGE);
+        return ProviderEvaluation.of(ErrorCode.FLAG_NOT_FOUND, TestConstants.BROKEN_MESSAGE);
     }
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
-        return ProviderEvaluation.of( ErrorCode.FLAG_NOT_FOUND, TestConstants.BROKEN_MESSAGE);
+        return ProviderEvaluation.of(ErrorCode.FLAG_NOT_FOUND, TestConstants.BROKEN_MESSAGE);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class AlwaysBrokenWithDetailsProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
-        return ProviderEvaluation.of( ErrorCode.FLAG_NOT_FOUND, TestConstants.BROKEN_MESSAGE);
+        return ProviderEvaluation.of(ErrorCode.FLAG_NOT_FOUND, TestConstants.BROKEN_MESSAGE);
     }
 
     @Override

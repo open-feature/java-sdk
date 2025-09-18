@@ -29,7 +29,8 @@ class DoSomethingProvider implements FeatureProvider {
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
-        return ProviderEvaluation.of(new StringBuilder(defaultValue).reverse().toString(), null, Reason.DEFAULT.toString(), flagMetadata);
+        return ProviderEvaluation.of(
+                new StringBuilder(defaultValue).reverse().toString(), null, Reason.DEFAULT.toString(), flagMetadata);
     }
 
     @Override

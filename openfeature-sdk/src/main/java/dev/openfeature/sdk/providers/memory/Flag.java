@@ -12,12 +12,14 @@ public class Flag<T> {
     private final String defaultVariant;
     private final ContextEvaluator<T> contextEvaluator;
     private final Metadata flagMetadata;
+    private boolean disabled;
 
     private Flag(Builder<T> builder) {
         this.variants = builder.variants;
         this.defaultVariant = builder.defaultVariant;
         this.contextEvaluator = builder.contextEvaluator;
         this.flagMetadata = builder.flagMetadata;
+        this.disabled = builder.disabled;
     }
 
     public Map<String, Object> getVariants() {
@@ -34,6 +36,10 @@ public class Flag<T> {
 
     public Metadata getFlagMetadata() {
         return flagMetadata;
+    }
+
+    public boolean isDisabled() {
+        return disabled;
     }
 
     public static <T> Builder<T> builder() {
@@ -75,6 +81,7 @@ public class Flag<T> {
      * @param <T> the flag type
      */
     public static class Builder<T> {
+        public boolean disabled;
         private Map<String, Object> variants = new java.util.HashMap<>();
         private String defaultVariant;
         private ContextEvaluator<T> contextEvaluator;
@@ -102,6 +109,11 @@ public class Flag<T> {
 
         public Builder<T> flagMetadata(Metadata flagMetadata) {
             this.flagMetadata = flagMetadata;
+            return this;
+        }
+
+        public Builder<T> disabled(boolean disabled) {
+            this.disabled = disabled;
             return this;
         }
 

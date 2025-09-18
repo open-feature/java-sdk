@@ -2,6 +2,7 @@ package dev.openfeature.sdk;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import dev.openfeature.api.HookData;
 import org.junit.jupiter.api.Test;
 
 class HookDataTest {

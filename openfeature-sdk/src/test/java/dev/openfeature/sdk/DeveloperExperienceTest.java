@@ -10,13 +10,13 @@ import static org.mockito.Mockito.verify;
 import dev.openfeature.api.Client;
 import dev.openfeature.api.ErrorCode;
 import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.EventDetails;
 import dev.openfeature.api.FlagEvaluationDetails;
 import dev.openfeature.api.FlagEvaluationOptions;
 import dev.openfeature.api.Hook;
 import dev.openfeature.api.HookContext;
 import dev.openfeature.api.MutableContext;
 import dev.openfeature.api.OpenFeatureAPI;
-import dev.openfeature.api.ProviderEventDetails;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.Reason;
 import dev.openfeature.api.Value;
@@ -165,7 +165,7 @@ class DeveloperExperienceTest implements HookFixtures {
         api.setProviderAndWait(domain, provider);
         Client client = api.getClient(domain);
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
-        provider.emitProviderError(ProviderEventDetails.builder().build()).await();
+        provider.emitProviderError(EventDetails.EMPTY).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.ERROR);
     }
 
@@ -180,7 +180,7 @@ class DeveloperExperienceTest implements HookFixtures {
         api.setProviderAndWait(domain, provider);
         Client client = api.getClient(domain);
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
-        provider.emitProviderStale(ProviderEventDetails.builder().build()).await();
+        provider.emitProviderStale(EventDetails.EMPTY).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.STALE);
     }
 
@@ -195,9 +195,9 @@ class DeveloperExperienceTest implements HookFixtures {
         api.setProviderAndWait(domain, provider);
         Client client = api.getClient(domain);
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
-        provider.emitProviderStale(ProviderEventDetails.builder().build()).await();
+        provider.emitProviderStale(EventDetails.EMPTY).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.STALE);
-        provider.emitProviderReady(ProviderEventDetails.builder().build()).await();
+        provider.emitProviderReady(EventDetails.EMPTY).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
     }
 }

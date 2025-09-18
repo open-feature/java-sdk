@@ -56,15 +56,15 @@
         <Bug pattern="EI_EXPOSE_REP2"/>
     </And>
     <And>
-        <Class name="dev.openfeature.api.ProviderEventDetails"/>
+        <Class name="dev.openfeature.api.DefaultProviderEventDetails"/>
         <Bug pattern="EI_EXPOSE_REP"/>
     </And>
     <And>
-        <Class name="dev.openfeature.api.ProviderEventDetails"/>
+        <Class name="dev.openfeature.api.DefaultProviderEventDetails"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </And>
     <And>
-        <Class name="dev.openfeature.api.ProviderEventDetails$ProviderEventDetailsBuilder"/>
+        <Class name="dev.openfeature.api.DefaultProviderEventDetails$ProviderEventDetailsBuilder"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </And>
     <And>

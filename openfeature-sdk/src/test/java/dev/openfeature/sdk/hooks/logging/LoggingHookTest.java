@@ -44,24 +44,37 @@ class LoggingHookTest {
     void each() {
 
         // create a fake hook context
-        hookContext = HookContext.builder()
-                .flagKey(FLAG_KEY)
-                .defaultValue(DEFAULT_VALUE)
-                .clientMetadata(new ClientMetadata() {
-                    @Override
-                    public String getDomain() {
-                        return DOMAIN;
-                    }
-                })
-                .providerMetadata(new ProviderMetadata() {
-                    @Override
-                    public String getName() {
-                        return PROVIDER_NAME;
-                    }
-                })
-                .type(FlagValueType.BOOLEAN)
-                .ctx(EvaluationContext.EMPTY)
-                .build();
+        hookContext = new HookContext<>() {
+            @Override
+            public String getFlagKey() {
+                return FLAG_KEY;
+            }
+
+            @Override
+            public FlagValueType getType() {
+                return FlagValueType.BOOLEAN;
+            }
+
+            @Override
+            public Object getDefaultValue() {
+                return DEFAULT_VALUE;
+            }
+
+            @Override
+            public EvaluationContext getCtx() {
+                return EvaluationContext.EMPTY;
+            }
+
+            @Override
+            public ClientMetadata getClientMetadata() {
+                return () -> DOMAIN;
+            }
+
+            @Override
+            public ProviderMetadata getProviderMetadata() {
+                return () -> PROVIDER_NAME;
+            }
+        };
 
         // mock logging
         logger = mock(Logger.class);

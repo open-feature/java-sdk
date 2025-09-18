@@ -18,7 +18,6 @@ import dev.openfeature.api.Client;
 import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.ImmutableStructure;
-import dev.openfeature.api.ImmutableTrackingEventDetails;
 import dev.openfeature.api.MutableContext;
 import dev.openfeature.api.MutableTrackingEventDetails;
 import dev.openfeature.api.OpenFeatureAPI;
@@ -159,8 +158,8 @@ class TrackingSpecTest {
     @Test
     void eventDetails() {
         assertFalse(new MutableTrackingEventDetails().getValue().isPresent());
-        assertFalse(new ImmutableTrackingEventDetails().getValue().isPresent());
-        assertThat(new ImmutableTrackingEventDetails(2).getValue()).hasValue(2);
+        assertFalse(TrackingEventDetails.EMPTY.getValue().isPresent());
+        assertThat(TrackingEventDetails.immutableOf(2).getValue()).hasValue(2);
         assertThat(new MutableTrackingEventDetails(9.87f).getValue()).hasValue(9.87f);
 
         // using mutable tracking event details
@@ -192,10 +191,10 @@ class TrackingSpecTest {
                 "my-struct",
                 new Value(new ImmutableStructure()));
 
-        ImmutableTrackingEventDetails immutableDetails = new ImmutableTrackingEventDetails(2, expectedMap);
+        TrackingEventDetails immutableDetails = TrackingEventDetails.immutableOf(2, expectedMap);
         assertEquals(expectedImmutable, immutableDetails.asMap());
         assertThatCode(() -> api.getClient()
-                        .track("tracking-event-name", EvaluationContext.EMPTY, new ImmutableTrackingEventDetails()))
+                        .track("tracking-event-name", EvaluationContext.EMPTY, TrackingEventDetails.EMPTY))
                 .doesNotThrowAnyException();
     }
 }

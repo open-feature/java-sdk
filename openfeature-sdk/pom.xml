@@ -124,6 +124,31 @@
             <version>1.37</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.cel</groupId>
+            <artifactId>cel</artifactId>
+            <version>0.11.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -156,6 +181,7 @@
                         --add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens dev.openfeature.sdk/dev.openfeature.sdk.e2e.steps=ALL-UNNAMED
                         --add-opens dev.openfeature.sdk/dev.openfeature.sdk.e2e=ALL-UNNAMED
+                        --add-reads dev.openfeature.sdk=ALL-UNNAMED
                     </argLine>
                 </configuration>
             </plugin>

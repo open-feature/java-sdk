@@ -16,10 +16,9 @@ class EventDetailsTest {
 
     @Test
     void builder_shouldCreateEventDetailsWithRequiredFields() {
-        ProviderEventDetails providerDetails =
-                ProviderEventDetails.builder().message("test message").build();
+        ProviderEventDetails providerDetails = ProviderEventDetails.of("test message");
 
-        EventDetails eventDetails = EventDetails.builder()
+        DefaultEventDetails eventDetails = DefaultEventDetails.builder()
                 .providerName("test-provider")
                 .providerEventDetails(providerDetails)
                 .build();
@@ -32,10 +31,9 @@ class EventDetailsTest {
 
     @Test
     void builder_shouldCreateEventDetailsWithDomain() {
-        ProviderEventDetails providerDetails =
-                ProviderEventDetails.builder().message("test message").build();
+        ProviderEventDetails providerDetails = ProviderEventDetails.of("test message");
 
-        EventDetails eventDetails = EventDetails.builder()
+        DefaultEventDetails eventDetails = DefaultEventDetails.builder()
                 .providerName("test-provider")
                 .domain("test-domain")
                 .providerEventDetails(providerDetails)
@@ -48,11 +46,10 @@ class EventDetailsTest {
 
     @Test
     void builder_shouldThrowWhenProviderNameIsNull() {
-        ProviderEventDetails providerDetails =
-                ProviderEventDetails.builder().message("test message").build();
+        ProviderEventDetails providerDetails = ProviderEventDetails.of("test message");
 
         assertThrows(NullPointerException.class, () -> {
-            EventDetails.builder()
+            DefaultEventDetails.builder()
                     .providerName(null)
                     .providerEventDetails(providerDetails)
                     .build();
@@ -62,7 +59,7 @@ class EventDetailsTest {
     @Test
     void builder_shouldAllowExplicitNullProviderEventDetails() {
         // The builder creates a default ProviderEventDetails when null, so this should not throw
-        EventDetails eventDetails = EventDetails.builder()
+        DefaultEventDetails eventDetails = DefaultEventDetails.builder()
                 .providerName("test-provider")
                 .providerEventDetails(null)
                 .build();
@@ -73,8 +70,8 @@ class EventDetailsTest {
 
     @Test
     void builder_shouldCreateDefaultProviderEventDetailsWhenNotSet() {
-        EventDetails eventDetails =
-                EventDetails.builder().providerName("test-provider").build();
+        DefaultEventDetails eventDetails =
+                DefaultEventDetails.builder().providerName("test-provider").build();
 
         assertEquals("test-provider", eventDetails.getProviderName());
         assertNotNull(eventDetails.getProviderEventDetails());
@@ -83,118 +80,14 @@ class EventDetailsTest {
     }
 
     @Test
-    void builder_shouldSupportConvenienceMethodsForFlagsChanged() {
-        List<String> flags = Arrays.asList("flag1", "flag2");
-
-        EventDetails eventDetails = EventDetails.builder()
-                .providerName("test-provider")
-                .flagsChanged(flags)
-                .build();
-
-        assertEquals("test-provider", eventDetails.getProviderName());
-        assertEquals(flags, eventDetails.getFlagsChanged());
-    }
-
-    @Test
-    void builder_shouldSupportConvenienceMethodsForMessage() {
-        String message = "Configuration updated";
-
-        EventDetails eventDetails = EventDetails.builder()
-                .providerName("test-provider")
-                .message(message)
-                .build();
-
-        assertEquals("test-provider", eventDetails.getProviderName());
-        assertEquals(message, eventDetails.getMessage());
-    }
-
-    @Test
-    void builder_shouldSupportConvenienceMethodsForEventMetadata() {
-        var metadata = Metadata.immutableBuilder().add("version", "1.0").build();
-
-        EventDetails eventDetails = EventDetails.builder()
-                .providerName("test-provider")
-                .eventMetadata(metadata)
-                .build();
-
-        assertEquals("test-provider", eventDetails.getProviderName());
-        assertEquals(metadata, eventDetails.getEventMetadata());
-    }
-
-    @Test
-    void builder_shouldSupportConvenienceMethodsForErrorCode() {
-        EventDetails eventDetails = EventDetails.builder()
-                .providerName("test-provider")
-                .errorCode(ErrorCode.GENERAL)
-                .build();
-
-        assertEquals("test-provider", eventDetails.getProviderName());
-        assertEquals(ErrorCode.GENERAL, eventDetails.getErrorCode());
-    }
-
-    @Test
-    void builder_shouldCombineConvenienceMethods() {
-        List<String> flags = Arrays.asList("flag1", "flag2");
-        String message = "Configuration updated";
-        var metadata = Metadata.immutableBuilder().add("version", "1.0").build();
-
-        EventDetails eventDetails = EventDetails.builder()
-                .providerName("test-provider")
-                .domain("test-domain")
-                .flagsChanged(flags)
-                .message(message)
-                .eventMetadata(metadata)
-                .errorCode(ErrorCode.GENERAL)
-                .build();
-
-        assertEquals("test-provider", eventDetails.getProviderName());
-        assertEquals("test-domain", eventDetails.getDomain());
-        assertEquals(flags, eventDetails.getFlagsChanged());
-        assertEquals(message, eventDetails.getMessage());
-        assertEquals(metadata, eventDetails.getEventMetadata());
-        assertEquals(ErrorCode.GENERAL, eventDetails.getErrorCode());
-    }
-
-    @Test
-    void toBuilder_shouldCreateBuilderWithCurrentState() {
-        ProviderEventDetails providerDetails = ProviderEventDetails.builder()
-                .message("original message")
-                .flagsChanged(Arrays.asList("flag1"))
-                .build();
-
-        EventDetails original = EventDetails.builder()
-                .providerName("test-provider")
-                .domain("test-domain")
-                .providerEventDetails(providerDetails)
-                .build();
-
-        EventDetails modified = original.toBuilder().message("modified message").build();
-
-        // Original should be unchanged
-        assertEquals("original message", original.getMessage());
-        assertEquals(Arrays.asList("flag1"), original.getFlagsChanged());
-
-        // Modified should have new message but preserve other fields
-        assertEquals("test-provider", modified.getProviderName());
-        assertEquals("test-domain", modified.getDomain());
-        assertEquals("modified message", modified.getMessage());
-        assertEquals(Arrays.asList("flag1"), modified.getFlagsChanged());
-    }
-
-    @Test
     void delegation_shouldWorkCorrectly() {
         List<String> flags = Arrays.asList("flag1", "flag2");
         String message = "Test message";
         var metadata = Metadata.immutableBuilder().add("key", "value").build();
 
-        ProviderEventDetails providerDetails = ProviderEventDetails.builder()
-                .flagsChanged(flags)
-                .message(message)
-                .eventMetadata(metadata)
-                .errorCode(ErrorCode.GENERAL)
-                .build();
+        ProviderEventDetails providerDetails = ProviderEventDetails.of(message, flags, metadata, ErrorCode.GENERAL);
 
-        EventDetails eventDetails = EventDetails.builder()
+        DefaultEventDetails eventDetails = DefaultEventDetails.builder()
                 .providerName("test-provider")
                 .providerEventDetails(providerDetails)
                 .build();
@@ -211,22 +104,21 @@ class EventDetailsTest {
 
     @Test
     void equals_shouldWorkCorrectly() {
-        ProviderEventDetails providerDetails =
-                ProviderEventDetails.builder().message("test message").build();
+        ProviderEventDetails providerDetails = ProviderEventDetails.of("test message");
 
-        EventDetails event1 = EventDetails.builder()
+        EventDetails event1 = DefaultEventDetails.builder()
                 .providerName("provider")
                 .domain("domain")
                 .providerEventDetails(providerDetails)
                 .build();
 
-        EventDetails event2 = EventDetails.builder()
+        EventDetails event2 = DefaultEventDetails.builder()
                 .providerName("provider")
                 .domain("domain")
                 .providerEventDetails(providerDetails)
                 .build();
 
-        EventDetails event3 = EventDetails.builder()
+        EventDetails event3 = DefaultEventDetails.builder()
                 .providerName("different")
                 .domain("domain")
                 .providerEventDetails(providerDetails)
@@ -251,16 +143,15 @@ class EventDetailsTest {
 
     @Test
     void hashCode_shouldBeConsistent() {
-        ProviderEventDetails providerDetails =
-                ProviderEventDetails.builder().message("test message").build();
+        ProviderEventDetails providerDetails = ProviderEventDetails.of("test message");
 
-        EventDetails event1 = EventDetails.builder()
+        EventDetails event1 = DefaultEventDetails.builder()
                 .providerName("provider")
                 .domain("domain")
                 .providerEventDetails(providerDetails)
                 .build();
 
-        EventDetails event2 = EventDetails.builder()
+        EventDetails event2 = DefaultEventDetails.builder()
                 .providerName("provider")
                 .domain("domain")
                 .providerEventDetails(providerDetails)
@@ -271,10 +162,10 @@ class EventDetailsTest {
 
     @Test
     void toString_shouldIncludeAllFields() {
-        EventDetails eventDetails = EventDetails.builder()
+        EventDetails eventDetails = DefaultEventDetails.builder()
                 .providerName("test-provider")
                 .domain("test-domain")
-                .message("test message")
+                .providerEventDetails(ProviderEventDetails.of("test message"))
                 .build();
 
         String toString = eventDetails.toString();
@@ -285,7 +176,7 @@ class EventDetailsTest {
 
     @Test
     void builder_shouldHandleNullDomain() {
-        EventDetails eventDetails = EventDetails.builder()
+        EventDetails eventDetails = DefaultEventDetails.builder()
                 .providerName("test-provider")
                 .domain(null)
                 .build();

@@ -91,11 +91,7 @@ class HookSpecTest implements HookFixtures {
     void nullish_properties_on_hookcontext() {
         // missing ctx
         try {
-            HookContext.<Integer>builder()
-                    .flagKey("key")
-                    .type(FlagValueType.INTEGER)
-                    .defaultValue(1)
-                    .build();
+            new HookContextWithoutData<>("key", FlagValueType.INTEGER, 1, null, null, null);
             fail("Missing context shouldn't be valid");
         } catch (NullPointerException e) {
             // expected
@@ -103,11 +99,7 @@ class HookSpecTest implements HookFixtures {
 
         // missing type
         try {
-            HookContext.<Integer>builder()
-                    .flagKey("key")
-                    .ctx(null)
-                    .defaultValue(1)
-                    .build();
+            new HookContextWithoutData<>("key", null, 1, null, null, EvaluationContext.EMPTY);
             fail("Missing type shouldn't be valid");
         } catch (NullPointerException e) {
             // expected
@@ -115,11 +107,7 @@ class HookSpecTest implements HookFixtures {
 
         // missing key
         try {
-            HookContext.<Integer>builder()
-                    .type(FlagValueType.INTEGER)
-                    .ctx(null)
-                    .defaultValue(1)
-                    .build();
+            new HookContextWithoutData<>(null, FlagValueType.BOOLEAN, 1, null, null, EvaluationContext.EMPTY);
             fail("Missing key shouldn't be valid");
         } catch (NullPointerException e) {
             // expected
@@ -127,11 +115,7 @@ class HookSpecTest implements HookFixtures {
 
         // missing default value
         try {
-            HookContext.<Integer>builder()
-                    .flagKey("key")
-                    .type(FlagValueType.INTEGER)
-                    .ctx(EvaluationContext.EMPTY)
-                    .build();
+            new HookContextWithoutData<>("key", FlagValueType.BOOLEAN, null, null, null, EvaluationContext.EMPTY);
             fail("Missing default value shouldn't be valid");
         } catch (NullPointerException e) {
             // expected
@@ -139,12 +123,7 @@ class HookSpecTest implements HookFixtures {
 
         // normal
         try {
-            HookContext.<Integer>builder()
-                    .flagKey("key")
-                    .type(FlagValueType.INTEGER)
-                    .ctx(EvaluationContext.EMPTY)
-                    .defaultValue(1)
-                    .build();
+            new HookContextWithoutData<>("key", FlagValueType.BOOLEAN, 1, null, null, EvaluationContext.EMPTY);
         } catch (NullPointerException e) {
             fail("NPE after we provided all relevant info");
         }
@@ -155,31 +134,35 @@ class HookSpecTest implements HookFixtures {
             text = "The hook context SHOULD provide: access to the client metadata and the provider metadata fields.")
     @Test
     void optional_properties() {
-        // don't specify
-        HookContext.<Integer>builder()
-                .flagKey("key")
-                .type(FlagValueType.INTEGER)
-                .ctx(EvaluationContext.EMPTY)
-                .defaultValue(1)
-                .build();
+        assertThatCode(() -> {
+                    // don't specify
+                    new HookContextWithoutData<>("key", FlagValueType.BOOLEAN, 1, null, null, EvaluationContext.EMPTY);
+                })
+                .doesNotThrowAnyException();
 
-        // add optional provider
-        HookContext.<Integer>builder()
-                .flagKey("key")
-                .type(FlagValueType.INTEGER)
-                .ctx(EvaluationContext.EMPTY)
-                .providerMetadata(new NoOpProvider().getMetadata())
-                .defaultValue(1)
-                .build();
+        assertThatCode(() -> {
+                    // add optional provider
+                    new HookContextWithoutData<>(
+                            "key",
+                            FlagValueType.BOOLEAN,
+                            1,
+                            null,
+                            new NoOpProvider().getMetadata(),
+                            EvaluationContext.EMPTY);
+                })
+                .doesNotThrowAnyException();
 
-        // add optional client
-        HookContext.<Integer>builder()
-                .flagKey("key")
-                .type(FlagValueType.INTEGER)
-                .ctx(EvaluationContext.EMPTY)
-                .defaultValue(1)
-                .clientMetadata(api.getClient().getMetadata())
-                .build();
+        assertThatCode(() -> {
+                    // add optional client
+                    new HookContextWithoutData<>(
+                            "key",
+                            FlagValueType.BOOLEAN,
+                            1,
+                            api.getClient().getMetadata(),
+                            null,
+                            EvaluationContext.EMPTY);
+                })
+                .doesNotThrowAnyException();
     }
 
     @Specification(

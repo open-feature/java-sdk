@@ -319,8 +319,8 @@ class MutableTrackingEventDetailsTest {
     void mutableVsImmutable_shouldBehaveDifferently() {
         // Compare mutable vs immutable behavior
         MutableTrackingEventDetails mutableDetails = new MutableTrackingEventDetails(42);
-        ImmutableTrackingEventDetails immutableDetails =
-                ImmutableTrackingEventDetails.builder().value(42).build();
+        TrackingEventDetails immutableDetails =
+                TrackingEventDetails.immutableBuilder().value(42).build();
 
         // Both should start equal in content (though they're different classes)
         assertEquals(Optional.of(42), mutableDetails.getValue());

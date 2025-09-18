@@ -14,8 +14,7 @@ class ImmutableTrackingEventDetailsTest {
 
     @Test
     void builder_shouldCreateEmptyDetailsWithoutValue() {
-        ImmutableTrackingEventDetails details =
-                ImmutableTrackingEventDetails.builder().build();
+        TrackingEventDetails details = TrackingEventDetails.EMPTY;
 
         assertEquals(Optional.empty(), details.getValue());
         assertTrue(details.isEmpty());
@@ -25,8 +24,8 @@ class ImmutableTrackingEventDetailsTest {
     @Test
     void builder_shouldCreateDetailsWithValue() {
         Number value = 42;
-        ImmutableTrackingEventDetails details =
-                ImmutableTrackingEventDetails.builder().value(value).build();
+        TrackingEventDetails details =
+                TrackingEventDetails.immutableBuilder().value(value).build();
 
         assertEquals(Optional.of(value), details.getValue());
         assertTrue(details.isEmpty()); // Structure is empty
@@ -34,10 +33,10 @@ class ImmutableTrackingEventDetailsTest {
 
     @Test
     void builder_shouldCreateDetailsWithValueAndAttributes() {
-        ImmutableTrackingEventDetails details = ImmutableTrackingEventDetails.builder()
+        TrackingEventDetails details = TrackingEventDetails.immutableBuilder()
                 .value(3.14)
-                .addString("key1", "value1")
-                .addInteger("key2", 123)
+                .add("key1", "value1")
+                .add("key2", 123)
                 .build();
 
         assertEquals(Optional.of(3.14), details.getValue());
@@ -309,14 +308,14 @@ class ImmutableTrackingEventDetailsTest {
     // Builder-specific tests
     @Test
     void builder_shouldAddAllNumericTypes() {
-        ImmutableTrackingEventDetails details = ImmutableTrackingEventDetails.builder()
+        TrackingEventDetails details = TrackingEventDetails.immutableBuilder()
                 .value(100)
-                .addString("stringKey", "stringValue")
-                .addInteger("intKey", 42)
-                .addLong("longKey", 1234567890L)
-                .addFloat("floatKey", 3.14f)
-                .addDouble("doubleKey", 3.141592653589793)
-                .addBoolean("boolKey", true)
+                .add("stringKey", "stringValue")
+                .add("intKey", 42)
+                .add("longKey", 1234567890L)
+                .add("floatKey", 3.14f)
+                .add("doubleKey", 3.141592653589793)
+                .add("boolKey", true)
                 .build();
 
         assertEquals(Optional.of(100), details.getValue());
@@ -333,14 +332,14 @@ class ImmutableTrackingEventDetailsTest {
 
     @Test
     void builder_shouldHandleNullValues() {
-        ImmutableTrackingEventDetails details = ImmutableTrackingEventDetails.builder()
+        TrackingEventDetails details = TrackingEventDetails.immutableBuilder()
                 .value(null)
-                .addString("stringKey", null)
-                .addInteger("intKey", null)
-                .addLong("longKey", null)
-                .addFloat("floatKey", null)
-                .addDouble("doubleKey", null)
-                .addBoolean("boolKey", null)
+                .add("stringKey", (String) null)
+                .add("intKey", (Integer) null)
+                .add("longKey", (Long) null)
+                .add("floatKey", (Float) null)
+                .add("doubleKey", (Double) null)
+                .add("boolKey", (Boolean) null)
                 .build();
 
         assertEquals(Optional.empty(), details.getValue());
@@ -355,10 +354,10 @@ class ImmutableTrackingEventDetailsTest {
         ImmutableStructure nestedStructure = new ImmutableStructure(nestedAttributes);
         Value customValue = new Value("customValue");
 
-        ImmutableTrackingEventDetails details = ImmutableTrackingEventDetails.builder()
+        TrackingEventDetails details = TrackingEventDetails.immutableBuilder()
                 .value(42)
-                .addStructure("structKey", nestedStructure)
-                .addValue("valueKey", customValue)
+                .add("structKey", nestedStructure)
+                .add("valueKey", customValue)
                 .build();
 
         assertEquals(Optional.of(42), details.getValue());
@@ -372,11 +371,11 @@ class ImmutableTrackingEventDetailsTest {
 
     @Test
     void builder_shouldAllowChaining() {
-        ImmutableTrackingEventDetails details = ImmutableTrackingEventDetails.builder()
+        TrackingEventDetails details = TrackingEventDetails.immutableBuilder()
                 .value(42)
-                .addString("key1", "value1")
-                .addInteger("key2", 100)
-                .addBoolean("key3", true)
+                .add("key1", "value1")
+                .add("key2", 100)
+                .add("key3", true)
                 .build();
 
         assertEquals(Optional.of(42), details.getValue());
@@ -388,9 +387,9 @@ class ImmutableTrackingEventDetailsTest {
 
     @Test
     void builder_shouldOverwriteExistingKeys() {
-        ImmutableTrackingEventDetails details = ImmutableTrackingEventDetails.builder()
-                .addString("key", "firstValue")
-                .addString("key", "secondValue")
+        TrackingEventDetails details = TrackingEventDetails.immutableBuilder()
+                .add("key", "firstValue")
+                .add("key", "secondValue")
                 .build();
 
         assertEquals(1, details.keySet().size());
@@ -403,7 +402,7 @@ class ImmutableTrackingEventDetailsTest {
         attributes.put("key1", new Value("value1"));
         attributes.put("key2", new Value(123));
 
-        ImmutableTrackingEventDetails details = ImmutableTrackingEventDetails.builder()
+        TrackingEventDetails details = TrackingEventDetails.immutableBuilder()
                 .value(42)
                 .attributes(attributes)
                 .build();
@@ -416,10 +415,10 @@ class ImmutableTrackingEventDetailsTest {
 
     @Test
     void builder_shouldHandleNullAttributesMap() {
-        ImmutableTrackingEventDetails details = ImmutableTrackingEventDetails.builder()
+        TrackingEventDetails details = TrackingEventDetails.immutableBuilder()
                 .value(42)
                 .attributes(null)
-                .addString("key", "value")
+                .add("key", "value")
                 .build();
 
         assertEquals(Optional.of(42), details.getValue());
@@ -429,14 +428,15 @@ class ImmutableTrackingEventDetailsTest {
 
     @Test
     void builder_shouldCreateIndependentInstances() {
-        ImmutableTrackingEventDetails.Builder builder =
-                ImmutableTrackingEventDetails.builder().value(42).addString("key1", "value1");
 
-        ImmutableTrackingEventDetails details1 = builder.build();
+        ImmutableTrackingEventDetailsBuilder builder =
+                TrackingEventDetails.immutableBuilder().value(42).add("key1", "value1");
+
+        TrackingEventDetails details1 = builder.build();
 
         // Adding to builder after first build should not affect first instance
-        builder.addString("key2", "value2");
-        ImmutableTrackingEventDetails details2 = builder.build();
+        builder.add("key2", "value2");
+        TrackingEventDetails details2 = builder.build();
 
         assertEquals(1, details1.keySet().size());
         assertEquals(2, details2.keySet().size());
@@ -446,50 +446,11 @@ class ImmutableTrackingEventDetailsTest {
     }
 
     @Test
-    void toBuilder_shouldCreateBuilderWithCurrentState() {
-        ImmutableTrackingEventDetails original = ImmutableTrackingEventDetails.builder()
-                .value(42)
-                .addString("key1", "value1")
-                .addInteger("key2", 123)
-                .build();
-
-        ImmutableTrackingEventDetails copy =
-                original.toBuilder().addString("key3", "value3").build();
-
-        // Original should be unchanged
-        assertEquals(Optional.of(42), original.getValue());
-        assertEquals(2, original.keySet().size());
-
-        // Copy should have original data plus new data
-        assertEquals(Optional.of(42), copy.getValue());
-        assertEquals(3, copy.keySet().size());
-        assertEquals("value1", copy.getValue("key1").asString());
-        assertEquals(123, copy.getValue("key2").asInteger());
-        assertEquals("value3", copy.getValue("key3").asString());
-    }
-
-    @Test
-    void toBuilder_shouldWorkWithEmptyDetails() {
-        ImmutableTrackingEventDetails original =
-                ImmutableTrackingEventDetails.builder().build();
-
-        ImmutableTrackingEventDetails copy =
-                original.toBuilder().value(42).addString("key", "value").build();
-
-        assertEquals(Optional.empty(), original.getValue());
-        assertTrue(original.isEmpty());
-
-        assertEquals(Optional.of(42), copy.getValue());
-        assertEquals(1, copy.keySet().size());
-        assertEquals("value", copy.getValue("key").asString());
-    }
-
-    @Test
     void builder_shouldMaintainImmutability() {
         Map<String, Value> originalAttributes = new HashMap<>();
         originalAttributes.put("key1", new Value("value1"));
 
-        ImmutableTrackingEventDetails details = ImmutableTrackingEventDetails.builder()
+        TrackingEventDetails details = TrackingEventDetails.immutableBuilder()
                 .value(42)
                 .attributes(originalAttributes)
                 .build();

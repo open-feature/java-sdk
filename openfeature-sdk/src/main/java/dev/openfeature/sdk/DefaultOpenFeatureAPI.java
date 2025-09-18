@@ -274,10 +274,7 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
     }
 
     private void emitReady(FeatureProvider provider) {
-        runHandlersForProvider(
-                provider,
-                ProviderEvent.PROVIDER_READY,
-                ProviderEventDetails.builder().build());
+        runHandlersForProvider(provider, ProviderEvent.PROVIDER_READY, ProviderEventDetails.EMPTY);
     }
 
     private void detachEventProvider(FeatureProvider provider) {
@@ -287,10 +284,7 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
     }
 
     private void emitError(FeatureProvider provider, OpenFeatureError exception) {
-        runHandlersForProvider(
-                provider,
-                ProviderEvent.PROVIDER_ERROR,
-                ProviderEventDetails.builder().message(exception.getMessage()).build());
+        runHandlersForProvider(provider, ProviderEvent.PROVIDER_ERROR, ProviderEventDetails.of(exception.getMessage()));
     }
 
     private void emitErrorAndThrow(FeatureProvider provider, OpenFeatureError exception) throws OpenFeatureError {
@@ -438,10 +432,7 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
                     .matchesEvent(event)) {
                 eventSupport.runHandler(
                         handler,
-                        EventDetails.builder()
-                                .providerName(getProvider(domain).getMetadata().getName())
-                                .domain(domain)
-                                .build());
+                        EventDetails.of(getProvider(domain).getMetadata().getName(), domain));
             }
             eventSupport.addClientHandler(domain, event, handler);
         }
@@ -473,36 +464,19 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
                     .orElse("unknown");
 
             // run the global handlers
-            eventSupport.runGlobalHandlers(
-                    event,
-                    EventDetails.builder()
-                            .providerName(providerName)
-                            .providerEventDetails(details)
-                            .build());
+            eventSupport.runGlobalHandlers(event, EventDetails.of(providerName, details));
 
             // run the handlers associated with domains for this provider
-            domainsForProvider.forEach(domain -> eventSupport.runClientHandlers(
-                    domain,
-                    event,
-                    EventDetails.builder()
-                            .providerName(providerName)
-                            .domain(domain)
-                            .providerEventDetails(details)
-                            .build()));
+            domainsForProvider.forEach(domain ->
+                    eventSupport.runClientHandlers(domain, event, EventDetails.of(providerName, domain, details)));
 
             if (providerRepository.isDefaultProvider(provider)) {
                 // run handlers for clients that have no bound providers (since this is the default)
                 Set<String> allDomainNames = eventSupport.getAllDomainNames();
                 Set<String> boundDomains = providerRepository.getAllBoundDomains();
                 allDomainNames.removeAll(boundDomains);
-                allDomainNames.forEach(domain -> eventSupport.runClientHandlers(
-                        domain,
-                        event,
-                        EventDetails.builder()
-                                .providerName(providerName)
-                                .domain(domain)
-                                .providerEventDetails(details)
-                                .build()));
+                allDomainNames.forEach(domain ->
+                        eventSupport.runClientHandlers(domain, event, EventDetails.of(providerName, domain, details)));
             }
         }
     }

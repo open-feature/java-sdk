@@ -1,0 +1,112 @@
+package dev.openfeature.sdk;
+
+import dev.openfeature.api.ClientMetadata;
+import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.FlagValueType;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.HookContext;
+import dev.openfeature.api.ProviderMetadata;
+
+/**
+ * A data class to hold immutable context that {@link Hook} instances use.
+ *
+ * @param <T> the type for the flag being evaluated
+ */
+class HookContextWithoutData<T> implements HookContext<T> {
+    private final String flagKey;
+
+    private final FlagValueType type;
+
+    private final T defaultValue;
+
+    private EvaluationContext ctx;
+
+    private final ClientMetadata clientMetadata;
+    private final ProviderMetadata providerMetadata;
+
+    HookContextWithoutData(
+            String flagKey,
+            FlagValueType type,
+            T defaultValue,
+            ClientMetadata clientMetadata,
+            ProviderMetadata providerMetadata,
+            EvaluationContext ctx) {
+        if (flagKey == null) {
+            throw new NullPointerException("flagKey is null");
+        }
+        this.flagKey = flagKey;
+        if (type == null) {
+            throw new NullPointerException("type is null");
+        }
+        this.type = type;
+        if (defaultValue == null) {
+            throw new NullPointerException("defaultValue is null");
+        }
+        if (ctx == null) {
+            throw new NullPointerException("ctx is null");
+        }
+        this.ctx = ctx;
+        this.defaultValue = defaultValue;
+        this.clientMetadata = clientMetadata;
+        this.providerMetadata = providerMetadata;
+    }
+
+    /**
+     * Builds a {@link HookContextWithoutData} instances from request data.
+     *
+     * @param key              feature flag key
+     * @param type             flag value type
+     * @param clientMetadata   info on which client is calling
+     * @param providerMetadata info on the provider
+     * @param defaultValue     Fallback value
+     * @param <T>              type that the flag is evaluating against
+     * @return resulting context for hook
+     */
+    static <T> HookContextWithoutData<T> of(
+            String key,
+            FlagValueType type,
+            ClientMetadata clientMetadata,
+            ProviderMetadata providerMetadata,
+            T defaultValue) {
+        return new HookContextWithoutData<>(
+                key, type, defaultValue, clientMetadata, providerMetadata, EvaluationContext.EMPTY);
+    }
+
+    public static <T> HookContext<T> of(String flagKey, FlagValueType flagValueType, T defaultValue) {
+        return new HookContextWithoutData<>(flagKey, flagValueType, defaultValue, null, null, EvaluationContext.EMPTY);
+    }
+
+    @Override
+    public String getFlagKey() {
+        return flagKey;
+    }
+
+    @Override
+    public FlagValueType getType() {
+        return type;
+    }
+
+    @Override
+    public T getDefaultValue() {
+        return defaultValue;
+    }
+
+    @Override
+    public EvaluationContext getCtx() {
+        return ctx;
+    }
+
+    void setCtx(EvaluationContext ctx) {
+        this.ctx = ctx;
+    }
+
+    @Override
+    public ClientMetadata getClientMetadata() {
+        return clientMetadata;
+    }
+
+    @Override
+    public ProviderMetadata getProviderMetadata() {
+        return providerMetadata;
+    }
+}

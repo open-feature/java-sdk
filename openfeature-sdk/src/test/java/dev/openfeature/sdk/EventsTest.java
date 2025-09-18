@@ -99,9 +99,7 @@ class EventsTest {
                     api.setProviderAndWait(name, provider);
                     api.onProviderConfigurationChanged(handler);
 
-                    provider.mockEvent(
-                            ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                            ProviderEventDetails.builder().build());
+                    provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.EMPTY);
                     verify(handler, timeout(TIMEOUT)).accept(any());
                 }
 
@@ -133,8 +131,7 @@ class EventsTest {
                     api.onProviderError(handler4);
 
                     Arrays.asList(ProviderEvent.values()).stream().forEach(eventType -> {
-                        provider.mockEvent(
-                                eventType, ProviderEventDetails.builder().build());
+                        provider.mockEvent(eventType, ProviderEventDetails.EMPTY);
                     });
 
                     verify(handler1, timeout(TIMEOUT).atLeastOnce()).accept(any());
@@ -173,9 +170,7 @@ class EventsTest {
                     Client client = api.getClient();
                     client.onProviderStale(handler);
 
-                    provider.mockEvent(
-                            ProviderEvent.PROVIDER_STALE,
-                            ProviderEventDetails.builder().build());
+                    provider.mockEvent(ProviderEvent.PROVIDER_STALE, ProviderEventDetails.EMPTY);
                     verify(handler, timeout(TIMEOUT)).accept(any());
                 }
 
@@ -195,9 +190,7 @@ class EventsTest {
                     Client client = api.getClient(name);
                     client.onProviderStale(handler);
 
-                    provider.mockEvent(
-                            ProviderEvent.PROVIDER_STALE,
-                            ProviderEventDetails.builder().build());
+                    provider.mockEvent(ProviderEvent.PROVIDER_STALE, ProviderEventDetails.EMPTY);
                     verify(handler, timeout(TIMEOUT)).accept(any());
                 }
             }
@@ -312,9 +305,7 @@ class EventsTest {
                 Client client = api.getClient(name);
                 client.onProviderConfigurationChanged(handler);
 
-                provider.mockEvent(
-                        ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                        ProviderEventDetails.builder().build());
+                provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.EMPTY);
                 verify(handler, timeout(TIMEOUT))
                         .accept(argThat(details -> details.getDomain().equals(name)));
             }
@@ -336,9 +327,7 @@ class EventsTest {
                 // set provider after getting a client
                 api.setProviderAndWait(name, provider);
 
-                provider.mockEvent(
-                        ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                        ProviderEventDetails.builder().build());
+                provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.EMPTY);
                 verify(handler, timeout(TIMEOUT))
                         .accept(argThat(details -> details.getDomain().equals(name)));
             }
@@ -372,7 +361,7 @@ class EventsTest {
                 client.onProviderError(handler4);
 
                 Arrays.asList(ProviderEvent.values()).stream().forEach(eventType -> {
-                    provider.mockEvent(eventType, ProviderEventDetails.builder().build());
+                    provider.mockEvent(eventType, ProviderEventDetails.EMPTY);
                 });
                 ArgumentMatcher<EventDetails> nameMatches =
                         (EventDetails details) -> details.getDomain().equals(name);
@@ -406,9 +395,7 @@ class EventsTest {
         await().until(() -> provider1.isShutDown());
 
         // fire old event
-        provider1.mockEvent(
-                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                ProviderEventDetails.builder().build());
+        provider1.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.EMPTY);
 
         // a bit of waiting here, but we want to make sure these are indeed never
         // called.
@@ -439,9 +426,7 @@ class EventsTest {
         client1.onProviderConfigurationChanged(handlerToRun);
         client2.onProviderConfigurationChanged(handlerNotToRun);
 
-        provider1.mockEvent(
-                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                ProviderEventDetails.builder().build());
+        provider1.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.EMPTY);
 
         verify(handlerToRun, timeout(TIMEOUT)).accept(any());
         verify(handlerNotToRun, never()).accept(any());
@@ -469,9 +454,7 @@ class EventsTest {
         await().until(() -> namedProvider.getState().equals(ProviderState.READY));
 
         // fire event on default provider
-        defaultProvider.mockEvent(
-                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                ProviderEventDetails.builder().build());
+        defaultProvider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.EMPTY);
 
         verify(handlerNotToRun, after(TIMEOUT).never()).accept(any());
         api.setProviderAndWait(new NoOpProvider());
@@ -497,9 +480,7 @@ class EventsTest {
         await().until(() -> defaultProvider.getState().equals(ProviderState.READY));
 
         // fire event on default provider
-        defaultProvider.mockEvent(
-                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                ProviderEventDetails.builder().build());
+        defaultProvider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.EMPTY);
 
         verify(handlerToRun, timeout(TIMEOUT)).accept(any());
         api.setProviderAndWait(new NoOpProvider());
@@ -526,9 +507,7 @@ class EventsTest {
         client1.onProviderConfigurationChanged(nextHandler);
         client1.onProviderConfigurationChanged(lastHandler);
 
-        provider.mockEvent(
-                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                ProviderEventDetails.builder().build());
+        provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.EMPTY);
         verify(errorHandler, timeout(TIMEOUT)).accept(any());
         verify(nextHandler, timeout(TIMEOUT)).accept(any());
         verify(lastHandler, timeout(TIMEOUT)).accept(any());
@@ -556,11 +535,7 @@ class EventsTest {
         List<String> flagsChanged = Arrays.asList("flag");
         var metadata = Metadata.immutableBuilder().add("int", 1).build();
         String message = "a message";
-        ProviderEventDetails details = ProviderEventDetails.builder()
-                .eventMetadata(metadata)
-                .flagsChanged(flagsChanged)
-                .message(message)
-                .build();
+        ProviderEventDetails details = ProviderEventDetails.of(message, flagsChanged, metadata);
 
         provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, details);
 
@@ -611,7 +586,7 @@ class EventsTest {
         TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
         Client client = api.getClient(name);
         api.setProviderAndWait(name, provider);
-        provider.emitProviderStale(ProviderEventDetails.builder().build()).await();
+        provider.emitProviderStale(ProviderEventDetails.EMPTY).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.STALE);
 
         // should run even though handler was added after stale
@@ -632,7 +607,7 @@ class EventsTest {
         TestEventsProvider provider = new TestEventsProvider(INIT_DELAY);
         Client client = api.getClient(name);
         api.setProviderAndWait(name, provider);
-        provider.emitProviderError(ProviderEventDetails.builder().build()).await();
+        provider.emitProviderError(ProviderEventDetails.EMPTY).await();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.ERROR);
 
         verify(handler, never()).accept(any());
@@ -655,9 +630,7 @@ class EventsTest {
         Client client = api.getClient(name);
         client.onProviderConfigurationChanged(handler);
 
-        provider1.mockEvent(
-                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                ProviderEventDetails.builder().build());
+        provider1.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.EMPTY);
         ArgumentMatcher<EventDetails> nameMatches =
                 (EventDetails details) -> details.getDomain().equals(name);
 
@@ -668,9 +641,7 @@ class EventsTest {
 
         // verify that with the new provider under the same name, the handler is called
         // again.
-        provider2.mockEvent(
-                ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                ProviderEventDetails.builder().build());
+        provider2.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.EMPTY);
         verify(handler, timeout(TIMEOUT).times(2)).accept(argThat(nameMatches));
     }
 
@@ -698,9 +669,7 @@ class EventsTest {
             client.removeHandler(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, handler2);
 
             // emit event
-            provider.mockEvent(
-                    ProviderEvent.PROVIDER_CONFIGURATION_CHANGED,
-                    ProviderEventDetails.builder().build());
+            provider.mockEvent(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, ProviderEventDetails.EMPTY);
 
             // both global and client handlers should not run.
             verify(handler1, after(TIMEOUT).never()).accept(any());
