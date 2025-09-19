@@ -1,9 +1,12 @@
 package dev.openfeature.sdk;
 
 import dev.openfeature.api.ProviderEvent;
-import dev.openfeature.api.ProviderEventDetails;
+import dev.openfeature.api.events.ProviderEventDetails;
 
+/**
+ * TBD.
+ */
 @FunctionalInterface
-interface EventProviderListener {
+public interface EventProviderListener {
     void onEmit(ProviderEvent event, ProviderEventDetails details);
 }

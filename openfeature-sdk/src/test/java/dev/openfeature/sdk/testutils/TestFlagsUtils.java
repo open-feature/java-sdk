@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import dev.openfeature.api.Metadata;
+import dev.openfeature.api.types.Metadata;
 import dev.openfeature.sdk.providers.memory.ContextEvaluator;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.testutils.jackson.ContextEvaluatorDeserializer;

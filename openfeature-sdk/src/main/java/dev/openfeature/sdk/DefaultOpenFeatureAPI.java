@@ -1,18 +1,19 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.api.AbstractEventProvider;
 import dev.openfeature.api.Client;
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.EventDetails;
-import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.Hook;
 import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.Provider;
 import dev.openfeature.api.ProviderEvent;
-import dev.openfeature.api.ProviderEventDetails;
-import dev.openfeature.api.ProviderMetadata;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.TransactionContextPropagator;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.events.EventDetails;
+import dev.openfeature.api.events.ProviderEventDetails;
 import dev.openfeature.api.exceptions.OpenFeatureError;
 import dev.openfeature.api.internal.noop.NoOpTransactionContextPropagator;
+import dev.openfeature.api.types.ProviderMetadata;
 import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
     private static final Logger log = LoggerFactory.getLogger(DefaultOpenFeatureAPI.class);
     // package-private multi-read/single-write lock
     static AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
-    private final ConcurrentLinkedQueue<Hook> apiHooks;
+    private final ConcurrentLinkedQueue<Hook<?>> apiHooks;
     private ProviderRepository providerRepository;
     private EventSupport eventSupport;
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
@@ -177,21 +178,21 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
      * @return {@link EvaluationContext} The current transaction context
      */
     EvaluationContext getTransactionContext() {
-        return this.transactionContextPropagator.getTransactionContext();
+        return this.transactionContextPropagator.getEvaluationContext();
     }
 
     /**
      * Sets the transaction context using the registered transaction context propagator.
      */
     public void setTransactionContext(EvaluationContext evaluationContext) {
-        this.transactionContextPropagator.setTransactionContext(evaluationContext);
+        this.transactionContextPropagator.setEvaluationContext(evaluationContext);
     }
 
     /**
      * Set the default provider.
      */
     @Override
-    public void setProvider(FeatureProvider provider) {
+    public void setProvider(Provider provider) {
         try (AutoCloseableLock ignored = lock.writeLockAutoCloseable()) {
             providerRepository.setProvider(
                     provider,
@@ -210,7 +211,7 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
      * @param provider The provider to set.
      */
     @Override
-    public void setProvider(String domain, FeatureProvider provider) {
+    public void setProvider(String domain, Provider provider) {
         try (AutoCloseableLock ignored = lock.writeLockAutoCloseable()) {
             providerRepository.setProvider(
                     domain,
@@ -229,10 +230,10 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
      * <p>Note: If the provider fails during initialization, an {@link OpenFeatureError} will be thrown.
      * It is recommended to wrap this call in a try-catch block to handle potential initialization failures gracefully.
      *
-     * @param provider the {@link FeatureProvider} to set as the default.
+     * @param provider the {@link Provider} to set as the default.
      * @throws OpenFeatureError if the provider fails during initialization.
      */
-    public void setProviderAndWait(FeatureProvider provider) throws OpenFeatureError {
+    public void setProviderAndWait(Provider provider) throws OpenFeatureError {
         try (AutoCloseableLock ignored = lock.writeLockAutoCloseable()) {
             providerRepository.setProvider(
                     provider,
@@ -254,7 +255,7 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
      * @param provider The provider to set.
      * @throws OpenFeatureError if the provider fails during initialization.
      */
-    public void setProviderAndWait(String domain, FeatureProvider provider) throws OpenFeatureError {
+    public void setProviderAndWait(String domain, Provider provider) throws OpenFeatureError {
         try (AutoCloseableLock ignored = lock.writeLockAutoCloseable()) {
             providerRepository.setProvider(
                     domain,
@@ -267,27 +268,27 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
         }
     }
 
-    private void attachEventProvider(FeatureProvider provider) {
-        if (provider instanceof EventProvider) {
-            ((EventProvider) provider).attach(this::runHandlersForProvider);
+    private void attachEventProvider(Provider provider) {
+        if (provider instanceof AbstractEventProvider) {
+            ((AbstractEventProvider) provider).attach(this::runHandlersForProvider);
         }
     }
 
-    private void emitReady(FeatureProvider provider) {
+    private void emitReady(Provider provider) {
         runHandlersForProvider(provider, ProviderEvent.PROVIDER_READY, ProviderEventDetails.EMPTY);
     }
 
-    private void detachEventProvider(FeatureProvider provider) {
-        if (provider instanceof EventProvider) {
-            ((EventProvider) provider).detach();
+    private void detachEventProvider(Provider provider) {
+        if (provider instanceof AbstractEventProvider) {
+            ((AbstractEventProvider) provider).detach();
         }
     }
 
-    private void emitError(FeatureProvider provider, OpenFeatureError exception) {
+    private void emitError(Provider provider, OpenFeatureError exception) {
         runHandlersForProvider(provider, ProviderEvent.PROVIDER_ERROR, ProviderEventDetails.of(exception.getMessage()));
     }
 
-    private void emitErrorAndThrow(FeatureProvider provider, OpenFeatureError exception) throws OpenFeatureError {
+    private void emitErrorAndThrow(Provider provider, OpenFeatureError exception) throws OpenFeatureError {
         this.emitError(provider, exception);
         throw exception;
     }
@@ -295,7 +296,7 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
     /**
      * Return the default provider.
      */
-    public FeatureProvider getProvider() {
+    public Provider getProvider() {
         return providerRepository.getProvider();
     }
 
@@ -303,9 +304,9 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
      * Fetch a provider for a domain. If not found, return the default.
      *
      * @param domain The domain to look for.
-     * @return A named {@link FeatureProvider}
+     * @return A named {@link Provider}
      */
-    public FeatureProvider getProvider(String domain) {
+    public Provider getProvider(String domain) {
         return providerRepository.getProvider(domain);
     }
 
@@ -316,8 +317,9 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
      * @param hooks The hook to add.
      */
     @Override
-    public void addHooks(Hook... hooks) {
+    public DefaultOpenFeatureAPI addHooks(Hook<?>... hooks) {
         this.apiHooks.addAll(Arrays.asList(hooks));
+        return this;
     }
 
     /**
@@ -326,7 +328,7 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
      * @return A list of {@link Hook}s.
      */
     @Override
-    public List<Hook> getHooks() {
+    public List<Hook<?>> getHooks() {
         return new ArrayList<>(this.apiHooks);
     }
 
@@ -335,7 +337,7 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
      *
      * @return The collection of {@link Hook}s.
      */
-    public Collection<Hook> getMutableHooks() {
+    public Collection<Hook<?>> getMutableHooks() {
         return this.apiHooks;
     }
 
@@ -453,7 +455,7 @@ class DefaultOpenFeatureAPI extends OpenFeatureAPI {
      * @param event    the event type
      * @param details  the event details
      */
-    private void runHandlersForProvider(FeatureProvider provider, ProviderEvent event, ProviderEventDetails details) {
+    private void runHandlersForProvider(Provider provider, ProviderEvent event, ProviderEventDetails details) {
         try (AutoCloseableLock ignored = lock.readLockAutoCloseable()) {
 
             List<String> domainsForProvider = providerRepository.getDomainsForProvider(provider);

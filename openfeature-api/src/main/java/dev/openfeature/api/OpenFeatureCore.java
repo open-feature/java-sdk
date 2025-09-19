@@ -1,6 +1,7 @@
 package dev.openfeature.api;
 
 import dev.openfeature.api.exceptions.OpenFeatureError;
+import dev.openfeature.api.types.ProviderMetadata;
 
 /**
  * Core interface for basic OpenFeature operations.
@@ -47,7 +48,7 @@ public interface OpenFeatureCore {
      *
      * @param provider the provider to set as default
      */
-    void setProvider(FeatureProvider provider);
+    void setProvider(Provider provider);
 
     /**
      * Add a provider for a domain.
@@ -55,7 +56,7 @@ public interface OpenFeatureCore {
      * @param domain   The domain to bind the provider to.
      * @param provider The provider to set.
      */
-    void setProvider(String domain, FeatureProvider provider);
+    void setProvider(String domain, Provider provider);
 
     /**
      * Sets the default provider and waits for its initialization to complete.
@@ -63,10 +64,10 @@ public interface OpenFeatureCore {
      * <p>Note: If the provider fails during initialization, an {@link OpenFeatureError} will be thrown.
      * It is recommended to wrap this call in a try-catch block to handle potential initialization failures gracefully.
      *
-     * @param provider the {@link FeatureProvider} to set as the default.
+     * @param provider the {@link Provider} to set as the default.
      * @throws OpenFeatureError if the provider fails during initialization.
      */
-    void setProviderAndWait(FeatureProvider provider) throws OpenFeatureError;
+    void setProviderAndWait(Provider provider) throws OpenFeatureError;
 
     /**
      * Add a provider for a domain and wait for initialization to finish.
@@ -78,20 +79,20 @@ public interface OpenFeatureCore {
      * @param provider The provider to set.
      * @throws OpenFeatureError if the provider fails during initialization.
      */
-    void setProviderAndWait(String domain, FeatureProvider provider) throws OpenFeatureError;
+    void setProviderAndWait(String domain, Provider provider) throws OpenFeatureError;
 
     /**
      * Return the default provider.
      */
-    FeatureProvider getProvider();
+    Provider getProvider();
 
     /**
      * Fetch a provider for a domain. If not found, return the default.
      *
      * @param domain The domain to look for.
-     * @return A named {@link FeatureProvider}
+     * @return A named {@link Provider}
      */
-    FeatureProvider getProvider(String domain);
+    Provider getProvider(String domain);
 
     /**
      * Get metadata about the default provider.

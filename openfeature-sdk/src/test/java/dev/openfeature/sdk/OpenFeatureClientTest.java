@@ -10,11 +10,11 @@ import static org.mockito.Mockito.never;
 
 import dev.openfeature.api.Client;
 import dev.openfeature.api.ErrorCode;
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.FlagEvaluationDetails;
 import dev.openfeature.api.Hook;
 import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.Provider;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.FlagEvaluationDetails;
 import dev.openfeature.api.exceptions.FatalError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
@@ -88,7 +88,7 @@ class OpenFeatureClientTest implements HookFixtures {
     @Test
     @DisplayName("Should not call evaluation methods when the provider has state FATAL")
     void shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState() {
-        FeatureProvider provider = new TestEventsProvider(100, true, "fake fatal", true);
+        Provider provider = new TestEventsProvider(100, true, "fake fatal", true);
         OpenFeatureAPI api = new DefaultOpenFeatureAPI();
         Client client = api.getClient("shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState");
 
@@ -103,7 +103,7 @@ class OpenFeatureClientTest implements HookFixtures {
     @Test
     @DisplayName("Should not call evaluation methods when the provider has state NOT_READY")
     void shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState() {
-        FeatureProvider provider = new TestEventsProvider(5000);
+        Provider provider = new TestEventsProvider(5000);
         OpenFeatureAPI api = new DefaultOpenFeatureAPI();
         api.setProvider("shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState", provider);
         Client client = api.getClient("shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState");

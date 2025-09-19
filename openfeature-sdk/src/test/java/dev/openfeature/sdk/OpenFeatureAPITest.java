@@ -8,11 +8,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.MutableTrackingEventDetails;
+import dev.openfeature.api.Provider;
 import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.evaluation.EvaluationContext;
 import dev.openfeature.api.internal.noop.NoOpProvider;
+import dev.openfeature.api.tracking.MutableTrackingEventDetails;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.Collections;
@@ -33,7 +33,7 @@ class OpenFeatureAPITest {
 
     @Test
     void namedProviderTest() {
-        FeatureProvider provider = new NoOpProvider();
+        Provider provider = new NoOpProvider();
         api.setProviderAndWait("namedProviderTest", provider);
 
         assertThat(provider.getMetadata().getName())
@@ -47,8 +47,8 @@ class OpenFeatureAPITest {
     @Test
     void namedProviderOverwrittenTest() {
         String domain = "namedProviderOverwrittenTest";
-        FeatureProvider provider1 = new NoOpProvider();
-        FeatureProvider provider2 = new DoSomethingProvider();
+        Provider provider1 = new NoOpProvider();
+        Provider provider2 = new DoSomethingProvider();
         api.setProviderAndWait(domain, provider1);
         api.setProviderAndWait(domain, provider2);
 
@@ -57,8 +57,8 @@ class OpenFeatureAPITest {
 
     @Test
     void providerToMultipleNames() throws Exception {
-        FeatureProvider inMemAsEventingProvider = new InMemoryProvider(Collections.EMPTY_MAP);
-        FeatureProvider noOpAsNonEventingProvider = new NoOpProvider();
+        Provider inMemAsEventingProvider = new InMemoryProvider(Collections.EMPTY_MAP);
+        Provider noOpAsNonEventingProvider = new NoOpProvider();
 
         // register same provider for multiple names & as default provider
         api.setProviderAndWait(inMemAsEventingProvider);
@@ -100,8 +100,8 @@ class OpenFeatureAPITest {
     @Test
     void getStateReturnsTheStateOfTheAppropriateProvider() throws Exception {
         String domain = "namedProviderOverwrittenTest";
-        FeatureProvider provider1 = new NoOpProvider();
-        FeatureProvider provider2 = new TestEventsProvider();
+        Provider provider1 = new NoOpProvider();
+        Provider provider2 = new TestEventsProvider();
         api.setProviderAndWait(domain, provider1);
         api.setProviderAndWait(domain, provider2);
 
@@ -112,7 +112,7 @@ class OpenFeatureAPITest {
 
     @Test
     void featureProviderTrackIsCalled() throws Exception {
-        FeatureProvider featureProvider = mock(FeatureProvider.class);
+        Provider featureProvider = mock(Provider.class);
         api.setProviderAndWait(featureProvider);
 
         api.getClient().track("track-event", EvaluationContext.EMPTY, new MutableTrackingEventDetails(22.2f));

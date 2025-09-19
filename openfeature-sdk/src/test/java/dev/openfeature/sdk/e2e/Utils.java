@@ -2,7 +2,7 @@ package dev.openfeature.sdk.e2e;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.types.Value;
 import java.util.Objects;
 
 public final class Utils {

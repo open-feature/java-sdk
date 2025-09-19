@@ -5,7 +5,7 @@ import dev.cel.compiler.CelCompiler;
 import dev.cel.compiler.CelCompilerFactory;
 import dev.cel.runtime.CelRuntime;
 import dev.cel.runtime.CelRuntimeFactory;
-import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.evaluation.EvaluationContext;
 import dev.openfeature.sdk.providers.memory.ContextEvaluator;
 import dev.openfeature.sdk.providers.memory.Flag;
 import java.util.HashMap;

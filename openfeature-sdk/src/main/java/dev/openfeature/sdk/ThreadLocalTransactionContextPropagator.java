@@ -1,7 +1,7 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.TransactionContextPropagator;
+import dev.openfeature.api.evaluation.EvaluationContext;
 
 /**
  * A {@link ThreadLocalTransactionContextPropagator} is a transactional context propagator
@@ -17,7 +17,7 @@ public class ThreadLocalTransactionContextPropagator implements TransactionConte
      * {@inheritDoc}
      */
     @Override
-    public EvaluationContext getTransactionContext() {
+    public EvaluationContext getEvaluationContext() {
         return this.evaluationContextThreadLocal.get();
     }
 
@@ -25,7 +25,8 @@ public class ThreadLocalTransactionContextPropagator implements TransactionConte
      * {@inheritDoc}
      */
     @Override
-    public void setTransactionContext(EvaluationContext evaluationContext) {
+    public ThreadLocalTransactionContextPropagator setEvaluationContext(EvaluationContext evaluationContext) {
         this.evaluationContextThreadLocal.set(evaluationContext);
+        return this;
     }
 }

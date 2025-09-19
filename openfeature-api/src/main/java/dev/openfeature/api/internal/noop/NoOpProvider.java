@@ -1,33 +1,28 @@
 package dev.openfeature.api.internal.noop;
 
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.ProviderEvaluation;
-import dev.openfeature.api.ProviderMetadata;
-import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.Provider;
 import dev.openfeature.api.Reason;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.ProviderEvaluation;
 import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
+import dev.openfeature.api.types.ProviderMetadata;
+import dev.openfeature.api.types.Value;
+import java.util.List;
 
 /**
- * A {@link FeatureProvider} that simply returns the default values passed to it.
+ * A {@link Provider} that simply returns the default values passed to it.
  *
  * <p><strong>This is an internal implementation class and should not be used directly by external users.</strong>
  */
 @ExcludeFromGeneratedCoverageReport
-public class NoOpProvider implements FeatureProvider {
+public class NoOpProvider implements Provider {
     public static final String PASSED_IN_DEFAULT = "Passed in default";
 
     private final String name = "No-op Provider";
 
     public String getName() {
         return name;
-    }
-
-    // The Noop provider is ALWAYS NOT_READY, otherwise READY handlers would run immediately when attached.
-    @Override
-    public ProviderState getState() {
-        return ProviderState.NOT_READY;
     }
 
     @Override
@@ -59,5 +54,15 @@ public class NoOpProvider implements FeatureProvider {
     public ProviderEvaluation<Value> getObjectEvaluation(
             String key, Value defaultValue, EvaluationContext invocationContext) {
         return ProviderEvaluation.of(defaultValue, PASSED_IN_DEFAULT, Reason.DEFAULT.toString(), null);
+    }
+
+    @Override
+    public Provider addHooks(Hook<?>... hooks) {
+        return this;
+    }
+
+    @Override
+    public List<Hook<?>> getHooks() {
+        return List.of();
     }
 }

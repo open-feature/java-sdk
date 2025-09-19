@@ -44,27 +44,27 @@
         <Bug pattern="EI_EXPOSE_REP"/>
     </And>
     <And>
-        <Class name="dev.openfeature.api.FlagEvaluationOptions"/>
+        <Class name="dev.openfeature.api.evaluation.FlagEvaluationOptions"/>
         <Bug pattern="EI_EXPOSE_REP"/>
     </And>
     <And>
-        <Class name="dev.openfeature.api.FlagEvaluationOptions"/>
+        <Class name="dev.openfeature.api.evaluation.FlagEvaluationOptions"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </And>
     <And>
-        <Class name="dev.openfeature.api.FlagEvaluationOptions$FlagEvaluationOptionsBuilder"/>
+        <Class name="dev.openfeature.api.evaluation.FlagEvaluationOptions$FlagEvaluationOptionsBuilder"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </And>
     <And>
-        <Class name="dev.openfeature.api.DefaultProviderEventDetails"/>
+        <Class name="dev.openfeature.api.events.DefaultProviderEventDetails"/>
         <Bug pattern="EI_EXPOSE_REP"/>
     </And>
     <And>
-        <Class name="dev.openfeature.api.DefaultProviderEventDetails"/>
+        <Class name="dev.openfeature.api.events.DefaultProviderEventDetails"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </And>
     <And>
-        <Class name="dev.openfeature.api.DefaultProviderEventDetails$ProviderEventDetailsBuilder"/>
+        <Class name="dev.openfeature.api.events.DefaultProviderEventDetails$ProviderEventDetailsBuilder"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </And>
     <And>
@@ -96,7 +96,7 @@
     </And>
     <And>
         Added in spotbugs 4.8.0 - Metadata shares a name with something from the standard lib (confusing), but change would be breaking
-        <Class name="dev.openfeature.api.ProviderMetadata"/>
+        <Class name="dev.openfeature.api.types.ProviderMetadata"/>
         <Bug pattern="PI_DO_NOT_REUSE_PUBLIC_IDENTIFIERS_CLASS_NAMES"/>
     </And>
     <And>
@@ -111,16 +111,16 @@
     </And>
     <!-- Lombok generated code issues -->
     <And>
-        <Class name="dev.openfeature.api.HookContext"/>
+        <Class name="dev.openfeature.api.lifecycle.HookContext"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
     </And>
     <And>
-        <Class name="dev.openfeature.api.HookContext"/>
+        <Class name="dev.openfeature.api.lifecycle.HookContext"/>
         <Bug pattern="ES_COMPARING_PARAMETER_STRING_WITH_EQ"/>
     </And>
     <!-- Intentional null return for Boolean wrapper -->
     <And>
-        <Class name="dev.openfeature.api.ImmutableMetadata"/>
+        <Class name="dev.openfeature.api.types.ImmutableMetadata"/>
         <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
     </And>
 

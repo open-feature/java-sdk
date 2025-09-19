@@ -1,15 +1,18 @@
 package dev.openfeature.sdk.testutils;
 
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.EventDetails;
-import dev.openfeature.api.ProviderEvaluation;
+import dev.openfeature.api.AbstractEventProvider;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.Provider;
 import dev.openfeature.api.ProviderEvent;
-import dev.openfeature.api.ProviderMetadata;
-import dev.openfeature.api.Value;
-import dev.openfeature.sdk.EventProvider;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.ProviderEvaluation;
+import dev.openfeature.api.events.EventDetails;
+import dev.openfeature.api.types.ProviderMetadata;
+import dev.openfeature.api.types.Value;
+import java.util.List;
 import java.util.function.Consumer;
 
-public class TestStackedEmitCallsProvider extends EventProvider {
+public class TestStackedEmitCallsProvider extends AbstractEventProvider {
     private final NestedBlockingEmitter nestedBlockingEmitter = new NestedBlockingEmitter(this::onProviderEvent);
 
     @Override
@@ -66,6 +69,16 @@ public class TestStackedEmitCallsProvider extends EventProvider {
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
         throw new UnsupportedOperationException("Unimplemented method 'getObjectEvaluation'");
+    }
+
+    @Override
+    public Provider addHooks(Hook<?>... hooks) {
+        return this;
+    }
+
+    @Override
+    public List<Hook<?>> getHooks() {
+        return List.of();
     }
 
     static class NestedBlockingEmitter {

@@ -1,11 +1,11 @@
 package dev.openfeature.sdk.hooks.logging;
 
 import dev.openfeature.api.ErrorCode;
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.FlagEvaluationDetails;
 import dev.openfeature.api.Hook;
-import dev.openfeature.api.HookContext;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.FlagEvaluationDetails;
 import dev.openfeature.api.exceptions.OpenFeatureError;
+import dev.openfeature.api.lifecycle.HookContext;
 import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;

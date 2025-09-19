@@ -1,11 +1,12 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.api.AbstractEventProvider;
 import dev.openfeature.api.ErrorCode;
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.Provider;
 import dev.openfeature.api.ProviderEvent;
-import dev.openfeature.api.ProviderEventDetails;
 import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.events.ProviderEventDetails;
 import dev.openfeature.api.exceptions.OpenFeatureError;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -14,14 +15,15 @@ import org.slf4j.LoggerFactory;
 
 class FeatureProviderStateManager implements EventProviderListener {
     private static final Logger log = LoggerFactory.getLogger(FeatureProviderStateManager.class);
-    private final FeatureProvider delegate;
+    private final Provider delegate;
     private final AtomicBoolean isInitialized = new AtomicBoolean();
     private final AtomicReference<ProviderState> state = new AtomicReference<>(ProviderState.NOT_READY);
 
-    public FeatureProviderStateManager(FeatureProvider delegate) {
+    public FeatureProviderStateManager(Provider delegate) {
         this.delegate = delegate;
-        if (delegate instanceof EventProvider) {
-            ((EventProvider) delegate).setEventProviderListener(this);
+        if (delegate instanceof AbstractEventProvider) {
+            ((AbstractEventProvider) delegate)
+                    .setEventEmitter(new EventEmitter((AbstractEventProvider) delegate, this));
         }
     }
 
@@ -85,11 +87,11 @@ class FeatureProviderStateManager implements EventProviderListener {
         return state.get();
     }
 
-    FeatureProvider getProvider() {
+    Provider getProvider() {
         return delegate;
     }
 
-    public boolean hasSameProvider(FeatureProvider featureProvider) {
+    public boolean hasSameProvider(Provider featureProvider) {
         return this.delegate.equals(featureProvider);
     }
 }

@@ -1,17 +1,17 @@
 package dev.openfeature.sdk.testutils;
 
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.ProviderEvaluation;
+import dev.openfeature.api.AbstractEventProvider;
 import dev.openfeature.api.ProviderEvent;
-import dev.openfeature.api.ProviderEventDetails;
-import dev.openfeature.api.ProviderMetadata;
 import dev.openfeature.api.Reason;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.ProviderEvaluation;
+import dev.openfeature.api.events.ProviderEventDetails;
 import dev.openfeature.api.exceptions.FatalError;
 import dev.openfeature.api.exceptions.GeneralError;
-import dev.openfeature.sdk.EventProvider;
+import dev.openfeature.api.types.ProviderMetadata;
+import dev.openfeature.api.types.Value;
 
-public class TestEventsProvider extends EventProvider {
+public class TestEventsProvider extends AbstractEventProvider {
     public static final String PASSED_IN_DEFAULT = "Passed in default";
 
     private boolean initError = false;

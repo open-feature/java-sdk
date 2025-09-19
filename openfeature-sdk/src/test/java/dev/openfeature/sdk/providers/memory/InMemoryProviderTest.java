@@ -1,6 +1,6 @@
 package dev.openfeature.sdk.providers.memory;
 
-import static dev.openfeature.api.Structure.mapToStructure;
+import static dev.openfeature.api.types.Structure.mapToStructure;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,13 +14,13 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableMap;
 import dev.openfeature.api.Client;
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.EventDetails;
 import dev.openfeature.api.OpenFeatureAPI;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.events.EventDetails;
 import dev.openfeature.api.exceptions.FlagNotFoundError;
 import dev.openfeature.api.exceptions.ProviderNotReadyError;
 import dev.openfeature.api.exceptions.TypeMismatchError;
+import dev.openfeature.api.types.Value;
 import dev.openfeature.sdk.OpenFeatureAPITestUtil;
 import java.util.HashMap;
 import java.util.Map;

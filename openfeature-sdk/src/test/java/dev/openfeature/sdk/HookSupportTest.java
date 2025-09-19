@@ -5,7 +5,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dev.openfeature.api.*;
+import dev.openfeature.api.FlagValueType;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.FlagEvaluationDetails;
+import dev.openfeature.api.lifecycle.HookContext;
+import dev.openfeature.api.lifecycle.HookData;
+import dev.openfeature.api.types.Value;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import java.util.Arrays;
 import java.util.Collections;
@@ -160,7 +166,7 @@ class HookSupportTest implements HookFixtures {
             FlagValueType flagValueType,
             HookSupport hookSupport,
             HookContext<Object> hookContext,
-            List<Pair<Hook, HookData>> pairs) {
+            List<Pair<Hook<?>, HookData>> pairs) {
         hookSupport.beforeHooks(flagValueType, hookContext, pairs, Collections.emptyMap());
         hookSupport.afterHooks(flagValueType, hookContext, FlagEvaluationDetails.EMPTY, pairs, Collections.emptyMap());
         hookSupport.errorHooks(flagValueType, hookContext, new Exception(), pairs, Collections.emptyMap());
@@ -192,7 +198,7 @@ class HookSupportTest implements HookFixtures {
         return baseContext;
     }
 
-    private class TestHookWithData implements Hook {
+    private class TestHookWithData implements Hook<Object> {
 
         private final String key;
         Object value;

@@ -1,7 +1,7 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.api.EventDetails;
 import dev.openfeature.api.ProviderEvent;
+import dev.openfeature.api.events.EventDetails;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;

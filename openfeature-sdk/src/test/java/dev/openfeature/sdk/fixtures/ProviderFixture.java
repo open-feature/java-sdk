@@ -7,9 +7,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.Provider;
+import dev.openfeature.api.evaluation.EvaluationContext;
 import java.io.FileNotFoundException;
 import java.util.concurrent.CountDownLatch;
 import org.mockito.stubbing.Answer;
@@ -20,27 +19,33 @@ public class ProviderFixture {
         // Utility class
     }
 
-    public static FeatureProvider createMockedProvider() {
-        FeatureProvider provider = mock(FeatureProvider.class);
-        doReturn(ProviderState.NOT_READY).when(provider).getState();
+    public static Provider createMockedProvider() {
+        Provider provider = mock(Provider.class);
+
+        // TODO: handle missing getState()
+        // doReturn(ProviderState.NOT_READY).when(provider).getState();
         return provider;
     }
 
-    public static FeatureProvider createMockedReadyProvider() {
-        FeatureProvider provider = mock(FeatureProvider.class);
-        doReturn(ProviderState.READY).when(provider).getState();
+    public static Provider createMockedReadyProvider() {
+        Provider provider = mock(Provider.class);
+
+        // TODO: handle missing getState()
+        // doReturn(ProviderState.READY).when(provider).getState();
         return provider;
     }
 
-    public static FeatureProvider createMockedErrorProvider() throws Exception {
-        FeatureProvider provider = mock(FeatureProvider.class);
-        doReturn(ProviderState.NOT_READY).when(provider).getState();
+    public static Provider createMockedErrorProvider() throws Exception {
+        Provider provider = mock(Provider.class);
+
+        // TODO: handle missing getState()
+        // doReturn(ProviderState.NOT_READY).when(provider).getState();
         doThrow(FileNotFoundException.class).when(provider).initialize(any());
         return provider;
     }
 
-    public static FeatureProvider createBlockedProvider(CountDownLatch latch, Runnable onAnswer) throws Exception {
-        FeatureProvider provider = createMockedProvider();
+    public static Provider createBlockedProvider(CountDownLatch latch, Runnable onAnswer) throws Exception {
+        Provider provider = createMockedProvider();
         doBlock(latch, createAnswerExecutingCode(onAnswer)).when(provider).initialize(EvaluationContext.EMPTY);
         doReturn("blockedProvider").when(provider).toString();
         return provider;
@@ -53,8 +58,8 @@ public class ProviderFixture {
         };
     }
 
-    public static FeatureProvider createUnblockingProvider(CountDownLatch latch) throws Exception {
-        FeatureProvider provider = createMockedProvider();
+    public static Provider createUnblockingProvider(CountDownLatch latch) throws Exception {
+        Provider provider = createMockedProvider();
         doAnswer(invocation -> {
                     latch.countDown();
                     return null;

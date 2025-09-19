@@ -1,29 +1,29 @@
 package dev.openfeature.sdk;
 
 import dev.openfeature.api.Client;
-import dev.openfeature.api.ClientMetadata;
 import dev.openfeature.api.ErrorCode;
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.EventDetails;
-import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.FlagEvaluationDetails;
-import dev.openfeature.api.FlagEvaluationOptions;
 import dev.openfeature.api.FlagValueType;
 import dev.openfeature.api.Hook;
-import dev.openfeature.api.HookData;
-import dev.openfeature.api.ImmutableStructure;
-import dev.openfeature.api.Metadata;
-import dev.openfeature.api.ProviderEvaluation;
+import dev.openfeature.api.Provider;
 import dev.openfeature.api.ProviderEvent;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.Reason;
-import dev.openfeature.api.TrackingEventDetails;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.FlagEvaluationDetails;
+import dev.openfeature.api.evaluation.FlagEvaluationOptions;
+import dev.openfeature.api.evaluation.ProviderEvaluation;
+import dev.openfeature.api.events.EventDetails;
 import dev.openfeature.api.exceptions.ExceptionUtils;
 import dev.openfeature.api.exceptions.FatalError;
 import dev.openfeature.api.exceptions.GeneralError;
 import dev.openfeature.api.exceptions.OpenFeatureError;
 import dev.openfeature.api.exceptions.ProviderNotReadyError;
+import dev.openfeature.api.lifecycle.HookData;
+import dev.openfeature.api.tracking.TrackingEventDetails;
+import dev.openfeature.api.types.ClientMetadata;
+import dev.openfeature.api.types.ImmutableStructure;
+import dev.openfeature.api.types.Metadata;
+import dev.openfeature.api.types.Value;
 import dev.openfeature.sdk.internal.ObjectUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
@@ -69,7 +69,7 @@ class OpenFeatureClient implements Client {
         return version;
     }
 
-    private final ConcurrentLinkedQueue<Hook> clientHooks;
+    private final ConcurrentLinkedQueue<Hook<?>> clientHooks;
     private final HookSupport hookSupport;
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
 
@@ -143,7 +143,7 @@ class OpenFeatureClient implements Client {
      * {@inheritDoc}
      */
     @Override
-    public OpenFeatureClient addHooks(Hook... hooks) {
+    public OpenFeatureClient addHooks(Hook<?>... hooks) {
         this.clientHooks.addAll(Arrays.asList(hooks));
         return this;
     }
@@ -152,7 +152,7 @@ class OpenFeatureClient implements Client {
      * {@inheritDoc}
      */
     @Override
-    public List<Hook> getHooks() {
+    public List<Hook<?>> getHooks() {
         return new ArrayList<>(this.clientHooks);
     }
 
@@ -184,8 +184,8 @@ class OpenFeatureClient implements Client {
         var hints = Collections.unmodifiableMap(flagOptions.getHookHints());
 
         FlagEvaluationDetails<T> details = null;
-        List<Hook> mergedHooks;
-        List<Pair<Hook, HookData>> hookDataPairs = null;
+        List<Hook<?>> mergedHooks;
+        List<Pair<Hook<?>, HookData>> hookDataPairs = null;
         HookContextWithoutData<T> hookContext = null;
         ProviderEvaluation<T> providerEval = null;
 
@@ -202,7 +202,7 @@ class OpenFeatureClient implements Client {
             hookContext.setCtx(mergeEvaluationContext(ctx));
 
             mergedHooks = ObjectUtils.merge(
-                    provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
+                    provider.getHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
             hookDataPairs = hookSupport.getHookDataPairs(mergedHooks, type);
             var mergedCtx = hookSupport.beforeHooks(type, hookContext, hookDataPairs, hints);
             hookContext.setCtx(mergedCtx);
@@ -310,11 +310,7 @@ class OpenFeatureClient implements Client {
     }
 
     private <T> ProviderEvaluation<?> createProviderEvaluation(
-            FlagValueType type,
-            String key,
-            T defaultValue,
-            FeatureProvider provider,
-            EvaluationContext invocationContext) {
+            FlagValueType type, String key, T defaultValue, Provider provider, EvaluationContext invocationContext) {
         switch (type) {
             case BOOLEAN:
                 return provider.getBooleanEvaluation(key, (Boolean) defaultValue, invocationContext);

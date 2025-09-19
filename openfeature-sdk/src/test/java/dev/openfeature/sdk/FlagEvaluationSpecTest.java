@@ -18,19 +18,19 @@ import static org.mockito.Mockito.verify;
 
 import dev.openfeature.api.Client;
 import dev.openfeature.api.ErrorCode;
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.FlagEvaluationDetails;
-import dev.openfeature.api.FlagEvaluationOptions;
 import dev.openfeature.api.Hook;
-import dev.openfeature.api.HookContext;
 import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.Provider;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.Reason;
 import dev.openfeature.api.TransactionContextPropagator;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.FlagEvaluationDetails;
+import dev.openfeature.api.evaluation.FlagEvaluationOptions;
 import dev.openfeature.api.exceptions.GeneralError;
 import dev.openfeature.api.internal.noop.NoOpProvider;
+import dev.openfeature.api.lifecycle.HookContext;
+import dev.openfeature.api.types.Value;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.HashMap;
@@ -83,7 +83,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "The API MUST define a provider mutator, a function to set the default provider, which accepts an API-conformant provider implementation.")
     @Test
     void provider() {
-        FeatureProvider mockProvider = mock(FeatureProvider.class);
+        Provider mockProvider = mock(Provider.class);
         api.setProviderAndWait(mockProvider);
         assertThat(api.getProvider()).isEqualTo(mockProvider);
     }
@@ -94,7 +94,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "The API SHOULD provide functions to set a provider and wait for the initialize function to return or throw.")
     @Test
     void providerAndWait() throws Exception {
-        FeatureProvider provider = new TestEventsProvider(500);
+        Provider provider = new TestEventsProvider(500);
         api.setProviderAndWait(provider);
         Client client = api.getClient();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
@@ -112,10 +112,10 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "The API SHOULD provide functions to set a provider and wait for the initialize function to return or throw.")
     @Test
     void providerAndWaitError() throws Exception {
-        FeatureProvider provider1 = new TestEventsProvider(500, true, "fake error");
+        Provider provider1 = new TestEventsProvider(500, true, "fake error");
         assertThrows(GeneralError.class, () -> api.setProviderAndWait(provider1));
 
-        FeatureProvider provider2 = new TestEventsProvider(500, true, "fake error");
+        Provider provider2 = new TestEventsProvider(500, true, "fake error");
         String providerName = "providerAndWaitError";
         assertThrows(GeneralError.class, () -> api.setProviderAndWait(providerName, provider2));
     }
@@ -126,7 +126,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "The provider SHOULD indicate an error if flag resolution is attempted before the provider is ready.")
     @Test
     void shouldReturnNotReadyIfNotInitialized() {
-        FeatureProvider provider = new TestEventsProvider(100);
+        Provider provider = new TestEventsProvider(100);
         String providerName = "shouldReturnNotReadyIfNotInitialized";
         api.setProvider(providerName, provider);
         Client client = api.getClient(providerName);
@@ -186,7 +186,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         Hook m2 = mock(Hook.class);
         c.addHooks(m1);
         c.addHooks(m2);
-        List<Hook> hooks = c.getHooks();
+        List<Hook<?>> hooks = c.getHooks();
         assertEquals(2, hooks.size());
         assertTrue(hooks.contains(m1));
         assertTrue(hooks.contains(m2));
@@ -716,7 +716,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         EvaluationContext transactionContext = EvaluationContext.immutableOf(attributes);
 
         api.setTransactionContext(transactionContext);
-        assertEquals(transactionContext, transactionContextPropagator.getTransactionContext());
+        assertEquals(transactionContext, transactionContextPropagator.getEvaluationContext());
     }
 
     @Specification(
@@ -735,8 +735,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
         attributes.put("common", new Value("1"));
         EvaluationContext transactionContext = EvaluationContext.immutableOf(attributes);
 
-        transactionContextPropagator.setTransactionContext(transactionContext);
-        assertEquals(transactionContext, transactionContextPropagator.getTransactionContext());
+        transactionContextPropagator.setEvaluationContext(transactionContext);
+        assertEquals(transactionContext, transactionContextPropagator.getEvaluationContext());
     }
 
     @Specification(

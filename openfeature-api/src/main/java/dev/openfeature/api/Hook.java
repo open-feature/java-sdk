@@ -1,5 +1,8 @@
 package dev.openfeature.api;
 
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.FlagEvaluationDetails;
+import dev.openfeature.api.lifecycle.HookContext;
 import java.util.Map;
 import java.util.Optional;
 

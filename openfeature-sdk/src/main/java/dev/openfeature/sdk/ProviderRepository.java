@@ -1,6 +1,6 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.Provider;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.exceptions.GeneralError;
 import dev.openfeature.api.exceptions.OpenFeatureError;
@@ -57,7 +57,7 @@ class ProviderRepository {
     /**
      * Return the default provider.
      */
-    public FeatureProvider getProvider() {
+    public Provider getProvider() {
         return defaultStateManger.get().getProvider();
     }
 
@@ -65,9 +65,9 @@ class ProviderRepository {
      * Fetch a provider for a domain. If not found, return the default.
      *
      * @param domain The domain to look for.
-     * @return A named {@link FeatureProvider}
+     * @return A named {@link Provider}
      */
-    public FeatureProvider getProvider(String domain) {
+    public Provider getProvider(String domain) {
         return getFeatureProviderStateManager(domain).getProvider();
     }
 
@@ -75,7 +75,7 @@ class ProviderRepository {
         return getFeatureProviderStateManager().getState();
     }
 
-    public ProviderState getProviderState(FeatureProvider featureProvider) {
+    public ProviderState getProviderState(Provider featureProvider) {
         if (featureProvider instanceof FeatureProviderStateManager) {
             return ((FeatureProviderStateManager) featureProvider).getState();
         }
@@ -100,7 +100,7 @@ class ProviderRepository {
                 .getState();
     }
 
-    public List<String> getDomainsForProvider(FeatureProvider provider) {
+    public List<String> getDomainsForProvider(Provider provider) {
         return stateManagers.entrySet().stream()
                 .filter(entry -> entry.getValue().hasSameProvider(provider))
                 .map(Map.Entry::getKey)
@@ -111,7 +111,7 @@ class ProviderRepository {
         return stateManagers.keySet();
     }
 
-    public boolean isDefaultProvider(FeatureProvider provider) {
+    public boolean isDefaultProvider(Provider provider) {
         return this.getProvider().equals(provider);
     }
 
@@ -119,11 +119,11 @@ class ProviderRepository {
      * Set the default provider.
      */
     public void setProvider(
-            FeatureProvider provider,
-            Consumer<FeatureProvider> afterSet,
-            Consumer<FeatureProvider> afterInit,
-            Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            Provider provider,
+            Consumer<Provider> afterSet,
+            Consumer<Provider> afterInit,
+            Consumer<Provider> afterShutdown,
+            BiConsumer<Provider, OpenFeatureError> afterError,
             boolean waitForInit) {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
@@ -141,11 +141,11 @@ class ProviderRepository {
      */
     public void setProvider(
             String domain,
-            FeatureProvider provider,
-            Consumer<FeatureProvider> afterSet,
-            Consumer<FeatureProvider> afterInit,
-            Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            Provider provider,
+            Consumer<Provider> afterSet,
+            Consumer<Provider> afterInit,
+            Consumer<Provider> afterShutdown,
+            BiConsumer<Provider, OpenFeatureError> afterError,
             boolean waitForInit) {
         if (provider == null) {
             throw new IllegalArgumentException("Provider cannot be null");
@@ -158,11 +158,11 @@ class ProviderRepository {
 
     private void prepareAndInitializeProvider(
             String domain,
-            FeatureProvider newProvider,
-            Consumer<FeatureProvider> afterSet,
-            Consumer<FeatureProvider> afterInit,
-            Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            Provider newProvider,
+            Consumer<Provider> afterSet,
+            Consumer<Provider> afterInit,
+            Consumer<Provider> afterShutdown,
+            BiConsumer<Provider, OpenFeatureError> afterError,
             boolean waitForInit) {
         final FeatureProviderStateManager newStateManager;
         final FeatureProviderStateManager oldStateManager;
@@ -193,7 +193,7 @@ class ProviderRepository {
         }
     }
 
-    private FeatureProviderStateManager getExistingStateManagerForProvider(FeatureProvider provider) {
+    private FeatureProviderStateManager getExistingStateManagerForProvider(Provider provider) {
         for (FeatureProviderStateManager stateManager : stateManagers.values()) {
             if (stateManager.hasSameProvider(provider)) {
                 return stateManager;
@@ -208,9 +208,9 @@ class ProviderRepository {
 
     private void initializeProvider(
             FeatureProviderStateManager newManager,
-            Consumer<FeatureProvider> afterInit,
-            Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, OpenFeatureError> afterError,
+            Consumer<Provider> afterInit,
+            Consumer<Provider> afterShutdown,
+            BiConsumer<Provider, OpenFeatureError> afterError,
             FeatureProviderStateManager oldManager) {
         try {
             if (ProviderState.NOT_READY.equals(newManager.getState())) {
@@ -233,7 +233,7 @@ class ProviderRepository {
         }
     }
 
-    private void shutDownOld(FeatureProviderStateManager oldManager, Consumer<FeatureProvider> afterShutdown) {
+    private void shutDownOld(FeatureProviderStateManager oldManager, Consumer<Provider> afterShutdown) {
         if (oldManager != null && !isStateManagerRegistered(oldManager)) {
             shutdownProvider(oldManager);
             afterShutdown.accept(oldManager.getProvider());
@@ -259,7 +259,7 @@ class ProviderRepository {
         shutdownProvider(manager.getProvider());
     }
 
-    private void shutdownProvider(FeatureProvider provider) {
+    private void shutdownProvider(Provider provider) {
         taskExecutor.submit(() -> {
             try {
                 provider.shutdown();

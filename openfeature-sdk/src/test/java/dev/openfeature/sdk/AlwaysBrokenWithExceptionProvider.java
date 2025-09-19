@@ -1,13 +1,15 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.ProviderEvaluation;
-import dev.openfeature.api.ProviderMetadata;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.Provider;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.ProviderEvaluation;
 import dev.openfeature.api.exceptions.FlagNotFoundError;
+import dev.openfeature.api.types.ProviderMetadata;
+import dev.openfeature.api.types.Value;
+import java.util.List;
 
-public class AlwaysBrokenWithExceptionProvider implements FeatureProvider {
+public class AlwaysBrokenWithExceptionProvider implements Provider {
 
     private final String name = "always broken";
 
@@ -40,5 +42,15 @@ public class AlwaysBrokenWithExceptionProvider implements FeatureProvider {
     public ProviderEvaluation<Value> getObjectEvaluation(
             String key, Value defaultValue, EvaluationContext invocationContext) {
         throw new FlagNotFoundError(TestConstants.BROKEN_MESSAGE);
+    }
+
+    @Override
+    public Provider addHooks(Hook<?>... hooks) {
+        return this;
+    }
+
+    @Override
+    public List<Hook<?>> getHooks() {
+        return List.of();
     }
 }

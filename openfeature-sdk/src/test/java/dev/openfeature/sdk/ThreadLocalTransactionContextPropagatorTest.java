@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.evaluation.EvaluationContext;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
@@ -15,36 +15,36 @@ public class ThreadLocalTransactionContextPropagatorTest {
     ThreadLocalTransactionContextPropagator contextPropagator = new ThreadLocalTransactionContextPropagator();
 
     @Test
-    public void setTransactionContextOneThread() {
+    public void setEvaluationContextOneThread() {
         EvaluationContext firstContext = EvaluationContext.EMPTY;
-        contextPropagator.setTransactionContext(firstContext);
-        assertSame(firstContext, contextPropagator.getTransactionContext());
+        contextPropagator.setEvaluationContext(firstContext);
+        assertSame(firstContext, contextPropagator.getEvaluationContext());
         EvaluationContext secondContext = EvaluationContext.immutableOf(new HashMap<>());
-        contextPropagator.setTransactionContext(secondContext);
-        assertNotSame(firstContext, contextPropagator.getTransactionContext());
-        assertSame(secondContext, contextPropagator.getTransactionContext());
+        contextPropagator.setEvaluationContext(secondContext);
+        assertNotSame(firstContext, contextPropagator.getEvaluationContext());
+        assertSame(secondContext, contextPropagator.getEvaluationContext());
     }
 
     @Test
     public void emptyTransactionContext() {
-        EvaluationContext result = contextPropagator.getTransactionContext();
+        EvaluationContext result = contextPropagator.getEvaluationContext();
         assertNull(result);
     }
 
     @Test
-    public void setTransactionContextTwoThreads() throws Exception {
+    public void setEvaluationContextTwoThreads() throws Exception {
         EvaluationContext firstContext = EvaluationContext.EMPTY;
         EvaluationContext secondContext = EvaluationContext.EMPTY;
 
         Callable<EvaluationContext> callable = () -> {
-            assertNull(contextPropagator.getTransactionContext());
-            contextPropagator.setTransactionContext(secondContext);
-            EvaluationContext transactionContext = contextPropagator.getTransactionContext();
+            assertNull(contextPropagator.getEvaluationContext());
+            contextPropagator.setEvaluationContext(secondContext);
+            EvaluationContext transactionContext = contextPropagator.getEvaluationContext();
             assertSame(secondContext, transactionContext);
             return transactionContext;
         };
-        contextPropagator.setTransactionContext(firstContext);
-        EvaluationContext firstThreadContext = contextPropagator.getTransactionContext();
+        contextPropagator.setEvaluationContext(firstContext);
+        EvaluationContext firstThreadContext = contextPropagator.getEvaluationContext();
         assertSame(firstContext, firstThreadContext);
 
         FutureTask<EvaluationContext> futureTask = new FutureTask<>(callable);
@@ -53,6 +53,6 @@ public class ThreadLocalTransactionContextPropagatorTest {
         EvaluationContext secondThreadContext = futureTask.get();
 
         assertSame(secondContext, secondThreadContext);
-        assertSame(firstContext, contextPropagator.getTransactionContext());
+        assertSame(firstContext, contextPropagator.getEvaluationContext());
     }
 }

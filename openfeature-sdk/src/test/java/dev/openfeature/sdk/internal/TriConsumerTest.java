@@ -2,6 +2,7 @@ package dev.openfeature.sdk.internal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import dev.openfeature.api.internal.TriConsumer;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ class TriConsumerTest {
         TriConsumer<Integer, Integer, Integer> triConsumer = (num1, num2, num3) -> {
             result.set(result.get() + num1 + num2 + num3);
         };
-        TriConsumer composed = triConsumer.andThen(triConsumer);
+        TriConsumer<Integer, Integer, Integer> composed = triConsumer.andThen(triConsumer);
         composed.accept(1, 2, 3);
         assertEquals(12, result.get());
     }

@@ -1,16 +1,16 @@
 package dev.openfeature.api.internal.noop;
 
 import dev.openfeature.api.Client;
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.EventDetails;
-import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.Hook;
 import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.Provider;
 import dev.openfeature.api.ProviderEvent;
-import dev.openfeature.api.ProviderMetadata;
 import dev.openfeature.api.TransactionContextPropagator;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.events.EventDetails;
 import dev.openfeature.api.exceptions.OpenFeatureError;
 import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
+import dev.openfeature.api.types.ProviderMetadata;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -46,32 +46,32 @@ public class NoOpOpenFeatureAPI extends OpenFeatureAPI {
     }
 
     @Override
-    public void setProvider(FeatureProvider provider) {
+    public void setProvider(Provider provider) {
         // No-op - silently ignore
     }
 
     @Override
-    public void setProvider(String domain, FeatureProvider provider) {
+    public void setProvider(String domain, Provider provider) {
         // No-op - silently ignore
     }
 
     @Override
-    public void setProviderAndWait(FeatureProvider provider) throws OpenFeatureError {
+    public void setProviderAndWait(Provider provider) throws OpenFeatureError {
         // No-op - silently ignore
     }
 
     @Override
-    public void setProviderAndWait(String domain, FeatureProvider provider) throws OpenFeatureError {
+    public void setProviderAndWait(String domain, Provider provider) throws OpenFeatureError {
         // No-op - silently ignore
     }
 
     @Override
-    public FeatureProvider getProvider() {
+    public Provider getProvider() {
         return NO_OP_PROVIDER;
     }
 
     @Override
-    public FeatureProvider getProvider(String domain) {
+    public Provider getProvider(String domain) {
         return NO_OP_PROVIDER;
     }
 
@@ -86,12 +86,13 @@ public class NoOpOpenFeatureAPI extends OpenFeatureAPI {
     }
 
     @Override
-    public void addHooks(Hook... hooks) {
+    public NoOpOpenFeatureAPI addHooks(Hook<?>... hooks) {
         // No-op - silently ignore
+        return this;
     }
 
     @Override
-    public List<Hook> getHooks() {
+    public List<Hook<?>> getHooks() {
         return Collections.emptyList();
     }
 

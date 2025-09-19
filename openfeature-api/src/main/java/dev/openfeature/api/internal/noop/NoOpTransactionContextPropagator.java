@@ -1,7 +1,7 @@
 package dev.openfeature.api.internal.noop;
 
-import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.TransactionContextPropagator;
+import dev.openfeature.api.evaluation.EvaluationContext;
 import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
 
 /**
@@ -18,7 +18,7 @@ public class NoOpTransactionContextPropagator implements TransactionContextPropa
      * @return empty immutable context
      */
     @Override
-    public EvaluationContext getTransactionContext() {
+    public EvaluationContext getEvaluationContext() {
         return EvaluationContext.EMPTY;
     }
 
@@ -26,5 +26,7 @@ public class NoOpTransactionContextPropagator implements TransactionContextPropa
      * {@inheritDoc}
      */
     @Override
-    public void setTransactionContext(EvaluationContext evaluationContext) {}
+    public NoOpTransactionContextPropagator setEvaluationContext(EvaluationContext evaluationContext) {
+        return this;
+    }
 }

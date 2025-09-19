@@ -1,5 +1,7 @@
 package dev.openfeature.api;
 
+import dev.openfeature.api.evaluation.EvaluationContextHolder;
+
 /**
  * {@link TransactionContextPropagator} is responsible for persisting a transactional context
  * for the duration of a single transaction.
@@ -11,18 +13,4 @@ package dev.openfeature.api;
  * <a href=https://openfeature.dev/specification/sections/evaluation-context#requirement-323>the specification</a>.
  * </p>
  */
-public interface TransactionContextPropagator {
-
-    /**
-     * Returns the currently defined transaction context using the registered transaction
-     * context propagator.
-     *
-     * @return {@link EvaluationContext} The current transaction context
-     */
-    EvaluationContext getTransactionContext();
-
-    /**
-     * Sets the transaction context.
-     */
-    void setTransactionContext(EvaluationContext evaluationContext);
-}
+public interface TransactionContextPropagator extends EvaluationContextHolder<TransactionContextPropagator> {}

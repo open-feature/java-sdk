@@ -15,14 +15,14 @@ import static org.mockito.Mockito.verify;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import dev.openfeature.api.Client;
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.ImmutableStructure;
-import dev.openfeature.api.MutableContext;
-import dev.openfeature.api.MutableTrackingEventDetails;
 import dev.openfeature.api.OpenFeatureAPI;
-import dev.openfeature.api.TrackingEventDetails;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.Provider;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.MutableContext;
+import dev.openfeature.api.tracking.MutableTrackingEventDetails;
+import dev.openfeature.api.tracking.TrackingEventDetails;
+import dev.openfeature.api.types.ImmutableStructure;
+import dev.openfeature.api.types.Value;
 import dev.openfeature.sdk.fixtures.ProviderFixture;
 import java.util.HashMap;
 import java.util.Map;
@@ -121,7 +121,7 @@ class TrackingSpecTest {
         EvaluationContext clCtx = EvaluationContext.immutableOf(clAttr);
         client.setEvaluationContext(clCtx);
 
-        FeatureProvider provider = ProviderFixture.createMockedProvider();
+        Provider provider = ProviderFixture.createMockedProvider();
         api.setProviderAndWait(provider);
 
         client.track("event", new MutableContext().add("my-key", "final"), new MutableTrackingEventDetails(0.0f));
@@ -140,7 +140,7 @@ class TrackingSpecTest {
                     + "does not implement tracking, the client's `track` function MUST no-op.")
     @Test
     void noopProvider() {
-        FeatureProvider provider = spy(FeatureProvider.class);
+        Provider provider = spy(Provider.class);
         api.setProvider(provider);
         client.track("event");
         verify(provider).track(any(), any(), any());

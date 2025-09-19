@@ -1,11 +1,14 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.api.*;
-import dev.openfeature.api.ProviderMetadata;
+import dev.openfeature.api.Provider;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.ProviderEvaluation;
 import dev.openfeature.api.exceptions.FatalError;
 import dev.openfeature.api.exceptions.GeneralError;
+import dev.openfeature.api.types.ProviderMetadata;
+import dev.openfeature.api.types.Value;
 
-public class FatalErrorProvider implements FeatureProvider {
+public class FatalErrorProvider implements Provider {
 
     private final String name = "fatal";
 

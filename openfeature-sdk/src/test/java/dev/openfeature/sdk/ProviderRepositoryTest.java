@@ -14,8 +14,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.FeatureProvider;
+import dev.openfeature.api.Provider;
+import dev.openfeature.api.evaluation.EvaluationContext;
 import dev.openfeature.api.exceptions.OpenFeatureError;
 import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.testutils.exception.TestException;
@@ -69,7 +69,7 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() throws Exception {
-                FeatureProvider featureProvider = createMockedProvider();
+                Provider featureProvider = createMockedProvider();
                 doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(EvaluationContext.EMPTY);
 
                 await().alias("wait for provider mutator to return")
@@ -126,7 +126,7 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should immediately return when calling the domain provider mutator")
             void shouldImmediatelyReturnWhenCallingTheDomainProviderMutator() throws Exception {
-                FeatureProvider featureProvider = createMockedProvider();
+                Provider featureProvider = createMockedProvider();
                 doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(any());
 
                 await().alias("wait for provider mutator to return")
@@ -157,7 +157,7 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() throws Exception {
-                FeatureProvider newProvider = createMockedProvider();
+                Provider newProvider = createMockedProvider();
                 doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any());
 
                 await().alias("wait for provider mutator to return")
@@ -181,8 +181,8 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should not call shutdown if replaced default provider is bound as named provider")
             void shouldNotCallShutdownIfReplacedDefaultProviderIsBoundAsNamedProvider() {
-                FeatureProvider oldProvider = createMockedProvider();
-                FeatureProvider newProvider = createMockedProvider();
+                Provider oldProvider = createMockedProvider();
+                Provider newProvider = createMockedProvider();
                 setFeatureProvider(oldProvider);
                 setFeatureProvider(DOMAIN_NAME, oldProvider);
 
@@ -198,7 +198,7 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() throws Exception {
-                FeatureProvider newProvider = createMockedProvider();
+                Provider newProvider = createMockedProvider();
                 doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any());
 
                 Future<?> providerMutation = executorService.submit(() -> providerRepository.setProvider(
@@ -219,8 +219,8 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should not call shutdown if replaced provider is bound to multiple names")
             void shouldNotCallShutdownIfReplacedProviderIsBoundToMultipleNames() throws InterruptedException {
-                FeatureProvider oldProvider = createMockedProvider();
-                FeatureProvider newProvider = createMockedProvider();
+                Provider oldProvider = createMockedProvider();
+                Provider newProvider = createMockedProvider();
                 setFeatureProvider(DOMAIN_NAME, oldProvider);
 
                 setFeatureProvider(ANOTHER_DOMAIN_NAME, oldProvider);
@@ -233,8 +233,8 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should not call shutdown if replaced provider is bound as default provider")
             void shouldNotCallShutdownIfReplacedProviderIsBoundAsDefaultProvider() {
-                FeatureProvider oldProvider = createMockedProvider();
-                FeatureProvider newProvider = createMockedProvider();
+                Provider oldProvider = createMockedProvider();
+                Provider newProvider = createMockedProvider();
                 setFeatureProvider(oldProvider);
                 setFeatureProvider(DOMAIN_NAME, oldProvider);
 
@@ -246,7 +246,7 @@ class ProviderRepositoryTest {
             @Test
             @DisplayName("should not throw exception if provider throws one on shutdown")
             void shouldNotThrowExceptionIfProviderThrowsOneOnShutdown() {
-                FeatureProvider provider = createMockedProvider();
+                Provider provider = createMockedProvider();
                 doThrow(TestException.class).when(provider).shutdown();
                 setFeatureProvider(provider);
 
@@ -262,14 +262,14 @@ class ProviderRepositoryTest {
             @DisplayName("should run afterSet, afterInit, afterShutdown on successful set/init")
             @SuppressWarnings("unchecked")
             void shouldRunLambdasOnSuccessful() {
-                Consumer<FeatureProvider> afterSet = mock(Consumer.class);
-                Consumer<FeatureProvider> afterInit = mock(Consumer.class);
-                Consumer<FeatureProvider> afterShutdown = mock(Consumer.class);
-                BiConsumer<FeatureProvider, OpenFeatureError> afterError = mock(BiConsumer.class);
+                Consumer<Provider> afterSet = mock(Consumer.class);
+                Consumer<Provider> afterInit = mock(Consumer.class);
+                Consumer<Provider> afterShutdown = mock(Consumer.class);
+                BiConsumer<Provider, OpenFeatureError> afterError = mock(BiConsumer.class);
 
-                FeatureProvider oldProvider = providerRepository.getProvider();
-                FeatureProvider featureProvider1 = createMockedProvider();
-                FeatureProvider featureProvider2 = createMockedProvider();
+                Provider oldProvider = providerRepository.getProvider();
+                Provider featureProvider1 = createMockedProvider();
+                Provider featureProvider2 = createMockedProvider();
 
                 setFeatureProvider(featureProvider1, afterSet, afterInit, afterShutdown, afterError);
                 setFeatureProvider(featureProvider2);
@@ -283,12 +283,12 @@ class ProviderRepositoryTest {
             @DisplayName("should run afterSet, afterError on unsuccessful set/init")
             @SuppressWarnings("unchecked")
             void shouldRunLambdasOnError() throws Exception {
-                Consumer<FeatureProvider> afterSet = mock(Consumer.class);
-                Consumer<FeatureProvider> afterInit = mock(Consumer.class);
-                Consumer<FeatureProvider> afterShutdown = mock(Consumer.class);
-                BiConsumer<FeatureProvider, OpenFeatureError> afterError = mock(BiConsumer.class);
+                Consumer<Provider> afterSet = mock(Consumer.class);
+                Consumer<Provider> afterInit = mock(Consumer.class);
+                Consumer<Provider> afterShutdown = mock(Consumer.class);
+                BiConsumer<Provider, OpenFeatureError> afterError = mock(BiConsumer.class);
 
-                FeatureProvider errorFeatureProvider = createMockedErrorProvider();
+                Provider errorFeatureProvider = createMockedErrorProvider();
 
                 setFeatureProvider(errorFeatureProvider, afterSet, afterInit, afterShutdown, afterError);
                 verify(afterSet, timeout(TIMEOUT)).accept(errorFeatureProvider);
@@ -302,8 +302,8 @@ class ProviderRepositoryTest {
     @Test
     @DisplayName("should shutdown all feature providers on shutdown")
     void shouldShutdownAllFeatureProvidersOnShutdown() {
-        FeatureProvider featureProvider1 = createMockedProvider();
-        FeatureProvider featureProvider2 = createMockedProvider();
+        Provider featureProvider1 = createMockedProvider();
+        Provider featureProvider2 = createMockedProvider();
 
         setFeatureProvider(featureProvider1);
         setFeatureProvider(DOMAIN_NAME, featureProvider1);
@@ -314,48 +314,48 @@ class ProviderRepositoryTest {
         verify(featureProvider2, timeout(TIMEOUT)).shutdown();
     }
 
-    private void setFeatureProvider(FeatureProvider provider) {
+    private void setFeatureProvider(Provider provider) {
         providerRepository.setProvider(
                 provider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
         waitForSettingProviderHasBeenCompleted(ProviderRepository::getProvider, provider);
     }
 
     private void setFeatureProvider(
-            FeatureProvider provider,
-            Consumer<FeatureProvider> afterSet,
-            Consumer<FeatureProvider> afterInit,
-            Consumer<FeatureProvider> afterShutdown,
-            BiConsumer<FeatureProvider, OpenFeatureError> afterError) {
+            Provider provider,
+            Consumer<Provider> afterSet,
+            Consumer<Provider> afterInit,
+            Consumer<Provider> afterShutdown,
+            BiConsumer<Provider, OpenFeatureError> afterError) {
         providerRepository.setProvider(provider, afterSet, afterInit, afterShutdown, afterError, false);
         waitForSettingProviderHasBeenCompleted(ProviderRepository::getProvider, provider);
     }
 
-    private void setFeatureProvider(String namedProvider, FeatureProvider provider) {
+    private void setFeatureProvider(String namedProvider, Provider provider) {
         providerRepository.setProvider(
                 namedProvider, provider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
         waitForSettingProviderHasBeenCompleted(repository -> repository.getProvider(namedProvider), provider);
     }
 
     private void waitForSettingProviderHasBeenCompleted(
-            Function<ProviderRepository, FeatureProvider> extractor, FeatureProvider provider) {
+            Function<ProviderRepository, Provider> extractor, Provider provider) {
         await().pollDelay(Duration.ofMillis(1)).atMost(Duration.ofSeconds(5)).until(() -> {
             return extractor.apply(providerRepository).equals(provider);
         });
     }
 
-    private Consumer<FeatureProvider> mockAfterSet() {
+    private Consumer<Provider> mockAfterSet() {
         return fp -> {};
     }
 
-    private Consumer<FeatureProvider> mockAfterInit() {
+    private Consumer<Provider> mockAfterInit() {
         return fp -> {};
     }
 
-    private Consumer<FeatureProvider> mockAfterShutdown() {
+    private Consumer<Provider> mockAfterShutdown() {
         return fp -> {};
     }
 
-    private BiConsumer<FeatureProvider, OpenFeatureError> mockAfterError() {
+    private BiConsumer<Provider, OpenFeatureError> mockAfterError() {
         return (fp, ex) -> {};
     }
 }

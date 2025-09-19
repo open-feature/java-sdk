@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import dev.openfeature.api.ImmutableMetadataBuilder;
-import dev.openfeature.api.Metadata;
+import dev.openfeature.api.types.ImmutableMetadataBuilder;
+import dev.openfeature.api.types.Metadata;
 import java.io.IOException;
 import java.util.Map;
 

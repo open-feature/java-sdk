@@ -7,13 +7,13 @@ import static dev.openfeature.sdk.testutils.TestFlagsUtils.OBJECT_FLAG_KEY;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.STRING_FLAG_KEY;
 
 import dev.openfeature.api.Client;
-import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.Hook;
-import dev.openfeature.api.HookContext;
-import dev.openfeature.api.ImmutableStructure;
 import dev.openfeature.api.OpenFeatureAPI;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.evaluation.EvaluationContext;
 import dev.openfeature.api.internal.noop.NoOpProvider;
+import dev.openfeature.api.lifecycle.HookContext;
+import dev.openfeature.api.types.ImmutableStructure;
+import dev.openfeature.api.types.Value;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

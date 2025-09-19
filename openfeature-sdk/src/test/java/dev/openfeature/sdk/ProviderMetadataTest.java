@@ -2,7 +2,7 @@ package dev.openfeature.sdk;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-import dev.openfeature.api.ProviderMetadata;
+import dev.openfeature.api.types.ProviderMetadata;
 import org.junit.jupiter.api.Test;
 
 class ProviderMetadataTest {

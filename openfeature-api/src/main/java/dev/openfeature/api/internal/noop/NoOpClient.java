@@ -1,18 +1,18 @@
 package dev.openfeature.api.internal.noop;
 
 import dev.openfeature.api.Client;
-import dev.openfeature.api.ClientMetadata;
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.EventDetails;
-import dev.openfeature.api.FlagEvaluationDetails;
-import dev.openfeature.api.FlagEvaluationOptions;
 import dev.openfeature.api.Hook;
 import dev.openfeature.api.ProviderEvent;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.Reason;
-import dev.openfeature.api.TrackingEventDetails;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.FlagEvaluationDetails;
+import dev.openfeature.api.evaluation.FlagEvaluationOptions;
+import dev.openfeature.api.events.EventDetails;
 import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
+import dev.openfeature.api.tracking.TrackingEventDetails;
+import dev.openfeature.api.types.ClientMetadata;
+import dev.openfeature.api.types.Value;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -42,12 +42,12 @@ public class NoOpClient implements Client {
     }
 
     @Override
-    public Client addHooks(Hook... hooks) {
+    public Client addHooks(Hook<?>... hooks) {
         return this; // No-op - return self for chaining
     }
 
     @Override
-    public List<Hook> getHooks() {
+    public List<Hook<?>> getHooks() {
         return Collections.emptyList();
     }
 

@@ -1,6 +1,10 @@
 package dev.openfeature.api;
 
+import dev.openfeature.api.evaluation.EvaluationContextHolder;
+import dev.openfeature.api.events.EventBus;
 import dev.openfeature.api.internal.noop.NoOpOpenFeatureAPI;
+import dev.openfeature.api.lifecycle.Hookable;
+import dev.openfeature.api.lifecycle.Lifecycle;
 import java.util.ServiceLoader;
 
 /**
@@ -18,14 +22,14 @@ import java.util.ServiceLoader;
  */
 public abstract class OpenFeatureAPI
         implements OpenFeatureCore,
-                OpenFeatureHooks,
-                OpenFeatureContext,
-                OpenFeatureEventHandling,
-                OpenFeatureTransactionContext,
-                OpenFeatureLifecycle {
-
+                Hookable<OpenFeatureAPI>,
+                EvaluationContextHolder<OpenFeatureAPI>,
+                EventBus<OpenFeatureAPI>,
+                Transactional,
+                Lifecycle {
+    // package-private multi-read/single-write lock
     private static volatile OpenFeatureAPI instance;
-    private static final Object lock = new Object();
+    private static final Object instanceLock = new Object();
 
     /**
      * Gets the singleton OpenFeature API instance.
@@ -35,7 +39,7 @@ public abstract class OpenFeatureAPI
      */
     public static OpenFeatureAPI getInstance() {
         if (instance == null) {
-            synchronized (lock) {
+            synchronized (instanceLock) {
                 if (instance == null) {
                     instance = loadImplementation();
                 }
@@ -89,7 +93,7 @@ public abstract class OpenFeatureAPI
      * and should be used with caution in production environments.
      */
     protected static void resetInstance() {
-        synchronized (lock) {
+        synchronized (instanceLock) {
             instance = null;
         }
     }

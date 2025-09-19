@@ -2,15 +2,13 @@ package dev.openfeature.sdk;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.OpenFeatureAPI;
-import dev.openfeature.api.ProviderState;
+import dev.openfeature.api.Provider;
 import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.testutils.exception.TestException;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,8 +38,9 @@ class InitializeBehaviorSpecTest {
         @DisplayName("must call initialize function of the newly registered provider before using it for "
                 + "flag evaluation")
         void mustCallInitializeFunctionOfTheNewlyRegisteredProviderBeforeUsingItForFlagEvaluation() throws Exception {
-            FeatureProvider featureProvider = mock(FeatureProvider.class);
-            doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
+            Provider featureProvider = mock(Provider.class);
+            // TODO: handle missing getState()
+            // doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
 
             api.setProvider(featureProvider);
 
@@ -57,8 +56,10 @@ class InitializeBehaviorSpecTest {
         @Test
         @DisplayName("should catch exception thrown by the provider on initialization")
         void shouldCatchExceptionThrownByTheProviderOnInitialization() throws Exception {
-            FeatureProvider featureProvider = mock(FeatureProvider.class);
-            doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
+            Provider featureProvider = mock(Provider.class);
+
+            // TODO: handle missing getState()
+            // doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
             doThrow(TestException.class).when(featureProvider).initialize(any());
 
             assertThatCode(() -> api.setProvider(featureProvider)).doesNotThrowAnyException();
@@ -79,8 +80,10 @@ class InitializeBehaviorSpecTest {
                 + "for flag evaluation")
         void mustCallInitializeFunctionOfTheNewlyRegisteredNamedProviderBeforeUsingItForFlagEvaluation()
                 throws Exception {
-            FeatureProvider featureProvider = mock(FeatureProvider.class);
-            doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
+            Provider featureProvider = mock(Provider.class);
+
+            // TODO: handle missing getState()
+            // doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
 
             api.setProvider(DOMAIN_NAME, featureProvider);
 
@@ -96,8 +99,10 @@ class InitializeBehaviorSpecTest {
         @Test
         @DisplayName("should catch exception thrown by the named client provider on initialization")
         void shouldCatchExceptionThrownByTheNamedClientProviderOnInitialization() throws Exception {
-            FeatureProvider featureProvider = mock(FeatureProvider.class);
-            doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
+            Provider featureProvider = mock(Provider.class);
+
+            // TODO: handle missing getState()
+            // doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
             doThrow(TestException.class).when(featureProvider).initialize(any());
 
             assertThatCode(() -> api.setProvider(DOMAIN_NAME, featureProvider)).doesNotThrowAnyException();

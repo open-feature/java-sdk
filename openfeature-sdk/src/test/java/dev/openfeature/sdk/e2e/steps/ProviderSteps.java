@@ -9,18 +9,19 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import dev.openfeature.api.AbstractEventProvider;
 import dev.openfeature.api.Client;
 import dev.openfeature.api.ErrorCode;
-import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.Metadata;
 import dev.openfeature.api.OpenFeatureAPI;
-import dev.openfeature.api.ProviderEvaluation;
-import dev.openfeature.api.ProviderEventDetails;
+import dev.openfeature.api.Provider;
 import dev.openfeature.api.ProviderState;
 import dev.openfeature.api.Reason;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.evaluation.ProviderEvaluation;
+import dev.openfeature.api.events.EventProvider;
+import dev.openfeature.api.events.ProviderEventDetails;
 import dev.openfeature.api.exceptions.FatalError;
-import dev.openfeature.sdk.EventProvider;
+import dev.openfeature.api.types.Metadata;
+import dev.openfeature.api.types.Value;
 import dev.openfeature.sdk.e2e.State;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
@@ -88,7 +89,7 @@ public class ProviderSteps {
 
     private void setupMockProvider(ErrorCode errorCode, String errorMessage, ProviderState providerState)
             throws Exception {
-        EventProvider mockProvider = spy(EventProvider.class);
+        EventProvider mockProvider = spy(AbstractEventProvider.class);
 
         switch (providerState) {
             case NOT_READY:
@@ -136,7 +137,7 @@ public class ProviderSteps {
         });
     }
 
-    private void configureMockEvaluations(FeatureProvider mockProvider, ErrorCode errorCode, String errorMessage) {
+    private void configureMockEvaluations(Provider mockProvider, ErrorCode errorCode, String errorMessage) {
         // Configure Boolean evaluation
         when(mockProvider.getBooleanEvaluation(anyString(), any(Boolean.class), any()))
                 .thenAnswer(invocation -> createProviderEvaluation(invocation.getArgument(1), errorCode, errorMessage));

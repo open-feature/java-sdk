@@ -1,8 +1,14 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.api.*;
+import dev.openfeature.api.Provider;
+import dev.openfeature.api.Reason;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.ProviderEvaluation;
+import dev.openfeature.api.types.Metadata;
+import dev.openfeature.api.types.ProviderMetadata;
+import dev.openfeature.api.types.Value;
 
-class DoSomethingProvider implements FeatureProvider {
+class DoSomethingProvider implements Provider {
 
     static final String name = "Something";
     // Flag evaluation metadata

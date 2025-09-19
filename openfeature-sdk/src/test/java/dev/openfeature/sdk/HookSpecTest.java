@@ -16,22 +16,22 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dev.openfeature.api.BooleanHook;
 import dev.openfeature.api.Client;
 import dev.openfeature.api.ErrorCode;
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.FlagEvaluationDetails;
-import dev.openfeature.api.FlagEvaluationOptions;
 import dev.openfeature.api.FlagValueType;
 import dev.openfeature.api.Hook;
-import dev.openfeature.api.HookContext;
-import dev.openfeature.api.Metadata;
 import dev.openfeature.api.OpenFeatureAPI;
-import dev.openfeature.api.ProviderEvaluation;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.Provider;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.FlagEvaluationDetails;
+import dev.openfeature.api.evaluation.FlagEvaluationOptions;
+import dev.openfeature.api.evaluation.ProviderEvaluation;
 import dev.openfeature.api.exceptions.FlagNotFoundError;
 import dev.openfeature.api.internal.noop.NoOpProvider;
+import dev.openfeature.api.lifecycle.BooleanHook;
+import dev.openfeature.api.lifecycle.HookContext;
+import dev.openfeature.api.types.Metadata;
+import dev.openfeature.api.types.Value;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.TestEventsProvider;
 import java.util.ArrayList;
@@ -207,7 +207,7 @@ class HookSpecTest implements HookFixtures {
 
         EvaluationContext invocationCtx = EvaluationContext.EMPTY;
         Hook<Boolean> hook = mockBooleanHook();
-        FeatureProvider provider = mock(FeatureProvider.class);
+        Provider provider = mock(Provider.class);
         when(provider.getBooleanEvaluation(any(), any(), any()))
                 .thenReturn(ProviderEvaluation.of(ErrorCode.FLAG_NOT_FOUND, errorMessage));
 
@@ -255,7 +255,7 @@ class HookSpecTest implements HookFixtures {
         List<String> evalOrder = new ArrayList<>();
 
         api.setProviderAndWait("evalOrder", new TestEventsProvider() {
-            public List<Hook> getProviderHooks() {
+            public List<Hook<?>> getHooks() {
                 return Collections.singletonList(new BooleanHook() {
 
                     @Override
@@ -502,7 +502,7 @@ class HookSpecTest implements HookFixtures {
     @Test
     void flag_eval_hook_order() {
         Hook hook = mockBooleanHook();
-        FeatureProvider provider = mock(FeatureProvider.class);
+        Provider provider = mock(Provider.class);
         when(provider.getBooleanEvaluation(any(), any(), any()))
                 .thenReturn(ProviderEvaluation.of(true, null, null, null));
         InOrder order = inOrder(hook, provider);
@@ -698,7 +698,7 @@ class HookSpecTest implements HookFixtures {
         Hook<Boolean> hook = mockBooleanHook();
         when(hook.before(any(), any())).thenReturn(Optional.of(hookCtx));
 
-        FeatureProvider provider = mock(FeatureProvider.class);
+        Provider provider = mock(Provider.class);
         when(provider.getBooleanEvaluation(any(), any(), any()))
                 .thenReturn(ProviderEvaluation.of(true, null, null, null));
 
@@ -766,7 +766,7 @@ class HookSpecTest implements HookFixtures {
         order.verify(hook).error(any(), any(), any());
     }
 
-    private Client getClient(FeatureProvider provider) throws Exception {
+    private Client getClient(Provider provider) throws Exception {
         if (provider == null) {
             api.setProviderAndWait(TestEventsProvider.newInitializedTestEventsProvider());
         } else {

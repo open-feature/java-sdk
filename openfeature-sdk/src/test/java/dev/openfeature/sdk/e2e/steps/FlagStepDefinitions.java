@@ -3,9 +3,9 @@ package dev.openfeature.sdk.e2e.steps;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.openfeature.api.ErrorCode;
-import dev.openfeature.api.FlagEvaluationDetails;
-import dev.openfeature.api.Metadata;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.evaluation.FlagEvaluationDetails;
+import dev.openfeature.api.types.Metadata;
+import dev.openfeature.api.types.Value;
 import dev.openfeature.sdk.e2e.Flag;
 import dev.openfeature.sdk.e2e.State;
 import dev.openfeature.sdk.e2e.Utils;

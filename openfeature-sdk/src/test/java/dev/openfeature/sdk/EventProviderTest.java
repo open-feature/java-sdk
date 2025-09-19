@@ -1,22 +1,29 @@
 package dev.openfeature.sdk;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
 
-import dev.openfeature.api.*;
-import dev.openfeature.api.ProviderMetadata;
+import dev.openfeature.api.AbstractEventProvider;
+import dev.openfeature.api.Hook;
+import dev.openfeature.api.Provider;
+import dev.openfeature.api.ProviderEvent;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.ProviderEvaluation;
+import dev.openfeature.api.events.EventDetails;
+import dev.openfeature.api.events.EventProvider;
+import dev.openfeature.api.events.ProviderEventDetails;
+import dev.openfeature.api.internal.TriConsumer;
 import dev.openfeature.api.internal.noop.NoOpProvider;
-import dev.openfeature.sdk.internal.TriConsumer;
+import dev.openfeature.api.types.ProviderMetadata;
+import dev.openfeature.api.types.Value;
 import dev.openfeature.sdk.testutils.TestStackedEmitCallsProvider;
-import io.cucumber.java.AfterAll;
+import java.util.List;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 
 class EventProviderTest {
 
@@ -28,6 +35,7 @@ class EventProviderTest {
     void setup() throws Exception {
         eventProvider = new TestEventProvider();
         eventProvider.initialize(null);
+        eventProvider.setEventEmitter(new EventEmitter(eventProvider, null));
     }
 
     @AfterAll
@@ -49,10 +57,12 @@ class EventProviderTest {
         eventProvider.emitProviderStale(details);
         eventProvider.emitProviderError(details);
 
-        verify(onEmit, timeout(TIMEOUT).times(2)).accept(eventProvider, ProviderEvent.PROVIDER_READY, details);
-        verify(onEmit, timeout(TIMEOUT)).accept(eventProvider, ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, details);
-        verify(onEmit, timeout(TIMEOUT)).accept(eventProvider, ProviderEvent.PROVIDER_STALE, details);
-        verify(onEmit, timeout(TIMEOUT)).accept(eventProvider, ProviderEvent.PROVIDER_ERROR, details);
+        Mockito.verify(onEmit, Mockito.timeout(TIMEOUT).times(2))
+                .accept(eventProvider, ProviderEvent.PROVIDER_READY, details);
+        Mockito.verify(onEmit, Mockito.timeout(TIMEOUT))
+                .accept(eventProvider, ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, details);
+        Mockito.verify(onEmit, Mockito.timeout(TIMEOUT)).accept(eventProvider, ProviderEvent.PROVIDER_STALE, details);
+        Mockito.verify(onEmit, Mockito.timeout(TIMEOUT)).accept(eventProvider, ProviderEvent.PROVIDER_ERROR, details);
     }
 
     @Test
@@ -69,7 +79,8 @@ class EventProviderTest {
         eventProvider.emitProviderError(details);
 
         // should not be called
-        verify(onEmit, never()).accept(any(), any(), any());
+        Mockito.verify(onEmit, Mockito.never())
+                .accept(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
     }
 
     @Test
@@ -98,7 +109,7 @@ class EventProviderTest {
         new DefaultOpenFeatureAPI().setProviderAndWait(provider);
     }
 
-    static class TestEventProvider extends EventProvider {
+    static class TestEventProvider extends AbstractEventProvider {
 
         private static final String NAME = "TestEventProvider";
 
@@ -138,10 +149,20 @@ class EventProviderTest {
         public void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit) {
             super.attach(onEmit);
         }
+
+        @Override
+        public Provider addHooks(Hook<?>... hooks) {
+            return this;
+        }
+
+        @Override
+        public List<Hook<?>> getHooks() {
+            return List.of();
+        }
     }
 
     @SuppressWarnings("unchecked")
     private TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> mockOnEmit() {
-        return (TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails>) mock(TriConsumer.class);
+        return (TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails>) Mockito.mock(TriConsumer.class);
     }
 }

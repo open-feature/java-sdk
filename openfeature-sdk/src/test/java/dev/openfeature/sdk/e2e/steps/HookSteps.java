@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import dev.openfeature.api.FlagEvaluationDetails;
+import dev.openfeature.api.evaluation.FlagEvaluationDetails;
 import dev.openfeature.sdk.e2e.MockHook;
 import dev.openfeature.sdk.e2e.State;
 import dev.openfeature.sdk.e2e.Utils;

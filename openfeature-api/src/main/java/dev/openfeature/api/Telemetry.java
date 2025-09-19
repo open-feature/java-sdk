@@ -1,5 +1,8 @@
 package dev.openfeature.api;
 
+import dev.openfeature.api.evaluation.FlagEvaluationDetails;
+import dev.openfeature.api.lifecycle.HookContext;
+
 /**
  * The Telemetry class provides constants and methods for creating OpenTelemetry compliant
  * evaluation events.

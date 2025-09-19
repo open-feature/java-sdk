@@ -1,9 +1,12 @@
 package dev.openfeature.sdk.e2e;
 
-import dev.openfeature.api.*;
-import dev.openfeature.api.ProviderMetadata;
+import dev.openfeature.api.Provider;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.ProviderEvaluation;
+import dev.openfeature.api.types.ProviderMetadata;
+import dev.openfeature.api.types.Value;
 
-public class ContextStoringProvider implements FeatureProvider {
+public class ContextStoringProvider implements Provider {
     private EvaluationContext evaluationContext;
 
     @Override

@@ -1,13 +1,13 @@
 package dev.openfeature.sdk;
 
-import static dev.openfeature.api.EvaluationContext.TARGETING_KEY;
+import static dev.openfeature.api.evaluation.EvaluationContext.TARGETING_KEY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.MutableContext;
-import dev.openfeature.api.MutableStructure;
-import dev.openfeature.api.Structure;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.MutableContext;
+import dev.openfeature.api.types.MutableStructure;
+import dev.openfeature.api.types.Structure;
+import dev.openfeature.api.types.Value;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;

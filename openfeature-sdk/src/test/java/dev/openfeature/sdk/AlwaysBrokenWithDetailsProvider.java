@@ -1,13 +1,13 @@
 package dev.openfeature.sdk;
 
 import dev.openfeature.api.ErrorCode;
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.FeatureProvider;
-import dev.openfeature.api.ProviderEvaluation;
-import dev.openfeature.api.ProviderMetadata;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.Provider;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.ProviderEvaluation;
+import dev.openfeature.api.types.ProviderMetadata;
+import dev.openfeature.api.types.Value;
 
-public class AlwaysBrokenWithDetailsProvider implements FeatureProvider {
+public class AlwaysBrokenWithDetailsProvider implements Provider {
 
     private final String name = "always broken with details";
 

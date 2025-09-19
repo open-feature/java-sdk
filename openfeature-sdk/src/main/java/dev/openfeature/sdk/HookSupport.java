@@ -1,11 +1,11 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.api.EvaluationContext;
-import dev.openfeature.api.FlagEvaluationDetails;
 import dev.openfeature.api.FlagValueType;
 import dev.openfeature.api.Hook;
-import dev.openfeature.api.HookContext;
-import dev.openfeature.api.HookData;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.FlagEvaluationDetails;
+import dev.openfeature.api.lifecycle.HookContext;
+import dev.openfeature.api.lifecycle.HookData;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +23,7 @@ class HookSupport {
     public EvaluationContext beforeHooks(
             FlagValueType flagValueType,
             HookContext hookCtx,
-            List<Pair<Hook, HookData>> hookDataPairs,
+            List<Pair<Hook<?>, HookData>> hookDataPairs,
             Map<String, Object> hints) {
         return callBeforeHooks(flagValueType, hookCtx, hookDataPairs, hints);
     }
@@ -32,7 +32,7 @@ class HookSupport {
             FlagValueType flagValueType,
             HookContext hookContext,
             FlagEvaluationDetails details,
-            List<Pair<Hook, HookData>> hookDataPairs,
+            List<Pair<Hook<?>, HookData>> hookDataPairs,
             Map<String, Object> hints) {
         executeHooksUnchecked(
                 flagValueType, hookDataPairs, hookContext, (hook, ctx) -> hook.after(ctx, details, hints));
@@ -42,7 +42,7 @@ class HookSupport {
             FlagValueType flagValueType,
             HookContext hookCtx,
             FlagEvaluationDetails details,
-            List<Pair<Hook, HookData>> hookDataPairs,
+            List<Pair<Hook<?>, HookData>> hookDataPairs,
             Map<String, Object> hints) {
         executeHooks(
                 flagValueType,
@@ -56,13 +56,13 @@ class HookSupport {
             FlagValueType flagValueType,
             HookContext hookCtx,
             Exception e,
-            List<Pair<Hook, HookData>> hookDataPairs,
+            List<Pair<Hook<?>, HookData>> hookDataPairs,
             Map<String, Object> hints) {
         executeHooks(flagValueType, hookDataPairs, hookCtx, "error", (hook, ctx) -> hook.error(ctx, e, hints));
     }
 
-    public List<Pair<Hook, HookData>> getHookDataPairs(List<Hook> hooks, FlagValueType flagValueType) {
-        var pairs = new ArrayList<Pair<Hook, HookData>>();
+    public List<Pair<Hook<?>, HookData>> getHookDataPairs(List<Hook<?>> hooks, FlagValueType flagValueType) {
+        var pairs = new ArrayList<Pair<Hook<?>, HookData>>();
         for (Hook hook : hooks) {
             if (hook.supportsFlagValueType(flagValueType)) {
                 pairs.add(Pair.of(hook, HookData.create()));
@@ -73,12 +73,12 @@ class HookSupport {
 
     private <T> void executeHooks(
             FlagValueType flagValueType,
-            List<Pair<Hook, HookData>> hookDataPairs,
+            List<Pair<Hook<?>, HookData>> hookDataPairs,
             HookContext hookContext,
             String hookMethod,
             BiConsumer<Hook<T>, HookContext> hookCode) {
         if (hookDataPairs != null) {
-            for (Pair<Hook, HookData> hookDataPair : hookDataPairs) {
+            for (Pair<Hook<?>, HookData> hookDataPair : hookDataPairs) {
                 Hook hook = hookDataPair.getLeft();
                 HookData hookData = hookDataPair.getRight();
                 executeChecked(hook, hookData, hookContext, hookCode, hookMethod);
@@ -108,11 +108,11 @@ class HookSupport {
     // after hooks can throw in order to do validation
     private <T> void executeHooksUnchecked(
             FlagValueType flagValueType,
-            List<Pair<Hook, HookData>> hookDataPairs,
+            List<Pair<Hook<?>, HookData>> hookDataPairs,
             HookContext hookContext,
             BiConsumer<Hook<T>, HookContext> hookCode) {
         if (hookDataPairs != null) {
-            for (Pair<Hook, HookData> hookDataPair : hookDataPairs) {
+            for (Pair<Hook<?>, HookData> hookDataPair : hookDataPairs) {
                 Hook hook = hookDataPair.getLeft();
                 HookData hookData = hookDataPair.getRight();
                 var hookCtxWithData = HookContextWithData.of(hookContext, hookData);
@@ -124,14 +124,14 @@ class HookSupport {
     private EvaluationContext callBeforeHooks(
             FlagValueType flagValueType,
             HookContext hookCtx,
-            List<Pair<Hook, HookData>> hookDataPairs,
+            List<Pair<Hook<?>, HookData>> hookDataPairs,
             Map<String, Object> hints) {
         // These traverse backwards from normal.
-        List<Pair<Hook, HookData>> reversedHooks = new ArrayList<>(hookDataPairs);
+        List<Pair<Hook<?>, HookData>> reversedHooks = new ArrayList<>(hookDataPairs);
         Collections.reverse(reversedHooks);
         EvaluationContext context = hookCtx.getCtx();
 
-        for (Pair<Hook, HookData> hookDataPair : reversedHooks) {
+        for (Pair<Hook<?>, HookData> hookDataPair : reversedHooks) {
             Hook hook = hookDataPair.getLeft();
             HookData hookData = hookDataPair.getRight();
 

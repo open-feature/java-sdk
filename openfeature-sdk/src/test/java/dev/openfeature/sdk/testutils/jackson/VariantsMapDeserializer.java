@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.types.Value;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;

@@ -1,6 +1,6 @@
 package dev.openfeature.sdk.providers.memory;
 
-import dev.openfeature.api.EvaluationContext;
+import dev.openfeature.api.evaluation.EvaluationContext;
 
 /**
  * Context evaluator - use for resolving flag according to evaluation context, for handling targeting.

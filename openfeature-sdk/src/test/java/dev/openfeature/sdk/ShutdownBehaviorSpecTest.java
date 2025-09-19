@@ -4,8 +4,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import dev.openfeature.api.FeatureProvider;
 import dev.openfeature.api.OpenFeatureAPI;
+import dev.openfeature.api.Provider;
 import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.sdk.fixtures.ProviderFixture;
 import dev.openfeature.sdk.testutils.exception.TestException;
@@ -21,11 +21,11 @@ class ShutdownBehaviorSpecTest {
     private String DOMAIN = "myDomain";
     private OpenFeatureAPI api;
 
-    void setFeatureProvider(FeatureProvider featureProvider) {
+    void setFeatureProvider(Provider featureProvider) {
         api.setProviderAndWait(featureProvider);
     }
 
-    void setFeatureProvider(String domain, FeatureProvider featureProvider) {
+    void setFeatureProvider(String domain, Provider featureProvider) {
         api.setProviderAndWait(domain, featureProvider);
     }
 
@@ -46,7 +46,7 @@ class ShutdownBehaviorSpecTest {
         @DisplayName(
                 "must invoke shutdown method on previously registered provider once it should not be used for flag evaluation anymore")
         void mustInvokeShutdownMethodOnPreviouslyRegisteredProviderOnceItShouldNotBeUsedForFlagEvaluationAnymore() {
-            FeatureProvider featureProvider = ProviderFixture.createMockedProvider();
+            Provider featureProvider = ProviderFixture.createMockedProvider();
 
             setFeatureProvider(featureProvider);
             setFeatureProvider(new NoOpProvider());
@@ -63,7 +63,7 @@ class ShutdownBehaviorSpecTest {
         @Test
         @DisplayName("should catch exception thrown by the provider on shutdown")
         void shouldCatchExceptionThrownByTheProviderOnShutdown() {
-            FeatureProvider featureProvider = ProviderFixture.createMockedProvider();
+            Provider featureProvider = ProviderFixture.createMockedProvider();
             doThrow(TestException.class).when(featureProvider).shutdown();
 
             setFeatureProvider(featureProvider);
@@ -84,7 +84,7 @@ class ShutdownBehaviorSpecTest {
         @DisplayName(
                 "must invoke shutdown method on previously registered provider once it should not be used for flag evaluation anymore")
         void mustInvokeShutdownMethodOnPreviouslyRegisteredProviderOnceItShouldNotBeUsedForFlagEvaluationAnymore() {
-            FeatureProvider featureProvider = ProviderFixture.createMockedProvider();
+            Provider featureProvider = ProviderFixture.createMockedProvider();
 
             setFeatureProvider(DOMAIN, featureProvider);
             setFeatureProvider(DOMAIN, new NoOpProvider());
@@ -101,7 +101,7 @@ class ShutdownBehaviorSpecTest {
         @Test
         @DisplayName("should catch exception thrown by the named client provider on shutdown")
         void shouldCatchExceptionThrownByTheNamedClientProviderOnShutdown() {
-            FeatureProvider featureProvider = ProviderFixture.createMockedProvider();
+            Provider featureProvider = ProviderFixture.createMockedProvider();
             doThrow(TestException.class).when(featureProvider).shutdown();
 
             setFeatureProvider(DOMAIN, featureProvider);
@@ -120,8 +120,8 @@ class ShutdownBehaviorSpecTest {
         @Test
         @DisplayName("must shutdown all providers on shutting down api")
         void mustShutdownAllProvidersOnShuttingDownApi() {
-            FeatureProvider defaultProvider = ProviderFixture.createMockedProvider();
-            FeatureProvider namedProvider = ProviderFixture.createMockedProvider();
+            Provider defaultProvider = ProviderFixture.createMockedProvider();
+            Provider namedProvider = ProviderFixture.createMockedProvider();
             setFeatureProvider(defaultProvider);
             setFeatureProvider(DOMAIN, namedProvider);
 

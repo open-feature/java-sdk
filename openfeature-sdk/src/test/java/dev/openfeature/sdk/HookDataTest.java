@@ -1,8 +1,10 @@
 package dev.openfeature.sdk;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import dev.openfeature.api.HookData;
+import dev.openfeature.api.lifecycle.HookData;
 import org.junit.jupiter.api.Test;
 
 class HookDataTest {

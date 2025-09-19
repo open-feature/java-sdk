@@ -1,9 +1,10 @@
 package dev.openfeature.api.exceptions;
 
 import dev.openfeature.api.ErrorCode;
+import dev.openfeature.api.types.Value;
 
 /**
- * The value can not be converted to a {@link dev.openfeature.api.Value}.
+ * The value can not be converted to a {@link Value}.
  */
 public class ValueNotConvertableError extends OpenFeatureError {
     private static final long serialVersionUID = 1L;

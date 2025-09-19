@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import dev.openfeature.api.types.Metadata;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 

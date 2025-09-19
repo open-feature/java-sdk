@@ -3,6 +3,12 @@ package dev.openfeature.api;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.FlagEvaluationDetails;
+import dev.openfeature.api.lifecycle.HookContext;
+import dev.openfeature.api.types.ClientMetadata;
+import dev.openfeature.api.types.Metadata;
+import dev.openfeature.api.types.ProviderMetadata;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +25,7 @@ public class TelemetryTest {
         var hookContext = generateHookContext(
                 flagKey, FlagValueType.BOOLEAN, false, EvaluationContext.EMPTY, null, providerMetadata);
         FlagEvaluationDetails<Boolean> evaluation =
-                new DefaultFlagEvaluationDetails<>(flagKey, true, null, reason, null, null, null);
+                FlagEvaluationDetails.of(flagKey, true, null, Reason.STATIC, null, null, null);
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, evaluation);
 
@@ -34,7 +40,7 @@ public class TelemetryTest {
         var hookContext = generateHookContext(
                 flagKey, FlagValueType.BOOLEAN, false, EvaluationContext.EMPTY, null, providerMetadata);
         FlagEvaluationDetails<Boolean> evaluation =
-                new DefaultFlagEvaluationDetails<>(flagKey, true, null, null, null, null, null);
+                FlagEvaluationDetails.of(flagKey, true, null, (String) null, null, null, null);
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, evaluation);
 
@@ -47,7 +53,7 @@ public class TelemetryTest {
                 "testFlag", FlagValueType.STRING, "default", EvaluationContext.EMPTY, () -> "", providerMetadata);
 
         FlagEvaluationDetails<String> providerEvaluation =
-                new DefaultFlagEvaluationDetails<>(null, null, "testVariant", reason, null, null, Metadata.EMPTY);
+                FlagEvaluationDetails.of(null, null, "testVariant", reason, null, null, Metadata.EMPTY);
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, providerEvaluation);
 
@@ -60,7 +66,7 @@ public class TelemetryTest {
                 "testFlag", FlagValueType.STRING, "default", EvaluationContext.EMPTY, () -> "", providerMetadata);
 
         FlagEvaluationDetails<String> providerEvaluation =
-                new DefaultFlagEvaluationDetails<>(null, "testValue", null, reason, null, null, Metadata.EMPTY);
+                FlagEvaluationDetails.of(null, "testValue", null, reason, null, null, Metadata.EMPTY);
 
         EvaluationEvent event = Telemetry.createEvaluationEvent(hookContext, providerEvaluation);
 
@@ -76,7 +82,7 @@ public class TelemetryTest {
                 EvaluationContext.immutableOf("realTargetingKey", Map.of()),
                 () -> "",
                 () -> "realProviderName");
-        FlagEvaluationDetails<String> providerEvaluation = new DefaultFlagEvaluationDetails<>(
+        FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.of(
                 null,
                 null,
                 "realVariant",
@@ -111,7 +117,7 @@ public class TelemetryTest {
                 () -> "",
                 () -> "realProviderName");
 
-        FlagEvaluationDetails<String> providerEvaluation = new DefaultFlagEvaluationDetails<>(
+        FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.of(
                 null,
                 null,
                 null,
@@ -147,7 +153,7 @@ public class TelemetryTest {
                 () -> "",
                 () -> "realProviderName");
 
-        FlagEvaluationDetails<String> providerEvaluation = new DefaultFlagEvaluationDetails<>(
+        FlagEvaluationDetails<String> providerEvaluation = FlagEvaluationDetails.of(
                 null,
                 null,
                 null,

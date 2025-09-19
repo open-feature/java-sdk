@@ -4,13 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.Hook;
-import dev.openfeature.api.HookContext;
-import dev.openfeature.api.ImmutableStructure;
-import dev.openfeature.api.MutableContext;
 import dev.openfeature.api.OpenFeatureAPI;
-import dev.openfeature.api.Value;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.evaluation.MutableContext;
+import dev.openfeature.api.lifecycle.HookContext;
+import dev.openfeature.api.types.ImmutableStructure;
+import dev.openfeature.api.types.Value;
 import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.e2e.ContextStoringProvider;
 import dev.openfeature.sdk.e2e.State;

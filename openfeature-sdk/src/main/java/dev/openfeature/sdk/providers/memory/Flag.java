@@ -1,6 +1,6 @@
 package dev.openfeature.sdk.providers.memory;
 
-import dev.openfeature.api.Metadata;
+import dev.openfeature.api.types.Metadata;
 import java.util.Map;
 import java.util.Objects;
 

@@ -2,11 +2,11 @@ package dev.openfeature.sdk.fixtures;
 
 import static org.mockito.Mockito.spy;
 
-import dev.openfeature.api.BooleanHook;
-import dev.openfeature.api.DoubleHook;
 import dev.openfeature.api.Hook;
-import dev.openfeature.api.IntegerHook;
-import dev.openfeature.api.StringHook;
+import dev.openfeature.api.lifecycle.BooleanHook;
+import dev.openfeature.api.lifecycle.DoubleHook;
+import dev.openfeature.api.lifecycle.IntegerHook;
+import dev.openfeature.api.lifecycle.StringHook;
 
 public interface HookFixtures {
 

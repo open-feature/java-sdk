@@ -1,9 +1,16 @@
 package dev.openfeature.sdk;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import dev.openfeature.api.*;
+import dev.openfeature.api.FlagValueType;
+import dev.openfeature.api.lifecycle.HookContext;
+import dev.openfeature.api.lifecycle.HookData;
+import dev.openfeature.api.types.ClientMetadata;
+import dev.openfeature.api.types.ProviderMetadata;
 import org.junit.jupiter.api.Test;
 
 class HookContextTest {

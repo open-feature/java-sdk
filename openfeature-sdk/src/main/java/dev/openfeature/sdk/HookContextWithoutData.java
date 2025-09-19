@@ -1,11 +1,11 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.api.ClientMetadata;
-import dev.openfeature.api.EvaluationContext;
 import dev.openfeature.api.FlagValueType;
 import dev.openfeature.api.Hook;
-import dev.openfeature.api.HookContext;
-import dev.openfeature.api.ProviderMetadata;
+import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.lifecycle.HookContext;
+import dev.openfeature.api.types.ClientMetadata;
+import dev.openfeature.api.types.ProviderMetadata;
 
 /**
  * A data class to hold immutable context that {@link Hook} instances use.
