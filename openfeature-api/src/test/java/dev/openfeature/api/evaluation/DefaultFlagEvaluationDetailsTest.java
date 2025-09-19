@@ -13,14 +13,14 @@ class DefaultFlagEvaluationDetailsTest {
 
     @Test
     @DisplayName("Should create empty evaluation details with builder")
-    public void empty() {
+    void empty() {
         FlagEvaluationDetails<Integer> details = new DefaultFlagEvaluationDetails<>();
         assertNotNull(details);
     }
 
     @Test
     @DisplayName("Should create evaluation details with all fields using builder")
-    public void builderWithAllFields() {
+    void builderWithAllFields() {
 
         String flagKey = "my-flag";
         Integer value = 100;
@@ -44,9 +44,9 @@ class DefaultFlagEvaluationDetailsTest {
 
     @Test
     @DisplayName("should be able to compare 2 FlagEvaluationDetails")
-    public void compareFlagEvaluationDetails() {
+    void compareFlagEvaluationDetails() {
         String flagKey = "my-flag";
-        FlagEvaluationDetails fed1 = new DefaultFlagEvaluationDetails<>(
+        FlagEvaluationDetails<Boolean> fed1 = new DefaultFlagEvaluationDetails<>(
                 flagKey,
                 false,
                 null,
@@ -55,7 +55,7 @@ class DefaultFlagEvaluationDetailsTest {
                 "error XXX",
                 Metadata.immutableBuilder().add("metadata", "1").build());
 
-        FlagEvaluationDetails fed2 = new DefaultFlagEvaluationDetails<>(
+        FlagEvaluationDetails<Boolean> fed2 = new DefaultFlagEvaluationDetails<>(
                 flagKey,
                 false,
                 null,

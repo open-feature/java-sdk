@@ -102,6 +102,8 @@ public class ProviderSteps {
             case FATAL:
                 doThrow(new FatalError(errorMessage)).when(mockProvider).initialize(any());
                 break;
+            default:
+                // do nothing, only need to handle the special cases
         }
         // Configure all evaluation methods with a single helper
         configureMockEvaluations(mockProvider, errorCode, errorMessage);

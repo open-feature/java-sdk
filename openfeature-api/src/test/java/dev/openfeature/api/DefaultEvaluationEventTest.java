@@ -1,5 +1,6 @@
 package dev.openfeature.api;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -140,14 +141,13 @@ class DefaultEvaluationEventTest {
         assertNotEquals(event1, event4);
         assertNotEquals(event4, event1);
 
-        // Self-equality
-        assertEquals(event1, event1);
-
-        // Null comparison
-        assertNotEquals(event1, null);
-
-        // Different class comparison
-        assertNotEquals(event1, "not an event");
+        assertThat(event1)
+                // Self-equality
+                .isEqualTo(event1)
+                // Null comparison
+                .isNotEqualTo(null)
+                // Different class comparison
+                .isNotEqualTo("not an event");
     }
 
     @Test

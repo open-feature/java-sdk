@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -691,7 +692,11 @@ class EventsTest {
             number = "5.1.4",
             text = "PROVIDER_ERROR events SHOULD populate the provider event details's error message field.")
     @Test
-    void thisIsAProviderRequirement() {}
+    @Disabled("test needs to be done")
+    void thisIsAProviderRequirement() {
+        // needs to be implemented
+        assertThat(true).isFalse();
+    }
 
     @SuppressWarnings("unchecked")
     private static Consumer<EventDetails> mockHandler() {

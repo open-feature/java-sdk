@@ -33,6 +33,7 @@ public final class Utils {
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
+            default:
         }
         throw new RuntimeException("Unknown config type: " + type);
     }

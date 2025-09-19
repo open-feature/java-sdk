@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import dev.openfeature.api.AbstractEventProvider;
@@ -35,7 +36,7 @@ class EventProviderTest {
     void setup() throws Exception {
         eventProvider = new TestEventProvider();
         eventProvider.initialize(null);
-        eventProvider.setEventEmitter(new EventEmitter(eventProvider, null));
+        eventProvider.setEventEmitter(new DefaultEventEmitter(eventProvider, null));
     }
 
     @AfterAll
@@ -98,7 +99,8 @@ class EventProviderTest {
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit1 = mockOnEmit();
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit2 = onEmit1;
         eventProvider.attach(onEmit1);
-        eventProvider.attach(onEmit2); // should not throw, same instance. noop
+        assertThatCode(() -> eventProvider.attach(onEmit2))
+                .doesNotThrowAnyException(); // should not throw, same instance. noop
     }
 
     @Test
@@ -106,7 +108,8 @@ class EventProviderTest {
     @DisplayName("should not deadlock on emit called during emit")
     void doesNotDeadlockOnEmitStackedCalls() throws Exception {
         TestStackedEmitCallsProvider provider = new TestStackedEmitCallsProvider();
-        new DefaultOpenFeatureAPI().setProviderAndWait(provider);
+        assertThatCode(() -> new DefaultOpenFeatureAPI().setProviderAndWait(provider))
+                .doesNotThrowAnyException();
     }
 
     static class TestEventProvider extends AbstractEventProvider {

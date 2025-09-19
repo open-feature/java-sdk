@@ -52,7 +52,7 @@ class OpenFeatureAPITest {
         api.setProviderAndWait(domain, provider1);
         api.setProviderAndWait(domain, provider2);
 
-        assertThat(api.getProvider(domain).getMetadata().getName()).isEqualTo(DoSomethingProvider.name);
+        assertThat(api.getProvider(domain).getMetadata().getName()).isEqualTo(DoSomethingProvider.NAME);
     }
 
     @Test

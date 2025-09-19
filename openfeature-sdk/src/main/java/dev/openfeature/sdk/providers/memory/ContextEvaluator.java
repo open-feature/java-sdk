@@ -9,5 +9,5 @@ import dev.openfeature.api.evaluation.EvaluationContext;
  */
 public interface ContextEvaluator<T> {
 
-    T evaluate(Flag flag, EvaluationContext evaluationContext);
+    T evaluate(Flag<T> flag, EvaluationContext evaluationContext);
 }

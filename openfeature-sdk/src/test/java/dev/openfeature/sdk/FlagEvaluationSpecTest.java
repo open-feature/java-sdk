@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.simplify4u.slf4jmock.LoggerMock;
@@ -141,7 +142,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     @Test
     void provider_metadata() {
         api.setProviderAndWait(new DoSomethingProvider());
-        assertThat(api.getProviderMetadata().getName()).isEqualTo(DoSomethingProvider.name);
+        assertThat(api.getProviderMetadata().getName()).isEqualTo(DoSomethingProvider.NAME);
     }
 
     @Specification(
@@ -744,23 +745,39 @@ class FlagEvaluationSpecTest implements HookFixtures {
             text =
                     "The client SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied default value should be returned.")
     @Test
-    void type_system_prevents_this() {}
+    @Disabled("test needs to be done")
+    void type_system_prevents_this() {
+        // needs to be implemented
+        assertThat(true).isFalse();
+    }
 
     @Specification(
             number = "1.1.7",
             text = "The client creation function MUST NOT throw, or otherwise abnormally terminate.")
     @Test
-    void constructor_does_not_throw() {}
+    @Disabled("test needs to be done")
+    void constructor_does_not_throw() {
+        // needs to be implemented
+        assertThat(true).isFalse();
+    }
 
     @Specification(
             number = "1.4.12",
             text = "The client SHOULD provide asynchronous or non-blocking mechanisms for flag evaluation.")
     @Test
-    void one_thread_per_request_model() {}
+    @Disabled("test needs to be done")
+    void one_thread_per_request_model() {
+        // needs to be implemented
+        assertThat(true).isFalse();
+    }
 
     @Specification(number = "1.4.14.1", text = "Condition: Flag metadata MUST be immutable.")
     @Test
-    void compiler_enforced() {}
+    @Disabled("test needs to be done")
+    void compiler_enforced() {
+        // needs to be implemented
+        assertThat(true).isFalse();
+    }
 
     @Specification(
             number = "1.4.2.1",
@@ -780,5 +797,9 @@ class FlagEvaluationSpecTest implements HookFixtures {
             number = "3.3.2.1",
             text = "The API MUST NOT have a method for setting a transaction context propagator.")
     @Test
-    void not_applicable_for_dynamic_context() {}
+    @Disabled("test needs to be done")
+    void not_applicable_for_dynamic_context() {
+        // needs to be implemented
+        assertThat(true).isFalse();
+    }
 }

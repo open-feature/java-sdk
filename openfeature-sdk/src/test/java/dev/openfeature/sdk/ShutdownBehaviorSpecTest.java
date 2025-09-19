@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.Test;
 
 class ShutdownBehaviorSpecTest {
 
-    private String DOMAIN = "myDomain";
+    private static final String DOMAIN = "myDomain";
     private OpenFeatureAPI api;
 
     void setFeatureProvider(Provider featureProvider) {
@@ -143,9 +144,9 @@ class ShutdownBehaviorSpecTest {
             api.setProvider(p1);
 
             api.shutdown();
-
             NoOpProvider p2 = new NoOpProvider();
-            api.setProvider(p2);
+
+            assertThatCode(() -> api.setProvider(p2)).doesNotThrowAnyException();
         }
     }
 }

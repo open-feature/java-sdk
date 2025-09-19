@@ -1,5 +1,6 @@
 package dev.openfeature.api.types;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -157,7 +158,7 @@ class ImmutableStructureTest {
     void constructorHandlesNullValue() {
         HashMap<String, Value> attrs = new HashMap<>();
         attrs.put("null", null);
-        new ImmutableStructure(attrs);
+        assertThatCode(()-> new ImmutableStructure(attrs)).doesNotThrowAnyException();
     }
 
     @Test

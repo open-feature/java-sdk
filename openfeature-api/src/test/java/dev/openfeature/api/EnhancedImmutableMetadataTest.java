@@ -1,7 +1,7 @@
 package dev.openfeature.api;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -217,20 +217,21 @@ class EnhancedImmutableMetadataTest {
                 .build();
 
         // Same content should be equal
-        assertEquals(metadata1, metadata2);
-        assertEquals(metadata2, metadata1);
+        assertThat(metadata2).isEqualTo(metadata1);
+        assertThat(metadata1)
+                .isEqualTo(metadata2)
 
-        // Different content should not be equal
-        assertNotEquals(metadata1, metadata3);
+                // Different content should not be equal
+                .isNotEqualTo(metadata3)
 
-        // Self-equality
-        assertEquals(metadata1, metadata1);
+                // Self-equality
+                .isEqualTo(metadata1)
 
-        // Null comparison
-        assertNotEquals(metadata1, null);
+                // Null comparison
+                .isNotEqualTo(null)
 
-        // Different class comparison
-        assertNotEquals(metadata1, "not metadata");
+                // Different class comparison
+                .isNotEqualTo("not metadata");
     }
 
     @Test

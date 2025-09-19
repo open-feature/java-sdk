@@ -187,9 +187,6 @@ class EnumTest {
             for (ProviderEvent event : ProviderEvent.values()) {
                 boolean result = state.matchesEvent(event);
 
-                // Assert the method doesn't throw exceptions and returns a boolean
-                assertNotNull(result);
-
                 // Verify the expected matches
                 if ((state == ProviderState.READY && event == ProviderEvent.PROVIDER_READY)
                         || (state == ProviderState.STALE && event == ProviderEvent.PROVIDER_STALE)

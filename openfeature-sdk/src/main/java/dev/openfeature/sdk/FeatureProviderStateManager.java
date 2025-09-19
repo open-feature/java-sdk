@@ -23,7 +23,7 @@ class FeatureProviderStateManager implements EventProviderListener {
         this.delegate = delegate;
         if (delegate instanceof AbstractEventProvider) {
             ((AbstractEventProvider) delegate)
-                    .setEventEmitter(new EventEmitter((AbstractEventProvider) delegate, this));
+                    .setEventEmitter(new DefaultEventEmitter((AbstractEventProvider) delegate, this));
         }
     }
 

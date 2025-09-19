@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -10,6 +11,7 @@ import dev.openfeature.api.evaluation.ProviderEvaluation;
 import dev.openfeature.api.internal.noop.NoOpProvider;
 import dev.openfeature.api.types.Metadata;
 import dev.openfeature.api.types.Value;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ProviderSpecTest {
@@ -91,7 +93,10 @@ public class ProviderSpecTest {
             text =
                     "In cases of abnormal execution, the `resolution details` structure's `error message` field MAY contain a string containing additional detail about the nature of the error.")
     @Test
-    void up_to_provider_implementation() {}
+    void up_to_provider_implementation() {
+        // needs to be implemented
+        assertThat(true).isFalse();
+    }
 
     @Specification(
             number = "2.2.4",
@@ -175,12 +180,20 @@ public class ProviderSpecTest {
             number = "2.5.1",
             text = "The provider MAY define a mechanism to gracefully shutdown and dispose of resources.")
     @Test
-    void provider_responsibility() {}
+    @Disabled("test needs to be done")
+    void provider_responsibility() {
+        // needs to be implemented
+        assertThat(true).isFalse();
+    }
 
     @Specification(
             number = "2.6.1",
             text =
                     "The provider MAY define an on context changed handler, which takes an argument for the previous context and the newly set context, in order to respond to an evaluation context change.")
     @Test
-    void not_applicable_for_dynamic_context() {}
+    @Disabled("test needs to be done")
+    void not_applicable_for_dynamic_context() {
+        // needs to be implemented
+        assertThat(true).isFalse();
+    }
 }

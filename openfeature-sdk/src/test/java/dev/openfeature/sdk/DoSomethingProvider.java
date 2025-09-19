@@ -10,7 +10,7 @@ import dev.openfeature.api.types.Value;
 
 class DoSomethingProvider implements Provider {
 
-    static final String name = "Something";
+    static final String NAME = "Something";
     // Flag evaluation metadata
     static final Metadata DEFAULT_METADATA = Metadata.EMPTY;
     private Metadata flagMetadata;
@@ -25,7 +25,7 @@ class DoSomethingProvider implements Provider {
 
     @Override
     public ProviderMetadata getMetadata() {
-        return () -> name;
+        return () -> NAME;
     }
 
     @Override

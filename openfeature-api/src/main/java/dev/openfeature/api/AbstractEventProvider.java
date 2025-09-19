@@ -7,10 +7,6 @@ import dev.openfeature.api.events.ProviderEventDetails;
 import dev.openfeature.api.internal.TriConsumer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Abstract EventProvider. Providers must extend this class to support events.
@@ -25,9 +21,7 @@ import org.slf4j.LoggerFactory;
  * @see Provider
  */
 public abstract class AbstractEventProvider implements EventProvider {
-    private static final Logger log = LoggerFactory.getLogger(AbstractEventProvider.class);
     private EventEmitter eventEmitter;
-    private final ExecutorService emitterExecutor = Executors.newCachedThreadPool();
     private List<Hook<?>> hooks;
 
     public void setEventEmitter(EventEmitter eventEmitter) {

@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -777,7 +778,11 @@ class HookSpecTest implements HookFixtures {
 
     @Specification(number = "4.3.1", text = "Hooks MUST specify at least one stage.")
     @Test
-    void default_methods_so_impossible() {}
+    @Disabled("test needs to be done")
+    void default_methods_so_impossible() {
+        // needs to be implemented
+        assertThat(true).isFalse();
+    }
 
     @Specification(number = "4.3.9.1", text = "Instead of finally, finallyAfter SHOULD be used.")
     @Test

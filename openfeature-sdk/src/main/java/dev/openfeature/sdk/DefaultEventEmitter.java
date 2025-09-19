@@ -4,6 +4,7 @@ import dev.openfeature.api.Awaitable;
 import dev.openfeature.api.Provider;
 import dev.openfeature.api.ProviderEvent;
 import dev.openfeature.api.evaluation.EvaluationContext;
+import dev.openfeature.api.events.EventEmitter;
 import dev.openfeature.api.events.EventProvider;
 import dev.openfeature.api.events.ProviderEventDetails;
 import dev.openfeature.api.internal.TriConsumer;
@@ -25,13 +26,13 @@ import org.slf4j.LoggerFactory;
  *
  * @see Provider
  */
-class EventEmitter implements dev.openfeature.api.events.EventEmitter {
-    private static final Logger log = LoggerFactory.getLogger(EventEmitter.class);
+class DefaultEventEmitter implements EventEmitter {
+    private static final Logger log = LoggerFactory.getLogger(DefaultEventEmitter.class);
     private final EventProviderListener eventProviderListener;
     private final ExecutorService emitterExecutor = Executors.newCachedThreadPool();
     private final EventProvider provider;
 
-    protected EventEmitter(EventProvider provider, EventProviderListener eventProviderListener) {
+    protected DefaultEventEmitter(EventProvider provider, EventProviderListener eventProviderListener) {
         this.provider = provider;
         this.eventProviderListener = eventProviderListener;
     }

@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -11,6 +12,7 @@ import dev.openfeature.api.lifecycle.HookContext;
 import dev.openfeature.api.lifecycle.HookData;
 import dev.openfeature.api.types.ClientMetadata;
 import dev.openfeature.api.types.ProviderMetadata;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class HookContextTest {
@@ -36,7 +38,11 @@ class HookContextTest {
             text =
                     "The before stage MUST run before flag resolution occurs. It accepts a hook context (required) and hook hints (optional) as parameters. It has no return value.")
     @Test
-    void not_applicable_for_dynamic_context() {}
+    @Disabled
+    void not_applicable_for_dynamic_context() {
+        // needs to be implemented
+        assertThat(true).isFalse();
+    }
 
     @Test
     void shouldCreateHookContextWithHookData() {

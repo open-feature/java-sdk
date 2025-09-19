@@ -36,7 +36,7 @@ public class CelContextEvaluator<T> implements ContextEvaluator<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public T evaluate(Flag flag, EvaluationContext evaluationContext) {
+    public T evaluate(Flag<T> flag, EvaluationContext evaluationContext) {
         try {
             Map<String, Object> objectMap = new HashMap<>();
             // Provide defaults for all declared variables to prevent runtime errors.
