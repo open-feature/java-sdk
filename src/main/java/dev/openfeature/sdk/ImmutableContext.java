@@ -20,6 +20,8 @@ import lombok.experimental.Delegate;
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public final class ImmutableContext implements EvaluationContext {
 
+    public static final ImmutableContext EMPTY = new ImmutableContext();
+
     @Delegate(excludes = DelegateExclusions.class)
     private final ImmutableStructure structure;
 

@@ -1,16 +1,18 @@
 package dev.openfeature.sdk;
 
 import lombok.Builder;
+import lombok.Data;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.With;
+import lombok.experimental.NonFinal;
 
 /**
  * A data class to hold immutable context that {@link Hook} instances use.
  *
  * @param <T> the type for the flag being evaluated
  */
-@Value
+@Data
 @Builder
 @With
 public class HookContext<T> {
@@ -25,8 +27,10 @@ public class HookContext<T> {
     ClientMetadata clientMetadata;
     Metadata providerMetadata;
 
+    HookData hookData;
+
     /**
-     * Builds a {@link HookContext} instances from request data.
+     * Builds {@link HookContext} instances from request data.
      *
      * @param key              feature flag key
      * @param type             flag value type

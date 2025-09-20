@@ -54,6 +54,30 @@ public class AllocationBenchmark {
                 return Optional.ofNullable(new ImmutableContext());
             }
         });
+        client.addHooks(new Hook<String>() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<String> ctx, Map<String, Object> hints) {
+                return Optional.ofNullable(new ImmutableContext());
+            }
+        });
+        client.addHooks(new Hook<Boolean>() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
+                return Optional.ofNullable(new ImmutableContext());
+            }
+        });
+        client.addHooks(new Hook<Integer>() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<Integer> ctx, Map<String, Object> hints) {
+                return Optional.ofNullable(new ImmutableContext());
+            }
+        });
+        client.addHooks(new Hook<Double>() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<Double> ctx, Map<String, Object> hints) {
+                return Optional.ofNullable(new ImmutableContext());
+            }
+        });
 
         Map<String, Value> invocationAttrs = new HashMap<>();
         invocationAttrs.put("invoke", new Value(3));
