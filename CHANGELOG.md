@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.18.2](https://github.com/open-feature/java-sdk/compare/v1.18.1...v1.18.2) (2025-09-20)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency org.projectlombok:lombok to v1.18.42 ([#1616](https://github.com/open-feature/java-sdk/issues/1616)) ([6dcd21f](https://github.com/open-feature/java-sdk/commit/6dcd21f559477c1b473cd30e459ca7241c4f7210))
+
+
+### 🧹 Chore
+
+* **deps:** update dependency com.google.guava:guava to v33.5.0-jre ([#1615](https://github.com/open-feature/java-sdk/issues/1615)) ([3ef41f5](https://github.com/open-feature/java-sdk/commit/3ef41f5225b93ca9d4b975c265d4ec41dbd91717))
+* **deps:** update dependency org.assertj:assertj-core to v3.27.5 ([#1619](https://github.com/open-feature/java-sdk/issues/1619)) ([d4beca7](https://github.com/open-feature/java-sdk/commit/d4beca71bb60359b88e739153ff96ffc11aa74ef))
+* **deps:** update dependency org.mockito:mockito-core to v5.20.0 ([#1622](https://github.com/open-feature/java-sdk/issues/1622)) ([857fb9d](https://github.com/open-feature/java-sdk/commit/857fb9d78c509ee9c1087c355eb0fdb4ffdb668e))
+* **deps:** update github/codeql-action digest to 0337c4c ([#1621](https://github.com/open-feature/java-sdk/issues/1621)) ([6cf64d6](https://github.com/open-feature/java-sdk/commit/6cf64d6b0c0ae351a707d70257380f2bce81a82e))
+* **deps:** update github/codeql-action digest to 12dda79 ([#1618](https://github.com/open-feature/java-sdk/issues/1618)) ([17d0e48](https://github.com/open-feature/java-sdk/commit/17d0e487f31864facc0e69ee76352cab82b6b6b7))
+
 ## [1.18.1](https://github.com/open-feature/java-sdk/compare/v1.18.0...v1.18.1) (2025-09-17)
 
 
