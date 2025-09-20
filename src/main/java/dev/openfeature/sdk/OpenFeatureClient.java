@@ -1,9 +1,7 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.exceptions.ExceptionUtils;
 import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.exceptions.GeneralError;
-import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
 import dev.openfeature.sdk.internal.ObjectUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -204,9 +202,8 @@ public class OpenFeatureClient implements Client {
 
             details = FlagEvaluationDetails.from(providerEval, key);
             if (details.getErrorCode() != null) {
-                var error =
-                        ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
                 enrichDetailsWithErrorDefaults(defaultValue, details);
+                ErrorDetails error = ErrorDetails.from(details);
                 hookSupport.errorHooks(type, afterHookContext, error, mergedHooks, hints);
             } else {
                 hookSupport.afterHooks(type, afterHookContext, details, mergedHooks, hints);
@@ -215,14 +212,9 @@ public class OpenFeatureClient implements Client {
             if (details == null) {
                 details = FlagEvaluationDetails.<T>builder().flagKey(key).build();
             }
-            if (e instanceof OpenFeatureError) {
-                details.setErrorCode(((OpenFeatureError) e).getErrorCode());
-            } else {
-                details.setErrorCode(ErrorCode.GENERAL);
-            }
-            details.setErrorMessage(e.getMessage());
             enrichDetailsWithErrorDefaults(defaultValue, details);
-            hookSupport.errorHooks(type, afterHookContext, e, mergedHooks, hints);
+            ErrorDetails error = ErrorDetails.from(e, details);
+            hookSupport.errorHooks(type, afterHookContext, error, mergedHooks, hints);
         } finally {
             hookSupport.afterAllHooks(type, afterHookContext, details, mergedHooks, hints);
         }
