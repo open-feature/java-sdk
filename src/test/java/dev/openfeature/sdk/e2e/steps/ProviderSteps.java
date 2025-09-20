@@ -112,16 +112,24 @@ public class ProviderSteps {
                 ProviderEventDetails.builder().errorCode(errorCode).build();
         switch (providerState) {
             case FATAL:
+                // The FATAL state is set via an exception during initialization. No further events are needed.
+                break;
             case ERROR:
                 mockProvider.emitProviderReady(details);
+                waitForProviderState(ProviderState.READY, client);
                 mockProvider.emitProviderError(details);
                 break;
             case STALE:
                 mockProvider.emitProviderReady(details);
+                waitForProviderState(ProviderState.READY, client);
                 mockProvider.emitProviderStale(details);
                 break;
             default:
         }
+        waitForProviderState(providerState, client);
+    }
+
+    private static void waitForProviderState(ProviderState providerState, Client client) {
         Awaitility.await().until(() -> {
             ProviderState providerState1 = client.getProviderState();
             return providerState1 == providerState;
