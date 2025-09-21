@@ -15,7 +15,6 @@ import dev.openfeature.api.ErrorCode;
 import dev.openfeature.api.OpenFeatureAPI;
 import dev.openfeature.api.Provider;
 import dev.openfeature.api.ProviderState;
-import dev.openfeature.api.Reason;
 import dev.openfeature.api.evaluation.ProviderEvaluation;
 import dev.openfeature.api.events.EventProvider;
 import dev.openfeature.api.events.ProviderEventDetails;
@@ -142,27 +141,27 @@ public class ProviderSteps {
     private void configureMockEvaluations(Provider mockProvider, ErrorCode errorCode, String errorMessage) {
         // Configure Boolean evaluation
         when(mockProvider.getBooleanEvaluation(anyString(), any(Boolean.class), any()))
-                .thenAnswer(invocation -> createProviderEvaluation(invocation.getArgument(1), errorCode, errorMessage));
+                .thenAnswer(invocation -> createProviderEvaluation(errorCode, errorMessage));
 
         // Configure String evaluation
         when(mockProvider.getStringEvaluation(anyString(), any(String.class), any()))
-                .thenAnswer(invocation -> createProviderEvaluation(invocation.getArgument(1), errorCode, errorMessage));
+                .thenAnswer(invocation -> createProviderEvaluation(errorCode, errorMessage));
 
         // Configure Integer evaluation
         when(mockProvider.getIntegerEvaluation(anyString(), any(Integer.class), any()))
-                .thenAnswer(invocation -> createProviderEvaluation(invocation.getArgument(1), errorCode, errorMessage));
+                .thenAnswer(invocation -> createProviderEvaluation(errorCode, errorMessage));
 
         // Configure Double evaluation
         when(mockProvider.getDoubleEvaluation(anyString(), any(Double.class), any()))
-                .thenAnswer(invocation -> createProviderEvaluation(invocation.getArgument(1), errorCode, errorMessage));
+                .thenAnswer(invocation -> createProviderEvaluation(errorCode, errorMessage));
 
         // Configure Object evaluation
         when(mockProvider.getObjectEvaluation(anyString(), any(Value.class), any()))
-                .thenAnswer(invocation -> createProviderEvaluation(invocation.getArgument(1), errorCode, errorMessage));
+                .thenAnswer(invocation -> createProviderEvaluation(errorCode, errorMessage));
     }
 
     private <T> ProviderEvaluation<T> createProviderEvaluation(
-            T defaultValue, ErrorCode errorCode, String errorMessage) {
-        return ProviderEvaluation.of(defaultValue, null, Reason.ERROR.toString(), errorCode, errorMessage, null);
+            ErrorCode errorCode, String errorMessage) {
+        return ProviderEvaluation.of(errorCode, errorMessage, null);
     }
 }
