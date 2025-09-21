@@ -57,162 +57,33 @@ public class NoOpClient implements Client {
     }
 
     @Override
-    public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue) {
-        return FlagEvaluationDetails.of(key, defaultValue, Reason.DEFAULT);
-    }
-
-    @Override
-    public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue, EvaluationContext ctx) {
-        return getBooleanDetails(key, defaultValue);
-    }
-
-    @Override
     public FlagEvaluationDetails<Boolean> getBooleanDetails(
             String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return getBooleanDetails(key, defaultValue);
-    }
-
-    @Override
-    public Boolean getBooleanValue(String key, Boolean defaultValue) {
-        return defaultValue;
-    }
-
-    @Override
-    public Boolean getBooleanValue(String key, Boolean defaultValue, EvaluationContext ctx) {
-        return defaultValue;
-    }
-
-    @Override
-    public Boolean getBooleanValue(
-            String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return defaultValue;
-    }
-
-    @Override
-    public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue) {
         return FlagEvaluationDetails.of(key, defaultValue, Reason.DEFAULT);
-    }
-
-    @Override
-    public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx) {
-        return getStringDetails(key, defaultValue);
     }
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(
             String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return getStringDetails(key, defaultValue);
-    }
-
-    @Override
-    public String getStringValue(String key, String defaultValue) {
-        return defaultValue;
-    }
-
-    @Override
-    public String getStringValue(String key, String defaultValue, EvaluationContext ctx) {
-        return defaultValue;
-    }
-
-    @Override
-    public String getStringValue(
-            String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return defaultValue;
-    }
-
-    @Override
-    public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue) {
         return FlagEvaluationDetails.of(key, defaultValue, Reason.DEFAULT);
-    }
-
-    @Override
-    public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx) {
-        return getIntegerDetails(key, defaultValue);
     }
 
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(
             String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return getIntegerDetails(key, defaultValue);
-    }
-
-    @Override
-    public Integer getIntegerValue(String key, Integer defaultValue) {
-        return defaultValue;
-    }
-
-    @Override
-    public Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx) {
-        return defaultValue;
-    }
-
-    @Override
-    public Integer getIntegerValue(
-            String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return defaultValue;
-    }
-
-    @Override
-    public FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue) {
         return FlagEvaluationDetails.of(key, defaultValue, Reason.DEFAULT);
-    }
-
-    @Override
-    public FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx) {
-        return getDoubleDetails(key, defaultValue);
     }
 
     @Override
     public FlagEvaluationDetails<Double> getDoubleDetails(
             String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return getDoubleDetails(key, defaultValue);
-    }
-
-    @Override
-    public Double getDoubleValue(String key, Double defaultValue) {
-        return defaultValue;
-    }
-
-    @Override
-    public Double getDoubleValue(String key, Double defaultValue, EvaluationContext ctx) {
-        return defaultValue;
-    }
-
-    @Override
-    public Double getDoubleValue(
-            String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return defaultValue;
-    }
-
-    @Override
-    public FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue) {
         return FlagEvaluationDetails.of(key, defaultValue, Reason.DEFAULT);
-    }
-
-    @Override
-    public FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue, EvaluationContext ctx) {
-        return getObjectDetails(key, defaultValue);
     }
 
     @Override
     public FlagEvaluationDetails<Value> getObjectDetails(
             String key, Value defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return getObjectDetails(key, defaultValue);
-    }
-
-    @Override
-    public Value getObjectValue(String key, Value defaultValue) {
-        return defaultValue;
-    }
-
-    @Override
-    public Value getObjectValue(String key, Value defaultValue, EvaluationContext ctx) {
-        return defaultValue;
-    }
-
-    @Override
-    public Value getObjectValue(String key, Value defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return defaultValue;
+        return FlagEvaluationDetails.of(key, defaultValue, Reason.DEFAULT);
     }
 
     @Override

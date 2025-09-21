@@ -7,67 +7,117 @@ import dev.openfeature.api.types.Value;
  */
 public interface EvaluationClient {
 
-    Boolean getBooleanValue(String key, Boolean defaultValue);
+    default Boolean getBooleanValue(String key, Boolean defaultValue) {
+        return getBooleanValue(key, defaultValue, EvaluationContext.EMPTY);
+    }
 
-    Boolean getBooleanValue(String key, Boolean defaultValue, EvaluationContext ctx);
+    default Boolean getBooleanValue(String key, Boolean defaultValue, EvaluationContext ctx) {
+        return getBooleanValue(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+    }
 
-    Boolean getBooleanValue(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
+    default Boolean getBooleanValue(String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return getBooleanDetails(key, defaultValue, ctx, options).getValue();
+    }
 
-    FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue);
+    default FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue) {
+        return getBooleanDetails(key, defaultValue, EvaluationContext.EMPTY);
+    }
 
-    FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue, EvaluationContext ctx);
+    default FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue, EvaluationContext ctx) {
+        return getBooleanDetails(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+    }
 
     FlagEvaluationDetails<Boolean> getBooleanDetails(
             String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
 
-    String getStringValue(String key, String defaultValue);
+    default String getStringValue(String key, String defaultValue) {
+        return getStringValue(key, defaultValue, EvaluationContext.EMPTY);
+    }
 
-    String getStringValue(String key, String defaultValue, EvaluationContext ctx);
+    default String getStringValue(String key, String defaultValue, EvaluationContext ctx) {
+        return getStringValue(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+    }
 
-    String getStringValue(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
+    default String getStringValue(String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return getStringDetails(key, defaultValue, ctx, options).getValue();
+    }
 
-    FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue);
+    default FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue) {
+        return getStringDetails(key, defaultValue, EvaluationContext.EMPTY);
+    }
 
-    FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx);
+    default FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx) {
+        return getStringDetails(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+    }
 
     FlagEvaluationDetails<String> getStringDetails(
             String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
 
-    Integer getIntegerValue(String key, Integer defaultValue);
+    default Integer getIntegerValue(String key, Integer defaultValue) {
+        return getIntegerValue(key, defaultValue, EvaluationContext.EMPTY);
+    }
 
-    Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx);
+    default Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx) {
+        return getIntegerValue(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+    }
 
-    Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
+    default Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return getIntegerDetails(key, defaultValue, ctx, options).getValue();
+    }
 
-    FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue);
+    default FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue) {
+        return getIntegerDetails(key, defaultValue, EvaluationContext.EMPTY);
+    }
 
-    FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx);
+    default FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx) {
+        return getIntegerDetails(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+    }
 
     FlagEvaluationDetails<Integer> getIntegerDetails(
             String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
 
-    Double getDoubleValue(String key, Double defaultValue);
+    default Double getDoubleValue(String key, Double defaultValue) {
+        return getDoubleValue(key, defaultValue, EvaluationContext.EMPTY);
+    }
 
-    Double getDoubleValue(String key, Double defaultValue, EvaluationContext ctx);
+    default Double getDoubleValue(String key, Double defaultValue, EvaluationContext ctx) {
+        return getDoubleValue(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+    }
 
-    Double getDoubleValue(String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
+    default Double getDoubleValue(String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return getDoubleDetails(key, defaultValue, ctx, options).getValue();
+    }
 
-    FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue);
+    default FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue) {
+        return getDoubleDetails(key, defaultValue, EvaluationContext.EMPTY);
+    }
 
-    FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx);
+    default FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx) {
+        return getDoubleDetails(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+    }
 
     FlagEvaluationDetails<Double> getDoubleDetails(
             String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
 
-    Value getObjectValue(String key, Value defaultValue);
+    default Value getObjectValue(String key, Value defaultValue) {
+        return getObjectValue(key, defaultValue, EvaluationContext.EMPTY);
+    }
 
-    Value getObjectValue(String key, Value defaultValue, EvaluationContext ctx);
+    default Value getObjectValue(String key, Value defaultValue, EvaluationContext ctx) {
+        return getObjectValue(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+    }
 
-    Value getObjectValue(String key, Value defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
+    default Value getObjectValue(String key, Value defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return getObjectDetails(key, defaultValue, ctx, options).getValue();
+    }
 
-    FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue);
+    default FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue) {
+        return getObjectDetails(key, defaultValue, EvaluationContext.EMPTY);
+    }
 
-    FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue, EvaluationContext ctx);
+    default FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue, EvaluationContext ctx) {
+        return getObjectDetails(key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+    }
 
     FlagEvaluationDetails<Value> getObjectDetails(
             String key, Value defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);

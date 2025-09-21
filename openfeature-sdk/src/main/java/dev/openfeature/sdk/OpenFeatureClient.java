@@ -328,63 +328,9 @@ class OpenFeatureClient implements Client {
     }
 
     @Override
-    public Boolean getBooleanValue(String key, Boolean defaultValue) {
-        return getBooleanDetails(key, defaultValue).getValue();
-    }
-
-    @Override
-    public Boolean getBooleanValue(String key, Boolean defaultValue, EvaluationContext ctx) {
-        return getBooleanDetails(key, defaultValue, ctx).getValue();
-    }
-
-    @Override
-    public Boolean getBooleanValue(
-            String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return getBooleanDetails(key, defaultValue, ctx, options).getValue();
-    }
-
-    @Override
-    public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue) {
-        return getBooleanDetails(key, defaultValue, null);
-    }
-
-    @Override
-    public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue, EvaluationContext ctx) {
-        return getBooleanDetails(
-                key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
-    }
-
-    @Override
     public FlagEvaluationDetails<Boolean> getBooleanDetails(
             String key, Boolean defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.BOOLEAN, key, defaultValue, ctx, options);
-    }
-
-    @Override
-    public String getStringValue(String key, String defaultValue) {
-        return getStringDetails(key, defaultValue).getValue();
-    }
-
-    @Override
-    public String getStringValue(String key, String defaultValue, EvaluationContext ctx) {
-        return getStringDetails(key, defaultValue, ctx).getValue();
-    }
-
-    @Override
-    public String getStringValue(
-            String key, String defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return getStringDetails(key, defaultValue, ctx, options).getValue();
-    }
-
-    @Override
-    public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue) {
-        return getStringDetails(key, defaultValue, null);
-    }
-
-    @Override
-    public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx) {
-        return getStringDetails(
-                key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
     }
 
     @Override
@@ -394,95 +340,15 @@ class OpenFeatureClient implements Client {
     }
 
     @Override
-    public Integer getIntegerValue(String key, Integer defaultValue) {
-        return getIntegerDetails(key, defaultValue).getValue();
-    }
-
-    @Override
-    public Integer getIntegerValue(String key, Integer defaultValue, EvaluationContext ctx) {
-        return getIntegerDetails(key, defaultValue, ctx).getValue();
-    }
-
-    @Override
-    public Integer getIntegerValue(
-            String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return getIntegerDetails(key, defaultValue, ctx, options).getValue();
-    }
-
-    @Override
-    public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue) {
-        return getIntegerDetails(key, defaultValue, null);
-    }
-
-    @Override
-    public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx) {
-        return getIntegerDetails(
-                key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
-    }
-
-    @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(
             String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, ctx, options);
     }
 
     @Override
-    public Double getDoubleValue(String key, Double defaultValue) {
-        return getDoubleValue(key, defaultValue, null);
-    }
-
-    @Override
-    public Double getDoubleValue(String key, Double defaultValue, EvaluationContext ctx) {
-        return getDoubleValue(key, defaultValue, ctx, null);
-    }
-
-    @Override
-    public Double getDoubleValue(
-            String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return this.evaluateFlag(FlagValueType.DOUBLE, key, defaultValue, ctx, options)
-                .getValue();
-    }
-
-    @Override
-    public FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue) {
-        return getDoubleDetails(key, defaultValue, null);
-    }
-
-    @Override
-    public FlagEvaluationDetails<Double> getDoubleDetails(String key, Double defaultValue, EvaluationContext ctx) {
-        return getDoubleDetails(key, defaultValue, ctx, null);
-    }
-
-    @Override
     public FlagEvaluationDetails<Double> getDoubleDetails(
             String key, Double defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.DOUBLE, key, defaultValue, ctx, options);
-    }
-
-    @Override
-    public Value getObjectValue(String key, Value defaultValue) {
-        return getObjectDetails(key, defaultValue).getValue();
-    }
-
-    @Override
-    public Value getObjectValue(String key, Value defaultValue, EvaluationContext ctx) {
-        return getObjectDetails(key, defaultValue, ctx).getValue();
-    }
-
-    @Override
-    public Value getObjectValue(String key, Value defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
-        return getObjectDetails(key, defaultValue, ctx, options).getValue();
-    }
-
-    @Override
-    public FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue) {
-        return getObjectDetails(key, defaultValue, null);
-    }
-
-    @Override
-    public FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue, EvaluationContext ctx) {
-        return getObjectDetails(
-                key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
     }
 
     @Override
