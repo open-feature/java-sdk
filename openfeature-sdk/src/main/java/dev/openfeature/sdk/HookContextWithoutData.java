@@ -12,7 +12,7 @@ import dev.openfeature.api.types.ProviderMetadata;
  *
  * @param <T> the type for the flag being evaluated
  */
-class HookContextWithoutData<T> implements HookContext<T> {
+final class HookContextWithoutData<T> implements HookContext<T> {
     private final String flagKey;
 
     private final FlagValueType type;
@@ -34,17 +34,17 @@ class HookContextWithoutData<T> implements HookContext<T> {
         if (flagKey == null) {
             throw new NullPointerException("flagKey is null");
         }
-        this.flagKey = flagKey;
         if (type == null) {
             throw new NullPointerException("type is null");
         }
-        this.type = type;
         if (defaultValue == null) {
             throw new NullPointerException("defaultValue is null");
         }
         if (ctx == null) {
             throw new NullPointerException("ctx is null");
         }
+        this.type = type;
+        this.flagKey = flagKey;
         this.ctx = ctx;
         this.defaultValue = defaultValue;
         this.clientMetadata = clientMetadata;

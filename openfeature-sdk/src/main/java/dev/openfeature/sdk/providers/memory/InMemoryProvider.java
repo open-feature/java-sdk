@@ -123,6 +123,7 @@ public class InMemoryProvider extends AbstractEventProvider {
         return getEvaluation(key, defaultValue, evaluationContext, Value.class);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> ProviderEvaluation<T> getEvaluation(
             String key, T defaultValue, EvaluationContext evaluationContext, Class<?> expectedType)
             throws OpenFeatureError {
@@ -135,7 +136,7 @@ public class InMemoryProvider extends AbstractEventProvider {
             }
             throw new GeneralError("unknown error");
         }
-        Flag<?> flag = flags.get(key);
+        Flag<T> flag = (Flag<T>) flags.get(key);
         if (flag == null) {
             throw new FlagNotFoundError("flag " + key + " not found");
         }
@@ -146,7 +147,7 @@ public class InMemoryProvider extends AbstractEventProvider {
         Reason reason = Reason.STATIC;
         if (flag.getContextEvaluator() != null) {
             try {
-                value = (T) flag.getContextEvaluator().evaluate(flag, evaluationContext);
+                value = flag.getContextEvaluator().evaluate(flag, evaluationContext);
                 reason = Reason.TARGETING_MATCH;
             } catch (Exception e) {
                 value = null;

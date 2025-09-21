@@ -16,8 +16,6 @@ import dev.openfeature.api.evaluation.EvaluationContext;
 import dev.openfeature.api.evaluation.FlagEvaluationDetails;
 import dev.openfeature.api.exceptions.GeneralError;
 import dev.openfeature.api.lifecycle.HookContext;
-import dev.openfeature.api.types.ClientMetadata;
-import dev.openfeature.api.types.ProviderMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.simplify4u.slf4jmock.LoggerMock;
@@ -44,37 +42,13 @@ class LoggingHookTest {
     void each() {
 
         // create a fake hook context
-        hookContext = new HookContext<>() {
-            @Override
-            public String getFlagKey() {
-                return FLAG_KEY;
-            }
-
-            @Override
-            public FlagValueType getType() {
-                return FlagValueType.BOOLEAN;
-            }
-
-            @Override
-            public Object getDefaultValue() {
-                return DEFAULT_VALUE;
-            }
-
-            @Override
-            public EvaluationContext getCtx() {
-                return EvaluationContext.EMPTY;
-            }
-
-            @Override
-            public ClientMetadata getClientMetadata() {
-                return () -> DOMAIN;
-            }
-
-            @Override
-            public ProviderMetadata getProviderMetadata() {
-                return () -> PROVIDER_NAME;
-            }
-        };
+        hookContext = HookContext.of(
+                FLAG_KEY,
+                DEFAULT_VALUE,
+                FlagValueType.BOOLEAN,
+                () -> PROVIDER_NAME,
+                () -> DOMAIN,
+                EvaluationContext.EMPTY);
 
         // mock logging
         logger = mock(Logger.class);

@@ -25,6 +25,7 @@
         <dependency>
             <groupId>dev.openfeature</groupId>
             <artifactId>api</artifactId>
+            <version>0.0.1</version>
         </dependency>
 
         <!-- Spotbugs for annotations -->
@@ -179,6 +180,7 @@
                         ${surefireArgLine}
                         --add-opens java.base/java.util=ALL-UNNAMED
                         --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens dev.openfeature.sdk/dev.openfeature.sdk.testutils.jackson=ALL-UNNAMED
                         --add-opens dev.openfeature.sdk/dev.openfeature.sdk.e2e.steps=ALL-UNNAMED
                         --add-opens dev.openfeature.sdk/dev.openfeature.sdk.e2e=ALL-UNNAMED
                         --add-reads dev.openfeature.sdk=ALL-UNNAMED

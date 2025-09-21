@@ -71,6 +71,9 @@ public abstract class AbstractEventProvider implements EventProvider {
      * @param details The details of the event
      */
     public Awaitable emit(final ProviderEvent event, final ProviderEventDetails details) {
+        if (eventEmitter == null) {
+            return null;
+        }
         return eventEmitter.emit(event, details);
     }
 

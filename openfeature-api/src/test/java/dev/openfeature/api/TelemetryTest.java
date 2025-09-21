@@ -185,38 +185,7 @@ public class TelemetryTest {
             final T defaultValue,
             final EvaluationContext ctx,
             final ClientMetadata clientMetadata,
-            final ProviderMetadata providerMeta) {
-        return new HookContext<T>() {
-
-            @Override
-            public String getFlagKey() {
-                return flagKey;
-            }
-
-            @Override
-            public FlagValueType getType() {
-                return type;
-            }
-
-            @Override
-            public T getDefaultValue() {
-                return defaultValue;
-            }
-
-            @Override
-            public EvaluationContext getCtx() {
-                return ctx;
-            }
-
-            @Override
-            public ClientMetadata getClientMetadata() {
-                return clientMetadata;
-            }
-
-            @Override
-            public ProviderMetadata getProviderMetadata() {
-                return providerMeta;
-            }
-        };
+            final ProviderMetadata providerMetadata) {
+        return HookContext.of(flagKey, defaultValue, type, providerMetadata, clientMetadata, ctx);
     }
 }

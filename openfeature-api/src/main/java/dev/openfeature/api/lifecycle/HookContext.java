@@ -11,6 +11,17 @@ import dev.openfeature.api.types.ProviderMetadata;
  */
 public interface HookContext<T> {
 
+    static <T> HookContext<T> of(
+            final String flagKey,
+            final T defaultValue,
+            FlagValueType type,
+            ProviderMetadata providerMetadata,
+            ClientMetadata clientMetadata,
+            EvaluationContext evaluationContext) {
+        return new DefaultHookContext<>(
+                flagKey, defaultValue, type, providerMetadata, clientMetadata, evaluationContext);
+    }
+
     String getFlagKey();
 
     FlagValueType getType();
@@ -23,7 +34,5 @@ public interface HookContext<T> {
 
     ProviderMetadata getProviderMetadata();
 
-    default HookData getHookData() {
-        return null;
-    }
+    HookData getHookData();
 }

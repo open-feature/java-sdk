@@ -1,6 +1,5 @@
 package dev.openfeature.api.tracking;
 
-import dev.openfeature.api.internal.ExcludeFromGeneratedCoverageReport;
 import dev.openfeature.api.types.ImmutableStructure;
 import dev.openfeature.api.types.Structure;
 import dev.openfeature.api.types.Value;
@@ -9,7 +8,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
  * ImmutableTrackingEventDetails represents data pertinent to a particular tracking event.
@@ -253,17 +251,6 @@ class ImmutableTrackingEventDetails implements TrackingEventDetails {
         @Override
         public TrackingEventDetails build() {
             return new ImmutableTrackingEventDetails(value, new HashMap<>(attributes));
-        }
-    }
-
-    @SuppressWarnings("all")
-    private static class DelegateExclusions {
-        @ExcludeFromGeneratedCoverageReport
-        public <T extends Structure> Map<String, Value> merge(
-                Function<Map<String, Value>, Structure> newStructure,
-                Map<String, Value> base,
-                Map<String, Value> overriding) {
-            return null;
         }
     }
 }

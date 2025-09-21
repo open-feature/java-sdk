@@ -158,7 +158,7 @@ class ImmutableStructureTest {
     void constructorHandlesNullValue() {
         HashMap<String, Value> attrs = new HashMap<>();
         attrs.put("null", null);
-        assertThatCode(()-> new ImmutableStructure(attrs)).doesNotThrowAnyException();
+        assertThatCode(() -> new ImmutableStructure(attrs)).doesNotThrowAnyException();
     }
 
     @Test

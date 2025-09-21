@@ -210,7 +210,7 @@ class HookSpecTest implements HookFixtures {
         Hook<Boolean> hook = mockBooleanHook();
         Provider provider = mock(Provider.class);
         when(provider.getBooleanEvaluation(any(), any(), any()))
-                .thenReturn(ProviderEvaluation.of(ErrorCode.FLAG_NOT_FOUND, errorMessage));
+                .thenReturn(ProviderEvaluation.of(ErrorCode.FLAG_NOT_FOUND, errorMessage, Metadata.EMPTY));
 
         api.setProviderAndWait("errorHookMustRun", provider);
         Client client = api.getClient("errorHookMustRun");
