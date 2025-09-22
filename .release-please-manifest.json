@@ -1,4 +1,4 @@
 {
-  "./sdk": "2.0.0-beta",
-  "./api": "0.0.0-beta"
+  "./openfeature-api": "0.0.0-beta",
+  "./openfeature-sdk": "2.0.0-beta"
 }

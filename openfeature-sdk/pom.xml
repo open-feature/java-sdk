@@ -25,7 +25,7 @@
         <dependency>
             <groupId>dev.openfeature</groupId>
             <artifactId>api</artifactId>
-            <version>0.0.1</version>
+            <!-- Version managed by parent or set via property -->
         </dependency>
 
         <!-- Spotbugs for annotations -->

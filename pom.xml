@@ -49,6 +49,8 @@
         <org.mockito.version>5.18.0</org.mockito.version>
         <testExclusions>**/e2e/*.java</testExclusions>
         <skip.tests>false</skip.tests>
+        <!-- API version for SDK dependency - update this when API releases -->
+        <openfeature.api.version>0.0.1</openfeature.api.version>
     </properties>
 
     <dependencyManagement>
@@ -57,7 +59,7 @@
             <dependency>
                 <groupId>dev.openfeature</groupId>
                 <artifactId>api</artifactId>
-                <version>${project.version}</version>
+                <version>${openfeature.api.version}</version>
             </dependency>
 
             <!-- Common dependencies -->
