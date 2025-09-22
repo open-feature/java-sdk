@@ -1,31 +1,35 @@
 # Breaking Changes - OpenFeature Java SDK v2.0.0
 
-This document outlines all breaking changes introduced in the `feat/split-api-and-sdk` branch compared to the `main` branch. These changes represent a major version bump to v2.0.0.
+This document outlines all breaking changes introduced in the `feat/split-api-and-sdk` branch compared to the `main` branch (v1.18.0). These changes represent a major version bump to v2.0.0.
 
 ## 📊 Change Summary
-- **32 commits** with comprehensive refactoring
-- **280 Java/Markdown files** modified
-- **15,749 lines added, 4,182 lines removed**
-- Complete architectural split into API and SDK modules
-- Removal of Lombok dependency
-- Full immutability with builder patterns
-- ServiceLoader integration
-- EvaluationClient interface optimized with default methods
-- Comprehensive compatibility layer for seamless migration
+- **32 commits** with comprehensive refactoring starting from v1.18.0
+- **Complete architectural transformation** from single-module to multi-module Maven project
+- **76 Java files** in original `src/main/java/dev/openfeature/sdk/` → **Split into 2 modules**
+- **API module**: 84 files in `dev.openfeature.api` package structure
+- **SDK module**: Implementation + compatibility layer + providers
+- **Lombok completely removed** - replaced with hand-written builders
+- **Full immutability transformation** - all POJOs now immutable with builders
+- **Package reorganization** - interfaces moved from `dev.openfeature.sdk.*` to `dev.openfeature.api.*`
+- **Comprehensive compatibility layer** for gradual migration (deprecated wrappers)
+- **ServiceLoader integration** for API provider discovery
 
 ## 🏗️ Architecture Changes
 
 ### Module Structure & Maven Coordinates
 **Breaking**: The monolithic SDK has been split into separate API and SDK modules with new Maven coordinates.
 
-**Before (v1.x)**:
+**Before (v1.18.0)**:
 ```xml
 <!-- Single monolithic module -->
 <dependency>
     <groupId>dev.openfeature</groupId>
     <artifactId>sdk</artifactId>
-    <version>1.17.0</version>
+    <version>1.18.0</version>
 </dependency>
+
+<!-- All classes in dev.openfeature.sdk.* package -->
+<!-- Example: FeatureProvider, OpenFeatureAPI, ProviderEvaluation, etc. -->
 ```
 
 **After (v2.0.0)**:
@@ -34,15 +38,19 @@ This document outlines all breaking changes introduced in the `feat/split-api-an
 <dependency>
     <groupId>dev.openfeature</groupId>
     <artifactId>api</artifactId>
-    <version>2.0.0</version>
+    <version>0.0.1</version> <!-- API module starts at 0.0.1 -->
 </dependency>
 
-<!-- For full SDK usage (includes API + implementation) -->
+<!-- For full SDK usage (includes API + implementation + compatibility layer) -->
 <dependency>
     <groupId>dev.openfeature</groupId>
     <artifactId>sdk</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.0</version> <!-- SDK version is 2.0.0 -->
 </dependency>
+
+<!-- Classes now split across packages: -->
+<!-- API: dev.openfeature.api.* (Provider, EvaluationClient, etc.) -->
+<!-- SDK: dev.openfeature.sdk.* (OpenFeatureClient, providers, compatibility layer) -->
 ```
 
 ### Maven Project Structure
@@ -81,24 +89,27 @@ java-sdk/
 ## 🔒 POJO Immutability Changes
 
 ### ProviderEvaluation
-**Breaking**: `ProviderEvaluation` is now immutable with private constructors.
+**Breaking**: `ProviderEvaluation` transformed from Lombok `@Data` to immutable with builders.
 
-**Before**:
+**Before (v1.18.0 with Lombok)**:
 ```java
-// Public constructors
+// Lombok @Data, @Builder, @NoArgsConstructor, @AllArgsConstructor
 ProviderEvaluation<String> eval = new ProviderEvaluation<>();
-eval.setValue("test");
-eval.setVariant("variant1");
-eval.setReason("DEFAULT");
+eval.setValue("test");              // Lombok-generated setter
+eval.setVariant("variant1");        // Lombok-generated setter
+eval.setReason("DEFAULT");          // Lombok-generated setter
 
-// Or constructor with parameters
-ProviderEvaluation<String> eval = new ProviderEvaluation<>(
-    "test", "variant1", "DEFAULT", ErrorCode.NONE, null, metadata);
+// Or Lombok builder
+ProviderEvaluation<String> eval = ProviderEvaluation.<String>builder()
+    .value("test")
+    .variant("variant1")
+    .reason("DEFAULT")
+    .build();
 ```
 
-**After**:
+**After (v2.0.0 with hand-written builders)**:
 ```java
-// Builder pattern only
+// Hand-written builder pattern only - no more Lombok
 ProviderEvaluation<String> eval = ProviderEvaluation.<String>builder()
     .value("test")
     .variant("variant1")
@@ -108,7 +119,8 @@ ProviderEvaluation<String> eval = ProviderEvaluation.<String>builder()
     .build();
 
 // Object is immutable - no setters available
-// eval.setValue("new"); // ❌ Compilation error
+// eval.setValue("new"); // ❌ Compilation error - no Lombok setters
+// Moved from dev.openfeature.sdk.ProviderEvaluation → dev.openfeature.api.evaluation.ProviderEvaluation
 ```
 
 **Migration**: Replace constructor calls and setter usage with builder pattern.
@@ -236,12 +248,54 @@ OpenFeatureAPI api = OpenFeature.getApi(); // Recommended approach
 
 **Migration**: Use `OpenFeature.getApi()` instead of direct instantiation.
 
-### Interface Renaming & Evolution
-**Breaking**: Core interface names have been standardized and optimized.
+### Interface Reorganization & Package Changes
+**Breaking**: Major package reorganization with new interface names and locations.
 
-**Renamed Interfaces**:
-- `FeatureProvider` → `Provider` (in API module)
-- `Features` → `EvaluationClient` (in API module)
+**Original Structure (v1.18.0)**:
+```
+src/main/java/dev/openfeature/sdk/
+├── FeatureProvider.java           # Main provider interface
+├── Features.java                  # Client interface
+├── OpenFeatureAPI.java           # API singleton
+├── ProviderEvaluation.java       # Evaluation result (Lombok @Data)
+├── EvaluationContext.java        # Context interface
+├── Value.java                    # Value type
+├── ErrorCode.java                # Error enum
+├── Hook.java                     # Hook interface
+└── exceptions/
+    ├── OpenFeatureError.java     # Base exception
+    └── ...
+```
+
+**New Structure (v2.0.0)**:
+```
+openfeature-api/src/main/java/dev/openfeature/api/
+├── Provider.java                  # Renamed from FeatureProvider
+├── evaluation/
+│   ├── EvaluationClient.java     # Renamed from Features
+│   ├── ProviderEvaluation.java   # Moved here, now immutable
+│   └── EvaluationContext.java    # Moved here
+├── types/
+│   └── Value.java                # Moved here
+├── ErrorCode.java                # Moved here
+├── lifecycle/
+│   └── Hook.java                 # Moved here
+└── exceptions/
+    └── OpenFeatureError.java     # Moved here
+
+openfeature-sdk/src/main/java/dev/openfeature/sdk/
+├── FeatureProvider.java          # Deprecated wrapper → extends Provider
+├── Features.java                 # Deprecated wrapper → extends EvaluationClient
+├── OpenFeatureClient.java        # Implementation
+├── compat/
+│   └── CompatibilityGuide.java   # Migration helper
+└── providers/memory/             # Concrete providers
+```
+
+**Interface Migration**:
+- `dev.openfeature.sdk.FeatureProvider` → `dev.openfeature.api.Provider`
+- `dev.openfeature.sdk.Features` → `dev.openfeature.api.evaluation.EvaluationClient`
+- `dev.openfeature.sdk.OpenFeatureAPI` → `dev.openfeature.api.OpenFeatureAPI`
 
 **EvaluationClient Optimization**:
 - **Reduced from 30 methods to 10 abstract methods** + 20 default methods
@@ -319,13 +373,69 @@ EventDetails details = EventDetails.builder()
 ## 📦 Lombok Dependency Removal
 **Breaking**: Complete removal of Lombok dependency from both API and SDK modules.
 
-**Impact**:
-- No more `@Data`, `@Builder`, `@Value` annotations
-- All builder patterns now hand-written
-- Improved IDE compatibility and debugging
-- Cleaner generated bytecode
+**Original State (v1.18.0)**:
+```java
+// Heavy Lombok usage throughout codebase
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProviderEvaluation<T> implements BaseEvaluation<T> {
+    T value;
+    String variant;
+    private String reason;
+    ErrorCode errorCode;
+    private String errorMessage;
+    @Builder.Default
+    private ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
+}
 
-**Migration**: No user action required - all functionality replaced with equivalent hand-written code.
+// Similar @Data pattern used in:
+// - FlagEvaluationDetails, EventDetails, ProviderEventDetails
+// - ImmutableContext, ImmutableMetadata, Value
+// - Many other POJOs
+```
+
+**Transformed State (v2.0.0)**:
+```java
+// Hand-written immutable classes with custom builders
+public final class ProviderEvaluation<T> implements BaseEvaluation<T> {
+    private final T value;
+    private final String variant;
+    private final String reason;
+    private final ErrorCode errorCode;
+    private final String errorMessage;
+    private final ImmutableMetadata flagMetadata;
+
+    private ProviderEvaluation(Builder<T> builder) {
+        this.value = builder.value;
+        this.variant = builder.variant;
+        // ... (all fields set from builder)
+    }
+
+    public static <T> Builder<T> builder() {
+        return new Builder<>();
+    }
+
+    public static final class Builder<T> {
+        // Hand-written builder implementation
+    }
+
+    // Hand-written getters (no setters - immutable)
+    public T getValue() { return value; }
+    // ...
+}
+```
+
+**Impact**:
+- **No more Lombok annotations**: `@Data`, `@Builder`, `@Value`, `@Slf4j` completely removed
+- **All builder patterns now hand-written** with consistent naming (`Builder` instead of `ClassNameBuilder`)
+- **Improved IDE compatibility** - no more IDE plugins required for Lombok
+- **Better debugging experience** - actual source code instead of generated methods
+- **Cleaner bytecode** - no Lombok magic
+- **Explicit control** over builder behavior and validation
+
+**Migration**: No user action required - all Lombok-generated functionality replaced with equivalent hand-written code. Builder patterns remain the same from user perspective.
 
 ---
 
@@ -409,42 +519,68 @@ public class MyClient implements EvaluationClient {
 ## 🔄 Migration Summary
 
 ### For Library Authors (Feature Flag Provider Implementers)
-1. **Update Dependencies**: Change from old `sdk` to new `api` module
+1. **Update Dependencies**: Change from old monolithic `sdk` to new `api` module
    ```xml
-   <!-- OLD -->
+   <!-- OLD (v1.18.0) - Single module with everything -->
    <dependency>
        <groupId>dev.openfeature</groupId>
        <artifactId>sdk</artifactId>
-       <version>1.17.0</version>
+       <version>1.18.0</version>
    </dependency>
-   
-   <!-- NEW -->
+
+   <!-- NEW (v2.0.0) - API-only module for minimal dependencies -->
    <dependency>
        <groupId>dev.openfeature</groupId>
        <artifactId>api</artifactId>
-       <version>2.0.0</version>
+       <version>0.0.1</version>  <!-- Note: API starts at 0.0.1 -->
    </dependency>
+   ```
+
+2. **Update Package Imports**: Change all package references
+   ```java
+   // OLD imports (v1.18.0)
+   import dev.openfeature.sdk.FeatureProvider;
+   import dev.openfeature.sdk.ProviderEvaluation;
+   import dev.openfeature.sdk.EvaluationContext;
+   import dev.openfeature.sdk.ErrorCode;
+
+   // NEW imports (v2.0.0)
+   import dev.openfeature.api.Provider;                    // FeatureProvider → Provider
+   import dev.openfeature.api.evaluation.ProviderEvaluation;
+   import dev.openfeature.api.evaluation.EvaluationContext;
+   import dev.openfeature.api.ErrorCode;
    ```
 2. **Review Package Access**: Ensure no usage of moved internal classes
 3. **Update Documentation**: Reference new module structure
 4. **Verify Scope**: API module contains only interfaces and POJOs needed for provider implementation
 
 ### For SDK Users (Application Developers)
-1. **Update Dependencies**: Update `sdk` dependency (same artifactId, new structure)
+1. **Update Dependencies**: Update `sdk` dependency version (same artifactId, major refactor)
    ```xml
-   <!-- OLD -->
+   <!-- OLD (v1.18.0) - Monolithic SDK -->
    <dependency>
        <groupId>dev.openfeature</groupId>
        <artifactId>sdk</artifactId>
-       <version>1.17.0</version>
+       <version>1.18.0</version>
    </dependency>
-   
-   <!-- NEW -->
+
+   <!-- NEW (v2.0.0) - SDK now includes API module + compatibility layer -->
    <dependency>
        <groupId>dev.openfeature</groupId>
        <artifactId>sdk</artifactId>
        <version>2.0.0</version>
    </dependency>
+   ```
+
+2. **Gradual Migration Strategy**: v2.0.0 includes compatibility layer
+   ```java
+   // IMMEDIATE: These still work but show deprecation warnings
+   import dev.openfeature.sdk.FeatureProvider;     // @Deprecated, extends Provider
+   import dev.openfeature.sdk.Features;            // @Deprecated, extends EvaluationClient
+
+   // FUTURE: Migrate imports gradually (before v2.1.0 when compatibility layer is removed)
+   import dev.openfeature.api.Provider;
+   import dev.openfeature.api.evaluation.EvaluationClient;
    ```
 2. **Replace Constructors**: Use builders for all POJO creation
 3. **Remove Setter Usage**: Objects are now immutable
