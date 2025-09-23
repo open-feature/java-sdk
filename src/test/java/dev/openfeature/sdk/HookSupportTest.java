@@ -69,15 +69,9 @@ class HookSupportTest implements HookFixtures {
 
         hookSupport.beforeHooks(hookContext, hookDataPairs, Collections.emptyMap());
         hookSupport.afterHooks(
-                hookContext,
-                FlagEvaluationDetails.builder().build(),
-                hookDataPairs,
-                Collections.emptyMap());
+                hookContext, FlagEvaluationDetails.builder().build(), hookDataPairs, Collections.emptyMap());
         hookSupport.afterAllHooks(
-                hookContext,
-                FlagEvaluationDetails.builder().build(),
-                hookDataPairs,
-                Collections.emptyMap());
+                hookContext, FlagEvaluationDetails.builder().build(), hookDataPairs, Collections.emptyMap());
         hookSupport.errorHooks(hookContext, expectedException, hookDataPairs, Collections.emptyMap());
 
         verify(genericHook).before(any(), any());
@@ -169,15 +163,11 @@ class HookSupportTest implements HookFixtures {
     }
 
     private static void callAllHooks(
-            HookSupport hookSupport,
-            HookContext<Object> hookContext,
-            List<Pair<Hook, HookData>> pairs) {
+            HookSupport hookSupport, HookContext<Object> hookContext, List<Pair<Hook, HookData>> pairs) {
         hookSupport.beforeHooks(hookContext, pairs, Collections.emptyMap());
-        hookSupport.afterHooks(
-                hookContext, new FlagEvaluationDetails<>(), pairs, Collections.emptyMap());
+        hookSupport.afterHooks(hookContext, new FlagEvaluationDetails<>(), pairs, Collections.emptyMap());
         hookSupport.errorHooks(hookContext, new Exception(), pairs, Collections.emptyMap());
-        hookSupport.afterAllHooks(
-                hookContext, new FlagEvaluationDetails<>(), pairs, Collections.emptyMap());
+        hookSupport.afterAllHooks(hookContext, new FlagEvaluationDetails<>(), pairs, Collections.emptyMap());
     }
 
     private Object createDefaultValue(FlagValueType flagValueType) {

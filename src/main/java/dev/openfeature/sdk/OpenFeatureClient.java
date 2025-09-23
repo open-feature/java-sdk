@@ -48,7 +48,6 @@ public class OpenFeatureClient implements Client {
     private final String version;
 
     private final ConcurrentLinkedQueue<Hook> clientHooks;
-    private final HookSupport hookSupport;
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
 
     /**
@@ -68,7 +67,6 @@ public class OpenFeatureClient implements Client {
         this.domain = domain;
         this.version = version;
         this.clientHooks = new ConcurrentLinkedQueue<>();
-        this.hookSupport = new HookSupport();
     }
 
     /**
@@ -164,27 +162,24 @@ public class OpenFeatureClient implements Client {
         var hints = Collections.unmodifiableMap(flagOptions.getHookHints());
 
         FlagEvaluationDetails<T> details = null;
-        List<Hook> mergedHooks;
-        List<Pair<Hook, HookData>> hookDataPairs = null;
-        HookContext<T> hookContext = null;
+        HookExecutor hookExecutor = null;
 
         try {
             final var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
             // provider must be accessed once to maintain a consistent reference
             final var provider = stateManager.getProvider();
             final var state = stateManager.getState();
-            hookContext = HookContext.from(
-                    key, type, this.getMetadata(), provider.getMetadata(), ImmutableContext.EMPTY, defaultValue);
 
-            // we are setting the evaluation context one after the other, so that we have a hook context in each
-            // possible exception case.
-            hookContext.setCtx(mergeEvaluationContext(ctx));
-
-            mergedHooks = ObjectUtils.merge(
+            var mergedHooks = ObjectUtils.merge(
                     provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
-            hookDataPairs = hookSupport.getHookDataPairs(mergedHooks, type);
-            var mergedCtx = hookSupport.beforeHooks(hookContext, hookDataPairs, hints);
-            hookContext.setCtx(mergedCtx);
+
+            var sharedHookContext =
+                    new SharedHookContext(key, type, this.getMetadata(), provider.getMetadata(), defaultValue);
+
+            var evalContext = mergeEvaluationContext(ctx);
+            hookExecutor = HookExecutor.create(mergedHooks, sharedHookContext, evalContext, hints);
+
+            hookExecutor.executeBeforeHooks();
 
             // "short circuit" if the provider is in NOT_READY or FATAL state
             if (ProviderState.NOT_READY.equals(state)) {
@@ -194,17 +189,17 @@ public class OpenFeatureClient implements Client {
                 throw new FatalError("Provider is in an irrecoverable error state");
             }
 
-            var providerEval =
-                    (ProviderEvaluation<T>) createProviderEvaluation(type, key, defaultValue, provider, mergedCtx);
+            var providerEval = (ProviderEvaluation<T>)
+                    createProviderEvaluation(type, key, defaultValue, provider, hookExecutor.getEvaluationContext());
 
             details = FlagEvaluationDetails.from(providerEval, key);
             if (details.getErrorCode() != null) {
                 var error =
                         ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
                 enrichDetailsWithErrorDefaults(defaultValue, details);
-                hookSupport.errorHooks(hookContext, error, hookDataPairs, hints);
+                hookExecutor.executeErrorHooks(error);
             } else {
-                hookSupport.afterHooks(hookContext, details, hookDataPairs, hints);
+                hookExecutor.executeAfterHooks(details);
             }
         } catch (Exception e) {
             if (details == null) {
@@ -217,9 +212,11 @@ public class OpenFeatureClient implements Client {
             }
             details.setErrorMessage(e.getMessage());
             enrichDetailsWithErrorDefaults(defaultValue, details);
-            hookSupport.errorHooks(hookContext, e, hookDataPairs, hints);
+            hookExecutor.executeErrorHooks(e);
         } finally {
-            hookSupport.afterAllHooks(hookContext, details, hookDataPairs, hints);
+            if (hookExecutor != null) {
+                hookExecutor.executeAfterAllHooks(details);
+            }
         }
 
         return details;
