@@ -25,6 +25,7 @@ import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
+import java.time.Duration;
 import java.util.Map;
 import org.awaitility.Awaitility;
 
@@ -122,7 +123,7 @@ public class ProviderSteps {
                 break;
             default:
         }
-        Awaitility.await().until(() -> {
+        Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> {
             ProviderState providerState1 = client.getProviderState();
             return providerState1 == providerState;
         });
