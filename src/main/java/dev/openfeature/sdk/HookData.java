@@ -1,16 +1,11 @@
 package dev.openfeature.sdk;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 /**
  * Hook data provides a way for hooks to maintain state across their execution stages.
  * Each hook instance gets its own isolated data store that persists only for the duration
  * of a single flag evaluation.
  */
 public interface HookData {
-
     /**
      * Sets a value for the given key.
      *
@@ -37,60 +32,4 @@ public interface HookData {
      * @throws ClassCastException if the value cannot be cast to the specified type
      */
     <T> T get(String key, Class<T> type);
-
-    /**
-     * Default implementation uses a HashMap.
-     */
-    static HookData create() {
-        return new DefaultHookData();
-    }
-
-    /**
-     * Default implementation of HookData.
-     */
-    class DefaultHookData implements HookData {
-        private Map<String, Object> data;
-
-        @Override
-        public void set(String key, Object value) {
-            if (data == null) {
-                data = new HashMap<>();
-            }
-            data.put(key, value);
-        }
-
-        @Override
-        public Object get(String key) {
-            if (data == null) {
-                return null;
-            }
-            return data.get(key);
-        }
-
-        @Override
-        public <T> T get(String key, Class<T> type) {
-            Object value = get(key);
-            if (value == null) {
-                return null;
-            }
-            if (!type.isInstance(value)) {
-                throw new ClassCastException("Value for key '" + key + "' is not of type " + type.getName());
-            }
-            return type.cast(value);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            DefaultHookData that = (DefaultHookData) o;
-            return Objects.equals(data, that.data);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(data);
-        }
-    }
 }

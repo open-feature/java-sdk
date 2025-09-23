@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 class HookExecutor {
-
     private List<Pair<Hook, HookContext>> hooks;
     private EvaluationContext evaluationContext;
     private final Map<String, Object> hints;
@@ -29,7 +28,7 @@ class HookExecutor {
         List<Pair<Hook, HookContext>> hookContextPairs = new ArrayList<>();
         for (Hook hook : hooks) {
             if (hook.supportsFlagValueType(sharedContext.getType())) {
-                HookContext curContext = sharedContext.hookContextFor(evaluationContext, HookData.create());
+                HookContext curContext = sharedContext.hookContextFor(evaluationContext, new DefaultHookData());
                 hookContextPairs.add(Pair.of(hook, curContext));
             }
         }
