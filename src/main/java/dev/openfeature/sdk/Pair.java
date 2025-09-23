@@ -9,11 +9,11 @@ class Pair<K, V> {
         this.value = value;
     }
 
-    public K getLeft() {
+    public K getKey() {
         return key;
     }
 
-    public V getRight() {
+    public V getValue() {
         return value;
     }
 

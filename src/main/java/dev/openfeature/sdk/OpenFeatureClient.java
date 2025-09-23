@@ -183,7 +183,7 @@ public class OpenFeatureClient implements Client {
             mergedHooks = ObjectUtils.merge(
                     provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
             hookDataPairs = hookSupport.getHookDataPairs(mergedHooks, type);
-            var mergedCtx = hookSupport.beforeHooks(type, hookContext, hookDataPairs, hints);
+            var mergedCtx = hookSupport.beforeHooks(hookContext, hookDataPairs, hints);
             hookContext.setCtx(mergedCtx);
 
             // "short circuit" if the provider is in NOT_READY or FATAL state
@@ -202,9 +202,9 @@ public class OpenFeatureClient implements Client {
                 var error =
                         ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
                 enrichDetailsWithErrorDefaults(defaultValue, details);
-                hookSupport.errorHooks(type, hookContext, error, hookDataPairs, hints);
+                hookSupport.errorHooks(hookContext, error, hookDataPairs, hints);
             } else {
-                hookSupport.afterHooks(type, hookContext, details, hookDataPairs, hints);
+                hookSupport.afterHooks(hookContext, details, hookDataPairs, hints);
             }
         } catch (Exception e) {
             if (details == null) {
@@ -217,9 +217,9 @@ public class OpenFeatureClient implements Client {
             }
             details.setErrorMessage(e.getMessage());
             enrichDetailsWithErrorDefaults(defaultValue, details);
-            hookSupport.errorHooks(type, hookContext, e, hookDataPairs, hints);
+            hookSupport.errorHooks(hookContext, e, hookDataPairs, hints);
         } finally {
-            hookSupport.afterAllHooks(type, hookContext, details, hookDataPairs, hints);
+            hookSupport.afterAllHooks(hookContext, details, hookDataPairs, hints);
         }
 
         return details;

@@ -40,7 +40,6 @@ class HookSupportTest implements HookFixtures {
         HookSupport hookSupport = new HookSupport();
 
         EvaluationContext result = hookSupport.beforeHooks(
-                valueType,
                 hookContext,
                 hookSupport.getHookDataPairs(Arrays.asList(hook1, hook2), valueType),
                 Collections.emptyMap());
@@ -68,20 +67,18 @@ class HookSupportTest implements HookFixtures {
                 .providerMetadata(() -> "provider")
                 .build();
 
-        hookSupport.beforeHooks(flagValueType, hookContext, hookDataPairs, Collections.emptyMap());
+        hookSupport.beforeHooks(hookContext, hookDataPairs, Collections.emptyMap());
         hookSupport.afterHooks(
-                flagValueType,
                 hookContext,
                 FlagEvaluationDetails.builder().build(),
                 hookDataPairs,
                 Collections.emptyMap());
         hookSupport.afterAllHooks(
-                flagValueType,
                 hookContext,
                 FlagEvaluationDetails.builder().build(),
                 hookDataPairs,
                 Collections.emptyMap());
-        hookSupport.errorHooks(flagValueType, hookContext, expectedException, hookDataPairs, Collections.emptyMap());
+        hookSupport.errorHooks(hookContext, expectedException, hookDataPairs, Collections.emptyMap());
 
         verify(genericHook).before(any(), any());
         verify(genericHook).after(any(), any(), any());
@@ -115,7 +112,7 @@ class HookSupportTest implements HookFixtures {
         TestHookWithData testHook2 = new TestHookWithData("test-key", "value-2");
         var pairs = hookSupport.getHookDataPairs(List.of(testHook1, testHook2), flagValueType);
 
-        callAllHooks(flagValueType, hookSupport, hookContext, pairs);
+        callAllHooks(hookSupport, hookContext, pairs);
 
         assertHookData(testHook1, "value-1");
         assertHookData(testHook2, "value-2");
@@ -168,20 +165,19 @@ class HookSupportTest implements HookFixtures {
             HookContext<Object> hookContext,
             TestHookWithData testHook) {
         var pairs = hookSupport.getHookDataPairs(List.of(testHook), flagValueType);
-        callAllHooks(flagValueType, hookSupport, hookContext, pairs);
+        callAllHooks(hookSupport, hookContext, pairs);
     }
 
     private static void callAllHooks(
-            FlagValueType flagValueType,
             HookSupport hookSupport,
             HookContext<Object> hookContext,
             List<Pair<Hook, HookData>> pairs) {
-        hookSupport.beforeHooks(flagValueType, hookContext, pairs, Collections.emptyMap());
+        hookSupport.beforeHooks(hookContext, pairs, Collections.emptyMap());
         hookSupport.afterHooks(
-                flagValueType, hookContext, new FlagEvaluationDetails<>(), pairs, Collections.emptyMap());
-        hookSupport.errorHooks(flagValueType, hookContext, new Exception(), pairs, Collections.emptyMap());
+                hookContext, new FlagEvaluationDetails<>(), pairs, Collections.emptyMap());
+        hookSupport.errorHooks(hookContext, new Exception(), pairs, Collections.emptyMap());
         hookSupport.afterAllHooks(
-                flagValueType, hookContext, new FlagEvaluationDetails<>(), pairs, Collections.emptyMap());
+                hookContext, new FlagEvaluationDetails<>(), pairs, Collections.emptyMap());
     }
 
     private Object createDefaultValue(FlagValueType flagValueType) {
