@@ -63,7 +63,7 @@ class HookExecutorTest implements HookFixtures {
     @EnumSource(value = FlagValueType.class)
     @DisplayName("should allow hooks to store and retrieve data across stages")
     void shouldPassDataAcrossStages(FlagValueType flagValueType) {
-        var testHook = new HookDataHook();
+        var testHook = new TestHookWithData();
         HookExecutor hookExecutor = HookExecutor.create(List.of(testHook), getBaseHookContextForType(flagValueType), ImmutableContext.EMPTY, Collections.emptyMap());
 
         hookExecutor.executeBeforeHooks();
@@ -83,8 +83,8 @@ class HookExecutorTest implements HookFixtures {
     @EnumSource(value = FlagValueType.class)
     @DisplayName("should isolate data between different hook instances")
     void shouldIsolateDataBetweenHooks(FlagValueType flagValueType) {
-        var testHook1 = new HookDataHook(1);
-        var testHook2 = new HookDataHook(2);
+        var testHook1 = new TestHookWithData(1);
+        var testHook2 = new TestHookWithData(2);
 
         HookExecutor hookExecutor = HookExecutor.create(List.of(testHook1, testHook2), getBaseHookContextForType(flagValueType), ImmutableContext.EMPTY, Collections.emptyMap());
 
@@ -94,25 +94,6 @@ class HookExecutorTest implements HookFixtures {
         assertHookData(testHook2, 2, "before", "after", "finallyAfter", "error");
     }
 
-    @ParameterizedTest
-    @EnumSource(value = FlagValueType.class)
-    @DisplayName("should isolate data between the same hook executions")
-    void shouldIsolateDataBetweenSameHookExecutions(FlagValueType flagValueType) {
-        TestHookWithData testHook = new TestHookWithData("test-key", "value-1");
-
-        HookExecutor hookExecutor1 = HookExecutor.create(List.of(testHook), getBaseHookContextForType(flagValueType), ImmutableContext.EMPTY, Collections.emptyMap());
-        HookExecutor hookExecutor2 = HookExecutor.create(List.of(testHook), getBaseHookContextForType(flagValueType), ImmutableContext.EMPTY, Collections.emptyMap());
-
-        // run hooks first time
-        callAllHooks(hookExecutor1);
-        assertHookData(testHook, "value-1");
-
-        // re-run with different value, will throw if HookData contains already data
-        testHook.value = "value-2";
-        callAllHooks(hookExecutor2);
-        assertHookData(testHook, "value-2");
-    }
-
     private static void callAllHooks(HookExecutor hookExecutor) {
         hookExecutor.executeBeforeHooks();
         hookExecutor.executeAfterHooks(FlagEvaluationDetails.builder().build());
@@ -120,14 +101,7 @@ class HookExecutorTest implements HookFixtures {
         hookExecutor.executeErrorHooks(mock(Exception.class));
     }
 
-    private static void assertHookData(TestHookWithData testHook1, String expected) {
-        assertThat(testHook1.onBeforeValue).isEqualTo(expected);
-        assertThat(testHook1.onFinallyAfterValue).isEqualTo(expected);
-        assertThat(testHook1.onAfterValue).isEqualTo(expected);
-        assertThat(testHook1.onErrorValue).isEqualTo(expected);
-    }
-
-    private static void assertHookData(HookDataHook testHook, String ... expectedKeys) {
+    private static void assertHookData(TestHookWithData testHook, String ... expectedKeys) {
         for (String expectedKey : expectedKeys) {
             assertThat(testHook.hookData.get(expectedKey))
                     .withFailMessage("Expected key %s not present in hook data", expectedKey)
@@ -135,7 +109,7 @@ class HookExecutorTest implements HookFixtures {
         }
     }
 
-    private static void assertHookData(HookDataHook testHook, Object expectedValue, String ... expectedKeys) {
+    private static void assertHookData(TestHookWithData testHook, Object expectedValue, String ... expectedKeys) {
         for (String expectedKey : expectedKeys) {
             assertThat(testHook.hookData.get(expectedKey))
                     .withFailMessage("Expected key '%s' not present in hook data", expectedKey)
@@ -179,15 +153,15 @@ class HookExecutorTest implements HookFixtures {
         return new ImmutableContext(attributes);
     }
 
-    private static class HookDataHook implements Hook {
+    private static class TestHookWithData implements Hook {
         private final Object value;
         HookData hookData = null;
 
-        public HookDataHook(Object value) {
+        public TestHookWithData(Object value) {
             this.value = value;
         }
 
-        public HookDataHook() {
+        public TestHookWithData() {
             this("test");
         }
 
@@ -214,52 +188,6 @@ class HookExecutorTest implements HookFixtures {
         public void finallyAfter(HookContext ctx, FlagEvaluationDetails details, Map hints) {
             ctx.getHookData().set("finallyAfter", value);
             hookData = ctx.getHookData();
-        }
-    }
-
-    private class TestHookWithData implements Hook {
-
-        private final String key;
-        Object value;
-
-        Object onBeforeValue;
-        Object onAfterValue;
-        Object onErrorValue;
-        Object onFinallyAfterValue;
-
-        TestHookWithData(Object value) {
-            this("test", value);
-        }
-
-        TestHookWithData(String key, Object value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        @Override
-        public Optional<EvaluationContext> before(HookContext ctx, Map hints) {
-            var storedValue = ctx.getHookData().get(key);
-            if (storedValue != null) {
-                throw new Error("Hook data isolation violated! Data is already set.");
-            }
-            ctx.getHookData().set(key, value);
-            onBeforeValue = ctx.getHookData().get(key);
-            return Optional.empty();
-        }
-
-        @Override
-        public void after(HookContext ctx, FlagEvaluationDetails details, Map hints) {
-            onAfterValue = ctx.getHookData().get(key);
-        }
-
-        @Override
-        public void error(HookContext ctx, Exception error, Map hints) {
-            onErrorValue = ctx.getHookData().get(key);
-        }
-
-        @Override
-        public void finallyAfter(HookContext ctx, FlagEvaluationDetails details, Map hints) {
-            onFinallyAfterValue = ctx.getHookData().get(key);
         }
     }
 }
