@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import java.util.Objects;
 import lombok.NonNull;
 
 /**
@@ -8,33 +9,41 @@ import lombok.NonNull;
  * @param <T> the type for the flag being evaluated
  */
 public final class HookContext<T> {
-    @NonNull
-    private final String flagKey;
-
-    @NonNull
-    private final FlagValueType type;
-
-    @NonNull
-    private final T defaultValue;
-
-    @NonNull
+    private final SharedHookContext<T> sharedContext;
     private EvaluationContext ctx;
-
-    private final ClientMetadata clientMetadata;
-    private final Metadata providerMetadata;
-
     private final HookData hookData;
 
-    HookContext(@NonNull String flagKey, @NonNull FlagValueType type, @NonNull T defaultValue,
-            @NonNull EvaluationContext ctx, ClientMetadata clientMetadata, Metadata providerMetadata,
+    HookContext(
+            @NonNull SharedHookContext<T> sharedContext,
+            @NonNull EvaluationContext evaluationContext,
             HookData hookData) {
-        this.flagKey = flagKey;
-        this.type = type;
-        this.defaultValue = defaultValue;
-        this.ctx = ctx;
-        this.clientMetadata = clientMetadata;
-        this.providerMetadata = providerMetadata;
+        this.sharedContext = sharedContext;
+        ctx = evaluationContext;
         this.hookData = hookData;
+    }
+
+    /**
+     * Obsolete constructor.
+     * This constructor is retained for binary compatibility but is no longer part of the public API.
+     *
+     * @param flagKey          feature flag key
+     * @param type             flag value type
+     * @param clientMetadata   info on which client is calling
+     * @param providerMetadata info on the provider
+     * @param ctx              Evaluation Context for the request
+     * @param defaultValue     Fallback value
+     * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
+     */
+    @Deprecated
+    HookContext(
+            @NonNull String flagKey,
+            @NonNull FlagValueType type,
+            @NonNull T defaultValue,
+            @NonNull EvaluationContext ctx,
+            ClientMetadata clientMetadata,
+            Metadata providerMetadata,
+            HookData hookData) {
+        this(new SharedHookContext<>(flagKey, type, clientMetadata, providerMetadata, defaultValue), ctx, hookData);
     }
 
     /**
@@ -48,7 +57,9 @@ public final class HookContext<T> {
      * @param defaultValue     Fallback value
      * @param <T>              type that the flag is evaluating against
      * @return resulting context for hook
+     * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
+    @Deprecated
     public static <T> HookContext<T> from(
             String key,
             FlagValueType type,
@@ -67,18 +78,28 @@ public final class HookContext<T> {
                 .build();
     }
 
-    public static <T> HookContextBuilder<T> builder() {return new HookContextBuilder<T>();}
+    /**
+     * Creates a new builder for {@link HookContext}.
+     *
+     * @param <T> the type for the flag being evaluated
+     * @return a new builder
+     * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
+     */
+    @Deprecated
+    public static <T> HookContextBuilder<T> builder() {
+        return new HookContextBuilder<T>();
+    }
 
     public @NonNull String getFlagKey() {
-        return this.flagKey;
+        return sharedContext.getFlagKey();
     }
 
     public @NonNull FlagValueType getType() {
-        return this.type;
+        return sharedContext.getType();
     }
 
     public @NonNull T getDefaultValue() {
-        return this.defaultValue;
+        return sharedContext.getDefaultValue();
     }
 
     public @NonNull EvaluationContext getCtx() {
@@ -86,11 +107,11 @@ public final class HookContext<T> {
     }
 
     public ClientMetadata getClientMetadata() {
-        return this.clientMetadata;
+        return sharedContext.getClientMetadata();
     }
 
     public Metadata getProviderMetadata() {
-        return this.providerMetadata;
+        return sharedContext.getProviderMetadata();
     }
 
     public HookData getHookData() {
@@ -98,75 +119,19 @@ public final class HookContext<T> {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (o == this) {
-            return true;
-        }
-        if (!(o instanceof HookContext)) {
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final HookContext<?> other = (HookContext<?>) o;
-        final Object this$flagKey = this.getFlagKey();
-        final Object other$flagKey = other.getFlagKey();
-        if (this$flagKey == null ? other$flagKey != null : !this$flagKey.equals(other$flagKey)) {
-            return false;
-        }
-        final Object this$type = this.getType();
-        final Object other$type = other.getType();
-        if (this$type == null ? other$type != null : !this$type.equals(other$type)) {
-            return false;
-        }
-        final Object this$defaultValue = this.getDefaultValue();
-        final Object other$defaultValue = other.getDefaultValue();
-        if (this$defaultValue == null ? other$defaultValue != null : !this$defaultValue.equals(other$defaultValue)) {
-            return false;
-        }
-        final Object this$ctx = this.getCtx();
-        final Object other$ctx = other.getCtx();
-        if (this$ctx == null ? other$ctx != null : !this$ctx.equals(other$ctx)) {
-            return false;
-        }
-        final Object this$clientMetadata = this.getClientMetadata();
-        final Object other$clientMetadata = other.getClientMetadata();
-        if (this$clientMetadata == null
-                ? other$clientMetadata != null
-                : !this$clientMetadata.equals(other$clientMetadata)) {
-            return false;
-        }
-        final Object this$providerMetadata = this.getProviderMetadata();
-        final Object other$providerMetadata = other.getProviderMetadata();
-        if (this$providerMetadata == null
-                ? other$providerMetadata != null
-                : !this$providerMetadata.equals(other$providerMetadata)) {
-            return false;
-        }
-        final Object this$hookData = this.getHookData();
-        final Object other$hookData = other.getHookData();
-        if (this$hookData == null ? other$hookData != null : !this$hookData.equals(other$hookData)) {
-            return false;
-        }
-        return true;
+        HookContext<?> that = (HookContext<?>) o;
+        return Objects.equals(ctx, that.ctx)
+                && Objects.equals(hookData, that.hookData)
+                && Objects.equals(sharedContext, that.sharedContext);
     }
 
     @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $flagKey = this.getFlagKey();
-        result = result * PRIME + ($flagKey == null ? 43 : $flagKey.hashCode());
-        final Object $type = this.getType();
-        result = result * PRIME + ($type == null ? 43 : $type.hashCode());
-        final Object $defaultValue = this.getDefaultValue();
-        result = result * PRIME + ($defaultValue == null ? 43 : $defaultValue.hashCode());
-        final Object $ctx = this.getCtx();
-        result = result * PRIME + ($ctx == null ? 43 : $ctx.hashCode());
-        final Object $clientMetadata = this.getClientMetadata();
-        result = result * PRIME + ($clientMetadata == null ? 43 : $clientMetadata.hashCode());
-        final Object $providerMetadata = this.getProviderMetadata();
-        result = result * PRIME + ($providerMetadata == null ? 43 : $providerMetadata.hashCode());
-        final Object $hookData = this.getHookData();
-        result = result * PRIME + ($hookData == null ? 43 : $hookData.hashCode());
-        return result;
+        return Objects.hash(ctx, hookData, sharedContext);
     }
 
     @Override
@@ -180,48 +145,160 @@ public final class HookContext<T> {
         this.ctx = ctx;
     }
 
+    /**
+     * Returns a new HookContext with the provided flagKey if it is different from the current one.
+     *
+     * @param flagKey new flag key
+     * @return new HookContext with updated flagKey or the same instance if unchanged
+     * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
+     */
+    @Deprecated
     public HookContext<T> withFlagKey(@NonNull String flagKey) {
-        return this.flagKey == flagKey ? this
-                : new HookContext<T>(flagKey, this.type, this.defaultValue, this.ctx, this.clientMetadata,
-                        this.providerMetadata, this.hookData);
+        return Objects.equals(this.getFlagKey(), flagKey)
+                ? this
+                : new HookContext<T>(
+                        flagKey,
+                        this.getType(),
+                        this.getDefaultValue(),
+                        this.getCtx(),
+                        this.getClientMetadata(),
+                        this.getProviderMetadata(),
+                        this.hookData);
     }
 
+    /**
+     * Returns a new HookContext with the provided type if it is different from the current one.
+     *
+     * @param type new flag value type
+     * @return new HookContext with updated type or the same instance if unchanged
+     * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
+     */
+    @Deprecated
     public HookContext<T> withType(@NonNull FlagValueType type) {
-        return this.type == type ? this
-                : new HookContext<T>(this.flagKey, type, this.defaultValue, this.ctx, this.clientMetadata,
-                        this.providerMetadata, this.hookData);
+        return this.getType() == type
+                ? this
+                : new HookContext<T>(
+                        this.getFlagKey(),
+                        type,
+                        this.getDefaultValue(),
+                        this.getCtx(),
+                        this.getClientMetadata(),
+                        this.getProviderMetadata(),
+                        this.hookData);
     }
 
+    /**
+     * Returns a new HookContext with the provided defaultValue if it is different from the current one.
+     *
+     * @param defaultValue new default value
+     * @return new HookContext with updated defaultValue or the same instance if unchanged
+     * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
+     */
+    @Deprecated
     public HookContext<T> withDefaultValue(@NonNull T defaultValue) {
-        return this.defaultValue == defaultValue ? this
-                : new HookContext<T>(this.flagKey, this.type, defaultValue, this.ctx, this.clientMetadata,
-                        this.providerMetadata, this.hookData);
+        return this.getDefaultValue() == defaultValue
+                ? this
+                : new HookContext<T>(
+                        this.getFlagKey(),
+                        this.getType(),
+                        defaultValue,
+                        this.getCtx(),
+                        this.getClientMetadata(),
+                        this.getProviderMetadata(),
+                        this.hookData);
     }
 
+    /**
+     * Returns a new HookContext with the provided ctx if it is different from the current one.
+     *
+     * @param ctx new evaluation context
+     * @return new HookContext with updated ctx or the same instance if unchanged
+     * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
+     */
+    @Deprecated
     public HookContext<T> withCtx(@NonNull EvaluationContext ctx) {
-        return this.ctx == ctx ? this
-                : new HookContext<T>(this.flagKey, this.type, this.defaultValue, ctx, this.clientMetadata,
-                        this.providerMetadata, this.hookData);
+        return this.ctx == ctx
+                ? this
+                : new HookContext<T>(
+                        this.getFlagKey(),
+                        this.getType(),
+                        this.getDefaultValue(),
+                        ctx,
+                        this.getClientMetadata(),
+                        this.getProviderMetadata(),
+                        this.hookData);
     }
 
+    /**
+     * Returns a new HookContext with the provided clientMetadata if it is different from the current one.
+     *
+     * @param clientMetadata new client metadata
+     * @return new HookContext with updated clientMetadata or the same instance if unchanged
+     * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
+     */
+    @Deprecated
     public HookContext<T> withClientMetadata(ClientMetadata clientMetadata) {
-        return this.clientMetadata == clientMetadata ? this
-                : new HookContext<T>(this.flagKey, this.type, this.defaultValue, this.ctx, clientMetadata,
-                        this.providerMetadata, this.hookData);
+        return this.getClientMetadata() == clientMetadata
+                ? this
+                : new HookContext<T>(
+                        this.getFlagKey(),
+                        this.getType(),
+                        this.getDefaultValue(),
+                        this.getCtx(),
+                        clientMetadata,
+                        this.getProviderMetadata(),
+                        this.hookData);
     }
 
+    /**
+     * Returns a new HookContext with the provided providerMetadata if it is different from the current one.
+     *
+     * @param providerMetadata new provider metadata
+     * @return new HookContext with updated providerMetadata or the same instance if unchanged
+     * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
+     */
+    @Deprecated
     public HookContext<T> withProviderMetadata(Metadata providerMetadata) {
-        return this.providerMetadata == providerMetadata ? this
-                : new HookContext<T>(this.flagKey, this.type, this.defaultValue, this.ctx, this.clientMetadata,
-                        providerMetadata, this.hookData);
+        return this.getProviderMetadata() == providerMetadata
+                ? this
+                : new HookContext<T>(
+                        this.getFlagKey(),
+                        this.getType(),
+                        this.getDefaultValue(),
+                        this.getCtx(),
+                        this.getClientMetadata(),
+                        providerMetadata,
+                        this.hookData);
     }
 
+    /**
+     * Returns a new HookContext with the provided hookData if it is different from the current one.
+     *
+     * @param hookData new hook data
+     * @return new HookContext with updated hookData or the same instance if unchanged
+     * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
+     */
+    @Deprecated
     public HookContext<T> withHookData(HookData hookData) {
-        return this.hookData == hookData ? this
-                : new HookContext<T>(this.flagKey, this.type, this.defaultValue, this.ctx, this.clientMetadata,
-                        this.providerMetadata, hookData);
+        return this.hookData == hookData
+                ? this
+                : new HookContext<T>(
+                        this.getFlagKey(),
+                        this.getType(),
+                        this.getDefaultValue(),
+                        this.getCtx(),
+                        this.getClientMetadata(),
+                        this.getProviderMetadata(),
+                        hookData);
     }
 
+    /**
+     * Builder for HookContext.
+     *
+     * @param <T> The flag type.
+     * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
+     */
+    @Deprecated
     public static class HookContextBuilder<T> {
         private @NonNull String flagKey;
         private @NonNull FlagValueType type;
@@ -268,11 +345,23 @@ public final class HookContext<T> {
             return this;
         }
 
+        /**
+         * Builds the HookContext instance.
+         *
+         * @return a new HookContext
+         */
         public HookContext<T> build() {
-            return new HookContext<T>(this.flagKey, this.type, this.defaultValue, this.ctx, this.clientMetadata,
-                    this.providerMetadata, this.hookData);
+            return new HookContext<T>(
+                    this.flagKey,
+                    this.type,
+                    this.defaultValue,
+                    this.ctx,
+                    this.clientMetadata,
+                    this.providerMetadata,
+                    this.hookData);
         }
 
+        @Override
         public String toString() {
             return "HookContext.HookContextBuilder(flagKey=" + this.flagKey + ", type=" + this.type + ", defaultValue="
                     + this.defaultValue + ", ctx=" + this.ctx + ", clientMetadata=" + this.clientMetadata

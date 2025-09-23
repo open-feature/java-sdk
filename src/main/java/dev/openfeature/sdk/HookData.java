@@ -2,6 +2,7 @@ package dev.openfeature.sdk;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Hook data provides a way for hooks to maintain state across their execution stages.
@@ -76,6 +77,20 @@ public interface HookData {
                 throw new ClassCastException("Value for key '" + key + "' is not of type " + type.getName());
             }
             return type.cast(value);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            DefaultHookData that = (DefaultHookData) o;
+            return Objects.equals(data, that.data);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(data);
         }
     }
 }
