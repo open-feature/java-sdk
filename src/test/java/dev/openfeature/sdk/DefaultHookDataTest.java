@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-class HookDataTest {
+class DefaultHookDataTest {
 
     @Test
     void shouldStoreAndRetrieveValues() {
-        HookData hookData = HookData.create();
+        var hookData = new DefaultHookData();
 
         hookData.set("key1", "value1");
         hookData.set("key2", 42);
@@ -21,14 +21,14 @@ class HookDataTest {
 
     @Test
     void shouldReturnNullForMissingKeys() {
-        HookData hookData = HookData.create();
+        var hookData = new DefaultHookData();
 
         assertNull(hookData.get("nonexistent"));
     }
 
     @Test
     void shouldSupportTypeSafeRetrieval() {
-        HookData hookData = HookData.create();
+        var hookData = new DefaultHookData();
 
         hookData.set("string", "hello");
         hookData.set("integer", 123);
@@ -41,14 +41,14 @@ class HookDataTest {
 
     @Test
     void shouldReturnNullForMissingKeysWithType() {
-        HookData hookData = HookData.create();
+        var hookData = new DefaultHookData();
 
         assertNull(hookData.get("missing", String.class));
     }
 
     @Test
     void shouldThrowClassCastExceptionForWrongType() {
-        HookData hookData = HookData.create();
+        var hookData = new DefaultHookData();
 
         hookData.set("string", "not a number");
 
@@ -59,7 +59,7 @@ class HookDataTest {
 
     @Test
     void shouldOverwriteExistingValues() {
-        HookData hookData = HookData.create();
+        var hookData = new DefaultHookData();
 
         hookData.set("key", "original");
         assertEquals("original", hookData.get("key"));
@@ -70,7 +70,7 @@ class HookDataTest {
 
     @Test
     void shouldSupportNullValues() {
-        HookData hookData = HookData.create();
+        var hookData = new DefaultHookData();
 
         hookData.set("nullKey", null);
         assertNull(hookData.get("nullKey"));
