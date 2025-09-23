@@ -1,8 +1,8 @@
 package dev.openfeature.sdk;
 
 import lombok.Builder;
+import lombok.Data;
 import lombok.NonNull;
-import lombok.Value;
 import lombok.With;
 
 /**
@@ -10,7 +10,7 @@ import lombok.With;
  *
  * @param <T> the type for the flag being evaluated
  */
-@Value
+@Data
 @Builder
 @With
 public class HookContext<T> {
@@ -26,7 +26,7 @@ public class HookContext<T> {
     Metadata providerMetadata;
 
     /**
-     * Builds a {@link HookContext} instances from request data.
+     * Builds {@link HookContext} instances from request data.
      *
      * @param key              feature flag key
      * @param type             flag value type
@@ -52,5 +52,9 @@ public class HookContext<T> {
                 .ctx(ctx)
                 .defaultValue(defaultValue)
                 .build();
+    }
+
+    HookData getHookData() {
+        return null;
     }
 }
