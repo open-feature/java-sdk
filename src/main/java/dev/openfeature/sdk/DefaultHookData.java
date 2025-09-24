@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * Default implementation of HookData.
  */
-public class DefaultHookData implements HookData {
+class DefaultHookData implements HookData {
     private Map<String, Object> data;
 
     @Override
