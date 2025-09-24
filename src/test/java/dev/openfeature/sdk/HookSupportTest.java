@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-class HookExecutorTest implements HookFixtures {
+class HookSupportTest implements HookFixtures {
     @Test
     @DisplayName("should merge EvaluationContexts on before hooks correctly")
     void shouldMergeEvaluationContextsOnBeforeHooksCorrectly() {
@@ -31,8 +31,11 @@ class HookExecutorTest implements HookFixtures {
         when(hook1.before(any(), any())).thenReturn(Optional.of(evaluationContextWithValue("bla", "blubber")));
         when(hook2.before(any(), any())).thenReturn(Optional.of(evaluationContextWithValue("foo", "bar")));
 
-        HookExecutor executor = HookExecutor.create(
-                Arrays.asList(hook1, hook2), getBaseHookContextForType(FlagValueType.STRING), baseContext, Collections.emptyMap());
+        HookSupport executor = new HookSupport(
+                Arrays.asList(hook1, hook2),
+                getBaseHookContextForType(FlagValueType.STRING),
+                baseContext,
+                Collections.emptyMap());
 
         executor.executeBeforeHooks();
 
@@ -49,9 +52,13 @@ class HookExecutorTest implements HookFixtures {
     void shouldAlwaysCallGenericHook(FlagValueType flagValueType) {
         Hook<?> genericHook = mockGenericHook();
 
-        HookExecutor hookExecutor = HookExecutor.create(List.of(genericHook), getBaseHookContextForType(flagValueType), ImmutableContext.EMPTY, Collections.emptyMap());
+        HookSupport hookSupport = new HookSupport(
+                List.of(genericHook),
+                getBaseHookContextForType(flagValueType),
+                ImmutableContext.EMPTY,
+                Collections.emptyMap());
 
-        callAllHooks(hookExecutor);
+        callAllHooks(hookSupport);
 
         verify(genericHook).before(any(), any());
         verify(genericHook).after(any(), any(), any());
@@ -64,18 +71,22 @@ class HookExecutorTest implements HookFixtures {
     @DisplayName("should allow hooks to store and retrieve data across stages")
     void shouldPassDataAcrossStages(FlagValueType flagValueType) {
         var testHook = new TestHookWithData();
-        HookExecutor hookExecutor = HookExecutor.create(List.of(testHook), getBaseHookContextForType(flagValueType), ImmutableContext.EMPTY, Collections.emptyMap());
+        HookSupport hookSupport = new HookSupport(
+                List.of(testHook),
+                getBaseHookContextForType(flagValueType),
+                ImmutableContext.EMPTY,
+                Collections.emptyMap());
 
-        hookExecutor.executeBeforeHooks();
+        hookSupport.executeBeforeHooks();
         assertHookData(testHook, "before");
 
-        hookExecutor.executeAfterHooks(FlagEvaluationDetails.builder().build());
+        hookSupport.executeAfterHooks(FlagEvaluationDetails.builder().build());
         assertHookData(testHook, "before", "after");
 
-        hookExecutor.executeAfterAllHooks(FlagEvaluationDetails.builder().build());
+        hookSupport.executeAfterAllHooks(FlagEvaluationDetails.builder().build());
         assertHookData(testHook, "before", "after", "finallyAfter");
 
-        hookExecutor.executeErrorHooks(mock(Exception.class));
+        hookSupport.executeErrorHooks(mock(Exception.class));
         assertHookData(testHook, "before", "after", "finallyAfter", "error");
     }
 
@@ -86,22 +97,26 @@ class HookExecutorTest implements HookFixtures {
         var testHook1 = new TestHookWithData(1);
         var testHook2 = new TestHookWithData(2);
 
-        HookExecutor hookExecutor = HookExecutor.create(List.of(testHook1, testHook2), getBaseHookContextForType(flagValueType), ImmutableContext.EMPTY, Collections.emptyMap());
+        HookSupport hookSupport = new HookSupport(
+                List.of(testHook1, testHook2),
+                getBaseHookContextForType(flagValueType),
+                ImmutableContext.EMPTY,
+                Collections.emptyMap());
 
-        callAllHooks(hookExecutor);
+        callAllHooks(hookSupport);
 
         assertHookData(testHook1, 1, "before", "after", "finallyAfter", "error");
         assertHookData(testHook2, 2, "before", "after", "finallyAfter", "error");
     }
 
-    private static void callAllHooks(HookExecutor hookExecutor) {
-        hookExecutor.executeBeforeHooks();
-        hookExecutor.executeAfterHooks(FlagEvaluationDetails.builder().build());
-        hookExecutor.executeAfterAllHooks(FlagEvaluationDetails.builder().build());
-        hookExecutor.executeErrorHooks(mock(Exception.class));
+    private static void callAllHooks(HookSupport hookSupport) {
+        hookSupport.executeBeforeHooks();
+        hookSupport.executeAfterHooks(FlagEvaluationDetails.builder().build());
+        hookSupport.executeAfterAllHooks(FlagEvaluationDetails.builder().build());
+        hookSupport.executeErrorHooks(mock(Exception.class));
     }
 
-    private static void assertHookData(TestHookWithData testHook, String ... expectedKeys) {
+    private static void assertHookData(TestHookWithData testHook, String... expectedKeys) {
         for (String expectedKey : expectedKeys) {
             assertThat(testHook.hookData.get(expectedKey))
                     .withFailMessage("Expected key %s not present in hook data", expectedKey)
@@ -109,13 +124,14 @@ class HookExecutorTest implements HookFixtures {
         }
     }
 
-    private static void assertHookData(TestHookWithData testHook, Object expectedValue, String ... expectedKeys) {
+    private static void assertHookData(TestHookWithData testHook, Object expectedValue, String... expectedKeys) {
         for (String expectedKey : expectedKeys) {
             assertThat(testHook.hookData.get(expectedKey))
                     .withFailMessage("Expected key '%s' not present in hook data", expectedKey)
                     .isNotNull();
             assertThat(testHook.hookData.get(expectedKey))
-                    .withFailMessage("Expected key '%s' not containing expected value. Expected '%s' but found '%s'",
+                    .withFailMessage(
+                            "Expected key '%s' not containing expected value. Expected '%s' but found '%s'",
                             expectedKey, expectedValue, testHook.hookData.get(expectedKey))
                     .isEqualTo(expectedValue);
         }
@@ -123,11 +139,7 @@ class HookExecutorTest implements HookFixtures {
 
     private SharedHookContext getBaseHookContextForType(FlagValueType flagValueType) {
         return new SharedHookContext<>(
-                "flagKey",
-                flagValueType,
-                () -> "client",
-                () -> "provider",
-                createDefaultValue(flagValueType));
+                "flagKey", flagValueType, () -> "client", () -> "provider", createDefaultValue(flagValueType));
     }
 
     private Object createDefaultValue(FlagValueType flagValueType) {

@@ -8,19 +8,12 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class HookExecutor {
+class HookSupport {
     private List<Pair<Hook, HookContext>> hooks;
     private EvaluationContext evaluationContext;
     private final Map<String, Object> hints;
 
-    private HookExecutor(
-            List<Pair<Hook, HookContext>> hooks, EvaluationContext evaluationContext, Map<String, Object> hints) {
-        this.hooks = hooks;
-        this.evaluationContext = evaluationContext;
-        this.hints = hints;
-    }
-
-    public static HookExecutor create(
+    HookSupport(
             List<Hook> hooks,
             SharedHookContext sharedContext,
             EvaluationContext evaluationContext,
@@ -32,7 +25,9 @@ class HookExecutor {
                 hookContextPairs.add(Pair.of(hook, curContext));
             }
         }
-        return new HookExecutor(hookContextPairs, evaluationContext, hints);
+        this.hooks = hookContextPairs;
+        this.evaluationContext = evaluationContext;
+        this.hints = hints;
     }
 
     public EvaluationContext getEvaluationContext() {

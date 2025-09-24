@@ -162,7 +162,7 @@ public class OpenFeatureClient implements Client {
         var hints = Collections.unmodifiableMap(flagOptions.getHookHints());
 
         FlagEvaluationDetails<T> details = null;
-        HookExecutor hookExecutor = null;
+        HookSupport hookSupport = null;
 
         try {
             final var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
@@ -177,9 +177,9 @@ public class OpenFeatureClient implements Client {
                     new SharedHookContext(key, type, this.getMetadata(), provider.getMetadata(), defaultValue);
 
             var evalContext = mergeEvaluationContext(ctx);
-            hookExecutor = HookExecutor.create(mergedHooks, sharedHookContext, evalContext, hints);
+            hookSupport = new HookSupport(mergedHooks, sharedHookContext, evalContext, hints);
 
-            hookExecutor.executeBeforeHooks();
+            hookSupport.executeBeforeHooks();
 
             // "short circuit" if the provider is in NOT_READY or FATAL state
             if (ProviderState.NOT_READY.equals(state)) {
@@ -190,16 +190,16 @@ public class OpenFeatureClient implements Client {
             }
 
             var providerEval = (ProviderEvaluation<T>)
-                    createProviderEvaluation(type, key, defaultValue, provider, hookExecutor.getEvaluationContext());
+                    createProviderEvaluation(type, key, defaultValue, provider, hookSupport.getEvaluationContext());
 
             details = FlagEvaluationDetails.from(providerEval, key);
             if (details.getErrorCode() != null) {
                 var error =
                         ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
                 enrichDetailsWithErrorDefaults(defaultValue, details);
-                hookExecutor.executeErrorHooks(error);
+                hookSupport.executeErrorHooks(error);
             } else {
-                hookExecutor.executeAfterHooks(details);
+                hookSupport.executeAfterHooks(details);
             }
         } catch (Exception e) {
             if (details == null) {
@@ -212,10 +212,10 @@ public class OpenFeatureClient implements Client {
             }
             details.setErrorMessage(e.getMessage());
             enrichDetailsWithErrorDefaults(defaultValue, details);
-            hookExecutor.executeErrorHooks(e);
+            hookSupport.executeErrorHooks(e);
         } finally {
-            if (hookExecutor != null) {
-                hookExecutor.executeAfterAllHooks(details);
+            if (hookSupport != null) {
+                hookSupport.executeAfterAllHooks(details);
             }
         }
 
