@@ -32,12 +32,12 @@ jobs:
             cache: maven
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@0337c4c06e7e00d0d6e64396c13b9dc18dd6d8c5
+        uses: github/codeql-action/init@e4b85ab654a244f420e4d9a9ca6305cf2d3fdc90
         with:
           languages: java
 
       - name: Cache local Maven repository
-        uses: actions/cache@638ed79f9dc94c1de1baef91bcab5edaa19451f4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
             path: ~/.m2/repository
             key: ${{ runner.os }}${{ matrix.build.java }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -58,4 +58,4 @@ jobs:
           verbose: true # optional (default = false)
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@0337c4c06e7e00d0d6e64396c13b9dc18dd6d8c5
+        uses: github/codeql-action/analyze@e4b85ab654a244f420e4d9a9ca6305cf2d3fdc90
