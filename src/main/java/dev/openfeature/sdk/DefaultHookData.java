@@ -3,6 +3,7 @@ package dev.openfeature.sdk;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import lombok.Generated;
 
 /**
  * Default implementation of HookData.
@@ -38,6 +39,7 @@ class DefaultHookData implements HookData {
         return type.cast(value);
     }
 
+    @Generated
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -47,6 +49,7 @@ class DefaultHookData implements HookData {
         return Objects.equals(data, that.data);
     }
 
+    @Generated
     @Override
     public int hashCode() {
         return Objects.hashCode(data);

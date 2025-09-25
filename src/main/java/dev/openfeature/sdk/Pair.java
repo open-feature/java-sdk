@@ -1,5 +1,7 @@
 package dev.openfeature.sdk;
 
+import lombok.Generated;
+
 class Pair<K, V> {
     private final K key;
     private final V value;
@@ -17,6 +19,7 @@ class Pair<K, V> {
         return value;
     }
 
+    @Generated
     @Override
     public String toString() {
         return "Pair{" + "key=" + key + ", value=" + value + '}';

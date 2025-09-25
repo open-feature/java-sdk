@@ -2,6 +2,7 @@ package dev.openfeature.sdk;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Objects;
+import lombok.Generated;
 import lombok.NonNull;
 
 /**
@@ -92,6 +93,7 @@ public final class HookContext<T> {
         return sharedContext.getFlagKey();
     }
 
+    @Generated
     public @NonNull FlagValueType getType() {
         return sharedContext.getType();
     }
@@ -117,6 +119,7 @@ public final class HookContext<T> {
         return this.hookData;
     }
 
+    @Generated
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -128,11 +131,13 @@ public final class HookContext<T> {
                 && Objects.equals(sharedContext, that.sharedContext);
     }
 
+    @Generated
     @Override
     public int hashCode() {
         return Objects.hash(ctx, hookData, sharedContext);
     }
 
+    @Generated
     @Override
     public String toString() {
         return "HookContext(flagKey=" + this.getFlagKey() + ", type=" + this.getType() + ", defaultValue="
@@ -151,6 +156,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated flagKey or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
+    @Generated
     @Deprecated
     public HookContext<T> withFlagKey(@NonNull String flagKey) {
         return Objects.equals(this.getFlagKey(), flagKey)
@@ -172,6 +178,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated type or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
+    @Generated
     @Deprecated
     public HookContext<T> withType(@NonNull FlagValueType type) {
         return this.getType() == type
@@ -193,6 +200,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated defaultValue or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
+    @Generated
     @Deprecated
     public HookContext<T> withDefaultValue(@NonNull T defaultValue) {
         return this.getDefaultValue() == defaultValue
@@ -214,6 +222,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated ctx or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
+    @Generated
     @Deprecated
     public HookContext<T> withCtx(@NonNull EvaluationContext ctx) {
         return this.ctx == ctx
@@ -235,6 +244,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated clientMetadata or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
+    @Generated
     @Deprecated
     public HookContext<T> withClientMetadata(ClientMetadata clientMetadata) {
         return this.getClientMetadata() == clientMetadata
@@ -256,6 +266,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated providerMetadata or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
+    @Generated
     @Deprecated
     public HookContext<T> withProviderMetadata(Metadata providerMetadata) {
         return this.getProviderMetadata() == providerMetadata
@@ -277,6 +288,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated hookData or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
+    @Generated
     @Deprecated
     public HookContext<T> withHookData(HookData hookData) {
         return this.hookData == hookData
@@ -297,6 +309,7 @@ public final class HookContext<T> {
      * @param <T> The flag type.
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
+    @Generated
     @Deprecated
     public static class HookContextBuilder<T> {
         private String flagKey;
@@ -361,6 +374,7 @@ public final class HookContext<T> {
                     this.hookData);
         }
 
+        @Generated
         @Override
         public String toString() {
             return "HookContext.HookContextBuilder(flagKey=" + this.flagKey + ", type=" + this.type + ", defaultValue="

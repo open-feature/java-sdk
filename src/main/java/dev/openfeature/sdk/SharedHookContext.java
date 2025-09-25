@@ -1,6 +1,7 @@
 package dev.openfeature.sdk;
 
 import java.util.Objects;
+import lombok.Generated;
 import lombok.Getter;
 
 @Getter
@@ -29,6 +30,7 @@ class SharedHookContext<T> {
         return new HookContext<>(this, evaluationContext, hookData);
     }
 
+    @Generated
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -42,6 +44,7 @@ class SharedHookContext<T> {
                 && Objects.equals(defaultValue, that.defaultValue);
     }
 
+    @Generated
     @Override
     public int hashCode() {
         return Objects.hash(flagKey, type, clientMetadata, providerMetadata, defaultValue);
