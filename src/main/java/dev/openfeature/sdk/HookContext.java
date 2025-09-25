@@ -14,10 +14,7 @@ public final class HookContext<T> {
     private EvaluationContext ctx;
     private final HookData hookData;
 
-    HookContext(
-            @NonNull SharedHookContext<T> sharedContext,
-            @NonNull EvaluationContext evaluationContext,
-            HookData hookData) {
+    HookContext(@NonNull SharedHookContext<T> sharedContext, EvaluationContext evaluationContext, HookData hookData) {
         this.sharedContext = sharedContext;
         ctx = evaluationContext;
         this.hookData = hookData;
