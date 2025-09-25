@@ -196,7 +196,7 @@
         <dependency>
             <groupId>com.vmlens</groupId>
             <artifactId>api</artifactId>
-            <version>1.2.13</version>
+            <version>1.2.14</version>
             <scope>test</scope>
         </dependency>
 
@@ -348,7 +348,7 @@
             </activation>
             <build>
                 <plugins>
-                    <!--<plugin>
+                    <plugin>
                         <groupId>com.vmlens</groupId>
                         <artifactId>vmlens-maven-plugin</artifactId>
                         <version>1.2.14</version>
@@ -359,11 +359,14 @@
                                     <goal>test</goal>
                                 </goals>
                                 <configuration>
+                                	<includes>
+						                <include>**/*CT.java</include>
+					                </includes>
                                     <failIfNoTests>true</failIfNoTests>
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>-->
+                    </plugin>
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <version>3.8.1</version>

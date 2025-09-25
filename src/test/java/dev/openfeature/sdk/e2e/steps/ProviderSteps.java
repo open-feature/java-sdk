@@ -26,7 +26,6 @@ import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import java.util.Map;
-import org.awaitility.Awaitility;
 
 public class ProviderSteps {
     private final State state;
@@ -113,19 +112,15 @@ public class ProviderSteps {
         switch (providerState) {
             case FATAL:
             case ERROR:
-                mockProvider.emitProviderReady(details);
-                mockProvider.emitProviderError(details);
+                mockProvider.emitProviderReady(details).await();
+                mockProvider.emitProviderError(details).await();
                 break;
             case STALE:
-                mockProvider.emitProviderReady(details);
-                mockProvider.emitProviderStale(details);
+                mockProvider.emitProviderReady(details).await();
+                mockProvider.emitProviderStale(details).await();
                 break;
             default:
         }
-        Awaitility.await().until(() -> {
-            ProviderState providerState1 = client.getProviderState();
-            return providerState1 == providerState;
-        });
     }
 
     private void configureMockEvaluations(FeatureProvider mockProvider, ErrorCode errorCode, String errorMessage) {
