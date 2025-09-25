@@ -50,6 +50,8 @@ public class OpenFeatureClient implements Client {
     private final ConcurrentLinkedQueue<Hook> clientHooks;
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
 
+    private final HookSupport hookSupport;
+
     /**
      * Deprecated public constructor. Use OpenFeature.API.getClient() instead.
      *
@@ -66,6 +68,7 @@ public class OpenFeatureClient implements Client {
         this.openfeatureApi = openFeatureAPI;
         this.domain = domain;
         this.version = version;
+        this.hookSupport = new HookSupport();
         this.clientHooks = new ConcurrentLinkedQueue<>();
     }
 
@@ -162,7 +165,7 @@ public class OpenFeatureClient implements Client {
         var hints = Collections.unmodifiableMap(flagOptions.getHookHints());
 
         FlagEvaluationDetails<T> details = null;
-        HookSupport hookSupport = null;
+        HookSupportData hookSupportData = new HookSupportData();
 
         try {
             final var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
@@ -176,10 +179,12 @@ public class OpenFeatureClient implements Client {
             var sharedHookContext =
                     new SharedHookContext(key, type, this.getMetadata(), provider.getMetadata(), defaultValue);
 
-            var evalContext = mergeEvaluationContext(ctx);
-            hookSupport = new HookSupport(mergedHooks, sharedHookContext, evalContext, hints);
+            hookSupportData.initialize(mergedHooks, sharedHookContext, ctx, hints);
 
-            hookSupport.executeBeforeHooks();
+            var evalContext = mergeEvaluationContext(ctx);
+            hookSupportData.setEvaluationContext(evalContext);
+
+            hookSupport.executeBeforeHooks(hookSupportData);
 
             // "short circuit" if the provider is in NOT_READY or FATAL state
             if (ProviderState.NOT_READY.equals(state)) {
@@ -190,16 +195,16 @@ public class OpenFeatureClient implements Client {
             }
 
             var providerEval = (ProviderEvaluation<T>)
-                    createProviderEvaluation(type, key, defaultValue, provider, hookSupport.getEvaluationContext());
+                    createProviderEvaluation(type, key, defaultValue, provider, hookSupportData.getEvaluationContext());
 
             details = FlagEvaluationDetails.from(providerEval, key);
             if (details.getErrorCode() != null) {
                 var error =
                         ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
                 enrichDetailsWithErrorDefaults(defaultValue, details);
-                hookSupport.executeErrorHooks(error);
+                hookSupport.executeErrorHooks(hookSupportData, error);
             } else {
-                hookSupport.executeAfterHooks(details);
+                hookSupport.executeAfterHooks(hookSupportData, details);
             }
         } catch (Exception e) {
             if (details == null) {
@@ -212,10 +217,12 @@ public class OpenFeatureClient implements Client {
             }
             details.setErrorMessage(e.getMessage());
             enrichDetailsWithErrorDefaults(defaultValue, details);
-            hookSupport.executeErrorHooks(e);
+            if (hookSupportData.isInitialized()) {
+                hookSupport.executeErrorHooks(hookSupportData, e);
+            }
         } finally {
-            if (hookSupport != null) {
-                hookSupport.executeAfterAllHooks(details);
+            if (hookSupportData.isInitialized()) {
+                hookSupport.executeAfterAllHooks(hookSupportData, details);
             }
         }
 

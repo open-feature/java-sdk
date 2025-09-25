@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Objects;
 import lombok.NonNull;
 
@@ -114,6 +115,7 @@ public final class HookContext<T> {
         return sharedContext.getProviderMetadata();
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Intentional exposure of hookData")
     public HookData getHookData() {
         return this.hookData;
     }
@@ -300,10 +302,10 @@ public final class HookContext<T> {
      */
     @Deprecated
     public static class HookContextBuilder<T> {
-        private @NonNull String flagKey;
-        private @NonNull FlagValueType type;
-        private @NonNull T defaultValue;
-        private @NonNull EvaluationContext ctx;
+        private String flagKey;
+        private FlagValueType type;
+        private T defaultValue;
+        private EvaluationContext ctx;
         private ClientMetadata clientMetadata;
         private Metadata providerMetadata;
         private HookData hookData;
@@ -340,6 +342,7 @@ public final class HookContext<T> {
             return this;
         }
 
+        @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Intentional exposure of hookData")
         public HookContextBuilder<T> hookData(HookData hookData) {
             this.hookData = hookData;
             return this;

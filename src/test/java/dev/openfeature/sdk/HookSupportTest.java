@@ -19,6 +19,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 class HookSupportTest implements HookFixtures {
+
+    private static final HookSupport hookSupport = new HookSupport();
+
     @Test
     @DisplayName("should merge EvaluationContexts on before hooks correctly")
     void shouldMergeEvaluationContextsOnBeforeHooksCorrectly() {
@@ -31,15 +34,16 @@ class HookSupportTest implements HookFixtures {
         when(hook1.before(any(), any())).thenReturn(Optional.of(evaluationContextWithValue("bla", "blubber")));
         when(hook2.before(any(), any())).thenReturn(Optional.of(evaluationContextWithValue("foo", "bar")));
 
-        HookSupport executor = new HookSupport(
+        var hookSupportData = new HookSupportData();
+        hookSupportData.initialize(
                 Arrays.asList(hook1, hook2),
                 getBaseHookContextForType(FlagValueType.STRING),
                 baseContext,
                 Collections.emptyMap());
 
-        executor.executeBeforeHooks();
+        hookSupport.executeBeforeHooks(hookSupportData);
 
-        EvaluationContext result = executor.getEvaluationContext();
+        EvaluationContext result = hookSupportData.getEvaluationContext();
 
         assertThat(result.getValue("bla").asString()).isEqualTo("blubber");
         assertThat(result.getValue("foo").asString()).isEqualTo("bar");
@@ -52,13 +56,14 @@ class HookSupportTest implements HookFixtures {
     void shouldAlwaysCallGenericHook(FlagValueType flagValueType) {
         Hook<?> genericHook = mockGenericHook();
 
-        HookSupport hookSupport = new HookSupport(
+        var hookSupportData = new HookSupportData();
+        hookSupportData.initialize(
                 List.of(genericHook),
                 getBaseHookContextForType(flagValueType),
                 ImmutableContext.EMPTY,
                 Collections.emptyMap());
 
-        callAllHooks(hookSupport);
+        callAllHooks(hookSupportData);
 
         verify(genericHook).before(any(), any());
         verify(genericHook).after(any(), any(), any());
@@ -71,22 +76,25 @@ class HookSupportTest implements HookFixtures {
     @DisplayName("should allow hooks to store and retrieve data across stages")
     void shouldPassDataAcrossStages(FlagValueType flagValueType) {
         var testHook = new TestHookWithData();
-        HookSupport hookSupport = new HookSupport(
+        var hookSupportData = new HookSupportData();
+        hookSupportData.initialize(
                 List.of(testHook),
                 getBaseHookContextForType(flagValueType),
                 ImmutableContext.EMPTY,
                 Collections.emptyMap());
 
-        hookSupport.executeBeforeHooks();
+        hookSupport.executeBeforeHooks(hookSupportData);
         assertHookData(testHook, "before");
 
-        hookSupport.executeAfterHooks(FlagEvaluationDetails.builder().build());
+        hookSupport.executeAfterHooks(
+                hookSupportData, FlagEvaluationDetails.builder().build());
         assertHookData(testHook, "before", "after");
 
-        hookSupport.executeAfterAllHooks(FlagEvaluationDetails.builder().build());
+        hookSupport.executeAfterAllHooks(
+                hookSupportData, FlagEvaluationDetails.builder().build());
         assertHookData(testHook, "before", "after", "finallyAfter");
 
-        hookSupport.executeErrorHooks(mock(Exception.class));
+        hookSupport.executeErrorHooks(hookSupportData, mock(Exception.class));
         assertHookData(testHook, "before", "after", "finallyAfter", "error");
     }
 
@@ -97,23 +105,26 @@ class HookSupportTest implements HookFixtures {
         var testHook1 = new TestHookWithData(1);
         var testHook2 = new TestHookWithData(2);
 
-        HookSupport hookSupport = new HookSupport(
+        var hookSupportData = new HookSupportData();
+        hookSupportData.initialize(
                 List.of(testHook1, testHook2),
                 getBaseHookContextForType(flagValueType),
                 ImmutableContext.EMPTY,
                 Collections.emptyMap());
 
-        callAllHooks(hookSupport);
+        callAllHooks(hookSupportData);
 
         assertHookData(testHook1, 1, "before", "after", "finallyAfter", "error");
         assertHookData(testHook2, 2, "before", "after", "finallyAfter", "error");
     }
 
-    private static void callAllHooks(HookSupport hookSupport) {
-        hookSupport.executeBeforeHooks();
-        hookSupport.executeAfterHooks(FlagEvaluationDetails.builder().build());
-        hookSupport.executeAfterAllHooks(FlagEvaluationDetails.builder().build());
-        hookSupport.executeErrorHooks(mock(Exception.class));
+    private static void callAllHooks(HookSupportData hookSupportData) {
+        hookSupport.executeBeforeHooks(hookSupportData);
+        hookSupport.executeAfterHooks(
+                hookSupportData, FlagEvaluationDetails.builder().build());
+        hookSupport.executeAfterAllHooks(
+                hookSupportData, FlagEvaluationDetails.builder().build());
+        hookSupport.executeErrorHooks(hookSupportData, mock(Exception.class));
     }
 
     private static void assertHookData(TestHookWithData testHook, String... expectedKeys) {
