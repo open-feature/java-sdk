@@ -3,99 +3,69 @@ package dev.openfeature.sdk;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RequiredArgsConstructor
-@SuppressWarnings({"unchecked", "rawtypes"})
 class HookSupport {
 
-    public EvaluationContext beforeHooks(
-            FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks, Map<String, Object> hints) {
-        return callBeforeHooks(flagValueType, hookCtx, hooks, hints);
-    }
+    public void executeBeforeHooks(HookSupportData data) {
+        // These traverse backwards from normal.
+        List<Pair<Hook, HookContext>> reversedHooks = new ArrayList<>(data.getHooks());
+        Collections.reverse(reversedHooks);
 
-    public void afterHooks(
-            FlagValueType flagValueType,
-            HookContext hookContext,
-            FlagEvaluationDetails details,
-            List<Hook> hooks,
-            Map<String, Object> hints) {
-        executeHooksUnchecked(flagValueType, hooks, hook -> hook.after(hookContext, details, hints));
-    }
+        for (Pair<Hook, HookContext> hookContextPair : reversedHooks) {
+            var hook = hookContextPair.getKey();
+            var hookContext = hookContextPair.getValue();
 
-    public void afterAllHooks(
-            FlagValueType flagValueType,
-            HookContext hookCtx,
-            FlagEvaluationDetails details,
-            List<Hook> hooks,
-            Map<String, Object> hints) {
-        executeHooks(flagValueType, hooks, "finally", hook -> hook.finallyAfter(hookCtx, details, hints));
-    }
-
-    public void errorHooks(
-            FlagValueType flagValueType,
-            HookContext hookCtx,
-            Exception e,
-            List<Hook> hooks,
-            Map<String, Object> hints) {
-        executeHooks(flagValueType, hooks, "error", hook -> hook.error(hookCtx, e, hints));
-    }
-
-    private <T> void executeHooks(
-            FlagValueType flagValueType, List<Hook> hooks, String hookMethod, Consumer<Hook<T>> hookCode) {
-        if (hooks != null) {
-            for (Hook hook : hooks) {
-                if (hook.supportsFlagValueType(flagValueType)) {
-                    executeChecked(hook, hookCode, hookMethod);
-                }
+            Optional<EvaluationContext> returnedEvalContext = Optional.ofNullable(
+                            hook.before(hookContext, data.getHints()))
+                    .orElse(Optional.empty());
+            if (returnedEvalContext.isPresent()) {
+                // update shared evaluation context for all hooks
+                data.setEvaluationContext(data.getEvaluationContext().merge(returnedEvalContext.get()));
             }
         }
     }
 
-    // before, error, and finally hooks shouldn't throw
-    private <T> void executeChecked(Hook<T> hook, Consumer<Hook<T>> hookCode, String hookMethod) {
-        try {
-            hookCode.accept(hook);
-        } catch (Exception exception) {
-            log.error(
-                    "Unhandled exception when running {} hook {} (only 'after' hooks should throw)",
-                    hookMethod,
-                    hook.getClass(),
-                    exception);
+    public void executeErrorHooks(HookSupportData data, Exception error) {
+        for (Pair<Hook, HookContext> hookContextPair : data.getHooks()) {
+            var hook = hookContextPair.getKey();
+            var hookContext = hookContextPair.getValue();
+            try {
+                hook.error(hookContext, error, data.getHints());
+            } catch (Exception e) {
+                log.error(
+                        "Unhandled exception when running {} hook {} (only 'after' hooks should throw)",
+                        "error",
+                        hook.getClass(),
+                        e);
+            }
         }
     }
 
     // after hooks can throw in order to do validation
-    private <T> void executeHooksUnchecked(FlagValueType flagValueType, List<Hook> hooks, Consumer<Hook<T>> hookCode) {
-        if (hooks != null) {
-            for (Hook hook : hooks) {
-                if (hook.supportsFlagValueType(flagValueType)) {
-                    hookCode.accept(hook);
-                }
-            }
+    public <T> void executeAfterHooks(HookSupportData data, FlagEvaluationDetails<T> details) {
+        for (Pair<Hook, HookContext> hookContextPair : data.getHooks()) {
+            var hook = hookContextPair.getKey();
+            var hookContext = hookContextPair.getValue();
+            hook.after(hookContext, details, data.getHints());
         }
     }
 
-    private EvaluationContext callBeforeHooks(
-            FlagValueType flagValueType, HookContext hookCtx, List<Hook> hooks, Map<String, Object> hints) {
-        // These traverse backwards from normal.
-        List<Hook> reversedHooks = new ArrayList<>(hooks);
-        Collections.reverse(reversedHooks);
-        EvaluationContext context = hookCtx.getCtx();
-        for (Hook hook : reversedHooks) {
-            if (hook.supportsFlagValueType(flagValueType)) {
-                Optional<EvaluationContext> optional =
-                        Optional.ofNullable(hook.before(hookCtx, hints)).orElse(Optional.empty());
-                if (optional.isPresent()) {
-                    context = context.merge(optional.get());
-                }
+    public <T> void executeAfterAllHooks(HookSupportData data, FlagEvaluationDetails<T> details) {
+        for (Pair<Hook, HookContext> hookContextPair : data.getHooks()) {
+            var hook = hookContextPair.getKey();
+            var hookContext = hookContextPair.getValue();
+            try {
+                hook.finallyAfter(hookContext, details, data.getHints());
+            } catch (Exception e) {
+                log.error(
+                        "Unhandled exception when running {} hook {} (only 'after' hooks should throw)",
+                        "finally",
+                        hook.getClass(),
+                        e);
             }
         }
-        return context;
     }
 }

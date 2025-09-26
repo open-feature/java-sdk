@@ -48,8 +48,9 @@ public class OpenFeatureClient implements Client {
     private final String version;
 
     private final ConcurrentLinkedQueue<Hook> clientHooks;
-    private final HookSupport hookSupport;
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
+
+    private final HookSupport hookSupport;
 
     /**
      * Deprecated public constructor. Use OpenFeature.API.getClient() instead.
@@ -67,8 +68,8 @@ public class OpenFeatureClient implements Client {
         this.openfeatureApi = openFeatureAPI;
         this.domain = domain;
         this.version = version;
-        this.clientHooks = new ConcurrentLinkedQueue<>();
         this.hookSupport = new HookSupport();
+        this.clientHooks = new ConcurrentLinkedQueue<>();
     }
 
     /**
@@ -164,32 +165,26 @@ public class OpenFeatureClient implements Client {
         var hints = Collections.unmodifiableMap(flagOptions.getHookHints());
 
         FlagEvaluationDetails<T> details = null;
-        List<Hook> mergedHooks = null;
-        HookContext<T> afterHookContext = null;
+        HookSupportData hookSupportData = new HookSupportData();
 
         try {
-            var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
+            final var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
             // provider must be accessed once to maintain a consistent reference
-            var provider = stateManager.getProvider();
-            var state = stateManager.getState();
+            final var provider = stateManager.getProvider();
+            final var state = stateManager.getState();
 
-            mergedHooks = ObjectUtils.merge(
+            var mergedHooks = ObjectUtils.merge(
                     provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
 
-            var mergedCtx = hookSupport.beforeHooks(
-                    type,
-                    HookContext.from(
-                            key,
-                            type,
-                            this.getMetadata(),
-                            provider.getMetadata(),
-                            mergeEvaluationContext(ctx),
-                            defaultValue),
-                    mergedHooks,
-                    hints);
+            var sharedHookContext =
+                    new SharedHookContext(key, type, this.getMetadata(), provider.getMetadata(), defaultValue);
 
-            afterHookContext =
-                    HookContext.from(key, type, this.getMetadata(), provider.getMetadata(), mergedCtx, defaultValue);
+            hookSupportData.initialize(mergedHooks, sharedHookContext, ctx, hints);
+
+            var evalContext = mergeEvaluationContext(ctx);
+            hookSupportData.setEvaluationContext(evalContext);
+
+            hookSupport.executeBeforeHooks(hookSupportData);
 
             // "short circuit" if the provider is in NOT_READY or FATAL state
             if (ProviderState.NOT_READY.equals(state)) {
@@ -199,17 +194,17 @@ public class OpenFeatureClient implements Client {
                 throw new FatalError("Provider is in an irrecoverable error state");
             }
 
-            var providerEval =
-                    (ProviderEvaluation<T>) createProviderEvaluation(type, key, defaultValue, provider, mergedCtx);
+            var providerEval = (ProviderEvaluation<T>)
+                    createProviderEvaluation(type, key, defaultValue, provider, hookSupportData.getEvaluationContext());
 
             details = FlagEvaluationDetails.from(providerEval, key);
             if (details.getErrorCode() != null) {
                 var error =
                         ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
                 enrichDetailsWithErrorDefaults(defaultValue, details);
-                hookSupport.errorHooks(type, afterHookContext, error, mergedHooks, hints);
+                hookSupport.executeErrorHooks(hookSupportData, error);
             } else {
-                hookSupport.afterHooks(type, afterHookContext, details, mergedHooks, hints);
+                hookSupport.executeAfterHooks(hookSupportData, details);
             }
         } catch (Exception e) {
             if (details == null) {
@@ -222,9 +217,13 @@ public class OpenFeatureClient implements Client {
             }
             details.setErrorMessage(e.getMessage());
             enrichDetailsWithErrorDefaults(defaultValue, details);
-            hookSupport.errorHooks(type, afterHookContext, e, mergedHooks, hints);
+            if (hookSupportData.isInitialized()) {
+                hookSupport.executeErrorHooks(hookSupportData, e);
+            }
         } finally {
-            hookSupport.afterAllHooks(type, afterHookContext, details, mergedHooks, hints);
+            if (hookSupportData.isInitialized()) {
+                hookSupport.executeAfterAllHooks(hookSupportData, details);
+            }
         }
 
         return details;
