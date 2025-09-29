@@ -160,12 +160,13 @@ public class OpenFeatureClient implements Client {
                     + "Instead, we return an evaluation result with the appropriate error code.")
     private <T> FlagEvaluationDetails<T> evaluateFlag(
             FlagValueType type, String key, T defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        FlagEvaluationDetails<T> details = null;
+        HookSupportData hookSupportData = new HookSupportData();
+
         var flagOptions = ObjectUtils.defaultIfNull(
                 options, () -> FlagEvaluationOptions.builder().build());
         var hints = Collections.unmodifiableMap(flagOptions.getHookHints());
-
-        FlagEvaluationDetails<T> details = null;
-        HookSupportData hookSupportData = new HookSupportData();
+        hookSupportData.setHints(hints);
 
         try {
             final var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
@@ -179,7 +180,7 @@ public class OpenFeatureClient implements Client {
             var sharedHookContext =
                     new SharedHookContext(key, type, this.getMetadata(), provider.getMetadata(), defaultValue);
 
-            hookSupportData.initialize(mergedHooks, sharedHookContext, ctx, hints);
+            hookSupportData.setHooks(mergedHooks, sharedHookContext, ctx);
 
             var evalContext = mergeEvaluationContext(ctx);
             hookSupportData.setEvaluationContext(evalContext);
@@ -217,11 +218,11 @@ public class OpenFeatureClient implements Client {
             }
             details.setErrorMessage(e.getMessage());
             enrichDetailsWithErrorDefaults(defaultValue, details);
-            if (hookSupportData.isInitialized()) {
+            if (hookSupportData.getHooks() != null && hookSupportData.getHints() != null) {
                 hookSupport.executeErrorHooks(hookSupportData, e);
             }
         } finally {
-            if (hookSupportData.isInitialized()) {
+            if (hookSupportData.getHooks() != null && hookSupportData.getHints() != null) {
                 hookSupport.executeAfterAllHooks(hookSupportData, details);
             }
         }
