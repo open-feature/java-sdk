@@ -35,8 +35,8 @@ class HookSupportTest implements HookFixtures {
 
         var sharedContext = getBaseHookContextForType(FlagValueType.STRING);
         var hookSupportData = new HookSupportData();
-        hookSupport.setHookSupportDataHooks(
-                hookSupportData, Arrays.asList(hook1, hook2), sharedContext, baseEvalContext);
+        hookSupport.setHooks(hookSupportData, Arrays.asList(hook1, hook2), FlagValueType.STRING);
+        hookSupport.setHookContexts(hookSupportData, sharedContext);
         hookSupport.updateEvaluationContext(hookSupportData, baseEvalContext);
 
         hookSupport.executeBeforeHooks(hookSupportData);
@@ -55,11 +55,7 @@ class HookSupportTest implements HookFixtures {
         Hook<?> genericHook = mockGenericHook();
 
         var hookSupportData = new HookSupportData();
-        hookSupport.setHookSupportDataHooks(
-                hookSupportData,
-                List.of(genericHook),
-                getBaseHookContextForType(flagValueType),
-                ImmutableContext.EMPTY);
+        hookSupport.setHooks(hookSupportData, List.of(genericHook), flagValueType);
 
         callAllHooks(hookSupportData);
 
@@ -75,8 +71,8 @@ class HookSupportTest implements HookFixtures {
     void shouldPassDataAcrossStages(FlagValueType flagValueType) {
         var testHook = new TestHookWithData();
         var hookSupportData = new HookSupportData();
-        hookSupport.setHookSupportDataHooks(
-                hookSupportData, List.of(testHook), getBaseHookContextForType(flagValueType), ImmutableContext.EMPTY);
+        hookSupport.setHooks(hookSupportData, List.of(testHook), flagValueType);
+        hookSupport.setHookContexts(hookSupportData, getBaseHookContextForType(flagValueType));
 
         hookSupport.executeBeforeHooks(hookSupportData);
         assertHookData(testHook, "before");
@@ -101,11 +97,8 @@ class HookSupportTest implements HookFixtures {
         var testHook2 = new TestHookWithData(2);
 
         var hookSupportData = new HookSupportData();
-        hookSupport.setHookSupportDataHooks(
-                hookSupportData,
-                List.of(testHook1, testHook2),
-                getBaseHookContextForType(flagValueType),
-                ImmutableContext.EMPTY);
+        hookSupport.setHooks(hookSupportData, List.of(testHook1, testHook2), flagValueType);
+        hookSupport.setHookContexts(hookSupportData, getBaseHookContextForType(flagValueType));
 
         callAllHooks(hookSupportData);
 

@@ -6,8 +6,46 @@ import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Helper class to run hooks. Initialize {@link HookSupportData} by calling setHooks, setHookContexts
+ * & updateEvaluationContext in this exact order.
+ */
 @Slf4j
 class HookSupport {
+
+    /**
+     * Sets the {@link Hook}-{@link HookContext}-{@link Pair} list in the given data object with {@link HookContext}
+     * set to null. Filters hooks by supported {@link FlagValueType}.
+     *
+     * @param hookSupportData   the data object to modify
+     * @param hooks             the hooks to set
+     * @param type              the flag value type to filter unsupported hooks
+     */
+    public void setHooks(HookSupportData hookSupportData, List<Hook> hooks, FlagValueType type) {
+        List<Pair<Hook, HookContext>> hookContextPairs = new ArrayList<>();
+        for (Hook hook : hooks) {
+            if (hook.supportsFlagValueType(type)) {
+                hookContextPairs.add(Pair.of(hook, null));
+            }
+        }
+        hookSupportData.hooks = hookContextPairs;
+    }
+
+    /**
+     * Creates & sets a {@link HookContext} for every {@link Hook}-{@link HookContext}-{@link Pair}
+     * in the given data object with a new {@link HookData} instance.
+     *
+     * @param hookSupportData   the data object to modify
+     * @param sharedContext     the shared context from which the new {@link HookContext} is created
+     */
+    public void setHookContexts(HookSupportData hookSupportData, SharedHookContext sharedContext) {
+        for (int i = 0; i < hookSupportData.hooks.size(); i++) {
+            Pair<Hook, HookContext> hookContextPair = hookSupportData.hooks.get(i);
+            HookContext curHookContext = sharedContext.hookContextFor(null, new DefaultHookData());
+            Pair<Hook, HookContext> updatedPair = Pair.of(hookContextPair.getKey(), curHookContext);
+            hookSupportData.hooks.set(i, updatedPair);
+        }
+    }
 
     /**
      * Updates the evaluation context in the given data object's eval context and each hooks eval context.
@@ -19,33 +57,12 @@ class HookSupport {
         hookSupportData.evaluationContext = evaluationContext;
         if (hookSupportData.hooks != null) {
             for (Pair<Hook, HookContext> hookContextPair : hookSupportData.hooks) {
-                hookContextPair.getValue().setCtx(evaluationContext);
+                var curHookContext = hookContextPair.getValue();
+                if (curHookContext != null) {
+                    curHookContext.setCtx(evaluationContext);
+                }
             }
         }
-    }
-
-    /**
-     * Sets the {@link Hook}-{@link HookContext}-{@link Pair} list in the given data object.
-     *
-     * @param hookSupportData   the data object to modify
-     * @param hooks             the new hooks to set
-     * @param sharedContext     the shared context across all hooks from which each hook's {@link HookContext} is
-     *                          created
-     * @param evaluationContext the evaluation context which is
-     */
-    public void setHookSupportDataHooks(
-            HookSupportData hookSupportData,
-            List<Hook> hooks,
-            SharedHookContext sharedContext,
-            EvaluationContext evaluationContext) {
-        List<Pair<Hook, HookContext>> hookContextPairs = new ArrayList<>();
-        for (Hook hook : hooks) {
-            if (hook.supportsFlagValueType(sharedContext.getType())) {
-                HookContext curContext = sharedContext.hookContextFor(evaluationContext, new DefaultHookData());
-                hookContextPairs.add(Pair.of(hook, curContext));
-            }
-        }
-        hookSupportData.hooks = hookContextPairs;
     }
 
     public void executeBeforeHooks(HookSupportData data) {

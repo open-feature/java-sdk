@@ -173,13 +173,14 @@ public class OpenFeatureClient implements Client {
             final var provider = stateManager.getProvider();
             final var state = stateManager.getState();
 
+            // Hooks are initialized as early as possible to enable the execution of error stages
             var mergedHooks = ObjectUtils.merge(
                     provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
+            hookSupport.setHooks(hookSupportData, mergedHooks, type);
 
             var sharedHookContext =
                     new SharedHookContext(key, type, this.getMetadata(), provider.getMetadata(), defaultValue);
-
-            hookSupport.setHookSupportDataHooks(hookSupportData, mergedHooks, sharedHookContext, ctx);
+            hookSupport.setHookContexts(hookSupportData, sharedHookContext);
 
             var evalContext = mergeEvaluationContext(ctx);
             hookSupport.updateEvaluationContext(hookSupportData, evalContext);
