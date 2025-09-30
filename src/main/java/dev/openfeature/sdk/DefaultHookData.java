@@ -2,8 +2,6 @@ package dev.openfeature.sdk;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-import lombok.Generated;
 
 /**
  * Default implementation of HookData.
@@ -37,21 +35,5 @@ class DefaultHookData implements HookData {
             throw new ClassCastException("Value for key '" + key + "' is not of type " + type.getName());
         }
         return type.cast(value);
-    }
-
-    @Generated
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        dev.openfeature.sdk.DefaultHookData that = (dev.openfeature.sdk.DefaultHookData) o;
-        return Objects.equals(data, that.data);
-    }
-
-    @Generated
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(data);
     }
 }

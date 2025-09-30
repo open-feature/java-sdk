@@ -1,15 +1,20 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Objects;
+import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.NonNull;
+import lombok.ToString;
 
 /**
  * A data class to hold immutable context that {@link Hook} instances use.
  *
  * @param <T> the type for the flag being evaluated
  */
+@EqualsAndHashCode
+@ToString
 public final class HookContext<T> {
     private final SharedHookContext<T> sharedContext;
     private EvaluationContext ctx;
@@ -93,7 +98,6 @@ public final class HookContext<T> {
         return sharedContext.getFlagKey();
     }
 
-    @Generated
     public @NonNull FlagValueType getType() {
         return sharedContext.getType();
     }
@@ -119,32 +123,6 @@ public final class HookContext<T> {
         return this.hookData;
     }
 
-    @Generated
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        HookContext<?> that = (HookContext<?>) o;
-        return Objects.equals(ctx, that.ctx)
-                && Objects.equals(hookData, that.hookData)
-                && Objects.equals(sharedContext, that.sharedContext);
-    }
-
-    @Generated
-    @Override
-    public int hashCode() {
-        return Objects.hash(ctx, hookData, sharedContext);
-    }
-
-    @Generated
-    @Override
-    public String toString() {
-        return "HookContext(flagKey=" + this.getFlagKey() + ", type=" + this.getType() + ", defaultValue="
-                + this.getDefaultValue() + ", ctx=" + this.getCtx() + ", clientMetadata=" + this.getClientMetadata()
-                + ", providerMetadata=" + this.getProviderMetadata() + ", hookData=" + this.getHookData() + ")";
-    }
-
     void setCtx(@NonNull EvaluationContext ctx) {
         this.ctx = ctx;
     }
@@ -156,7 +134,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated flagKey or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
-    @Generated
+    @ExcludeFromGeneratedCoverageReport
     @Deprecated
     public HookContext<T> withFlagKey(@NonNull String flagKey) {
         return Objects.equals(this.getFlagKey(), flagKey)
@@ -178,7 +156,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated type or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
-    @Generated
+    @ExcludeFromGeneratedCoverageReport
     @Deprecated
     public HookContext<T> withType(@NonNull FlagValueType type) {
         return this.getType() == type
@@ -200,7 +178,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated defaultValue or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
-    @Generated
+    @ExcludeFromGeneratedCoverageReport
     @Deprecated
     public HookContext<T> withDefaultValue(@NonNull T defaultValue) {
         return this.getDefaultValue() == defaultValue
@@ -222,7 +200,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated ctx or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
-    @Generated
+    @ExcludeFromGeneratedCoverageReport
     @Deprecated
     public HookContext<T> withCtx(@NonNull EvaluationContext ctx) {
         return this.ctx == ctx
@@ -244,7 +222,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated clientMetadata or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
-    @Generated
+    @ExcludeFromGeneratedCoverageReport
     @Deprecated
     public HookContext<T> withClientMetadata(ClientMetadata clientMetadata) {
         return this.getClientMetadata() == clientMetadata
@@ -266,7 +244,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated providerMetadata or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
-    @Generated
+    @ExcludeFromGeneratedCoverageReport
     @Deprecated
     public HookContext<T> withProviderMetadata(Metadata providerMetadata) {
         return this.getProviderMetadata() == providerMetadata
@@ -288,7 +266,7 @@ public final class HookContext<T> {
      * @return new HookContext with updated hookData or the same instance if unchanged
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
-    @Generated
+    @ExcludeFromGeneratedCoverageReport
     @Deprecated
     public HookContext<T> withHookData(HookData hookData) {
         return this.hookData == hookData
@@ -309,8 +287,8 @@ public final class HookContext<T> {
      * @param <T> The flag type.
      * @deprecated HookContext is initialized by the SDK and passed to hooks. Users should not create new instances.
      */
-    @Generated
     @Deprecated
+    @ToString
     public static class HookContextBuilder<T> {
         private String flagKey;
         private FlagValueType type;
@@ -322,37 +300,44 @@ public final class HookContext<T> {
 
         HookContextBuilder() {}
 
+        @ExcludeFromGeneratedCoverageReport
         public HookContextBuilder<T> flagKey(@NonNull String flagKey) {
             this.flagKey = flagKey;
             return this;
         }
 
+        @ExcludeFromGeneratedCoverageReport
         public HookContextBuilder<T> type(@NonNull FlagValueType type) {
             this.type = type;
             return this;
         }
 
+        @ExcludeFromGeneratedCoverageReport
         public HookContextBuilder<T> defaultValue(@NonNull T defaultValue) {
             this.defaultValue = defaultValue;
             return this;
         }
 
+        @ExcludeFromGeneratedCoverageReport
         public HookContextBuilder<T> ctx(@NonNull EvaluationContext ctx) {
             this.ctx = ctx;
             return this;
         }
 
+        @ExcludeFromGeneratedCoverageReport
         public HookContextBuilder<T> clientMetadata(ClientMetadata clientMetadata) {
             this.clientMetadata = clientMetadata;
             return this;
         }
 
+        @ExcludeFromGeneratedCoverageReport
         public HookContextBuilder<T> providerMetadata(Metadata providerMetadata) {
             this.providerMetadata = providerMetadata;
             return this;
         }
 
         @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Intentional exposure of hookData")
+        @ExcludeFromGeneratedCoverageReport
         public HookContextBuilder<T> hookData(HookData hookData) {
             this.hookData = hookData;
             return this;
@@ -363,6 +348,7 @@ public final class HookContext<T> {
          *
          * @return a new HookContext
          */
+        @ExcludeFromGeneratedCoverageReport
         public HookContext<T> build() {
             return new HookContext<T>(
                     this.flagKey,
@@ -372,14 +358,6 @@ public final class HookContext<T> {
                     this.clientMetadata,
                     this.providerMetadata,
                     this.hookData);
-        }
-
-        @Generated
-        @Override
-        public String toString() {
-            return "HookContext.HookContextBuilder(flagKey=" + this.flagKey + ", type=" + this.type + ", defaultValue="
-                    + this.defaultValue + ", ctx=" + this.ctx + ", clientMetadata=" + this.clientMetadata
-                    + ", providerMetadata=" + this.providerMetadata + ", hookData=" + this.hookData + ")";
         }
     }
 }

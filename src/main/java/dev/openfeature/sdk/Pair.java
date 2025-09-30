@@ -1,7 +1,8 @@
 package dev.openfeature.sdk;
 
-import lombok.Generated;
+import lombok.ToString;
 
+@ToString
 class Pair<K, V> {
     private final K key;
     private final V value;
@@ -17,12 +18,6 @@ class Pair<K, V> {
 
     public V getValue() {
         return value;
-    }
-
-    @Generated
-    @Override
-    public String toString() {
-        return "Pair{" + "key=" + key + ", value=" + value + '}';
     }
 
     public static <K, V> Pair<K, V> of(K key, V value) {
