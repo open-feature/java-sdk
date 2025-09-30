@@ -165,8 +165,7 @@ public class OpenFeatureClient implements Client {
 
         var flagOptions = ObjectUtils.defaultIfNull(
                 options, () -> FlagEvaluationOptions.builder().build());
-        var hints = Collections.unmodifiableMap(flagOptions.getHookHints());
-        hookSupportData.setHints(hints);
+        hookSupportData.hints = Collections.unmodifiableMap(flagOptions.getHookHints());
 
         try {
             final var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
@@ -180,10 +179,10 @@ public class OpenFeatureClient implements Client {
             var sharedHookContext =
                     new SharedHookContext(key, type, this.getMetadata(), provider.getMetadata(), defaultValue);
 
-            hookSupportData.setHooks(mergedHooks, sharedHookContext, ctx);
+            hookSupport.setHookSupportDataHooks(hookSupportData, mergedHooks, sharedHookContext, ctx);
 
             var evalContext = mergeEvaluationContext(ctx);
-            hookSupportData.setEvaluationContext(evalContext);
+            hookSupport.updateEvaluationContext(hookSupportData, evalContext);
 
             hookSupport.executeBeforeHooks(hookSupportData);
 

@@ -4,7 +4,6 @@ import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Objects;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 import lombok.NonNull;
 import lombok.ToString;
 

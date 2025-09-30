@@ -26,16 +26,18 @@ class HookSupportTest implements HookFixtures {
     void shouldMergeEvaluationContextsOnBeforeHooksCorrectly() {
         Map<String, Value> attributes = new HashMap<>();
         attributes.put("baseKey", new Value("baseValue"));
-        EvaluationContext baseContext = new ImmutableContext(attributes);
+        EvaluationContext baseEvalContext = new ImmutableContext(attributes);
 
         Hook<String> hook1 = mockStringHook();
         Hook<String> hook2 = mockStringHook();
         when(hook1.before(any(), any())).thenReturn(Optional.of(evaluationContextWithValue("bla", "blubber")));
         when(hook2.before(any(), any())).thenReturn(Optional.of(evaluationContextWithValue("foo", "bar")));
 
+        var sharedContext = getBaseHookContextForType(FlagValueType.STRING);
         var hookSupportData = new HookSupportData();
-        hookSupportData.setHooks(
-                Arrays.asList(hook1, hook2), getBaseHookContextForType(FlagValueType.STRING), baseContext);
+        hookSupport.setHookSupportDataHooks(
+                hookSupportData, Arrays.asList(hook1, hook2), sharedContext, baseEvalContext);
+        hookSupport.updateEvaluationContext(hookSupportData, baseEvalContext);
 
         hookSupport.executeBeforeHooks(hookSupportData);
 
@@ -53,8 +55,11 @@ class HookSupportTest implements HookFixtures {
         Hook<?> genericHook = mockGenericHook();
 
         var hookSupportData = new HookSupportData();
-        hookSupportData.setHooks(
-                List.of(genericHook), getBaseHookContextForType(flagValueType), ImmutableContext.EMPTY);
+        hookSupport.setHookSupportDataHooks(
+                hookSupportData,
+                List.of(genericHook),
+                getBaseHookContextForType(flagValueType),
+                ImmutableContext.EMPTY);
 
         callAllHooks(hookSupportData);
 
@@ -70,7 +75,8 @@ class HookSupportTest implements HookFixtures {
     void shouldPassDataAcrossStages(FlagValueType flagValueType) {
         var testHook = new TestHookWithData();
         var hookSupportData = new HookSupportData();
-        hookSupportData.setHooks(List.of(testHook), getBaseHookContextForType(flagValueType), ImmutableContext.EMPTY);
+        hookSupport.setHookSupportDataHooks(
+                hookSupportData, List.of(testHook), getBaseHookContextForType(flagValueType), ImmutableContext.EMPTY);
 
         hookSupport.executeBeforeHooks(hookSupportData);
         assertHookData(testHook, "before");
@@ -95,8 +101,11 @@ class HookSupportTest implements HookFixtures {
         var testHook2 = new TestHookWithData(2);
 
         var hookSupportData = new HookSupportData();
-        hookSupportData.setHooks(
-                List.of(testHook1, testHook2), getBaseHookContextForType(flagValueType), ImmutableContext.EMPTY);
+        hookSupport.setHookSupportDataHooks(
+                hookSupportData,
+                List.of(testHook1, testHook2),
+                getBaseHookContextForType(flagValueType),
+                ImmutableContext.EMPTY);
 
         callAllHooks(hookSupportData);
 

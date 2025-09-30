@@ -1,7 +1,5 @@
 package dev.openfeature.sdk;
 
-import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
-import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
