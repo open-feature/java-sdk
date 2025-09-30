@@ -217,11 +217,11 @@ public class OpenFeatureClient implements Client {
             }
             details.setErrorMessage(e.getMessage());
             enrichDetailsWithErrorDefaults(defaultValue, details);
-            if (hookSupportData.getHooks() != null && hookSupportData.getHints() != null) {
+            if (hookSupportData.getHooks() != null) {
                 hookSupport.executeErrorHooks(hookSupportData, e);
             }
         } finally {
-            if (hookSupportData.getHooks() != null && hookSupportData.getHints() != null) {
+            if (hookSupportData.getHooks() != null) {
                 hookSupport.executeAfterAllHooks(hookSupportData, details);
             }
         }
