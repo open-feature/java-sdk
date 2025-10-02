@@ -111,13 +111,14 @@ class OpenFeatureClientTest implements HookFixtures {
     @ValueSource(booleans = {true, false})
     @DisplayName("Should support usage of HookData with/without error")
     void shouldSupportUsageOfHookData(boolean isError) {
-        FeatureProvider provider = new TestEventsProvider(5000);
         OpenFeatureAPI api = new OpenFeatureAPI();
+        FeatureProvider provider;
         if (isError) {
-            api.setProvider("shouldSupportUsageOfHookData", provider);
+            provider = new AlwaysBrokenWithExceptionProvider();
         } else {
-            api.setProviderAndWait("shouldSupportUsageOfHookData", provider);
+            provider = new DoSomethingProvider();
         }
+        api.setProviderAndWait("shouldSupportUsageOfHookData", provider);
 
         var testHook = new TestHookWithData("test-data");
         api.addHooks(testHook);

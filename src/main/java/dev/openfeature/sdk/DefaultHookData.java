@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Default implementation of HookData.
  */
-class DefaultHookData implements HookData {
+public class DefaultHookData implements HookData {
     private Map<String, Object> data;
 
     @Override
