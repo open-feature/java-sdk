@@ -42,8 +42,7 @@ class HookSupport {
         for (int i = 0; i < hookSupportData.hooks.size(); i++) {
             Pair<Hook, HookContext> hookContextPair = hookSupportData.hooks.get(i);
             HookContext curHookContext = sharedContext.hookContextFor(null, new DefaultHookData());
-            Pair<Hook, HookContext> updatedPair = Pair.of(hookContextPair.getKey(), curHookContext);
-            hookSupportData.hooks.set(i, updatedPair);
+            hookContextPair.setValue(curHookContext);
         }
     }
 

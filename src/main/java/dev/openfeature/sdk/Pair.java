@@ -1,11 +1,14 @@
 package dev.openfeature.sdk;
 
+import lombok.Setter;
 import lombok.ToString;
 
 @ToString
 class Pair<K, V> {
     private final K key;
-    private final V value;
+
+    @Setter
+    private V value;
 
     private Pair(K key, V value) {
         this.key = key;

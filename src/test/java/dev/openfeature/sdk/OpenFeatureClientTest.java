@@ -16,6 +16,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.simplify4u.slf4jmock.LoggerMock;
 import org.slf4j.Logger;
@@ -103,5 +105,34 @@ class OpenFeatureClientTest implements HookFixtures {
         FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);
 
         assertThat(details.getErrorCode()).isEqualTo(ErrorCode.PROVIDER_NOT_READY);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    @DisplayName("Should support usage of HookData with/without error")
+    void shouldSupportUsageOfHookData(boolean isError) {
+        FeatureProvider provider = new TestEventsProvider(5000);
+        OpenFeatureAPI api = new OpenFeatureAPI();
+        if (isError) {
+            api.setProvider("shouldSupportUsageOfHookData", provider);
+        } else {
+            api.setProviderAndWait("shouldSupportUsageOfHookData", provider);
+        }
+
+        var testHook = new TestHookWithData("test-data");
+        api.addHooks(testHook);
+
+        Client client = api.getClient("shouldSupportUsageOfHookData");
+        client.getBooleanDetails("key", true);
+
+        assertThat(testHook.hookData.get("before")).isEqualTo("test-data");
+        assertThat(testHook.hookData.get("finallyAfter")).isEqualTo("test-data");
+        if (isError) {
+            assertThat(testHook.hookData.get("after")).isEqualTo(null);
+            assertThat(testHook.hookData.get("error")).isEqualTo("test-data");
+        } else {
+            assertThat(testHook.hookData.get("after")).isEqualTo("test-data");
+            assertThat(testHook.hookData.get("error")).isEqualTo(null);
+        }
     }
 }
