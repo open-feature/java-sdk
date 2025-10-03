@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -800,5 +801,29 @@ class HookSpecTest implements HookFixtures {
         assertThatCode(() ->
                         Hook.class.getMethod("finallyAfter", HookContext.class, FlagEvaluationDetails.class, Map.class))
                 .doesNotThrowAnyException();
+    }
+
+    @Specification(
+            number = "4.6.1",
+            text = "hook data MUST be a structure supporting the definition of arbitrary "
+                    + "properties, with keys of type string, and values of any type.")
+    @Test
+    void hook_data_structure() {
+        // Arrange
+        HookData hookData = new DefaultHookData();
+
+        // Act - Add arbitrary properties to hook data
+        hookData.set("stringKey", "StringValue"); // String value
+        hookData.set("intKey", 42); // Integer value
+        hookData.set("doubleKey", 3.14); // Double value
+        hookData.set("objectKey", new Object()); // Object value
+        hookData.set("nullKey", null); // Null value
+
+        // Assert - Retrieve and validate the properties
+        assertEquals("StringValue", hookData.get("stringKey"));
+        assertEquals(42, hookData.get("intKey"));
+        assertEquals(3.14, hookData.get("doubleKey"));
+        assertNotNull(hookData.get("objectKey"));
+        assertNull(hookData.get("nullKey"));
     }
 }
