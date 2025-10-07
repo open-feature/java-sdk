@@ -5,7 +5,7 @@
 
     <groupId>dev.openfeature</groupId>
     <artifactId>sdk</artifactId>
-    <version>1.18.1</version> <!--x-release-please-version -->
+    <version>1.18.2</version> <!--x-release-please-version -->
 
     <properties>
         <toolchain.jdk.version>[17,)</toolchain.jdk.version>
@@ -235,7 +235,7 @@
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>
-                <version>7.29.0</version>
+                <version>7.30.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -243,7 +243,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.13.4</version>
+                <version>6.0.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -370,7 +370,7 @@
                     </plugin>
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>
-                        <version>3.8.1</version>
+                        <version>3.9.0</version>
                         <executions>
                             <execution>
                                 <phase>verify</phase>
@@ -669,7 +669,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>3.5.1</version>
+                        <version>3.6.1</version>
                         <executions>
                             <execution>
                                 <id>update-test-harness-submodule</id>
