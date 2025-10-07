@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @EqualsAndHashCode
 public class ImmutableMetadata {
+    public static final ImmutableMetadata EMPTY = new ImmutableMetadata(Collections.emptyMap());
+
     private final Map<String, Object> metadata;
 
     private ImmutableMetadata(Map<String, Object> metadata) {

@@ -10,7 +10,7 @@ import static org.mockito.Mockito.never;
 
 import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.testutils.TestEventsProvider;
+import dev.openfeature.sdk.testutils.testProvider.TestProvider;
 import java.util.HashMap;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,10 +42,11 @@ class OpenFeatureClientTest implements HookFixtures {
     void shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext() {
         OpenFeatureAPI api = new OpenFeatureAPI();
         api.setProviderAndWait(
-                "shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext", new DoSomethingProvider());
+                "shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext",
+                TestProvider.builder().initsToReady());
         Client client = api.getClient("shouldNotThrowExceptionIfHookHasDifferentTypeArgumentThanHookContext");
         client.addHooks(mockBooleanHook(), mockStringHook());
-        FlagEvaluationDetails<Boolean> actual = client.getBooleanDetails("feature key", Boolean.FALSE);
+        FlagEvaluationDetails<Boolean> actual = client.getBooleanDetails("feature key", Boolean.TRUE);
 
         assertThat(actual.getValue()).isTrue();
         // I dislike this, but given the mocking tools available, there's no way that I know of to say "no errors were
@@ -83,7 +84,7 @@ class OpenFeatureClientTest implements HookFixtures {
     @Test
     @DisplayName("Should not call evaluation methods when the provider has state FATAL")
     void shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState() {
-        FeatureProvider provider = new TestEventsProvider(100, true, "fake fatal", true);
+        var provider = TestProvider.builder().initWaitsFor(100).initsToFatal();
         OpenFeatureAPI api = new OpenFeatureAPI();
         Client client = api.getClient("shouldNotCallEvaluationMethodsWhenProviderIsInFatalErrorState");
 
@@ -98,13 +99,15 @@ class OpenFeatureClientTest implements HookFixtures {
     @Test
     @DisplayName("Should not call evaluation methods when the provider has state NOT_READY")
     void shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState() {
-        FeatureProvider provider = new TestEventsProvider(5000);
+        var awaitable = new Awaitable();
+        var provider = TestProvider.builder().initWaitsFor(awaitable).initsToReady();
         OpenFeatureAPI api = new OpenFeatureAPI();
         api.setProvider("shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState", provider);
         Client client = api.getClient("shouldNotCallEvaluationMethodsWhenProviderIsInNotReadyState");
         FlagEvaluationDetails<Boolean> details = client.getBooleanDetails("key", true);
 
         assertThat(details.getErrorCode()).isEqualTo(ErrorCode.PROVIDER_NOT_READY);
+        awaitable.wakeup();
     }
 
     @ParameterizedTest
@@ -112,13 +115,9 @@ class OpenFeatureClientTest implements HookFixtures {
     @DisplayName("Should support usage of HookData with/without error")
     void shouldSupportUsageOfHookData(boolean isError) {
         OpenFeatureAPI api = new OpenFeatureAPI();
-        FeatureProvider provider;
-        if (isError) {
-            provider = new AlwaysBrokenWithExceptionProvider();
-        } else {
-            provider = new DoSomethingProvider();
-        }
-        api.setProviderAndWait("shouldSupportUsageOfHookData", provider);
+        api.setProviderAndWait(
+                "shouldSupportUsageOfHookData",
+                TestProvider.builder().allowUnknownFlags(!isError).initsToReady());
 
         var testHook = new TestHookWithData("test-data");
         api.addHooks(testHook);
