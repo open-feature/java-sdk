@@ -8,9 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import dev.openfeature.sdk.providers.memory.InMemoryProvider;
-import dev.openfeature.sdk.testutils.TestEventsProvider;
-import java.util.Collections;
+import dev.openfeature.sdk.testutils.testProvider.TestProvider;
 import java.util.HashMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +26,7 @@ class OpenFeatureAPITest {
 
     @Test
     void namedProviderTest() {
-        FeatureProvider provider = new NoOpProvider();
+        var provider = TestProvider.builder().initsToReady();
         api.setProviderAndWait("namedProviderTest", provider);
 
         assertThat(provider.getMetadata().getName())
@@ -42,18 +40,19 @@ class OpenFeatureAPITest {
     @Test
     void namedProviderOverwrittenTest() {
         String domain = "namedProviderOverwrittenTest";
-        FeatureProvider provider1 = new NoOpProvider();
-        FeatureProvider provider2 = new DoSomethingProvider();
+        var provider1 = TestProvider.builder().withName("provider1").initsToReady();
+        var provider2 = TestProvider.builder().withName("provider2").initsToReady();
         api.setProviderAndWait(domain, provider1);
         api.setProviderAndWait(domain, provider2);
 
-        assertThat(api.getProvider(domain).getMetadata().getName()).isEqualTo(DoSomethingProvider.name);
+        assertThat(api.getProvider(domain).getMetadata().getName())
+                .isEqualTo(provider2.getMetadata().getName());
     }
 
     @Test
     void providerToMultipleNames() throws Exception {
-        FeatureProvider inMemAsEventingProvider = new InMemoryProvider(Collections.EMPTY_MAP);
-        FeatureProvider noOpAsNonEventingProvider = new NoOpProvider();
+        var inMemAsEventingProvider = TestProvider.builder().initsToReady();
+        var noOpAsNonEventingProvider = TestProvider.builder().initsToReady();
 
         // register same provider for multiple names & as default provider
         api.setProviderAndWait(inMemAsEventingProvider);
@@ -95,8 +94,8 @@ class OpenFeatureAPITest {
     @Test
     void getStateReturnsTheStateOfTheAppropriateProvider() throws Exception {
         String domain = "namedProviderOverwrittenTest";
-        FeatureProvider provider1 = new NoOpProvider();
-        FeatureProvider provider2 = new TestEventsProvider();
+        var provider1 = TestProvider.builder().initsToReady();
+        var provider2 = TestProvider.builder().initsToReady();
         api.setProviderAndWait(domain, provider1);
         api.setProviderAndWait(domain, provider2);
 

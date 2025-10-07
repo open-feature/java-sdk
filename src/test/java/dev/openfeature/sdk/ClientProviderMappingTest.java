@@ -2,6 +2,7 @@ package dev.openfeature.sdk;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import dev.openfeature.sdk.testutils.testProvider.TestProvider;
 import org.junit.jupiter.api.Test;
 
 class ClientProviderMappingTest {
@@ -10,13 +11,19 @@ class ClientProviderMappingTest {
     void clientProviderTest() {
         OpenFeatureAPI api = new OpenFeatureAPI();
 
-        api.setProviderAndWait("client1", new DoSomethingProvider());
-        api.setProviderAndWait("client2", new NoOpProvider());
+        var provider1 = TestProvider.builder().initsToReady();
+        var provider2 = TestProvider.builder().initsToReady();
+
+        api.setProviderAndWait("client1", provider1);
+        api.setProviderAndWait("client2", provider2);
 
         Client c1 = api.getClient("client1");
         Client c2 = api.getClient("client2");
 
-        assertTrue(c1.getBooleanValue("test", false));
-        assertFalse(c2.getBooleanValue("test", false));
+        c1.getBooleanValue("test", false);
+        c2.getBooleanValue("test", false);
+
+        assertEquals(1, provider1.getFlagEvaluations().size());
+        assertEquals(1, provider2.getFlagEvaluations().size());
     }
 }

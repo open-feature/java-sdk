@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.testutils.TestEventsProvider;
+import dev.openfeature.sdk.testutils.testProvider.TestProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -176,7 +176,7 @@ class HookSpecTest implements HookFixtures {
     @Test
     void before_runs_ahead_of_evaluation() {
 
-        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
+        api.setProviderAndWait(TestProvider.builder().withExceptionOnFlagEvaluation());
         Client client = api.getClient();
         Hook<Boolean> evalHook = mockBooleanHook();
 
@@ -261,39 +261,41 @@ class HookSpecTest implements HookFixtures {
     void hook_eval_order() {
         List<String> evalOrder = new ArrayList<>();
 
-        api.setProviderAndWait("evalOrder", new TestEventsProvider() {
-            public List<Hook> getProviderHooks() {
-                return Collections.singletonList(new BooleanHook() {
+        api.setProviderAndWait(
+                "evalOrder",
+                TestProvider.builder()
+                        .withHook(new BooleanHook() {
 
-                    @Override
-                    public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
-                        evalOrder.add("provider before");
-                        return null;
-                    }
+                            @Override
+                            public Optional<EvaluationContext> before(
+                                    HookContext<Boolean> ctx, Map<String, Object> hints) {
+                                evalOrder.add("provider before");
+                                return null;
+                            }
 
-                    @Override
-                    public void after(
-                            HookContext<Boolean> ctx,
-                            FlagEvaluationDetails<Boolean> details,
-                            Map<String, Object> hints) {
-                        evalOrder.add("provider after");
-                    }
+                            @Override
+                            public void after(
+                                    HookContext<Boolean> ctx,
+                                    FlagEvaluationDetails<Boolean> details,
+                                    Map<String, Object> hints) {
+                                evalOrder.add("provider after");
+                            }
 
-                    @Override
-                    public void error(HookContext<Boolean> ctx, Exception error, Map<String, Object> hints) {
-                        evalOrder.add("provider error");
-                    }
+                            @Override
+                            public void error(HookContext<Boolean> ctx, Exception error, Map<String, Object> hints) {
+                                evalOrder.add("provider error");
+                            }
 
-                    @Override
-                    public void finallyAfter(
-                            HookContext<Boolean> ctx,
-                            FlagEvaluationDetails<Boolean> details,
-                            Map<String, Object> hints) {
-                        evalOrder.add("provider finally");
-                    }
-                });
-            }
-        });
+                            @Override
+                            public void finallyAfter(
+                                    HookContext<Boolean> ctx,
+                                    FlagEvaluationDetails<Boolean> details,
+                                    Map<String, Object> hints) {
+                                evalOrder.add("provider finally");
+                            }
+                        })
+                        .allowUnknownFlags()
+                        .initsToReady());
         api.addHooks(new BooleanHook() {
             @Override
             public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
@@ -412,7 +414,7 @@ class HookSpecTest implements HookFixtures {
         doThrow(RuntimeException.class).when(h).before(any(), any());
         Hook<Boolean> h2 = mockBooleanHook();
 
-        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
+        api.setProviderAndWait(TestProvider.builder().withExceptionOnFlagEvaluation());
         Client c = api.getClient();
 
         c.getBooleanDetails(
@@ -435,7 +437,7 @@ class HookSpecTest implements HookFixtures {
         doThrow(RuntimeException.class).when(h).after(any(), any(), any());
         Hook<Boolean> h2 = mockBooleanHook();
 
-        Client c = getClient(TestEventsProvider.newInitializedTestEventsProvider());
+        Client c = getClient(TestProvider.builder().allowUnknownFlags().initsToReady());
 
         c.getBooleanDetails(
                 "key",
@@ -540,7 +542,7 @@ class HookSpecTest implements HookFixtures {
     void error_hooks__before() {
         Hook hook = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).before(any(), any());
-        Client client = getClient(TestEventsProvider.newInitializedTestEventsProvider());
+        Client client = getClient(TestProvider.builder().initsToReady());
         Boolean value = client.getBooleanValue(
                 "key",
                 false,
@@ -558,7 +560,7 @@ class HookSpecTest implements HookFixtures {
     void error_hooks__after() {
         Hook hook = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).after(any(), any(), any());
-        Client client = getClient(TestEventsProvider.newInitializedTestEventsProvider());
+        Client client = getClient(TestProvider.builder().allowUnknownFlags().initsToReady());
         client.getBooleanValue(
                 "key",
                 false,
@@ -573,7 +575,7 @@ class HookSpecTest implements HookFixtures {
         Hook hook = mockBooleanHook();
         doThrow(RuntimeException.class).when(hook).after(any(), any(), any());
         String flagKey = "test-flag-key";
-        Client client = getClient(TestEventsProvider.newInitializedTestEventsProvider());
+        Client client = getClient(TestProvider.builder().allowUnknownFlags().initsToReady());
         client.getBooleanValue(
                 flagKey,
                 true,
@@ -598,7 +600,7 @@ class HookSpecTest implements HookFixtures {
     @Test
     void shortCircuit_flagResolution_runsHooksWithAllFields() {
         String domain = "shortCircuit_flagResolution_setsAppropriateFieldsInFlagEvaluationDetails";
-        api.setProvider(domain, new FatalErrorProvider());
+        api.setProvider(domain, TestProvider.builder().initsToFatal());
 
         Hook hook = mockBooleanHook();
         String flagKey = "test-flag-key";
@@ -618,7 +620,7 @@ class HookSpecTest implements HookFixtures {
     void successful_flagResolution_setsAppropriateFieldsInFlagEvaluationDetails() {
         Hook hook = mockBooleanHook();
         String flagKey = "test-flag-key";
-        Client client = getClient(TestEventsProvider.newInitializedTestEventsProvider());
+        Client client = getClient(TestProvider.builder().allowUnknownFlags().initsToReady());
         client.getBooleanValue(
                 flagKey,
                 true,
@@ -631,7 +633,7 @@ class HookSpecTest implements HookFixtures {
         FlagEvaluationDetails<Boolean> evaluationDetails = captor.getValue();
         assertThat(evaluationDetails).isNotNull();
         assertThat(evaluationDetails.getErrorCode()).isNull();
-        assertThat(evaluationDetails.getReason()).isEqualTo("DEFAULT");
+        assertThat(evaluationDetails.getReason()).isEqualTo(Reason.STATIC.name());
         assertThat(evaluationDetails.getVariant()).isEqualTo("Passed in default");
         assertThat(evaluationDetails.getFlagKey()).isEqualTo(flagKey);
         assertThat(evaluationDetails.getFlagMetadata())
@@ -779,7 +781,7 @@ class HookSpecTest implements HookFixtures {
 
     private Client getClient(FeatureProvider provider) {
         if (provider == null) {
-            api.setProviderAndWait(TestEventsProvider.newInitializedTestEventsProvider());
+            api.setProviderAndWait(TestProvider.builder().initsToReady());
         } else {
             api.setProviderAndWait(provider);
         }
