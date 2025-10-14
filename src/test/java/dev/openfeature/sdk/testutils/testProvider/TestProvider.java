@@ -292,12 +292,14 @@ public class TestProvider extends EventProvider {
 
         @Override
         public WithFlags errorsOnFlagEvaluation(ErrorCode errorCode) {
+            this.errorsOnFlagEvaluation = true;
             this.errorCode = errorCode;
             return this;
         }
 
         @Override
         public WithFlags errorsOnFlagEvaluation(ErrorCode errorCode, String errorMessage) {
+            this.errorsOnFlagEvaluation = true;
             this.errorCode = errorCode;
             this.errorMessage = errorMessage;
             return this;
