@@ -106,12 +106,7 @@ public class TestProvider extends EventProvider {
     }
 
     private <T> ProviderEvaluation<T> getEvaluation(
-            String key,
-            T defaultValue,
-            FlagValueType flagType,
-            Class<T> clazz,
-            EvaluationContext evaluationContext
-    ) {
+            String key, T defaultValue, FlagValueType flagType, Class<T> clazz, EvaluationContext evaluationContext) {
         flagEvaluations.add(new FlagEvaluation(key, flagType, evaluationContext));
         if (throwable != null) {
             throw throwable;
@@ -393,8 +388,7 @@ public class TestProvider extends EventProvider {
                     errorCode,
                     errorMessage,
                     runtimeException,
-                    fatalOnInit
-            );
+                    fatalOnInit);
         }
     }
 }
