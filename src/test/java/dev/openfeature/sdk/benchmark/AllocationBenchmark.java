@@ -6,14 +6,18 @@ import static dev.openfeature.sdk.testutils.TestFlagsUtils.INT_FLAG_KEY;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.OBJECT_FLAG_KEY;
 import static dev.openfeature.sdk.testutils.TestFlagsUtils.STRING_FLAG_KEY;
 
+import dev.openfeature.sdk.BooleanHook;
 import dev.openfeature.sdk.Client;
+import dev.openfeature.sdk.DoubleHook;
 import dev.openfeature.sdk.EvaluationContext;
-import dev.openfeature.sdk.Hook;
 import dev.openfeature.sdk.HookContext;
 import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.ImmutableStructure;
+import dev.openfeature.sdk.IntegerHook;
 import dev.openfeature.sdk.NoOpProvider;
+import dev.openfeature.sdk.ObjectHook;
 import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.StringHook;
 import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.Value;
 import java.util.HashMap;
@@ -26,7 +30,7 @@ import org.openjdk.jmh.annotations.Mode;
 
 /**
  * Runs a large volume of flag evaluations on a VM with 1G memory and GC
- * completely disabled so we can take a heap-dump.
+ * completely disabled, so we can take a heap-dump.
  */
 public class AllocationBenchmark {
 
@@ -49,9 +53,33 @@ public class AllocationBenchmark {
         Map<String, Value> clientAttrs = new HashMap<>();
         clientAttrs.put("client", new Value(2));
         client.setEvaluationContext(new ImmutableContext(clientAttrs));
-        client.addHooks(new Hook<Object>() {
+        client.addHooks(new ObjectHook() {
             @Override
             public Optional<EvaluationContext> before(HookContext<Object> ctx, Map<String, Object> hints) {
+                return Optional.ofNullable(new ImmutableContext());
+            }
+        });
+        client.addHooks(new StringHook() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<String> ctx, Map<String, Object> hints) {
+                return Optional.ofNullable(new ImmutableContext());
+            }
+        });
+        client.addHooks(new BooleanHook() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<Boolean> ctx, Map<String, Object> hints) {
+                return Optional.ofNullable(new ImmutableContext());
+            }
+        });
+        client.addHooks(new IntegerHook() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<Integer> ctx, Map<String, Object> hints) {
+                return Optional.ofNullable(new ImmutableContext());
+            }
+        });
+        client.addHooks(new DoubleHook() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<Double> ctx, Map<String, Object> hints) {
                 return Optional.ofNullable(new ImmutableContext());
             }
         });
