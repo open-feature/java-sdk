@@ -23,6 +23,7 @@ import dev.openfeature.sdk.Value;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -37,9 +38,9 @@ public class AllocationBenchmark {
     // 10K iterations works well with Xmx1024m (we don't want to run out of memory)
     private static final int ITERATIONS = 10000;
 
-    //@Benchmark
-    //@BenchmarkMode(Mode.SingleShotTime)
-    //@Fork(jvmArgsAppend = {"-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
+    // @Benchmark
+    // @BenchmarkMode(Mode.SingleShotTime)
+    // @Fork(jvmArgsAppend = {"-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
     public void run() {
 
         OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
@@ -100,6 +101,7 @@ public class AllocationBenchmark {
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
     @Fork(jvmArgsAppend = {"-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
+    @Test
     public void context() {
 
         OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
