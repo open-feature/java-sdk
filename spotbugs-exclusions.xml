@@ -49,7 +49,6 @@
 
     <!-- Test class that should be excluded -->
     <Match>
-        <Class name="dev.openfeature.sdk.DoSomethingProvider"/>
     </Match>
     <!-- All bugs in test classes, except for JUnit-specific bugs -->
     <Match>

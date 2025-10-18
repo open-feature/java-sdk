@@ -1,15 +1,24 @@
 package dev.openfeature.sdk;
 
-import static dev.openfeature.sdk.DoSomethingProvider.DEFAULT_METADATA;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import dev.openfeature.sdk.e2e.Flag;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.testutils.TestEventsProvider;
+import dev.openfeature.sdk.testutils.testProvider.TestProvider;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +43,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
     @SneakyThrows
     private Client _initializedClient() {
-        TestEventsProvider provider = new TestEventsProvider();
+        var provider = TestProvider.builder().initsToReady();
         provider.initialize(null);
         api.setProviderAndWait(provider);
         return api.getClient();
@@ -74,12 +83,12 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "The API SHOULD provide functions to set a provider and wait for the initialize function to return or throw.")
     @Test
     void providerAndWait() {
-        FeatureProvider provider = new TestEventsProvider(500);
+        var provider = TestProvider.builder().initWaitsFor(500).initsToReady();
         api.setProviderAndWait(provider);
         Client client = api.getClient();
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
 
-        provider = new TestEventsProvider(500);
+        provider = TestProvider.builder().initWaitsFor(500).initsToReady();
         String providerName = "providerAndWait";
         api.setProviderAndWait(providerName, provider);
         Client client2 = api.getClient(providerName);
@@ -93,10 +102,10 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "The API SHOULD provide functions to set a provider and wait for the initialize function to return or throw.")
     @Test
     void providerAndWaitError() {
-        FeatureProvider provider1 = new TestEventsProvider(500, true, "fake error");
+        var provider1 = TestProvider.builder().initWaitsFor(500).initsToError();
         assertThrows(GeneralError.class, () -> api.setProviderAndWait(provider1));
 
-        FeatureProvider provider2 = new TestEventsProvider(500, true, "fake error");
+        var provider2 = TestProvider.builder().initWaitsFor(500).initsToError();
         String providerName = "providerAndWaitError";
         assertThrows(GeneralError.class, () -> api.setProviderAndWait(providerName, provider2));
     }
@@ -107,7 +116,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "The provider SHOULD indicate an error if flag resolution is attempted before the provider is ready.")
     @Test
     void shouldReturnNotReadyIfNotInitialized() {
-        FeatureProvider provider = new TestEventsProvider(100);
+        var provider = TestProvider.builder().initWaitsFor(500).initsToReady();
         String providerName = "shouldReturnNotReadyIfNotInitialized";
         api.setProvider(providerName, provider);
         Client client = api.getClient(providerName);
@@ -121,8 +130,9 @@ class FlagEvaluationSpecTest implements HookFixtures {
             text = "The API MUST provide a function for retrieving the metadata field of the configured provider.")
     @Test
     void provider_metadata() {
-        api.setProviderAndWait(new DoSomethingProvider());
-        assertThat(api.getProviderMetadata().getName()).isEqualTo(DoSomethingProvider.name);
+        var name = "name";
+        api.setProviderAndWait(TestProvider.builder().withName(name).initsToReady());
+        assertThat(api.getProviderMetadata().getName()).isEqualTo(name);
     }
 
     @Specification(
@@ -183,57 +193,63 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "The client SHOULD provide functions for floating-point numbers and integers, consistent with language idioms.")
     @Test
     void value_flags() {
-        api.setProviderAndWait(new DoSomethingProvider());
+        api.setProviderAndWait(TestProvider.builder()
+                .withFlags(
+                        new Flag(FlagValueType.BOOLEAN.name(), "boolean", true),
+                        new Flag(FlagValueType.STRING.name(), "string", "default"),
+                        new Flag(FlagValueType.INTEGER.name(), "int", 400),
+                        new Flag(FlagValueType.DOUBLE.name(), "double", 40.0),
+                        new Flag(FlagValueType.OBJECT.name(), "obj", new Value()))
+                .initsToReady());
 
         Client c = api.getClient();
-        String key = "key";
 
-        assertEquals(true, c.getBooleanValue(key, false));
-        assertEquals(true, c.getBooleanValue(key, false, new ImmutableContext()));
+        assertEquals(true, c.getBooleanValue("boolean", false));
+        assertEquals(true, c.getBooleanValue("boolean", false, new ImmutableContext()));
         assertEquals(
                 true,
                 c.getBooleanValue(
-                        key,
+                        "boolean",
                         false,
                         new ImmutableContext(),
                         FlagEvaluationOptions.builder().build()));
 
-        assertEquals("gnirts-ym", c.getStringValue(key, "my-string"));
-        assertEquals("gnirts-ym", c.getStringValue(key, "my-string", new ImmutableContext()));
+        assertEquals("default", c.getStringValue("string", "my-string"));
+        assertEquals("default", c.getStringValue("string", "my-string", new ImmutableContext()));
         assertEquals(
-                "gnirts-ym",
+                "default",
                 c.getStringValue(
-                        key,
+                        "string",
                         "my-string",
                         new ImmutableContext(),
                         FlagEvaluationOptions.builder().build()));
 
-        assertEquals(400, c.getIntegerValue(key, 4));
-        assertEquals(400, c.getIntegerValue(key, 4, new ImmutableContext()));
+        assertEquals(400, c.getIntegerValue("int", 3));
+        assertEquals(400, c.getIntegerValue("int", 3, new ImmutableContext()));
         assertEquals(
                 400,
                 c.getIntegerValue(
-                        key,
+                        "int",
                         4,
                         new ImmutableContext(),
                         FlagEvaluationOptions.builder().build()));
 
-        assertEquals(40.0, c.getDoubleValue(key, .4));
-        assertEquals(40.0, c.getDoubleValue(key, .4, new ImmutableContext()));
+        assertEquals(40.0, c.getDoubleValue("double", .4));
+        assertEquals(40.0, c.getDoubleValue("double", .4, new ImmutableContext()));
         assertEquals(
                 40.0,
                 c.getDoubleValue(
-                        key,
+                        "double",
                         .4,
                         new ImmutableContext(),
                         FlagEvaluationOptions.builder().build()));
 
-        assertEquals(null, c.getObjectValue(key, new Value()));
-        assertEquals(null, c.getObjectValue(key, new Value(), new ImmutableContext()));
+        assertEquals(new Value(), c.getObjectValue("obj", new Value()));
+        assertEquals(new Value(), c.getObjectValue("obj", new Value(), new ImmutableContext()));
         assertEquals(
-                null,
+                new Value(),
                 c.getObjectValue(
-                        key,
+                        "obj",
                         new Value(),
                         new ImmutableContext(),
                         FlagEvaluationOptions.builder().build()));
@@ -264,68 +280,80 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "In cases of normal execution, the `evaluation details` structure's `reason` field MUST contain the value of the `reason` field in the `flag resolution` structure returned by the configured `provider`, if the field is set.")
     @Test
     void detail_flags() {
-        api.setProviderAndWait(new DoSomethingProvider());
+        api.setProviderAndWait(TestProvider.builder()
+                .withFlags(
+                        new Flag(FlagValueType.BOOLEAN.name(), "boolean", true),
+                        new Flag(FlagValueType.STRING.name(), "string", "default"),
+                        new Flag(FlagValueType.INTEGER.name(), "int", 400),
+                        new Flag(FlagValueType.DOUBLE.name(), "double", 40.0),
+                        new Flag(FlagValueType.OBJECT.name(), "obj", new Value()))
+                .initsToReady());
         Client c = api.getClient();
-        String key = "key";
 
         FlagEvaluationDetails<Boolean> bd = FlagEvaluationDetails.<Boolean>builder()
-                .flagKey(key)
-                .value(false)
-                .variant(null)
-                .flagMetadata(DEFAULT_METADATA)
+                .flagKey("boolean")
+                .value(true)
+                .variant(TestProvider.DEFAULT_VARIANT)
+                .flagMetadata(ImmutableMetadata.EMPTY)
+                .reason(Reason.STATIC.name())
                 .build();
-        assertEquals(bd, c.getBooleanDetails(key, true));
-        assertEquals(bd, c.getBooleanDetails(key, true, new ImmutableContext()));
+        assertEquals(bd, c.getBooleanDetails("boolean", false));
+        assertEquals(bd, c.getBooleanDetails("boolean", false, new ImmutableContext()));
         assertEquals(
                 bd,
                 c.getBooleanDetails(
-                        key,
-                        true,
+                        "boolean",
+                        false,
                         new ImmutableContext(),
                         FlagEvaluationOptions.builder().build()));
 
         FlagEvaluationDetails<String> sd = FlagEvaluationDetails.<String>builder()
-                .flagKey(key)
-                .value("tset")
-                .variant(null)
-                .flagMetadata(DEFAULT_METADATA)
+                .flagKey("string")
+                .value("default")
+                .variant(TestProvider.DEFAULT_VARIANT)
+                .flagMetadata(ImmutableMetadata.EMPTY)
+                .reason(Reason.STATIC.name())
                 .build();
-        assertEquals(sd, c.getStringDetails(key, "test"));
-        assertEquals(sd, c.getStringDetails(key, "test", new ImmutableContext()));
+        assertEquals(sd, c.getStringDetails("string", "test"));
+        assertEquals(sd, c.getStringDetails("string", "test", new ImmutableContext()));
         assertEquals(
                 sd,
                 c.getStringDetails(
-                        key,
+                        "string",
                         "test",
                         new ImmutableContext(),
                         FlagEvaluationOptions.builder().build()));
 
         FlagEvaluationDetails<Integer> id = FlagEvaluationDetails.<Integer>builder()
-                .flagKey(key)
+                .flagKey("int")
                 .value(400)
-                .flagMetadata(DEFAULT_METADATA)
+                .flagMetadata(ImmutableMetadata.EMPTY)
+                .reason(Reason.STATIC.name())
+                .variant(TestProvider.DEFAULT_VARIANT)
                 .build();
-        assertEquals(id, c.getIntegerDetails(key, 4));
-        assertEquals(id, c.getIntegerDetails(key, 4, new ImmutableContext()));
+        assertEquals(id, c.getIntegerDetails("int", 4));
+        assertEquals(id, c.getIntegerDetails("int", 4, new ImmutableContext()));
         assertEquals(
                 id,
                 c.getIntegerDetails(
-                        key,
+                        "int",
                         4,
                         new ImmutableContext(),
                         FlagEvaluationOptions.builder().build()));
 
         FlagEvaluationDetails<Double> dd = FlagEvaluationDetails.<Double>builder()
-                .flagKey(key)
+                .flagKey("double")
                 .value(40.0)
-                .flagMetadata(DEFAULT_METADATA)
+                .flagMetadata(ImmutableMetadata.EMPTY)
+                .reason(Reason.STATIC.name())
+                .variant(TestProvider.DEFAULT_VARIANT)
                 .build();
-        assertEquals(dd, c.getDoubleDetails(key, .4));
-        assertEquals(dd, c.getDoubleDetails(key, .4, new ImmutableContext()));
+        assertEquals(dd, c.getDoubleDetails("double", .4));
+        assertEquals(dd, c.getDoubleDetails("double", .4, new ImmutableContext()));
         assertEquals(
                 dd,
                 c.getDoubleDetails(
-                        key,
+                        "double",
                         .4,
                         new ImmutableContext(),
                         FlagEvaluationOptions.builder().build()));
@@ -371,7 +399,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
     @Test
     void broken_provider() {
-        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
+        api.setProviderAndWait(TestProvider.builder().withExceptionOnFlagEvaluation());
         Client c = api.getClient();
         boolean defaultValue = false;
         assertFalse(c.getBooleanValue("key", defaultValue));
@@ -400,7 +428,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "In cases of abnormal execution, the `evaluation details` structure's `error message` field **MAY** contain a string containing additional details about the nature of the error.")
     @Test
     void broken_provider_withDetails() throws InterruptedException {
-        api.setProviderAndWait(new AlwaysBrokenWithDetailsProvider());
+        api.setProviderAndWait(TestProvider.builder().withExceptionOnFlagEvaluation());
         Client c = api.getClient();
         boolean defaultValue = false;
         assertFalse(c.getBooleanValue("key", defaultValue));
@@ -416,7 +444,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
             text = "Methods, functions, or operations on the client SHOULD NOT write log messages.")
     @Test
     void log_on_error() throws NotImplementedException {
-        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
+        api.setProviderAndWait(TestProvider.builder().withExceptionOnFlagEvaluation());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
 
@@ -435,7 +463,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
         assertNull(c.getMetadata().getDomain());
 
         String domainName = "test domain";
-        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
+        api.setProviderAndWait(TestProvider.builder().withExceptionOnFlagEvaluation());
         Client c2 = api.getClient(domainName);
 
         assertEquals(domainName, c2.getMetadata().getName());
@@ -448,7 +476,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "In cases of abnormal execution (network failure, unhandled error, etc) the reason field in the evaluation details SHOULD indicate an error.")
     @Test
     void reason_is_error_when_there_are_errors() {
-        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
+        api.setProviderAndWait(TestProvider.builder().withExceptionOnFlagEvaluation());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
         assertEquals(Reason.ERROR.toString(), result.getReason());
@@ -460,7 +488,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "If the flag metadata field in the flag resolution structure returned by the configured provider is set, the evaluation details structure's flag metadata field MUST contain that value. Otherwise, it MUST contain an empty record.")
     @Test
     void flag_metadata_passed() {
-        api.setProviderAndWait(new DoSomethingProvider(null));
+        api.setProviderAndWait(TestProvider.builder().allowUnknownFlags().initsToReady());
         Client c = api.getClient();
         FlagEvaluationDetails<Boolean> result = c.getBooleanDetails("test", false);
         assertNotNull(result.getFlagMetadata());
@@ -471,7 +499,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
     void api_context() {
         String contextKey = "some-key";
         String contextValue = "some-value";
-        DoSomethingProvider provider = spy(new DoSomethingProvider());
+        var provider = spy(TestProvider.builder().allowUnknownFlags().initsToReady());
         api.setProviderAndWait(provider);
 
         Map<String, Value> attributes = new HashMap<>();
@@ -498,7 +526,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "Evaluation context MUST be merged in the order: API (global; lowest precedence) -> transaction -> client -> invocation -> before hooks (highest precedence), with duplicate values being overwritten.")
     @Test
     void multi_layer_context_merges_correctly() {
-        DoSomethingProvider provider = spy(new DoSomethingProvider());
+        var provider = spy(TestProvider.builder().allowUnknownFlags().initsToReady());
         api.setProviderAndWait(provider);
         TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
         api.setTransactionContextPropagator(transactionContextPropagator);
@@ -686,7 +714,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
             text = "The API SHOULD have a method for setting a transaction context propagator.")
     @Test
     void setting_transaction_context_propagator() {
-        DoSomethingProvider provider = new DoSomethingProvider();
+        var provider = spy(TestProvider.builder().initsToReady());
         api.setProviderAndWait(provider);
 
         TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
@@ -700,7 +728,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                     "The API MUST have a method for setting the evaluation context of the transaction context propagator for the current transaction.")
     @Test
     void setting_transaction_context() {
-        DoSomethingProvider provider = new DoSomethingProvider();
+        var provider = spy(TestProvider.builder().initsToReady());
         api.setProviderAndWait(provider);
 
         TransactionContextPropagator transactionContextPropagator = new ThreadLocalTransactionContextPropagator();
