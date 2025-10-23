@@ -20,6 +20,8 @@
         <skip.tests>false</skip.tests>
         <!-- this will throw an error if we use wrong apis -->
         <maven.compiler.release>11</maven.compiler.release>
+        <org.mockito.jar>${settings.localRepository}/org/mockito/mockito-core/${org.mockito.version}/mockito-core-${org.mockito.version}.jar</org.mockito.jar>
+        <surefireArgLine>-javaagent:${org.mockito.jar}</surefireArgLine>
     </properties>
 
     <name>OpenFeature Java SDK</name>
@@ -300,8 +302,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.4</version>
                 <configuration>
-                    <forkCount>1</forkCount>
-                    <reuseForks>false</reuseForks>
                     <argLine>
                         ${surefireArgLine}
                         --add-opens java.base/java.util=ALL-UNNAMED
