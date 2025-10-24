@@ -21,7 +21,7 @@
         <!-- this will throw an error if we use wrong apis -->
         <maven.compiler.release>11</maven.compiler.release>
         <org.mockito.jar>${settings.localRepository}/org/mockito/mockito-core/${org.mockito.version}/mockito-core-${org.mockito.version}.jar</org.mockito.jar>
-        <surefireArgLine>-javaagent:${org.mockito.jar}</surefireArgLine>
+        <org.mockito.agent.argline>-javaagent:${org.mockito.jar}</org.mockito.agent.argline>
     </properties>
 
     <name>OpenFeature Java SDK</name>
@@ -304,6 +304,7 @@
                 <configuration>
                     <argLine>
                         ${surefireArgLine}
+                        ${org.mockito.agent.argline}
                         --add-opens java.base/java.util=ALL-UNNAMED
                         --add-opens java.base/java.lang=ALL-UNNAMED
                     </argLine>
@@ -321,6 +322,7 @@
                 <configuration>
                     <argLine>
                         ${surefireArgLine}
+                        ${org.mockito.agent.argline}
                     </argLine>
                 </configuration>
             </plugin>
@@ -364,6 +366,7 @@
 						                <include>**/*CT.java</include>
 					                </includes>
                                     <failIfNoTests>true</failIfNoTests>
+                                    <argLine>${org.mockito.agent.argline}</argLine>
                                 </configuration>
                             </execution>
                         </executions>
@@ -740,6 +743,7 @@
                         <version>3.5.4</version>
                         <configuration>
                             <argLine>
+                                ${org.mockito.agent.argline}
                                 ${surefireArgLine}
                             </argLine>
                         </configuration>
