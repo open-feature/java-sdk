@@ -13,7 +13,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <org.mockito.version>5.20.0</org.mockito.version>
-        <com.vmlens.version>1.2.20</com.vmlens.version>
+        <com.vmlens.version>1.2.21</com.vmlens.version>
         <!-- exclusion expression for e2e tests -->
         <testExclusions>**/e2e/*.java</testExclusions>
         <module-name>${project.groupId}.${project.artifactId}</module-name>
