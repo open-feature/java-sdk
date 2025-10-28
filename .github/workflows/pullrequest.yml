@@ -25,14 +25,14 @@ jobs:
           submodules: recursive
 
       - name: Set up JDK ${{ matrix.build.java }}
-        uses: actions/setup-java@ead9eaa3cfe0b0fc2fa749519ae09c3d4f4080b0
+        uses: actions/setup-java@de5a937a1dc73fbc1a67d7d1aa4bebc1082f3190
         with:
             java-version: ${{ matrix.build.java }}
             distribution: 'temurin'
             cache: maven
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@ae78991f558bb4195cb8a727cb6679c362b9cf24
+        uses: github/codeql-action/init@8d77149e0c9e2199ac9cfc90c9e15116f5c69c48
         with:
           languages: java
 
@@ -58,4 +58,4 @@ jobs:
           verbose: true # optional (default = false)
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@ae78991f558bb4195cb8a727cb6679c362b9cf24
+        uses: github/codeql-action/analyze@8d77149e0c9e2199ac9cfc90c9e15116f5c69c48
