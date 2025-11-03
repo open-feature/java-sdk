@@ -2,6 +2,7 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import dev.openfeature.sdk.internal.ConfigurableThreadFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,11 +23,8 @@ class ProviderRepository {
     private final Map<String, FeatureProviderStateManager> stateManagers = new ConcurrentHashMap<>();
     private final AtomicReference<FeatureProviderStateManager> defaultStateManger =
             new AtomicReference<>(new FeatureProviderStateManager(new NoOpProvider()));
-    private final ExecutorService taskExecutor = Executors.newCachedThreadPool(runnable -> {
-        final Thread thread = new Thread(runnable);
-        thread.setDaemon(true);
-        return thread;
-    });
+    private final ExecutorService taskExecutor =
+            Executors.newCachedThreadPool(new ConfigurableThreadFactory("openfeature-provider-thread", true));
     private final Object registerStateManagerLock = new Object();
     private final OpenFeatureAPI openFeatureAPI;
 
