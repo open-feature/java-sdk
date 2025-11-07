@@ -6,7 +6,7 @@ import dev.openfeature.sdk.fixtures.HookFixtures;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ObjectHookTest implements HookFixtures {
+class ObjectHookTest implements HookFixtures {
 
     private Hook<Object> hook;
 
