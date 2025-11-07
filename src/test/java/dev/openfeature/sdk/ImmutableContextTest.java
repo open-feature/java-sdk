@@ -135,6 +135,19 @@ class ImmutableContextTest {
         assertArrayEquals(new Object[] {"key1_1"}, value.keySet().toArray());
     }
 
+    @DisplayName("Merge should obtain keys from the overriding context when the existing context is empty")
+    @Test
+    void mergeShouldObtainKeysFromOverridingContextWhenExistingContextIsEmpty() {
+        HashMap<String, Value> attributes = new HashMap<>();
+        attributes.put("key1", new Value("val1"));
+        attributes.put("key2", new Value("val2"));
+
+        EvaluationContext ctx = new ImmutableContext();
+        EvaluationContext overriding = new ImmutableContext(attributes);
+        EvaluationContext merge = ctx.merge(overriding);
+        assertArrayEquals(new Object[] {"key1", "key2"}, merge.keySet().toArray());
+    }
+
     @DisplayName("Two different MutableContext objects with the different contents are not considered equal")
     @Test
     void unequalImmutableContextsAreNotEqual() {
