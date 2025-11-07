@@ -6,6 +6,7 @@ import dev.openfeature.sdk.BooleanHook;
 import dev.openfeature.sdk.DoubleHook;
 import dev.openfeature.sdk.Hook;
 import dev.openfeature.sdk.IntegerHook;
+import dev.openfeature.sdk.ObjectHook;
 import dev.openfeature.sdk.StringHook;
 
 public interface HookFixtures {
@@ -24,6 +25,10 @@ public interface HookFixtures {
 
     default Hook<Double> mockDoubleHook() {
         return spy(DoubleHook.class);
+    }
+
+    default Hook<Object> mockObjectHook() {
+        return spy(ObjectHook.class);
     }
 
     default Hook<?> mockGenericHook() {
