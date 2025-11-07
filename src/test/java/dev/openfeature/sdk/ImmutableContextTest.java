@@ -145,7 +145,7 @@ class ImmutableContextTest {
         EvaluationContext ctx = new ImmutableContext();
         EvaluationContext overriding = new ImmutableContext(attributes);
         EvaluationContext merge = ctx.merge(overriding);
-        assertArrayEquals(new Object[] {"key1", "key2"}, merge.keySet().toArray());
+        assertEquals(new java.util.HashSet<>(java.util.Arrays.asList("key1", "key2")), merge.keySet());
     }
 
     @DisplayName("Two different MutableContext objects with the different contents are not considered equal")
