@@ -28,7 +28,7 @@ class EventSupport {
     private final Map<String, HandlerStore> handlerStores = new ConcurrentHashMap<>();
     private final HandlerStore globalHandlerStore = new HandlerStore();
     private final ExecutorService taskExecutor =
-            Executors.newCachedThreadPool(new ConfigurableThreadFactory("openfeature-event-handler-thread"));
+            Executors.newCachedThreadPool(new ConfigurableThreadFactory("openfeature-event-handler-thread", true));
 
     /**
      * Run all the event handlers associated with this domain.

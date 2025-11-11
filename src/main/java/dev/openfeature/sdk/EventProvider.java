@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class EventProvider implements FeatureProvider {
     private EventProviderListener eventProviderListener;
     private final ExecutorService emitterExecutor =
-            Executors.newCachedThreadPool(new ConfigurableThreadFactory("openfeature-event-emitter-thread"));
+            Executors.newCachedThreadPool(new ConfigurableThreadFactory("openfeature-event-emitter-thread", true));
 
     void setEventProviderListener(EventProviderListener eventProviderListener) {
         this.eventProviderListener = eventProviderListener;
