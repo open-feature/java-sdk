@@ -18,16 +18,15 @@ import dev.openfeature.sdk.NoOpProvider;
 import dev.openfeature.sdk.ObjectHook;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.StringHook;
-import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.Value;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.infra.Blackhole;
 
 /**
  * Runs a large volume of flag evaluations on a VM with 1G memory and GC
@@ -99,55 +98,30 @@ public class AllocationBenchmark {
     }
 
     @Benchmark
-    @BenchmarkMode(Mode.SingleShotTime)
+    //@BenchmarkMode(Mode.SingleShotTime)
     @Fork(jvmArgsAppend = {"-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
-    @Test
-    public void context() {
+    //@Test
+    public void context(Blackhole blackhole, AllocationBenchmarkState state) {
+        OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(state.transactionAttr));
 
-        OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
-        OpenFeatureAPI.getInstance().setTransactionContextPropagator(new ThreadLocalTransactionContextPropagator());
+        for (int j = 0; j < 2; j++) {
+            blackhole.consume(state.client.getBooleanValue(BOOLEAN_FLAG_KEY, false));
+            blackhole.consume(state.client.getStringValue(STRING_FLAG_KEY, "default"));
+            blackhole.consume(state.client.getIntegerValue(INT_FLAG_KEY, 0, state.invocationContext));
+            blackhole.consume(state.client.getDoubleValue(FLOAT_FLAG_KEY, 0.0));
+            blackhole.consume(state.client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()),
+                    state.invocationContext));
+        }
 
-        Map<String, Value> globalAttrs = new HashMap<>();
-        globalAttrs.put("global", new Value(1));
-        EvaluationContext globalContext = new ImmutableContext(globalAttrs);
-        OpenFeatureAPI.getInstance().setEvaluationContext(globalContext);
+        OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(state.transactionAttr2));
 
-        Client client = OpenFeatureAPI.getInstance().getClient();
-
-        Map<String, Value> clientAttrs = new HashMap<>();
-        clientAttrs.put("client", new Value(2));
-        client.setEvaluationContext(new ImmutableContext(clientAttrs));
-
-        Map<String, Value> transactionAttr = new HashMap<>();
-        transactionAttr.put("trans", new Value(4));
-
-        Map<String, Value> transactionAttr2 = new HashMap<>();
-        transactionAttr2.put("trans2", new Value(5));
-
-        Map<String, Value> invocationAttrs = new HashMap<>();
-        invocationAttrs.put("invoke", new Value(3));
-        EvaluationContext invocationContext = new ImmutableContext(invocationAttrs);
-
-        for (int i = 0; i < 100; i++) {
-            OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(transactionAttr));
-
-            for (int j = 0; j < 10; j++) {
-                client.getBooleanValue(BOOLEAN_FLAG_KEY, false);
-                client.getStringValue(STRING_FLAG_KEY, "default");
-                client.getIntegerValue(INT_FLAG_KEY, 0);
-                client.getDoubleValue(FLOAT_FLAG_KEY, 0.0);
-                client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), invocationContext);
-            }
-
-            OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(transactionAttr2));
-
-            for (int j = 0; j < 10; j++) {
-                client.getBooleanValue(BOOLEAN_FLAG_KEY, false);
-                client.getStringValue(STRING_FLAG_KEY, "default");
-                client.getIntegerValue(INT_FLAG_KEY, 0);
-                client.getDoubleValue(FLOAT_FLAG_KEY, 0.0);
-                client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), invocationContext);
-            }
+        for (int j = 0; j < 2; j++) {
+            blackhole.consume(state.client.getBooleanValue(BOOLEAN_FLAG_KEY, false));
+            blackhole.consume(state.client.getStringValue(STRING_FLAG_KEY, "default"));
+            blackhole.consume(state.client.getIntegerValue(INT_FLAG_KEY, 0, state.invocationContext));
+            blackhole.consume(state.client.getDoubleValue(FLOAT_FLAG_KEY, 0.0));
+            blackhole.consume(state.client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()),
+                    state.invocationContext));
         }
     }
 }
