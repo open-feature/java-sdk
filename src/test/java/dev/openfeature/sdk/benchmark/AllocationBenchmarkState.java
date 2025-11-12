@@ -7,10 +7,10 @@ import dev.openfeature.sdk.NoOpProvider;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.Value;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
 import java.util.HashMap;
 import java.util.Map;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.State;
 
 @State(Scope.Benchmark)
 public class AllocationBenchmarkState {
@@ -19,7 +19,7 @@ public class AllocationBenchmarkState {
     public final Map<String, Value> transactionAttr2;
     public final EvaluationContext invocationContext;
 
-    public AllocationBenchmarkState(){
+    public AllocationBenchmarkState() {
         long start = System.currentTimeMillis();
         OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
         OpenFeatureAPI.getInstance().setTransactionContextPropagator(new ThreadLocalTransactionContextPropagator());
@@ -45,6 +45,5 @@ public class AllocationBenchmarkState {
         Map<String, Value> invocationAttrs = new HashMap<>();
         invocationAttrs.put("invoke", new Value(3));
         invocationContext = new ImmutableContext(invocationAttrs);
-
     }
 }
