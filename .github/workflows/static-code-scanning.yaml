@@ -29,16 +29,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493
+        uses: actions/checkout@71cf2267d89c5cb81562390fa70a37fa40b1305e
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@8d77149e0c9e2199ac9cfc90c9e15116f5c69c48
+        uses: github/codeql-action/init@ba454b8ab46733eb6145342877cd148270bb77ab
         with:
           languages: java
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@8d77149e0c9e2199ac9cfc90c9e15116f5c69c48
+        uses: github/codeql-action/autobuild@ba454b8ab46733eb6145342877cd148270bb77ab
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@8d77149e0c9e2199ac9cfc90c9e15116f5c69c48
+        uses: github/codeql-action/analyze@ba454b8ab46733eb6145342877cd148270bb77ab

@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.internal.ConfigurableThreadFactory;
 import dev.openfeature.sdk.internal.TriConsumer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,7 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class EventProvider implements FeatureProvider {
     private EventProviderListener eventProviderListener;
-    private final ExecutorService emitterExecutor = Executors.newCachedThreadPool();
+    private final ExecutorService emitterExecutor =
+            Executors.newCachedThreadPool(new ConfigurableThreadFactory("openfeature-event-emitter-thread"));
 
     void setEventProviderListener(EventProviderListener eventProviderListener) {
         this.eventProviderListener = eventProviderListener;

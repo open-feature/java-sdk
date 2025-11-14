@@ -13,7 +13,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <org.mockito.version>5.20.0</org.mockito.version>
-        <com.vmlens.version>1.2.21</com.vmlens.version>
+        <com.vmlens.version>1.2.22</com.vmlens.version>
         <!-- exclusion expression for e2e tests -->
         <testExclusions>**/e2e/*.java</testExclusions>
         <module-name>${project.groupId}.${project.artifactId}</module-name>
@@ -214,14 +214,14 @@
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.17.8</version>
+                <version>1.18.1</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy-agent</artifactId>
-                <version>1.17.8</version>
+                <version>1.18.0</version>
                 <scope>test</scope>
             </dependency>
             <!-- End mockito workaround-->
@@ -229,7 +229,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
-                <version>2.20.0</version> <!-- Use the desired version -->
+                <version>2.20.1</version> <!-- Use the desired version -->
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -245,7 +245,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>6.0.0</version>
+                <version>6.0.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -508,7 +508,7 @@
                             <dependency>
                                 <groupId>com.puppycrawl.tools</groupId>
                                 <artifactId>checkstyle</artifactId>
-                                <version>11.1.0</version>
+                                <version>12.1.2</version>
                             </dependency>
                         </dependencies>
                         <executions>
