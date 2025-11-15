@@ -1,0 +1,184 @@
+package dev.openfeature.sdk;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * LayeredEvaluationContext implements EvaluationContext by layering multiple contexts:
+ * API-level, Transaction-level, Client-level, Invocation-level, and Hook-level.
+ * The contexts are checked in that order for values, with Hook-level having the highest precedence.
+ */
+public class LayeredEvaluationContext implements EvaluationContext {
+    private final EvaluationContext apiContext;
+    private final EvaluationContext transactionContext;
+    private final EvaluationContext clientContext;
+    private final EvaluationContext invocationContext;
+    private final HashMap<String, Value> hookContext = new HashMap<>();
+    private final String targetingKey;
+
+    private Set<String> keySet = null;
+
+    /**
+     * Constructor for LayeredEvaluationContext.
+     */
+    public LayeredEvaluationContext(
+            EvaluationContext apiContext,
+            EvaluationContext transactionContext,
+            EvaluationContext clientContext,
+            EvaluationContext invocationContext) {
+        this.apiContext = apiContext;
+        this.transactionContext = transactionContext;
+        this.clientContext = clientContext;
+        this.invocationContext = invocationContext;
+
+        if (invocationContext != null && invocationContext.getTargetingKey() != null) {
+            this.targetingKey = invocationContext.getTargetingKey();
+        } else if (clientContext != null && clientContext.getTargetingKey() != null) {
+            this.targetingKey = clientContext.getTargetingKey();
+        } else if (transactionContext != null && transactionContext.getTargetingKey() != null) {
+            this.targetingKey = transactionContext.getTargetingKey();
+        } else if (apiContext != null && apiContext.getTargetingKey() != null) {
+            this.targetingKey = apiContext.getTargetingKey();
+        } else {
+            this.targetingKey = null;
+        }
+    }
+
+    @Override
+    public String getTargetingKey() {
+        return targetingKey;
+    }
+
+    @Override
+    public EvaluationContext merge(EvaluationContext overridingContext) {
+        return null;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return hookContext.isEmpty()
+                && (invocationContext == null || invocationContext.isEmpty())
+                && (clientContext == null || clientContext.isEmpty())
+                && (transactionContext == null || transactionContext.isEmpty())
+                && (apiContext == null || apiContext.isEmpty());
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return new HashSet<>(ensureKeySet());
+    }
+
+    private Set<String> ensureKeySet() {
+        if (this.keySet != null) {
+            return this.keySet;
+        }
+
+        var keys = new HashSet<>(hookContext.keySet());
+
+        if (invocationContext != null) {
+            keys.addAll(invocationContext.keySet());
+        }
+        if (clientContext != null) {
+            keys.addAll(clientContext.keySet());
+        }
+        if (transactionContext != null) {
+            keys.addAll(transactionContext.keySet());
+        }
+        if (apiContext != null) {
+            keys.addAll(apiContext.keySet());
+        }
+        this.keySet = keys;
+        return keys;
+    }
+
+    private Value getFromContext(EvaluationContext context, String key) {
+        if (context != null) {
+            return context.getValue(key);
+        }
+        return null;
+    }
+
+    private Value getFromContext(HashMap<String, Value> context, String key) {
+        if (context != null) {
+            return context.get(key);
+        }
+        return null;
+    }
+
+    @Override
+    public Value getValue(String key) {
+        var hookValue = getFromContext(hookContext, key);
+        if (hookValue != null) {
+            return hookValue;
+        }
+        var invocationValue = getFromContext(invocationContext, key);
+        if (invocationValue != null) {
+            return invocationValue;
+        }
+        var clientValue = getFromContext(clientContext, key);
+        if (clientValue != null) {
+            return clientValue;
+        }
+        var transactionValue = getFromContext(transactionContext, key);
+        if (transactionValue != null) {
+            return transactionValue;
+        }
+        return getFromContext(apiContext, key);
+    }
+
+    @Override
+    public Map<String, Value> asMap() {
+        var keySet = ensureKeySet();
+        var keys = keySet.size();
+        if (keys == 0) {
+            return new HashMap<>(1);
+        }
+        var map = new HashMap<String, Value>(keys);
+
+        for (String key : keySet) {
+            map.put(key, getValue(key));
+        }
+        return map;
+    }
+
+    @Override
+    public Map<String, Value> asUnmodifiableMap() {
+        var keySet = ensureKeySet();
+        var keys = keySet.size();
+        if (keys == 0) {
+            return Collections.emptyMap();
+        }
+        var map = new HashMap<String, Value>(keys);
+
+        for (String key : keySet) {
+            map.put(key, getValue(key));
+        }
+        return Collections.unmodifiableMap(map);
+    }
+
+    @Override
+    public Map<String, Object> asObjectMap() {
+        var keySet = ensureKeySet();
+        var keys = keySet.size();
+        if (keys == 0) {
+            return new HashMap<>(1);
+        }
+        var map = new HashMap<String, Object>(keys);
+
+        for (String key : keySet) {
+            map.put(key, convertValue(getValue(key)));
+        }
+        return map;
+    }
+
+    public void putHookContext(String key, Value value) {
+        this.hookContext.put(key, value);
+    }
+
+    public void putAllHookContexts(Map<String, Value> context) {
+        this.hookContext.putAll(context);
+    }
+}

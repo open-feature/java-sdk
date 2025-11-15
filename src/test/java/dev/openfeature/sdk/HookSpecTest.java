@@ -723,7 +723,7 @@ class HookSpecTest implements HookFixtures {
                 invocationCtx,
                 FlagEvaluationOptions.builder().hook(hook).build());
 
-        ArgumentCaptor<ImmutableContext> captor = ArgumentCaptor.forClass(ImmutableContext.class);
+        ArgumentCaptor<LayeredEvaluationContext> captor = ArgumentCaptor.forClass(LayeredEvaluationContext.class);
         verify(provider).getBooleanEvaluation(any(), any(), captor.capture());
         EvaluationContext ec = captor.getValue();
         assertEquals("works", ec.getValue("test").asString());
