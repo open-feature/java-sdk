@@ -13,13 +13,15 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <org.mockito.version>5.20.0</org.mockito.version>
-        <com.vmlens.version>1.2.20</com.vmlens.version>
+        <com.vmlens.version>1.2.22</com.vmlens.version>
         <!-- exclusion expression for e2e tests -->
         <testExclusions>**/e2e/*.java</testExclusions>
         <module-name>${project.groupId}.${project.artifactId}</module-name>
         <skip.tests>false</skip.tests>
         <!-- this will throw an error if we use wrong apis -->
         <maven.compiler.release>11</maven.compiler.release>
+        <org.mockito.jar>${settings.localRepository}/org/mockito/mockito-core/${org.mockito.version}/mockito-core-${org.mockito.version}.jar</org.mockito.jar>
+        <org.mockito.agent.argline>-javaagent:${org.mockito.jar}</org.mockito.agent.argline>
     </properties>
 
     <name>OpenFeature Java SDK</name>
@@ -190,7 +192,7 @@
         <dependency>
             <groupId>dev.cel</groupId>
             <artifactId>cel</artifactId>
-            <version>0.11.0</version>
+            <version>0.11.1</version>
             <scope>test</scope>
         </dependency>
 
@@ -212,14 +214,14 @@
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.17.8</version>
+                <version>1.18.1</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy-agent</artifactId>
-                <version>1.17.8</version>
+                <version>1.18.1</version>
                 <scope>test</scope>
             </dependency>
             <!-- End mockito workaround-->
@@ -227,7 +229,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
-                <version>2.20.0</version> <!-- Use the desired version -->
+                <version>2.20.1</version> <!-- Use the desired version -->
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -235,7 +237,7 @@
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>
-                <version>7.30.0</version>
+                <version>7.31.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -243,7 +245,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>6.0.0</version>
+                <version>6.0.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -300,10 +302,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.4</version>
                 <configuration>
-                    <forkCount>1</forkCount>
-                    <reuseForks>false</reuseForks>
                     <argLine>
                         ${surefireArgLine}
+                        ${org.mockito.agent.argline}
                         --add-opens java.base/java.util=ALL-UNNAMED
                         --add-opens java.base/java.lang=ALL-UNNAMED
                     </argLine>
@@ -321,6 +322,7 @@
                 <configuration>
                     <argLine>
                         ${surefireArgLine}
+                        ${org.mockito.agent.argline}
                     </argLine>
                 </configuration>
             </plugin>
@@ -329,7 +331,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.2</version>
+                <version>3.5.0</version>
                 <configuration>
                     <archive>
                         <manifestEntries>
@@ -364,6 +366,7 @@
 						                <include>**/*CT.java</include>
 					                </includes>
                                     <failIfNoTests>true</failIfNoTests>
+                                    <argLine>${org.mockito.agent.argline}</argLine>
                                 </configuration>
                             </execution>
                         </executions>
@@ -402,7 +405,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.13</version>
+                        <version>0.8.14</version>
 
                         <executions>
                             <execution>
@@ -505,7 +508,7 @@
                             <dependency>
                                 <groupId>com.puppycrawl.tools</groupId>
                                 <artifactId>checkstyle</artifactId>
-                                <version>11.1.0</version>
+                                <version>12.1.2</version>
                             </dependency>
                         </dependencies>
                         <executions>
@@ -740,6 +743,7 @@
                         <version>3.5.4</version>
                         <configuration>
                             <argLine>
+                                ${org.mockito.agent.argline}
                                 ${surefireArgLine}
                             </argLine>
                         </configuration>
