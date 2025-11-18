@@ -17,8 +17,8 @@ public class LayeredEvaluationContext implements EvaluationContext {
     private final EvaluationContext clientContext;
     private final EvaluationContext invocationContext;
     private final HashMap<String, Value> hookContext = new HashMap<>();
-    private final String targetingKey;
 
+    private String targetingKey;
     private Set<String> keySet = null;
 
     /**
@@ -54,7 +54,7 @@ public class LayeredEvaluationContext implements EvaluationContext {
 
     @Override
     public EvaluationContext merge(EvaluationContext overridingContext) {
-        return null;
+        throw new UnsupportedOperationException("LayeredEvaluationContext does not support merge operation");
     }
 
     @Override
@@ -68,7 +68,7 @@ public class LayeredEvaluationContext implements EvaluationContext {
 
     @Override
     public Set<String> keySet() {
-        return new HashSet<>(ensureKeySet());
+        return Collections.unmodifiableSet(ensureKeySet());
     }
 
     private Set<String> ensureKeySet() {
@@ -174,11 +174,19 @@ public class LayeredEvaluationContext implements EvaluationContext {
         return map;
     }
 
-    public void putHookContext(String key, Value value) {
-        this.hookContext.put(key, value);
-    }
+    void putHookContext(Map<String, Value> context) {
+        if (context == null) {
+            return;
+        }
 
-    public void putAllHookContexts(Map<String, Value> context) {
+        var targetingKey = context.get("targetingKey");
+        if (targetingKey != null) {
+            var targetingKeyStr = targetingKey.asString();
+            if (targetingKeyStr != null) {
+                this.targetingKey = targetingKeyStr;
+                this.hookContext.put("targetingKey", targetingKey);
+            }
+        }
         this.hookContext.putAll(context);
     }
 }

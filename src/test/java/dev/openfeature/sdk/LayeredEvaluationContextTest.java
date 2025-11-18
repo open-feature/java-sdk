@@ -1,0 +1,231 @@
+package dev.openfeature.sdk;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+class LayeredEvaluationContextTest {
+    final EvaluationContext apiContext =
+            new MutableContext("api-level", Map.of("api", new Value("api"), "override", new Value("api")));
+    final EvaluationContext transactionContext = new MutableContext(
+            "transaction-level", Map.of("transaction", new Value("transaction"), "override", new Value("transaction")));
+    final EvaluationContext clientContext =
+            new MutableContext("client-level", Map.of("client", new Value("client"), "override", new Value("client")));
+    final EvaluationContext invocationContext = new MutableContext(
+            "invocation-level", Map.of("invocation", new Value("invocation"), "override", new Value("invocation")));
+
+    @Test
+    void creatingLayeredContextWithNullsWorks() {
+        LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+        assertNotNull(layeredContext);
+        assertNull(layeredContext.getTargetingKey());
+        assertEquals(Map.of(), layeredContext.asMap());
+        assertEquals(Map.of(), layeredContext.asObjectMap());
+        assertEquals(Map.of(), layeredContext.asUnmodifiableMap());
+        assertEquals(Set.of(), layeredContext.keySet());
+        assertTrue(layeredContext.isEmpty());
+    }
+
+    @Nested
+    class TargetingKey {
+        @Test
+        void hookWins() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            layeredContext.putHookContext(Map.of("targetingKey", new Value("hook-level")));
+            assertEquals("hook-level", layeredContext.getTargetingKey());
+        }
+
+        @Test
+        void invocationWinsIfHookNotSet() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            assertEquals("invocation-level", layeredContext.getTargetingKey());
+        }
+
+        @Test
+        void clientWinsIfInvocationAndHookNotSet() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, null);
+            assertEquals("client-level", layeredContext.getTargetingKey());
+        }
+
+        @Test
+        void transactionWinsIfClientInvocationAndHookNotSet() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, null, null);
+            assertEquals("transaction-level", layeredContext.getTargetingKey());
+        }
+
+        @Test
+        void apiWinsIfTransactionClientInvocationAndHookNotSet() {
+            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(apiContext, null, null, null);
+            assertEquals("api-level", layeredContext.getTargetingKey());
+        }
+    }
+
+    @Nested
+    class GetValue {
+        @Test
+        void doesNotOverrideUniqueValues() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            layeredContext.putHookContext(Map.of("hook", new Value("hook"), "targetingKey", new Value("hook-level")));
+
+            assertEquals("hook", layeredContext.getValue("hook").asString());
+            assertEquals("invocation", layeredContext.getValue("invocation").asString());
+            assertEquals("client", layeredContext.getValue("client").asString());
+            assertEquals("transaction", layeredContext.getValue("transaction").asString());
+            assertEquals("api", layeredContext.getValue("api").asString());
+        }
+
+        @Test
+        void hookWins() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            layeredContext.putHookContext(
+                    Map.of("override", new Value("hook"), "targetingKey", new Value("hook-level")));
+            assertEquals("hook", layeredContext.getValue("override").asString());
+        }
+
+        @Test
+        void invocationWinsIfHookNotSet() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            assertEquals("invocation", layeredContext.getValue("override").asString());
+        }
+
+        @Test
+        void clientWinsIfInvocationAndHookNotSet() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, null);
+            assertEquals("client", layeredContext.getValue("override").asString());
+        }
+
+        @Test
+        void transactionWinsIfClientInvocationAndHookNotSet() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, null, null);
+            assertEquals("transaction", layeredContext.getValue("override").asString());
+        }
+
+        @Test
+        void apiWinsIfTransactionClientInvocationAndHookNotSet() {
+            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(apiContext, null, null, null);
+            assertEquals("api", layeredContext.getValue("override").asString());
+        }
+    }
+
+    @Nested
+    class KeySet {
+        @Test
+        void keySetIsGeneratedCorrectly() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            layeredContext.putHookContext(Map.of("hook", new Value("hook"), "targetingKey", new Value("hook-level")));
+
+            Set<String> expectedKeys = Set.of(
+                    "hook",
+                    "invocation",
+                    "client",
+                    "transaction",
+                    "api",
+                    "override",
+                    "targetingKey" // expected, even though not explicitly set
+                    );
+
+            assertEquals(expectedKeys, layeredContext.keySet());
+        }
+    }
+
+    @Nested
+    class AsMap {
+        @Test
+        void mapIsGeneratedCorrectly() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            layeredContext.putHookContext(Map.of(
+                    "hook", new Value("hook"), "override", new Value("hook"), "targetingKey", new Value("hook-level")));
+
+            var expectedKeys = Map.of(
+                    "hook", new Value("hook"),
+                    "invocation", new Value("invocation"),
+                    "client", new Value("client"),
+                    "transaction", new Value("transaction"),
+                    "api", new Value("api"),
+                    "override", new Value("hook"),
+                    "targetingKey", new Value("hook-level") // expected, even though not explicitly set
+                    );
+
+            assertEquals(expectedKeys, layeredContext.asMap());
+            assertEquals(expectedKeys, layeredContext.asUnmodifiableMap());
+        }
+    }
+
+    @Nested
+    class AsObjectMap {
+        @Test
+        void mapIsGeneratedCorrectly() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            layeredContext.putHookContext(Map.of(
+                    "hook", new Value("hook"), "override", new Value("hook"), "targetingKey", new Value("hook-level")));
+
+            var expectedKeys = Map.of(
+                    "hook", "hook",
+                    "invocation", "invocation",
+                    "client", "client",
+                    "transaction", "transaction",
+                    "api", "api",
+                    "override", "hook",
+                    "targetingKey", "hook-level" // expected, even though not explicitly set in map
+                    );
+
+            assertEquals(expectedKeys, layeredContext.asObjectMap());
+        }
+    }
+
+    @Nested
+    class IsEmpty {
+        @Test
+        void isEmptyWhenAllContextsAreNull() {
+            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+            assertTrue(layeredContext.isEmpty());
+        }
+
+        @Test
+        void isNotEmptyWhenApiContextIsSet() {
+            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(apiContext, null, null, null);
+            assertFalse(layeredContext.isEmpty());
+        }
+
+        @Test
+        void isNotEmptyWhenTransactionContextIsSet() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(null, transactionContext, null, null);
+            assertFalse(layeredContext.isEmpty());
+        }
+
+        @Test
+        void isNotEmptyWhenClientContextIsSet() {
+            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, clientContext, null);
+            assertFalse(layeredContext.isEmpty());
+        }
+
+        @Test
+        void isNotEmptyWhenInvocationContextIsSet() {
+            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, invocationContext);
+            assertFalse(layeredContext.isEmpty());
+        }
+
+        @Test
+        void isNotEmptyWhenHookContextIsSet() {
+            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+            layeredContext.putHookContext(Map.of("hook", new Value("hook"), "targetingKey", new Value("hook-level")));
+            assertFalse(layeredContext.isEmpty());
+        }
+    }
+}
