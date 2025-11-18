@@ -52,9 +52,29 @@ public class LayeredEvaluationContext implements EvaluationContext {
         return targetingKey;
     }
 
+    /**
+     * Using this method should be avoided as it comes with a performance cost.
+     * Consider constructing a new LayeredEvaluationContext instead.
+     *
+     * <p>
+     * Does not modify this object.
+     *
+     * @param overridingContext overriding context
+     * @return A new LayeredEvaluationContext containing the context from this object, with the overridingContext
+     *      merged on top.
+     * @deprecated Use of this method is discouraged due to performance considerations.
+     */
+    @Deprecated
     @Override
     public EvaluationContext merge(EvaluationContext overridingContext) {
-        throw new UnsupportedOperationException("LayeredEvaluationContext does not support merge operation");
+        var merged = new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+        merged.hookContext.putAll(this.hookContext);
+        merged.hookContext.putAll(overridingContext.asMap());
+        var otherTargetingKey = overridingContext.getTargetingKey();
+        if (otherTargetingKey != null) {
+            merged.targetingKey = otherTargetingKey;
+        }
+        return merged;
     }
 
     @Override

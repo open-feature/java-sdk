@@ -228,4 +228,29 @@ class LayeredEvaluationContextTest {
             assertFalse(layeredContext.isEmpty());
         }
     }
+
+    @Nested
+    class Merge {
+        @Test
+        void mergesCorrectly() {
+            LayeredEvaluationContext ctx1 =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            EvaluationContext ctx2 = new MutableContext(
+                    "mutable", Map.of("override", new Value("other"), "unique", new Value("unique")));
+
+            EvaluationContext merged = ctx1.merge(ctx2);
+
+            assertEquals(
+                    Map.of(
+                            "invocation", new Value("invocation"),
+                            "client", new Value("client"),
+                            "transaction", new Value("transaction"),
+                            "api", new Value("api"),
+                            "override", new Value("other"),
+                            "targetingKey", new Value("mutable"),
+                            "unique", new Value("unique")),
+                    merged.asMap());
+            assertEquals("mutable", merged.getTargetingKey());
+        }
+    }
 }
