@@ -16,6 +16,8 @@ class LayeredEvaluationContextTest {
             new MutableContext("client-level", Map.of("client", new Value("client"), "override", new Value("client")));
     final EvaluationContext invocationContext = new MutableContext(
             "invocation-level", Map.of("invocation", new Value("invocation"), "override", new Value("invocation")));
+    final EvaluationContext hookContext =
+            new MutableContext("hook-level", Map.of("hook", new Value("hook"), "override", new Value("hook")));
 
     @Test
     void creatingLayeredContextWithNullsWorks() {
@@ -41,7 +43,7 @@ class LayeredEvaluationContextTest {
         void hookWins() {
             LayeredEvaluationContext layeredContext =
                     new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
-            layeredContext.putHookContext(Map.of("targetingKey", new Value("hook-level")));
+            layeredContext.putHookContext(hookContext);
             assertEquals("hook-level", layeredContext.getTargetingKey());
         }
 
@@ -49,7 +51,7 @@ class LayeredEvaluationContextTest {
         void hookWithoutTargetingKeyDoesNotChangeIt() {
             LayeredEvaluationContext layeredContext =
                     new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
-            layeredContext.putHookContext(Map.of());
+            layeredContext.putHookContext(new MutableContext(Map.of("hook", new Value("hook"), "override", new Value("hook"))));
             assertEquals("invocation-level", layeredContext.getTargetingKey());
         }
 
@@ -87,7 +89,7 @@ class LayeredEvaluationContextTest {
         void doesNotOverrideUniqueValues() {
             LayeredEvaluationContext layeredContext =
                     new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
-            layeredContext.putHookContext(Map.of("hook", new Value("hook"), "targetingKey", new Value("hook-level")));
+            layeredContext.putHookContext(hookContext);
 
             assertEquals("hook", layeredContext.getValue("hook").asString());
             assertEquals("invocation", layeredContext.getValue("invocation").asString());
@@ -100,8 +102,7 @@ class LayeredEvaluationContextTest {
         void hookWins() {
             LayeredEvaluationContext layeredContext =
                     new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
-            layeredContext.putHookContext(
-                    Map.of("override", new Value("hook"), "targetingKey", new Value("hook-level")));
+            layeredContext.putHookContext(hookContext);
             assertEquals("hook", layeredContext.getValue("override").asString());
         }
 
@@ -139,7 +140,7 @@ class LayeredEvaluationContextTest {
         void keySetIsGeneratedCorrectly() {
             LayeredEvaluationContext layeredContext =
                     new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
-            layeredContext.putHookContext(Map.of("hook", new Value("hook"), "targetingKey", new Value("hook-level")));
+            layeredContext.putHookContext(hookContext);
 
             Set<String> expectedKeys = Set.of(
                     "hook",
@@ -158,7 +159,7 @@ class LayeredEvaluationContextTest {
         void keySetIsUpdatedWhenHookContextChanges() {
             LayeredEvaluationContext layeredContext =
                     new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
-            layeredContext.putHookContext(Map.of("hook", new Value("hook"), "targetingKey", new Value("hook-level")));
+            layeredContext.putHookContext(hookContext);
 
             Set<String> expectedKeys = Set.of(
                     "hook",
@@ -171,7 +172,7 @@ class LayeredEvaluationContextTest {
             );
             assertEquals(expectedKeys, layeredContext.keySet());
 
-            layeredContext.putHookContext(Map.of("hook", new Value("hook"), "new", new Value("new")));
+            layeredContext.putHookContext(new ImmutableContext(Map.of("new", new Value("hook"))));
 
             expectedKeys = Set.of(
                     "hook",
@@ -193,8 +194,7 @@ class LayeredEvaluationContextTest {
         void mapIsGeneratedCorrectly() {
             LayeredEvaluationContext layeredContext =
                     new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
-            layeredContext.putHookContext(Map.of(
-                    "hook", new Value("hook"), "override", new Value("hook"), "targetingKey", new Value("hook-level")));
+            layeredContext.putHookContext(hookContext);
 
             var expectedKeys = Map.of(
                     "hook", new Value("hook"),
@@ -225,8 +225,7 @@ class LayeredEvaluationContextTest {
         void mapIsGeneratedCorrectly() {
             LayeredEvaluationContext layeredContext =
                     new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
-            layeredContext.putHookContext(Map.of(
-                    "hook", new Value("hook"), "override", new Value("hook"), "targetingKey", new Value("hook-level")));
+            layeredContext.putHookContext(hookContext);
 
             var expectedKeys = Map.of(
                     "hook", "hook",
@@ -299,7 +298,7 @@ class LayeredEvaluationContextTest {
         @Test
         void isNotEmptyWhenHookContextIsSet() {
             LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
-            layeredContext.putHookContext(Map.of("hook", new Value("hook"), "targetingKey", new Value("hook-level")));
+            layeredContext.putHookContext(hookContext);
             assertFalse(layeredContext.isEmpty());
         }
     }
@@ -332,7 +331,7 @@ class LayeredEvaluationContextTest {
         void mergesCorrectlyWithHooks() {
             LayeredEvaluationContext ctx1 =
                     new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
-            ctx1.putHookContext(Map.of("hook", new Value("other"), "override", new Value("hook")));
+            ctx1.putHookContext(hookContext);
             EvaluationContext ctx2 = new MutableContext(
                     "mutable", Map.of("override", new Value("other"), "unique", new Value("unique")));
 
@@ -347,7 +346,7 @@ class LayeredEvaluationContextTest {
                             "override", new Value("other"),
                             "targetingKey", new Value("mutable"),
                             "unique", new Value("unique"),
-                            "hook", new Value("other")),
+                            "hook", new Value("hook")),
                     merged.asMap());
             assertEquals("mutable", merged.getTargetingKey());
         }

@@ -64,7 +64,7 @@ class HookSupport {
             if (returnedEvalContext.isPresent()) {
                 var returnedContext = returnedEvalContext.get();
                 if (!returnedContext.isEmpty()) {
-                    data.evaluationContext.putHookContext(returnedContext.asMap());
+                    data.evaluationContext.putHookContext(returnedContext);
                 }
             }
         }

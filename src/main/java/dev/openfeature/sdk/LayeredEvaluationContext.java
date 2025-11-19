@@ -1,10 +1,6 @@
 package dev.openfeature.sdk;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * LayeredEvaluationContext implements EvaluationContext by layering multiple contexts:
@@ -17,7 +13,7 @@ public class LayeredEvaluationContext implements EvaluationContext {
     private final EvaluationContext clientContext;
     private final EvaluationContext invocationContext;
 
-    private HashMap<String, Value> hookContext;
+    private ArrayList<EvaluationContext> hookContexts;
     private String targetingKey;
     private Set<String> keySet = null;
 
@@ -68,11 +64,14 @@ public class LayeredEvaluationContext implements EvaluationContext {
     @Override
     public EvaluationContext merge(EvaluationContext overridingContext) {
         var merged = new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
-        merged.hookContext = new HashMap<>();
-        if (this.hookContext != null) {
-            merged.hookContext.putAll(this.hookContext);
+
+        if (this.hookContexts == null) {
+            merged.hookContexts = new ArrayList<>(1);
+        } else {
+            merged.hookContexts = new ArrayList<>(this.hookContexts.size() + 1);
+            merged.hookContexts.addAll(this.hookContexts);
         }
-        merged.hookContext.putAll(overridingContext.asMap());
+        merged.hookContexts.add(overridingContext);
 
         var otherTargetingKey = overridingContext.getTargetingKey();
         if (otherTargetingKey != null) {
@@ -83,7 +82,7 @@ public class LayeredEvaluationContext implements EvaluationContext {
 
     @Override
     public boolean isEmpty() {
-        return (hookContext == null || hookContext.isEmpty())
+        return (hookContexts == null || hookContexts.isEmpty())
                 && (invocationContext == null || invocationContext.isEmpty())
                 && (clientContext == null || clientContext.isEmpty())
                 && (transactionContext == null || transactionContext.isEmpty())
@@ -100,12 +99,14 @@ public class LayeredEvaluationContext implements EvaluationContext {
             return this.keySet;
         }
 
-        if (hookContext == null || hookContext.isEmpty()) {
-            this.keySet = Collections.emptySet();
-            return this.keySet;
-        }
+        var keys = new HashSet<String>();
 
-        var keys = new HashSet<>(hookContext.keySet());
+        if (hookContexts != null) {
+            for (int i = 0; i < hookContexts.size(); i++) {
+                var current = hookContexts.get(i);
+                keys.addAll(current.keySet());
+            }
+        }
 
         if (invocationContext != null) {
             keys.addAll(invocationContext.keySet());
@@ -130,16 +131,22 @@ public class LayeredEvaluationContext implements EvaluationContext {
         return null;
     }
 
-    private Value getFromContext(HashMap<String, Value> context, String key) {
-        if (context != null) {
-            return context.get(key);
+    private Value getFromContext(ArrayList<EvaluationContext> context, String key) {
+        if (context == null) return null;
+
+        for (int i = context.size() - 1; i >= 0; i--) {
+            var current = context.get(i);
+            var value = getFromContext(current, key);
+            if (value != null) {
+                return value;
+            }
         }
         return null;
     }
 
     @Override
     public Value getValue(String key) {
-        var hookValue = getFromContext(hookContext, key);
+        var hookValue = getFromContext(hookContexts, key);
         if (hookValue != null) {
             return hookValue;
         }
@@ -203,29 +210,19 @@ public class LayeredEvaluationContext implements EvaluationContext {
         return map;
     }
 
-    void putHookContext(Map<String, Value> context) {
+    void putHookContext(EvaluationContext context) {
         if (context == null || context.isEmpty()) {
             return;
         }
 
-        if (this.hookContext == null) {
-            this.hookContext = new HashMap<>();
-        }
-
-        var targetingKey = context.get("targetingKey");
+        var targetingKey = context.getTargetingKey();
         if (targetingKey != null) {
-            var targetingKeyStr = targetingKey.asString();
-            if (targetingKeyStr != null) {
-                this.targetingKey = targetingKeyStr;
-                this.hookContext.put("targetingKey", targetingKey);
-                if (keySet != null) {
-                    keySet.add("targetingKey");
-                }
-            }
+            this.targetingKey = targetingKey;
         }
-        this.hookContext.putAll(context);
-        if (keySet != null) {
-            keySet.addAll(context.keySet());
+        if (this.hookContexts == null) {
+            this.hookContexts = new ArrayList<>();
         }
+        this.hookContexts.add(context);
+        this.keySet = null;
     }
 }
