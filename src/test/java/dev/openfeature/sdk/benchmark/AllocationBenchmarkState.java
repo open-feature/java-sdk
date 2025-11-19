@@ -2,15 +2,18 @@ package dev.openfeature.sdk.benchmark;
 
 import dev.openfeature.sdk.Client;
 import dev.openfeature.sdk.EvaluationContext;
+import dev.openfeature.sdk.HookContext;
 import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.NoOpProvider;
 import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.StringHook;
 import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.Value;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @State(Scope.Benchmark)
 public class AllocationBenchmarkState {
@@ -19,7 +22,7 @@ public class AllocationBenchmarkState {
     public final Map<String, Value> transactionAttr2;
     public final EvaluationContext invocationContext;
 
-    public AllocationBenchmarkState(){
+    public AllocationBenchmarkState() {
         long start = System.currentTimeMillis();
         OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
         OpenFeatureAPI.getInstance().setTransactionContextPropagator(new ThreadLocalTransactionContextPropagator());
@@ -46,5 +49,15 @@ public class AllocationBenchmarkState {
         invocationAttrs.put("invoke", new Value(3));
         invocationContext = new ImmutableContext(invocationAttrs);
 
+        Map<String, Value> hookAttrs = new HashMap<>();
+        hookAttrs.put("hook", new Value(30));
+        Optional<EvaluationContext> hookCtx = Optional.of(new ImmutableContext(hookAttrs));
+
+        client.addHooks(new StringHook() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<String> ctx, Map<String, Object> hints) {
+                return hookCtx;
+            }
+        });
     }
 }
