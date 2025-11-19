@@ -51,7 +51,8 @@ class LayeredEvaluationContextTest {
         void hookWithoutTargetingKeyDoesNotChangeIt() {
             LayeredEvaluationContext layeredContext =
                     new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
-            layeredContext.putHookContext(new MutableContext(Map.of("hook", new Value("hook"), "override", new Value("hook"))));
+            layeredContext.putHookContext(
+                    new MutableContext(Map.of("hook", new Value("hook"), "override", new Value("hook"))));
             assertEquals("invocation-level", layeredContext.getTargetingKey());
         }
 
@@ -161,29 +162,14 @@ class LayeredEvaluationContextTest {
                     new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
             layeredContext.putHookContext(hookContext);
 
-            Set<String> expectedKeys = Set.of(
-                    "hook",
-                    "invocation",
-                    "client",
-                    "transaction",
-                    "api",
-                    "override",
-                    "targetingKey"
-            );
+            Set<String> expectedKeys =
+                    Set.of("hook", "invocation", "client", "transaction", "api", "override", "targetingKey");
             assertEquals(expectedKeys, layeredContext.keySet());
 
             layeredContext.putHookContext(new ImmutableContext(Map.of("new", new Value("hook"))));
 
-            expectedKeys = Set.of(
-                    "hook",
-                    "invocation",
-                    "client",
-                    "transaction",
-                    "api",
-                    "override",
-                    "targetingKey",
-                    "new"
-            );
+            expectedKeys =
+                    Set.of("hook", "invocation", "client", "transaction", "api", "override", "targetingKey", "new");
             assertEquals(expectedKeys, layeredContext.keySet());
         }
     }
