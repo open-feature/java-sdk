@@ -16,8 +16,8 @@ public class LayeredEvaluationContext implements EvaluationContext {
     private final EvaluationContext transactionContext;
     private final EvaluationContext clientContext;
     private final EvaluationContext invocationContext;
-    private final HashMap<String, Value> hookContext = new HashMap<>();
 
+    private HashMap<String, Value> hookContext;
     private String targetingKey;
     private Set<String> keySet = null;
 
@@ -61,15 +61,19 @@ public class LayeredEvaluationContext implements EvaluationContext {
      *
      * @param overridingContext overriding context
      * @return A new LayeredEvaluationContext containing the context from this object, with the overridingContext
-     *      merged on top.
+     * merged on top.
      * @deprecated Use of this method is discouraged due to performance considerations.
      */
     @Deprecated
     @Override
     public EvaluationContext merge(EvaluationContext overridingContext) {
         var merged = new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
-        merged.hookContext.putAll(this.hookContext);
+        merged.hookContext = new HashMap<>();
+        if (this.hookContext != null) {
+            merged.hookContext.putAll(this.hookContext);
+        }
         merged.hookContext.putAll(overridingContext.asMap());
+
         var otherTargetingKey = overridingContext.getTargetingKey();
         if (otherTargetingKey != null) {
             merged.targetingKey = otherTargetingKey;
@@ -79,7 +83,7 @@ public class LayeredEvaluationContext implements EvaluationContext {
 
     @Override
     public boolean isEmpty() {
-        return hookContext.isEmpty()
+        return (hookContext == null || hookContext.isEmpty())
                 && (invocationContext == null || invocationContext.isEmpty())
                 && (clientContext == null || clientContext.isEmpty())
                 && (transactionContext == null || transactionContext.isEmpty())
@@ -93,6 +97,11 @@ public class LayeredEvaluationContext implements EvaluationContext {
 
     private Set<String> ensureKeySet() {
         if (this.keySet != null) {
+            return this.keySet;
+        }
+
+        if (hookContext == null || hookContext.isEmpty()) {
+            this.keySet = Collections.emptySet();
             return this.keySet;
         }
 
@@ -121,9 +130,16 @@ public class LayeredEvaluationContext implements EvaluationContext {
         return null;
     }
 
+    private Value getFromContext(HashMap<String, Value> context, String key) {
+        if (context != null) {
+            return context.get(key);
+        }
+        return null;
+    }
+
     @Override
     public Value getValue(String key) {
-        var hookValue = hookContext.get(key);
+        var hookValue = getFromContext(hookContext, key);
         if (hookValue != null) {
             return hookValue;
         }
@@ -147,7 +163,7 @@ public class LayeredEvaluationContext implements EvaluationContext {
         var keySet = ensureKeySet();
         var keys = keySet.size();
         if (keys == 0) {
-            return new HashMap<>(1);
+            return new HashMap<>(0);
         }
         var map = new HashMap<String, Value>(keys);
 
@@ -177,7 +193,7 @@ public class LayeredEvaluationContext implements EvaluationContext {
         var keySet = ensureKeySet();
         var keys = keySet.size();
         if (keys == 0) {
-            return new HashMap<>(1);
+            return new HashMap<>(0);
         }
         var map = new HashMap<String, Object>(keys);
 
@@ -188,8 +204,12 @@ public class LayeredEvaluationContext implements EvaluationContext {
     }
 
     void putHookContext(Map<String, Value> context) {
-        if (context == null) {
+        if (context == null || context.isEmpty()) {
             return;
+        }
+
+        if (this.hookContext == null) {
+            this.hookContext = new HashMap<>();
         }
 
         var targetingKey = context.get("targetingKey");
@@ -198,8 +218,14 @@ public class LayeredEvaluationContext implements EvaluationContext {
             if (targetingKeyStr != null) {
                 this.targetingKey = targetingKeyStr;
                 this.hookContext.put("targetingKey", targetingKey);
+                if (keySet != null) {
+                    keySet.add("targetingKey");
+                }
             }
         }
         this.hookContext.putAll(context);
+        if (keySet != null) {
+            keySet.addAll(context.keySet());
+        }
     }
 }

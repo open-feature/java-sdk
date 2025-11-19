@@ -153,6 +153,38 @@ class LayeredEvaluationContextTest {
 
             assertEquals(expectedKeys, layeredContext.keySet());
         }
+
+        @Test
+        void keySetIsUpdatedWhenHookContextChanges() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            layeredContext.putHookContext(Map.of("hook", new Value("hook"), "targetingKey", new Value("hook-level")));
+
+            Set<String> expectedKeys = Set.of(
+                    "hook",
+                    "invocation",
+                    "client",
+                    "transaction",
+                    "api",
+                    "override",
+                    "targetingKey"
+            );
+            assertEquals(expectedKeys, layeredContext.keySet());
+
+            layeredContext.putHookContext(Map.of("hook", new Value("hook"), "new", new Value("new")));
+
+            expectedKeys = Set.of(
+                    "hook",
+                    "invocation",
+                    "client",
+                    "transaction",
+                    "api",
+                    "override",
+                    "targetingKey",
+                    "new"
+            );
+            assertEquals(expectedKeys, layeredContext.keySet());
+        }
     }
 
     @Nested
@@ -176,6 +208,14 @@ class LayeredEvaluationContextTest {
 
             assertEquals(expectedKeys, layeredContext.asMap());
             assertEquals(expectedKeys, layeredContext.asUnmodifiableMap());
+        }
+
+        @Test
+        void emptyContextGeneratesEmptyMap() {
+            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+            assertEquals(Map.of(), layeredContext.asMap());
+            assertEquals(Map.of(), layeredContext.asUnmodifiableMap());
+            assertEquals(Map.of(), layeredContext.asObjectMap());
         }
     }
 
@@ -284,6 +324,30 @@ class LayeredEvaluationContextTest {
                             "override", new Value("other"),
                             "targetingKey", new Value("mutable"),
                             "unique", new Value("unique")),
+                    merged.asMap());
+            assertEquals("mutable", merged.getTargetingKey());
+        }
+
+        @Test
+        void mergesCorrectlyWithHooks() {
+            LayeredEvaluationContext ctx1 =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            ctx1.putHookContext(Map.of("hook", new Value("other"), "override", new Value("hook")));
+            EvaluationContext ctx2 = new MutableContext(
+                    "mutable", Map.of("override", new Value("other"), "unique", new Value("unique")));
+
+            EvaluationContext merged = ctx1.merge(ctx2);
+
+            assertEquals(
+                    Map.of(
+                            "invocation", new Value("invocation"),
+                            "client", new Value("client"),
+                            "transaction", new Value("transaction"),
+                            "api", new Value("api"),
+                            "override", new Value("other"),
+                            "targetingKey", new Value("mutable"),
+                            "unique", new Value("unique"),
+                            "hook", new Value("other")),
                     merged.asMap());
             assertEquals("mutable", merged.getTargetingKey());
         }
