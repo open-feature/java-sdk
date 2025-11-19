@@ -121,16 +121,9 @@ public class LayeredEvaluationContext implements EvaluationContext {
         return null;
     }
 
-    private Value getFromContext(HashMap<String, Value> context, String key) {
-        if (context != null) {
-            return context.get(key);
-        }
-        return null;
-    }
-
     @Override
     public Value getValue(String key) {
-        var hookValue = getFromContext(hookContext, key);
+        var hookValue = hookContext.get(key);
         if (hookValue != null) {
             return hookValue;
         }

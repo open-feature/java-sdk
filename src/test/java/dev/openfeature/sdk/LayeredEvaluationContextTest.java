@@ -29,6 +29,12 @@ class LayeredEvaluationContextTest {
         assertTrue(layeredContext.isEmpty());
     }
 
+    @Test
+    void addingNullHookWorks() {
+        LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+        assertDoesNotThrow(() -> layeredContext.putHookContext(null));
+    }
+
     @Nested
     class TargetingKey {
         @Test
@@ -37,6 +43,14 @@ class LayeredEvaluationContextTest {
                     new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
             layeredContext.putHookContext(Map.of("targetingKey", new Value("hook-level")));
             assertEquals("hook-level", layeredContext.getTargetingKey());
+        }
+
+        @Test
+        void hookWithoutTargetingKeyDoesNotChangeIt() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            layeredContext.putHookContext(Map.of());
+            assertEquals("invocation-level", layeredContext.getTargetingKey());
         }
 
         @Test
@@ -222,6 +236,27 @@ class LayeredEvaluationContextTest {
         }
 
         @Test
+        void isNotEmptyWhenInvocationAndClientContextIsSet() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(null, null, clientContext, invocationContext);
+            assertFalse(layeredContext.isEmpty());
+        }
+
+        @Test
+        void isNotEmptyWhenInvocationAndClientAndTransactionContextIsSet() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(null, transactionContext, clientContext, invocationContext);
+            assertFalse(layeredContext.isEmpty());
+        }
+
+        @Test
+        void isNotEmptyWhenInvocationAndClientAndTransactionAndApiContextIsSet() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            assertFalse(layeredContext.isEmpty());
+        }
+
+        @Test
         void isNotEmptyWhenHookContextIsSet() {
             LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
             layeredContext.putHookContext(Map.of("hook", new Value("hook"), "targetingKey", new Value("hook-level")));
@@ -251,6 +286,28 @@ class LayeredEvaluationContextTest {
                             "unique", new Value("unique")),
                     merged.asMap());
             assertEquals("mutable", merged.getTargetingKey());
+        }
+
+        @Test
+        void mergesCorrectlyWhenOtherHasNoTargetingKey() {
+            LayeredEvaluationContext ctx1 =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            EvaluationContext ctx2 =
+                    new MutableContext(Map.of("override", new Value("other"), "unique", new Value("unique")));
+
+            EvaluationContext merged = ctx1.merge(ctx2);
+
+            assertEquals(
+                    Map.of(
+                            "invocation", new Value("invocation"),
+                            "client", new Value("client"),
+                            "transaction", new Value("transaction"),
+                            "api", new Value("api"),
+                            "override", new Value("other"),
+                            "targetingKey", new Value(invocationContext.getTargetingKey()),
+                            "unique", new Value("unique")),
+                    merged.asMap());
+            assertEquals(invocationContext.getTargetingKey(), merged.getTargetingKey());
         }
     }
 }
