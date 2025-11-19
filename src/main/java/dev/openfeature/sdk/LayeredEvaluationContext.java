@@ -1,6 +1,11 @@
 package dev.openfeature.sdk;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * LayeredEvaluationContext implements EvaluationContext by layering multiple contexts:
@@ -57,7 +62,7 @@ public class LayeredEvaluationContext implements EvaluationContext {
      *
      * @param overridingContext overriding context
      * @return A new LayeredEvaluationContext containing the context from this object, with the overridingContext
-     * merged on top.
+     *      merged on top.
      * @deprecated Use of this method is discouraged due to performance considerations.
      */
     @Deprecated
@@ -132,7 +137,9 @@ public class LayeredEvaluationContext implements EvaluationContext {
     }
 
     private Value getFromContext(ArrayList<EvaluationContext> context, String key) {
-        if (context == null) return null;
+        if (context == null) {
+            return null;
+        }
 
         for (int i = context.size() - 1; i >= 0; i--) {
             var current = context.get(i);
