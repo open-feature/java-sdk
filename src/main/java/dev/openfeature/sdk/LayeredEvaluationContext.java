@@ -62,7 +62,7 @@ public class LayeredEvaluationContext implements EvaluationContext {
      *
      * @param overridingContext overriding context
      * @return A new LayeredEvaluationContext containing the context from this object, with the overridingContext
-     *      merged on top.
+     *         merged on top.
      * @deprecated Use of this method is discouraged due to performance considerations.
      */
     @Deprecated
@@ -174,45 +174,77 @@ public class LayeredEvaluationContext implements EvaluationContext {
 
     @Override
     public Map<String, Value> asMap() {
-        var keySet = ensureKeySet();
-        var keys = keySet.size();
-        if (keys == 0) {
+        if (keySet != null && keySet.isEmpty()) {
             return new HashMap<>(0);
         }
-        var map = new HashMap<String, Value>(keys);
 
-        for (String key : keySet) {
-            map.put(key, getValue(key));
+        HashMap<String, Value> map;
+        if (keySet != null) {
+            map = new HashMap<>(keySet.size());
+        } else {
+            map = new HashMap<>();
+        }
+
+        if (apiContext != null) {
+            map.putAll(apiContext.asMap());
+        }
+        if (transactionContext != null) {
+            map.putAll(transactionContext.asMap());
+        }
+        if (clientContext != null) {
+            map.putAll(clientContext.asMap());
+        }
+        if (invocationContext != null) {
+            map.putAll(invocationContext.asMap());
+        }
+        if (hookContexts != null) {
+            for (int i = 0; i < hookContexts.size(); i++) {
+                EvaluationContext hookContext = hookContexts.get(i);
+                map.putAll(hookContext.asMap());
+            }
         }
         return map;
     }
 
     @Override
     public Map<String, Value> asUnmodifiableMap() {
-        var keySet = ensureKeySet();
-        var keys = keySet.size();
-        if (keys == 0) {
+        if (keySet != null && keySet.isEmpty()) {
             return Collections.emptyMap();
         }
-        var map = new HashMap<String, Value>(keys);
 
-        for (String key : keySet) {
-            map.put(key, getValue(key));
-        }
-        return Collections.unmodifiableMap(map);
+        return Collections.unmodifiableMap(asMap());
     }
 
     @Override
     public Map<String, Object> asObjectMap() {
-        var keySet = ensureKeySet();
-        var keys = keySet.size();
-        if (keys == 0) {
+        if (keySet != null && keySet.isEmpty()) {
             return new HashMap<>(0);
         }
-        var map = new HashMap<String, Object>(keys);
 
-        for (String key : keySet) {
-            map.put(key, convertValue(getValue(key)));
+        HashMap<String, Object> map;
+        if (keySet != null) {
+            map = new HashMap<>(keySet.size());
+        } else {
+            map = new HashMap<>();
+        }
+
+        if (apiContext != null) {
+            map.putAll(apiContext.asObjectMap());
+        }
+        if (transactionContext != null) {
+            map.putAll(transactionContext.asObjectMap());
+        }
+        if (clientContext != null) {
+            map.putAll(clientContext.asObjectMap());
+        }
+        if (invocationContext != null) {
+            map.putAll(invocationContext.asObjectMap());
+        }
+        if (hookContexts != null) {
+            for (int i = 0; i < hookContexts.size(); i++) {
+                EvaluationContext hookContext = hookContexts.get(i);
+                map.putAll(hookContext.asObjectMap());
+            }
         }
         return map;
     }
