@@ -9,11 +9,11 @@ import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.StringHook;
 import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.Value;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.State;
 
 @State(Scope.Benchmark)
 public class AllocationBenchmarkState {

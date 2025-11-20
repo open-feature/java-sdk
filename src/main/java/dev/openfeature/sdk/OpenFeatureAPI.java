@@ -4,8 +4,7 @@ import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -314,7 +313,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
             var current = hooks[i];
             for (int j = 0; j < types.length; j++) {
                 var type = types[j];
-                if(current.supportsFlagValueType(type)) {
+                if (current.supportsFlagValueType(type)) {
                     this.apiHooks.get(type).add(current);
                 }
             }
@@ -327,15 +326,16 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @return A list of {@link Hook}s.
      */
     public List<Hook> getHooks() {
-        var allHooks = new ArrayList<Hook>();
+        // Hooks can be duplicated if they support multiple FlagValueTypes
+        var allHooks = new HashSet<Hook>();
         for (var queue : this.apiHooks.values()) {
             allHooks.addAll(queue);
         }
-        return allHooks;
+        return new ArrayList<>(allHooks);
     }
 
     /**
-     * Fetch the hooks associated to this client.
+     * Fetch the hooks associated to this client, that support the given FlagValueType.
      *
      * @return A list of {@link Hook}s.
      */

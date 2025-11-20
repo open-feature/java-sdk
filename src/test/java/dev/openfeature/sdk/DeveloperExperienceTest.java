@@ -3,6 +3,7 @@ package dev.openfeature.sdk;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -101,9 +103,10 @@ class DeveloperExperienceTest implements HookFixtures {
     void providerLockedPerTransaction() {
 
         final String defaultValue = "string-value";
-        final OpenFeatureAPI api = new OpenFeatureAPI();
-        var provider1 = TestProvider.builder().initsToReady();
-        var provider2 = TestProvider.builder().initsToReady();
+        final OpenFeatureAPI testApi = new OpenFeatureAPI();
+        final var provider1 = TestProvider.builder().initsToReady();
+        final var provider2 = TestProvider.builder().initsToReady();
+        final var wasHookCalled = new AtomicBoolean(false);
 
         class MutatingHook implements Hook {
 
@@ -112,24 +115,27 @@ class DeveloperExperienceTest implements HookFixtures {
             // change the provider during a before hook - this should not impact the evaluation in progress
             public Optional before(HookContext ctx, Map hints) {
 
-                api.setProviderAndWait(provider2);
-
+                testApi.setProviderAndWait(provider2);
+                wasHookCalled.set(true);
                 return Optional.empty();
             }
         }
 
-        final Client client = api.getClient();
-        api.setProviderAndWait(provider1);
-        api.addHooks(new MutatingHook());
+        final Client client = testApi.getClient();
+        testApi.setProviderAndWait(provider1);
+        testApi.addHooks(new MutatingHook());
 
         // if provider is changed during an evaluation transaction it should proceed with the original provider
         client.getStringValue("val", defaultValue);
         assertEquals(1, provider1.getFlagEvaluations().size());
+        assertEquals(0, provider2.getFlagEvaluations().size());
+        assertTrue(wasHookCalled.get());
 
-        api.clearHooks();
+        testApi.clearHooks();
 
         // subsequent evaluations should now use new provider set by hook
         client.getStringValue("val", defaultValue);
+        assertEquals(1, provider1.getFlagEvaluations().size());
         assertEquals(1, provider2.getFlagEvaluations().size());
     }
 

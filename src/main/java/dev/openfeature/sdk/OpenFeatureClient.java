@@ -8,9 +8,9 @@ import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
 import dev.openfeature.sdk.internal.ObjectUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,11 +31,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @SuppressWarnings({
-        "PMD.DataflowAnomalyAnalysis",
-        "PMD.BeanMembersShouldSerialize",
-        "PMD.UnusedLocalVariable",
-        "unchecked",
-        "rawtypes"
+    "PMD.DataflowAnomalyAnalysis",
+    "PMD.BeanMembersShouldSerialize",
+    "PMD.UnusedLocalVariable",
+    "unchecked",
+    "rawtypes"
 })
 @Deprecated() // TODO: eventually we will make this non-public. See issue #872
 public class OpenFeatureClient implements Client {
@@ -148,11 +148,11 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public List<Hook> getHooks() {
-        var allHooks = new ArrayList<Hook>();
+        var allHooks = new HashSet<Hook>();
         for (var queue : this.clientHooks.values()) {
             allHooks.addAll(queue);
         }
-        return allHooks;
+        return new ArrayList<>(allHooks);
     }
 
     /**
@@ -197,8 +197,7 @@ public class OpenFeatureClient implements Client {
                     provider.getProviderHooks(type),
                     flagOptions.getHooks(type),
                     clientHooks.get(type),
-                    openfeatureApi.getHooks(type)
-            );
+                    openfeatureApi.getHooks(type));
 
             var sharedHookContext =
                     new SharedHookContext(key, type, this.getMetadata(), provider.getMetadata(), defaultValue);

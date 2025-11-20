@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import dev.openfeature.sdk.fixtures.HookFixtures;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +36,12 @@ class HookSupportTest implements HookFixtures {
 
         var sharedContext = getBaseHookContextForType(FlagValueType.STRING);
         var hookSupportData = new HookSupportData();
-        hookSupport.setHooks(hookSupportData, List.of(hook1, hook2), Collections.emptyList(), new ConcurrentLinkedQueue<>(), new ConcurrentLinkedQueue<>());
+        hookSupport.setHooks(
+                hookSupportData,
+                List.of(hook1, hook2),
+                Collections.emptyList(),
+                new ConcurrentLinkedQueue<>(),
+                new ConcurrentLinkedQueue<>());
         hookSupport.setHookContexts(hookSupportData, sharedContext);
         hookSupport.updateEvaluationContext(hookSupportData, baseEvalContext);
 
@@ -50,14 +54,18 @@ class HookSupportTest implements HookFixtures {
         assertThat(result.getValue("baseKey").asString()).isEqualTo("baseValue");
     }
 
-  /*  @ParameterizedTest
-    @EnumSource(value = FlagValueType.class)
+    @Test
     @DisplayName("should always call generic hook")
-    void shouldAlwaysCallGenericHook(FlagValueType flagValueType) {
+    void shouldAlwaysCallGenericHook() {
         Hook<?> genericHook = mockGenericHook();
 
         var hookSupportData = new HookSupportData();
-        hookSupport.setHooks(hookSupportData, List.of(genericHook), flagValueType);
+        hookSupport.setHooks(
+                hookSupportData,
+                List.of(genericHook),
+                Collections.emptyList(),
+                new ConcurrentLinkedQueue<>(),
+                new ConcurrentLinkedQueue<>());
 
         callAllHooks(hookSupportData);
 
@@ -73,7 +81,12 @@ class HookSupportTest implements HookFixtures {
     void shouldPassDataAcrossStages(FlagValueType flagValueType) {
         var testHook = new TestHookWithData();
         var hookSupportData = new HookSupportData();
-        hookSupport.setHooks(hookSupportData, List.of(testHook), flagValueType);
+        hookSupport.setHooks(
+                hookSupportData,
+                List.of(testHook),
+                Collections.emptyList(),
+                new ConcurrentLinkedQueue<>(),
+                new ConcurrentLinkedQueue<>());
         hookSupport.setHookContexts(hookSupportData, getBaseHookContextForType(flagValueType));
 
         hookSupport.executeBeforeHooks(hookSupportData);
@@ -99,14 +112,19 @@ class HookSupportTest implements HookFixtures {
         var testHook2 = new TestHookWithData(2);
 
         var hookSupportData = new HookSupportData();
-        hookSupport.setHooks(hookSupportData, List.of(testHook1, testHook2), flagValueType);
+        hookSupport.setHooks(
+                hookSupportData,
+                List.of(testHook1, testHook2),
+                Collections.emptyList(),
+                new ConcurrentLinkedQueue<>(),
+                new ConcurrentLinkedQueue<>());
         hookSupport.setHookContexts(hookSupportData, getBaseHookContextForType(flagValueType));
 
         callAllHooks(hookSupportData);
 
         assertHookData(testHook1, 1, "before", "after", "finallyAfter", "error");
         assertHookData(testHook2, 2, "before", "after", "finallyAfter", "error");
-    }*/
+    }
 
     private static void callAllHooks(HookSupportData hookSupportData) {
         hookSupport.executeBeforeHooks(hookSupportData);

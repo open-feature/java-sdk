@@ -22,11 +22,8 @@ import dev.openfeature.sdk.Value;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.infra.Blackhole;
 
 /**
@@ -99,7 +96,7 @@ public class AllocationBenchmark {
     }
 
     @Benchmark
-    //@BenchmarkMode(Mode.SingleShotTime)
+    // @BenchmarkMode(Mode.SingleShotTime)
     @Fork(jvmArgsAppend = {"-Xmx10024m", "-Xms10024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
     public void context(Blackhole blackhole, AllocationBenchmarkState state) {
         OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(state.transactionAttr));
@@ -109,8 +106,8 @@ public class AllocationBenchmark {
             blackhole.consume(state.client.getStringValue(STRING_FLAG_KEY, "default"));
             blackhole.consume(state.client.getIntegerValue(INT_FLAG_KEY, 0, state.invocationContext));
             blackhole.consume(state.client.getDoubleValue(FLOAT_FLAG_KEY, 0.0));
-            blackhole.consume(state.client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()),
-                    state.invocationContext));
+            blackhole.consume(state.client.getObjectDetails(
+                    OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), state.invocationContext));
         }
 
         OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(state.transactionAttr2));
@@ -120,8 +117,8 @@ public class AllocationBenchmark {
             blackhole.consume(state.client.getStringValue(STRING_FLAG_KEY, "default"));
             blackhole.consume(state.client.getIntegerValue(INT_FLAG_KEY, 0, state.invocationContext));
             blackhole.consume(state.client.getDoubleValue(FLOAT_FLAG_KEY, 0.0));
-            blackhole.consume(state.client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()),
-                    state.invocationContext));
+            blackhole.consume(state.client.getObjectDetails(
+                    OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), state.invocationContext));
         }
     }
 
@@ -140,8 +137,8 @@ public class AllocationBenchmark {
                 blackhole.consume(state.client.getStringValue(STRING_FLAG_KEY, "default"));
                 blackhole.consume(state.client.getIntegerValue(INT_FLAG_KEY, 0, state.invocationContext));
                 blackhole.consume(state.client.getDoubleValue(FLOAT_FLAG_KEY, 0.0));
-                blackhole.consume(state.client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()),
-                        state.invocationContext));
+                blackhole.consume(state.client.getObjectDetails(
+                        OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), state.invocationContext));
             }
 
             OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(state.transactionAttr2));
@@ -151,8 +148,8 @@ public class AllocationBenchmark {
                 blackhole.consume(state.client.getStringValue(STRING_FLAG_KEY, "default"));
                 blackhole.consume(state.client.getIntegerValue(INT_FLAG_KEY, 0, state.invocationContext));
                 blackhole.consume(state.client.getDoubleValue(FLOAT_FLAG_KEY, 0.0));
-                blackhole.consume(state.client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()),
-                        state.invocationContext));
+                blackhole.consume(state.client.getObjectDetails(
+                        OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), state.invocationContext));
             }
         }
     }
