@@ -154,6 +154,8 @@ class LayeredEvaluationContextTest {
                     );
 
             assertEquals(expectedKeys, layeredContext.keySet());
+            // cached key set
+            assertEquals(expectedKeys, layeredContext.keySet());
         }
 
         @Test
@@ -203,6 +205,22 @@ class LayeredEvaluationContextTest {
             assertEquals(Map.of(), layeredContext.asUnmodifiableMap());
             assertEquals(Map.of(), layeredContext.asObjectMap());
         }
+
+        @Test
+        void creatingMapWithCachedEmptyKeySetWorks(){
+            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+            assertNotNull(layeredContext.keySet());
+            assertEquals(Map.of(), layeredContext.asMap());
+            assertEquals(Map.of(), layeredContext.asUnmodifiableMap());
+        }
+
+        @Test
+        void creatingMapWithCachedNonEmptyKeySetWorks(){
+            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(apiContext, null, null, null);
+            assertNotNull(layeredContext.keySet());
+            assertEquals(apiContext.asMap(), layeredContext.asMap());
+            assertEquals(apiContext.asUnmodifiableMap(), layeredContext.asUnmodifiableMap());
+        }
     }
 
     @Nested
@@ -224,6 +242,20 @@ class LayeredEvaluationContextTest {
                     );
 
             assertEquals(expectedKeys, layeredContext.asObjectMap());
+        }
+
+        @Test
+        void creatingMapWithCachedEmptyKeySetWorks(){
+            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+            assertNotNull(layeredContext.keySet());
+            assertEquals(Map.of(), layeredContext.asObjectMap());
+        }
+
+        @Test
+        void creatingMapWithCachedNonEmptyKeySetWorks(){
+            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(apiContext, null, null, null);
+            assertNotNull(layeredContext.keySet());
+            assertEquals(apiContext.asObjectMap(), layeredContext.asObjectMap());
         }
     }
 
