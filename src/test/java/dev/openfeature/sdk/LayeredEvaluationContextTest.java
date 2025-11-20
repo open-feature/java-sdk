@@ -207,7 +207,7 @@ class LayeredEvaluationContextTest {
         }
 
         @Test
-        void creatingMapWithCachedEmptyKeySetWorks(){
+        void creatingMapWithCachedEmptyKeySetWorks() {
             LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
             assertNotNull(layeredContext.keySet());
             assertEquals(Map.of(), layeredContext.asMap());
@@ -215,7 +215,7 @@ class LayeredEvaluationContextTest {
         }
 
         @Test
-        void creatingMapWithCachedNonEmptyKeySetWorks(){
+        void creatingMapWithCachedNonEmptyKeySetWorks() {
             LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(apiContext, null, null, null);
             assertNotNull(layeredContext.keySet());
             assertEquals(apiContext.asMap(), layeredContext.asMap());
@@ -245,14 +245,14 @@ class LayeredEvaluationContextTest {
         }
 
         @Test
-        void creatingMapWithCachedEmptyKeySetWorks(){
+        void creatingMapWithCachedEmptyKeySetWorks() {
             LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
             assertNotNull(layeredContext.keySet());
             assertEquals(Map.of(), layeredContext.asObjectMap());
         }
 
         @Test
-        void creatingMapWithCachedNonEmptyKeySetWorks(){
+        void creatingMapWithCachedNonEmptyKeySetWorks() {
             LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(apiContext, null, null, null);
             assertNotNull(layeredContext.keySet());
             assertEquals(apiContext.asObjectMap(), layeredContext.asObjectMap());
