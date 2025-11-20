@@ -15,6 +15,17 @@ public interface FeatureProvider {
         return new ArrayList<>();
     }
 
+    default List<Hook> getProviderHooks(FlagValueType flagType) {
+        var allHooks = getProviderHooks();
+        var filteredHooks = new ArrayList<Hook>(allHooks.size());
+        for (Hook hook : allHooks) {
+            if (hook.supportsFlagValueType(flagType)) {
+                filteredHooks.add(hook);
+            }
+        }
+        return filteredHooks;
+    }
+
     ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx);
 
     ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx);

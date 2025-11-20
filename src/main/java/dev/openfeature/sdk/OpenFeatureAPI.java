@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -24,14 +25,18 @@ import lombok.extern.slf4j.Slf4j;
 public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     // package-private multi-read/single-write lock
     static AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
-    private final ConcurrentLinkedQueue<Hook> apiHooks;
+    private final ConcurrentHashMap<FlagValueType, ConcurrentLinkedQueue<Hook>> apiHooks;
     private ProviderRepository providerRepository;
     private EventSupport eventSupport;
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
     private TransactionContextPropagator transactionContextPropagator;
 
     protected OpenFeatureAPI() {
-        apiHooks = new ConcurrentLinkedQueue<>();
+        var values = FlagValueType.values();
+        apiHooks = new ConcurrentHashMap<>(values.length);
+        for (FlagValueType value : values) {
+            apiHooks.put(value, new ConcurrentLinkedQueue<>());
+        }
         providerRepository = new ProviderRepository(this);
         eventSupport = new EventSupport();
         transactionContextPropagator = new NoOpTransactionContextPropagator();
@@ -304,7 +309,16 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @param hooks The hook to add.
      */
     public void addHooks(Hook... hooks) {
-        this.apiHooks.addAll(Arrays.asList(hooks));
+        var types = FlagValueType.values();
+        for (int i = 0; i < hooks.length; i++) {
+            var current = hooks[i];
+            for (int j = 0; j < types.length; j++) {
+                var type = types[j];
+                if(current.supportsFlagValueType(type)) {
+                    this.apiHooks.get(type).add(current);
+                }
+            }
+        }
     }
 
     /**
@@ -313,16 +327,20 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @return A list of {@link Hook}s.
      */
     public List<Hook> getHooks() {
-        return new ArrayList<>(this.apiHooks);
+        var allHooks = new ArrayList<Hook>();
+        for (var queue : this.apiHooks.values()) {
+            allHooks.addAll(queue);
+        }
+        return allHooks;
     }
 
     /**
-     * Returns a reference to the collection of {@link Hook}s.
+     * Fetch the hooks associated to this client.
      *
-     * @return The collection of {@link Hook}s.
+     * @return A list of {@link Hook}s.
      */
-    Collection<Hook> getMutableHooks() {
-        return this.apiHooks;
+    ConcurrentLinkedQueue<Hook> getHooks(FlagValueType type) {
+        return apiHooks.get(type);
     }
 
     /**
