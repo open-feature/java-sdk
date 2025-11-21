@@ -33,11 +33,12 @@ class HookSupportTest implements HookFixtures {
         when(hook1.before(any(), any())).thenReturn(Optional.of(evaluationContextWithValue("bla", "blubber")));
         when(hook2.before(any(), any())).thenReturn(Optional.of(evaluationContextWithValue("foo", "bar")));
 
+        var layered = new LayeredEvaluationContext(baseEvalContext, null, null, null);
         var sharedContext = getBaseHookContextForType(FlagValueType.STRING);
         var hookSupportData = new HookSupportData();
+        hookSupportData.evaluationContext = layered;
         hookSupport.setHooks(hookSupportData, Arrays.asList(hook1, hook2), FlagValueType.STRING);
-        hookSupport.setHookContexts(hookSupportData, sharedContext);
-        hookSupport.updateEvaluationContext(hookSupportData, baseEvalContext);
+        hookSupport.setHookContexts(hookSupportData, sharedContext, layered);
 
         hookSupport.executeBeforeHooks(hookSupportData);
 
@@ -72,7 +73,10 @@ class HookSupportTest implements HookFixtures {
         var testHook = new TestHookWithData();
         var hookSupportData = new HookSupportData();
         hookSupport.setHooks(hookSupportData, List.of(testHook), flagValueType);
-        hookSupport.setHookContexts(hookSupportData, getBaseHookContextForType(flagValueType));
+        hookSupport.setHookContexts(
+                hookSupportData,
+                getBaseHookContextForType(flagValueType),
+                new LayeredEvaluationContext(null, null, null, null));
 
         hookSupport.executeBeforeHooks(hookSupportData);
         assertHookData(testHook, "before");
@@ -98,7 +102,10 @@ class HookSupportTest implements HookFixtures {
 
         var hookSupportData = new HookSupportData();
         hookSupport.setHooks(hookSupportData, List.of(testHook1, testHook2), flagValueType);
-        hookSupport.setHookContexts(hookSupportData, getBaseHookContextForType(flagValueType));
+        hookSupport.setHookContexts(
+                hookSupportData,
+                getBaseHookContextForType(flagValueType),
+                new LayeredEvaluationContext(null, null, null, null));
 
         callAllHooks(hookSupportData);
 
