@@ -29,11 +29,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @SuppressWarnings({
-        "PMD.DataflowAnomalyAnalysis",
-        "PMD.BeanMembersShouldSerialize",
-        "PMD.UnusedLocalVariable",
-        "unchecked",
-        "rawtypes"
+    "PMD.DataflowAnomalyAnalysis",
+    "PMD.BeanMembersShouldSerialize",
+    "PMD.UnusedLocalVariable",
+    "unchecked",
+    "rawtypes"
 })
 @Deprecated() // TODO: eventually we will make this non-public. See issue #872
 public class OpenFeatureClient implements Client {
