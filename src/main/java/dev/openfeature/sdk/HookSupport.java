@@ -2,7 +2,9 @@ package dev.openfeature.sdk;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.extern.slf4j.Slf4j;
@@ -155,5 +157,27 @@ class HookSupport {
                         e);
             }
         }
+    }
+
+    static void addHooks(Map<FlagValueType, ConcurrentLinkedQueue<Hook>> hookMap, Hook... hooksToAdd) {
+        var types = FlagValueType.values();
+        for (int i = 0; i < hooksToAdd.length; i++) {
+            var current = hooksToAdd[i];
+            for (int j = 0; j < types.length; j++) {
+                var type = types[j];
+                if (current.supportsFlagValueType(type)) {
+                    hookMap.get(type).add(current);
+                }
+            }
+        }
+    }
+
+    static ArrayList<Hook> getAllUniqueHooks(Map<FlagValueType, ConcurrentLinkedQueue<Hook>> hookMap) {
+        // Hooks can be duplicated if they support multiple FlagValueTypes
+        var allHooks = new HashSet<Hook>();
+        for (var queue : hookMap.values()) {
+            allHooks.addAll(queue);
+        }
+        return new ArrayList<>(allHooks);
     }
 }

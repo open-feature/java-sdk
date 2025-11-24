@@ -3,8 +3,6 @@ package dev.openfeature.sdk;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.internal.AutoCloseableLock;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -308,16 +306,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @param hooks The hook to add.
      */
     public void addHooks(Hook... hooks) {
-        var types = FlagValueType.values();
-        for (int i = 0; i < hooks.length; i++) {
-            var current = hooks[i];
-            for (int j = 0; j < types.length; j++) {
-                var type = types[j];
-                if (current.supportsFlagValueType(type)) {
-                    this.apiHooks.get(type).add(current);
-                }
-            }
-        }
+        HookSupport.addHooks(apiHooks, hooks);
     }
 
     /**
@@ -326,12 +315,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * @return A list of {@link Hook}s.
      */
     public List<Hook> getHooks() {
-        // Hooks can be duplicated if they support multiple FlagValueTypes
-        var allHooks = new HashSet<Hook>();
-        for (var queue : this.apiHooks.values()) {
-            allHooks.addAll(queue);
-        }
-        return new ArrayList<>(allHooks);
+        return HookSupport.getAllUniqueHooks(apiHooks);
     }
 
     /**

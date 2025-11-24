@@ -7,10 +7,8 @@ import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
 import dev.openfeature.sdk.internal.ObjectUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,11 +29,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @SuppressWarnings({
-    "PMD.DataflowAnomalyAnalysis",
-    "PMD.BeanMembersShouldSerialize",
-    "PMD.UnusedLocalVariable",
-    "unchecked",
-    "rawtypes"
+        "PMD.DataflowAnomalyAnalysis",
+        "PMD.BeanMembersShouldSerialize",
+        "PMD.UnusedLocalVariable",
+        "unchecked",
+        "rawtypes"
 })
 @Deprecated() // TODO: eventually we will make this non-public. See issue #872
 public class OpenFeatureClient implements Client {
@@ -130,16 +128,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public OpenFeatureClient addHooks(Hook... hooks) {
-        var types = FlagValueType.values();
-        for (int i = 0; i < hooks.length; i++) {
-            var current = hooks[i];
-            for (int j = 0; j < types.length; j++) {
-                var type = types[j];
-                if (current.supportsFlagValueType(type)) {
-                    this.clientHooks.get(type).add(current);
-                }
-            }
-        }
+        HookSupport.addHooks(clientHooks, hooks);
         return this;
     }
 
@@ -148,11 +137,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public List<Hook> getHooks() {
-        var allHooks = new HashSet<Hook>();
-        for (var queue : this.clientHooks.values()) {
-            allHooks.addAll(queue);
-        }
-        return new ArrayList<>(allHooks);
+        return HookSupport.getAllUniqueHooks(clientHooks);
     }
 
     /**
