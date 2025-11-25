@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.internal.ConfigurableThreadFactory;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -26,7 +27,8 @@ class EventSupport {
     private static final String DEFAULT_CLIENT_UUID = UUID.randomUUID().toString();
     private final Map<String, HandlerStore> handlerStores = new ConcurrentHashMap<>();
     private final HandlerStore globalHandlerStore = new HandlerStore();
-    private final ExecutorService taskExecutor = Executors.newCachedThreadPool();
+    private final ExecutorService taskExecutor =
+            Executors.newCachedThreadPool(new ConfigurableThreadFactory("openfeature-event-handler-thread"));
 
     /**
      * Run all the event handlers associated with this domain.

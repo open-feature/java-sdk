@@ -8,7 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import dev.openfeature.sdk.fixtures.HookFixtures;
-import dev.openfeature.sdk.testutils.TestEventsProvider;
+import dev.openfeature.sdk.testutils.testProvider.TestProvider;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -23,13 +23,13 @@ class DeveloperExperienceTest implements HookFixtures {
     private OpenFeatureAPI api;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() {
         api = new OpenFeatureAPI();
     }
 
     @Test
     void simpleBooleanFlag() {
-        api.setProviderAndWait(new TestEventsProvider());
+        api.setProviderAndWait(TestProvider.builder().initsToReady());
         Client client = api.getClient();
         Boolean retval = client.getBooleanValue(flagKey, false);
         assertFalse(retval);
@@ -39,7 +39,7 @@ class DeveloperExperienceTest implements HookFixtures {
     void clientHooks() {
         Hook<Boolean> exampleHook = mockBooleanHook();
 
-        api.setProviderAndWait(new TestEventsProvider());
+        api.setProviderAndWait(TestProvider.builder().initsToReady());
         Client client = api.getClient();
         client.addHooks(exampleHook);
         Boolean retval = client.getBooleanValue(flagKey, false);
@@ -52,7 +52,7 @@ class DeveloperExperienceTest implements HookFixtures {
         Hook<Boolean> clientHook = mockBooleanHook();
         Hook<Boolean> evalHook = mockBooleanHook();
 
-        api.setProviderAndWait(new TestEventsProvider());
+        api.setProviderAndWait(TestProvider.builder().initsToReady());
         Client client = api.getClient();
         client.addHooks(clientHook);
         Boolean retval = client.getBooleanValue(
@@ -72,7 +72,7 @@ class DeveloperExperienceTest implements HookFixtures {
     @Test
     void providingContext() {
 
-        api.setProviderAndWait(new TestEventsProvider());
+        api.setProviderAndWait(TestProvider.builder().initsToReady());
         Client client = api.getClient();
         Map<String, Value> attributes = new HashMap<>();
         List<Value> values = Arrays.asList(new Value(2), new Value(4));
@@ -88,7 +88,7 @@ class DeveloperExperienceTest implements HookFixtures {
 
     @Test
     void brokenProvider() {
-        api.setProviderAndWait(new AlwaysBrokenWithExceptionProvider());
+        api.setProviderAndWait(TestProvider.builder().withExceptionOnFlagEvaluation());
         Client client = api.getClient();
         FlagEvaluationDetails<Boolean> retval = client.getBooleanDetails(flagKey, false);
         assertEquals(ErrorCode.FLAG_NOT_FOUND, retval.getErrorCode());
@@ -102,6 +102,8 @@ class DeveloperExperienceTest implements HookFixtures {
 
         final String defaultValue = "string-value";
         final OpenFeatureAPI api = new OpenFeatureAPI();
+        var provider1 = TestProvider.builder().initsToReady();
+        var provider2 = TestProvider.builder().initsToReady();
 
         class MutatingHook implements Hook {
 
@@ -110,31 +112,31 @@ class DeveloperExperienceTest implements HookFixtures {
             // change the provider during a before hook - this should not impact the evaluation in progress
             public Optional before(HookContext ctx, Map hints) {
 
-                api.setProviderAndWait(TestEventsProvider.newInitializedTestEventsProvider());
+                api.setProviderAndWait(provider2);
 
                 return Optional.empty();
             }
         }
 
         final Client client = api.getClient();
-        api.setProviderAndWait(new DoSomethingProvider());
+        api.setProviderAndWait(provider1);
         api.addHooks(new MutatingHook());
 
         // if provider is changed during an evaluation transaction it should proceed with the original provider
-        String doSomethingValue = client.getStringValue("val", defaultValue);
-        assertEquals(new StringBuilder(defaultValue).reverse().toString(), doSomethingValue);
+        client.getStringValue("val", defaultValue);
+        assertEquals(1, provider1.getFlagEvaluations().size());
 
         api.clearHooks();
 
         // subsequent evaluations should now use new provider set by hook
-        String noOpValue = client.getStringValue("val", defaultValue);
-        assertEquals(noOpValue, defaultValue);
+        client.getStringValue("val", defaultValue);
+        assertEquals(1, provider2.getFlagEvaluations().size());
     }
 
     @Test
     void setProviderAndWaitShouldPutTheProviderInReadyState() {
         String domain = "domain";
-        api.setProviderAndWait(domain, new TestEventsProvider());
+        api.setProviderAndWait(domain, TestProvider.builder().initsToReady());
         Client client = api.getClient(domain);
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
     }
@@ -146,7 +148,7 @@ class DeveloperExperienceTest implements HookFixtures {
     @Test
     void shouldPutTheProviderInStateErrorAfterEmittingErrorEvent() {
         String domain = "domain";
-        TestEventsProvider provider = new TestEventsProvider();
+        var provider = TestProvider.builder().initsToReady();
         api.setProviderAndWait(domain, provider);
         Client client = api.getClient(domain);
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
@@ -161,7 +163,7 @@ class DeveloperExperienceTest implements HookFixtures {
     @Test
     void shouldPutTheProviderInStateStaleAfterEmittingStaleEvent() {
         String domain = "domain";
-        TestEventsProvider provider = new TestEventsProvider();
+        var provider = TestProvider.builder().initsToReady();
         api.setProviderAndWait(domain, provider);
         Client client = api.getClient(domain);
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
@@ -176,7 +178,7 @@ class DeveloperExperienceTest implements HookFixtures {
     @Test
     void shouldPutTheProviderInStateReadyAfterEmittingReadyEvent() {
         String domain = "domain";
-        TestEventsProvider provider = new TestEventsProvider();
+        var provider = TestProvider.builder().initsToReady();
         api.setProviderAndWait(domain, provider);
         Client client = api.getClient(domain);
         assertThat(client.getProviderState()).isEqualTo(ProviderState.READY);
