@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -287,6 +288,80 @@ class ProviderRepositoryTest {
                 verify(afterInit, never()).accept(any());
                 ;
                 verify(afterError, timeout(TIMEOUT)).accept(eq(errorFeatureProvider), any());
+            }
+        }
+
+        @Nested
+        class GracefulShutdownBehavior {
+
+            @Test
+            @DisplayName("should complete shutdown successfully when executor terminates within timeout")
+            void shouldCompleteShutdownSuccessfullyWhenExecutorTerminatesWithinTimeout() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                assertThatCode(() -> providerRepository.shutdown()).doesNotThrowAnyException();
+
+                verify(provider, timeout(TIMEOUT)).shutdown();
+            }
+
+            @Test
+            @DisplayName("should force shutdown when executor does not terminate within timeout")
+            void shouldForceShutdownWhenExecutorDoesNotTerminateWithinTimeout() throws Exception {
+                FeatureProvider provider = createMockedProvider();
+                AtomicBoolean wasInterrupted = new AtomicBoolean(false);
+                doAnswer(invocation -> {
+                            try {
+                                Thread.sleep(TIMEOUT);
+                            } catch (InterruptedException e) {
+                                wasInterrupted.set(true);
+                                throw e;
+                            }
+                            return null;
+                        })
+                        .when(provider)
+                        .shutdown();
+
+                setFeatureProvider(provider);
+
+                assertThatCode(() -> providerRepository.shutdown()).doesNotThrowAnyException();
+
+                verify(provider, timeout(TIMEOUT)).shutdown();
+                // Verify that shutdownNow() interrupted the running shutdown task
+                await().atMost(Duration.ofSeconds(1))
+                        .untilAsserted(() -> assertThat(wasInterrupted.get()).isTrue());
+            }
+
+            @Test
+            @DisplayName("should handle interruption during shutdown gracefully")
+            void shouldHandleInterruptionDuringShutdownGracefully() throws Exception {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                Thread shutdownThread = new Thread(() -> {
+                    providerRepository.shutdown();
+                });
+
+                shutdownThread.start();
+                shutdownThread.interrupt();
+                shutdownThread.join(TIMEOUT);
+
+                assertThat(shutdownThread.isAlive()).isFalse();
+                verify(provider, timeout(TIMEOUT)).shutdown();
+            }
+
+            @Test
+            @DisplayName("should not hang indefinitely on shutdown")
+            void shouldNotHangIndefinitelyOnShutdown() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                await().alias("shutdown should complete within reasonable time")
+                        .atMost(Duration.ofSeconds(5))
+                        .until(() -> {
+                            providerRepository.shutdown();
+                            return true;
+                        });
             }
         }
     }
