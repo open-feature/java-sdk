@@ -53,8 +53,9 @@ public interface FeatureProvider {
      * caught and logged.
      * </p>
      */
-    default void shutdown() {
+    default boolean shutdown() {
         // Intentionally left blank
+        return false;
     }
 
     /**
