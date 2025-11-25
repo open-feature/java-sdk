@@ -319,6 +319,13 @@ class LayeredEvaluationContextTest {
             layeredContext.putHookContext(hookContext);
             assertFalse(layeredContext.isEmpty());
         }
+
+        @Test
+        void isEmptyIfHookContextIsEmpty() {
+            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+            layeredContext.putHookContext(new MutableContext());
+            assertTrue(layeredContext.isEmpty());
+        }
     }
 
     @Nested

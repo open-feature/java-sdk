@@ -74,11 +74,26 @@ public class LayeredEvaluationContext implements EvaluationContext {
 
     @Override
     public boolean isEmpty() {
-        return (hookContexts == null || hookContexts.isEmpty())
-                && (invocationContext == null || invocationContext.isEmpty())
+        return (invocationContext == null || invocationContext.isEmpty())
                 && (clientContext == null || clientContext.isEmpty())
                 && (transactionContext == null || transactionContext.isEmpty())
-                && (apiContext == null || apiContext.isEmpty());
+                && (apiContext == null || apiContext.isEmpty())
+                && areHookContextsEmpty();
+    }
+
+    private boolean areHookContextsEmpty() {
+        if (hookContexts == null || hookContexts.isEmpty()) {
+            return true;
+        }
+
+        for (int i = 0; i < hookContexts.size(); i++) {
+            var current = hookContexts.get(i);
+            if (!current.isEmpty()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
