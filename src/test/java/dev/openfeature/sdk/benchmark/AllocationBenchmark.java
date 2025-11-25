@@ -23,7 +23,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.infra.Blackhole;
 
 /**
@@ -35,9 +37,9 @@ public class AllocationBenchmark {
     // 10K iterations works well with Xmx1024m (we don't want to run out of memory)
     private static final int ITERATIONS = 10000;
 
-    // @Benchmark
-    // @BenchmarkMode(Mode.SingleShotTime)
-    // @Fork(jvmArgsAppend = {"-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
+    @Benchmark
+    @BenchmarkMode(Mode.SingleShotTime)
+    @Fork(jvmArgsAppend = {"-Xmx1024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
     public void run() {
 
         OpenFeatureAPI.getInstance().setProviderAndWait(new NoOpProvider());
@@ -96,7 +98,7 @@ public class AllocationBenchmark {
     }
 
     @Benchmark
-    // @BenchmarkMode(Mode.SingleShotTime)
+    @BenchmarkMode(Mode.SingleShotTime)
     @Fork(jvmArgsAppend = {"-Xmx10024m", "-Xms10024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
     public void context(Blackhole blackhole, AllocationBenchmarkState state) {
         OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(state.transactionAttr));
