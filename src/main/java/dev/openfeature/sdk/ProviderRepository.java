@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -277,5 +278,14 @@ class ProviderRepository {
                 .forEach(this::shutdownProvider);
         this.stateManagers.clear();
         taskExecutor.shutdown();
+        try {
+            if (!taskExecutor.awaitTermination(3, TimeUnit.SECONDS)) {
+                log.warn("Task executor did not terminate before the timeout period had elapsed");
+                taskExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            taskExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 }
