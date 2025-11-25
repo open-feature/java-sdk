@@ -1,6 +1,7 @@
 package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -20,7 +21,7 @@ import lombok.experimental.Delegate;
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public final class ImmutableContext implements EvaluationContext {
 
-    public static final ImmutableContext EMPTY = new ImmutableContext();
+    public static final ImmutableContext EMPTY = new ImmutableContext(Collections.emptyMap());
 
     @Delegate(excludes = DelegateExclusions.class)
     private final ImmutableStructure structure;
@@ -58,7 +59,7 @@ public final class ImmutableContext implements EvaluationContext {
      * @param attributes   evaluation context attributes
      */
     public ImmutableContext(String targetingKey, Map<String, Value> attributes) {
-        if (targetingKey != null && !targetingKey.trim().isEmpty()) {
+        if (targetingKey != null && !targetingKey.isBlank()) {
             this.structure = new ImmutableStructure(targetingKey, attributes);
         } else {
             this.structure = new ImmutableStructure(attributes);

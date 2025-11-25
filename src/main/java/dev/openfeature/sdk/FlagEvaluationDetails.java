@@ -1,6 +1,5 @@
 package dev.openfeature.sdk;
 
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,7 +25,7 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
     private String errorMessage;
 
     @Builder.Default
-    private ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
+    private ImmutableMetadata flagMetadata = ImmutableMetadata.EMPTY;
 
     /**
      * Generate detail payload from the provider response.
@@ -37,15 +36,18 @@ public class FlagEvaluationDetails<T> implements BaseEvaluation<T> {
      * @return detail payload
      */
     public static <T> FlagEvaluationDetails<T> from(ProviderEvaluation<T> providerEval, String flagKey) {
-        return FlagEvaluationDetails.<T>builder()
-                .flagKey(flagKey)
-                .value(providerEval.getValue())
-                .variant(providerEval.getVariant())
-                .reason(providerEval.getReason())
-                .errorMessage(providerEval.getErrorMessage())
-                .errorCode(providerEval.getErrorCode())
-                .flagMetadata(Optional.ofNullable(providerEval.getFlagMetadata())
-                        .orElse(ImmutableMetadata.builder().build()))
-                .build();
+        var flagMetadata = providerEval.getFlagMetadata();
+        if (flagMetadata == null) {
+            flagMetadata = ImmutableMetadata.EMPTY;
+        }
+
+        return new FlagEvaluationDetails<>(
+                flagKey,
+                providerEval.getValue(),
+                providerEval.getVariant(),
+                providerEval.getReason(),
+                providerEval.getErrorCode(),
+                providerEval.getErrorMessage(),
+                flagMetadata);
     }
 }

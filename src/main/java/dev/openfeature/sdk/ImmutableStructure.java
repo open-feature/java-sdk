@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -69,15 +68,18 @@ public final class ImmutableStructure extends AbstractStructure {
     }
 
     private static Map<String, Value> copyAttributes(Map<String, Value> in, String targetingKey) {
-        Map<String, Value> copy = new HashMap<>();
+        Map<String, Value> copy;
         if (in != null) {
+            var numMappings = in.size() + 1;
+            copy = new HashMap<>((int) Math.ceil(numMappings / .75));
             for (Entry<String, Value> entry : in.entrySet()) {
-                copy.put(
-                        entry.getKey(),
-                        Optional.ofNullable(entry.getValue())
-                                .map((Value val) -> val.clone())
-                                .orElse(null));
+                var key = entry.getKey();
+                var value = entry.getValue();
+                Value cloned = value == null ? null : value.clone();
+                copy.put(key, cloned);
             }
+        } else {
+            copy = new HashMap<>(1);
         }
         if (targetingKey != null) {
             copy.put(EvaluationContext.TARGETING_KEY, new Value(targetingKey));
