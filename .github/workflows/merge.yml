@@ -26,7 +26,7 @@ jobs:
         fetch-depth: 0
         submodules: recursive
     - name: Set up JDK 17
-      uses: actions/setup-java@46c56d6f92c88cf540acf95a12a4a41197499222
+      uses: actions/setup-java@4e7e684fbb6e33f88ecb2cf1e6b3797739cf499b
       with:
         java-version: '17'
         distribution: 'temurin'
