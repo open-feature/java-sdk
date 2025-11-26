@@ -26,6 +26,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
 import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.infra.Blackhole;
 
 /**
  * Runs a large volume of flag evaluations on a VM with 1G memory and GC
@@ -93,6 +94,65 @@ public class AllocationBenchmark {
             client.getIntegerValue(INT_FLAG_KEY, 0);
             client.getDoubleValue(FLOAT_FLAG_KEY, 0.0);
             client.getObjectDetails(OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), invocationContext);
+        }
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.SingleShotTime)
+    @Fork(jvmArgsAppend = {"-Xmx10024m", "-Xms10024m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"})
+    public void context(Blackhole blackhole, AllocationBenchmarkState state) {
+        OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(state.transactionAttr));
+
+        for (int j = 0; j < 2; j++) {
+            blackhole.consume(state.client.getBooleanValue(BOOLEAN_FLAG_KEY, false));
+            blackhole.consume(state.client.getStringValue(STRING_FLAG_KEY, "default"));
+            blackhole.consume(state.client.getIntegerValue(INT_FLAG_KEY, 0, state.invocationContext));
+            blackhole.consume(state.client.getDoubleValue(FLOAT_FLAG_KEY, 0.0));
+            blackhole.consume(state.client.getObjectDetails(
+                    OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), state.invocationContext));
+        }
+
+        OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(state.transactionAttr2));
+
+        for (int j = 0; j < 2; j++) {
+            blackhole.consume(state.client.getBooleanValue(BOOLEAN_FLAG_KEY, false));
+            blackhole.consume(state.client.getStringValue(STRING_FLAG_KEY, "default"));
+            blackhole.consume(state.client.getIntegerValue(INT_FLAG_KEY, 0, state.invocationContext));
+            blackhole.consume(state.client.getDoubleValue(FLOAT_FLAG_KEY, 0.0));
+            blackhole.consume(state.client.getObjectDetails(
+                    OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), state.invocationContext));
+        }
+    }
+
+    public static void main(String[] args) {
+        var blackhole = new Blackhole(
+                "Today's password is swordfish. I understand instantiating Blackholes directly is dangerous.");
+
+        AllocationBenchmarkState state = new AllocationBenchmarkState();
+
+        for (int i = 0; i < 100000; i++) {
+
+            OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(state.transactionAttr));
+
+            for (int j = 0; j < 10; j++) {
+                blackhole.consume(state.client.getBooleanValue(BOOLEAN_FLAG_KEY, false));
+                blackhole.consume(state.client.getStringValue(STRING_FLAG_KEY, "default"));
+                blackhole.consume(state.client.getIntegerValue(INT_FLAG_KEY, 0, state.invocationContext));
+                blackhole.consume(state.client.getDoubleValue(FLOAT_FLAG_KEY, 0.0));
+                blackhole.consume(state.client.getObjectDetails(
+                        OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), state.invocationContext));
+            }
+
+            OpenFeatureAPI.getInstance().setTransactionContext(new ImmutableContext(state.transactionAttr2));
+
+            for (int j = 0; j < 10; j++) {
+                blackhole.consume(state.client.getBooleanValue(BOOLEAN_FLAG_KEY, false));
+                blackhole.consume(state.client.getStringValue(STRING_FLAG_KEY, "default"));
+                blackhole.consume(state.client.getIntegerValue(INT_FLAG_KEY, 0, state.invocationContext));
+                blackhole.consume(state.client.getDoubleValue(FLOAT_FLAG_KEY, 0.0));
+                blackhole.consume(state.client.getObjectDetails(
+                        OBJECT_FLAG_KEY, new Value(new ImmutableStructure()), state.invocationContext));
+            }
         }
     }
 }
