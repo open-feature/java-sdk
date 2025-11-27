@@ -1,21 +1,15 @@
 package dev.openfeature.sdk;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import dev.openfeature.contrib.providers.flagd.Config;
 import dev.openfeature.contrib.providers.flagd.FlagdOptions;
 import dev.openfeature.contrib.providers.flagd.FlagdProvider;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class NoBreakingChangesTest {
 
@@ -48,68 +42,44 @@ class NoBreakingChangesTest {
         threadWatcher.start();
     }
 
-    @AfterEach
-    void teardown() throws InterruptedException {
-        try {
-            Thread.sleep(1000); // wait a bit for any uncaught exceptions to be reported
-
-            isTestRunning.set(false);
-            threadWatcher.join(1000);
-        } finally {
-            assertThat(uncaughtExceptions).isEmpty();
-        }
-    }
-
     @Test
-    void noBreakingChanges() throws IOException {
+    void noBreakingChanges() throws InterruptedException {
+        try {
+            var testProvider = new FlagdProvider(FlagdOptions.builder()
+                    .resolverType(Config.Resolver.FILE)
+                    .offlineFlagSourcePath(NoBreakingChangesTest.class
+                            .getResource("/testFlags.json")
+                            .getPath())
+                    .build());
+            var api = new OpenFeatureAPI();
+            api.setProviderAndWait(testProvider);
 
-        var file = new File("testFlags.json");
-        file.createNewFile();
-        file.deleteOnExit();
+            var client = api.getClient();
+            var flagFound = client.getBooleanDetails("basic-boolean", false);
+            assertThat(flagFound).isNotNull();
+            assertThat(flagFound.getValue()).isTrue();
+            assertThat(flagFound.getVariant()).isEqualTo("true");
+            assertThat(flagFound.getReason()).isEqualTo(Reason.STATIC.toString());
 
-        System.err.println("Using flag file at: " + file.getAbsolutePath());
+            var flagNotFound = client.getStringDetails("unknown", "asd");
+            assertThat(flagNotFound).isNotNull();
+            assertThat(flagNotFound.getValue()).isEqualTo("asd");
+            assertThat(flagNotFound.getVariant()).isNull();
+            assertThat(flagNotFound.getReason()).isEqualTo(Reason.ERROR.toString());
+            assertThat(flagNotFound.getErrorCode()).isEqualTo(ErrorCode.FLAG_NOT_FOUND);
 
-        var writer = new BufferedWriter(new FileWriter(file));
-        writer.write("{\n" +
-                "  \"$schema\": \"https://flagd.dev/schema/v0/flags.json\",\n" +
-                "  \"flags\": {\n" +
-                "    \"basic-boolean\": {\n" +
-                "      \"state\": \"ENABLED\",\n" +
-                "      \"defaultVariant\": \"true\",\n" +
-                "      \"variants\": {\n" +
-                "        \"true\": true,\n" +
-                "        \"false\": false\n" +
-                "      },\n" +
-                "      \"targeting\": {}\n" +
-                "    }\n" +
-                "  }\n" +
-                "}\n");
-        writer.flush();
+            testProvider.shutdown();
+            api.shutdown();
 
-        System.err.println("written to file");
+        } finally {
+            try {
+                Thread.sleep(1000); // wait a bit for any uncaught exceptions to be reported
 
-        var testProvider = new FlagdProvider(FlagdOptions.builder()
-                .resolverType(Config.Resolver.FILE)
-                .offlineFlagSourcePath(file.getAbsolutePath())
-                .build());
-        var api = new OpenFeatureAPI();
-        api.setProviderAndWait(testProvider);
-
-        var client = api.getClient();
-        var flagFound = client.getBooleanDetails("basic-boolean", false);
-        assertThat(flagFound).isNotNull();
-        assertThat(flagFound.getValue()).isTrue();
-        assertThat(flagFound.getVariant()).isEqualTo("true");
-        assertThat(flagFound.getReason()).isEqualTo(Reason.STATIC.toString());
-
-        var flagNotFound = client.getStringDetails("unknown", "asd");
-        assertThat(flagNotFound).isNotNull();
-        assertThat(flagNotFound.getValue()).isEqualTo("asd");
-        assertThat(flagNotFound.getVariant()).isNull();
-        assertThat(flagNotFound.getReason()).isEqualTo(Reason.ERROR.toString());
-        assertThat(flagNotFound.getErrorCode()).isEqualTo(ErrorCode.FLAG_NOT_FOUND);
-
-        testProvider.shutdown();
-        api.shutdown();
+                isTestRunning.set(false);
+                threadWatcher.join(1000);
+            } finally {
+                assertThat(uncaughtExceptions).isEmpty();
+            }
+        }
     }
 }
