@@ -64,7 +64,6 @@ class NoBreakingChangesTest {
     void noBreakingChanges() throws IOException {
 
         var file = new File("testFlags.json");
-        file.mkdirs();
         file.createNewFile();
         file.deleteOnExit();
 
