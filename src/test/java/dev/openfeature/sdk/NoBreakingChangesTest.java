@@ -63,7 +63,7 @@ class NoBreakingChangesTest {
                 .offlineFlagSourcePath(NoBreakingChangesTest.class
                         .getResource("/testFlags.json")
                         .getPath()
-                        .replaceFirst("/", ""))
+                )
                 .build());
         var api = new OpenFeatureAPI();
         api.setProviderAndWait(testProvider);
