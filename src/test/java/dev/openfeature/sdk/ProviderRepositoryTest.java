@@ -4,6 +4,7 @@ import static dev.openfeature.sdk.fixtures.ProviderFixture.*;
 import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doDelayResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -332,23 +333,9 @@ class ProviderRepositoryTest {
                         .untilAsserted(() -> assertThat(wasInterrupted.get()).isTrue());
             }
 
-            @Test
-            @DisplayName("should handle interruption during shutdown gracefully")
-            void shouldHandleInterruptionDuringShutdownGracefully() throws Exception {
-                FeatureProvider provider = createMockedProvider();
-                setFeatureProvider(provider);
-
-                Thread shutdownThread = new Thread(() -> {
-                    providerRepository.shutdown();
-                });
-
-                shutdownThread.start();
-                shutdownThread.interrupt();
-                shutdownThread.join(TIMEOUT);
-
-                assertThat(shutdownThread.isAlive()).isFalse();
-                verify(provider, timeout(TIMEOUT)).shutdown();
-            }
+            // Note: shouldHandleInterruptionDuringShutdownGracefully was removed because the
+            // interrupt timing is not guaranteed. Proper concurrency testing is done in
+            // ProviderRepositoryCT using VMLens.
 
             @Test
             @DisplayName("should not hang indefinitely on shutdown")
@@ -363,6 +350,82 @@ class ProviderRepositoryTest {
                             return true;
                         });
             }
+
+            @Test
+            @DisplayName("should handle shutdown during provider initialization")
+            void shouldHandleShutdownDuringProviderInitialization() throws Exception {
+                FeatureProvider slowInitProvider = createMockedProvider();
+                AtomicBoolean shutdownCalled = new AtomicBoolean(false);
+
+                doDelayResponse(Duration.ofMillis(500)).when(slowInitProvider).initialize(any());
+
+                doAnswer(invocation -> {
+                            shutdownCalled.set(true);
+                            return null;
+                        })
+                        .when(slowInitProvider)
+                        .shutdown();
+
+                providerRepository.setProvider(
+                        slowInitProvider,
+                        mockAfterSet(),
+                        mockAfterInit(),
+                        mockAfterShutdown(),
+                        mockAfterError(),
+                        false);
+
+                // Call shutdown while initialization is in progress
+                assertThatCode(() -> providerRepository.shutdown()).doesNotThrowAnyException();
+
+                await().atMost(Duration.ofSeconds(1)).untilTrue(shutdownCalled);
+                verify(slowInitProvider, times(1)).shutdown();
+            }
+
+            @Test
+            @DisplayName("should handle provider replacement during shutdown")
+            void shouldHandleProviderReplacementDuringShutdown() throws Exception {
+                FeatureProvider oldProvider = createMockedProvider();
+                FeatureProvider newProvider = createMockedProvider();
+                AtomicBoolean oldProviderShutdownCalled = new AtomicBoolean(false);
+
+                doAnswer(invocation -> {
+                            oldProviderShutdownCalled.set(true);
+                            return null;
+                        })
+                        .when(oldProvider)
+                        .shutdown();
+
+                providerRepository.setProvider(
+                        oldProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), true);
+
+                // Replace provider (this will trigger old provider shutdown in background)
+                providerRepository.setProvider(
+                        newProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
+
+                assertThatCode(() -> providerRepository.shutdown()).doesNotThrowAnyException();
+
+                await().atMost(Duration.ofSeconds(1)).untilTrue(oldProviderShutdownCalled);
+                verify(oldProvider, times(1)).shutdown();
+                verify(newProvider, times(1)).shutdown();
+            }
+
+            @Test
+            @DisplayName("should prevent adding providers after shutdown has started")
+            void shouldPreventAddingProvidersAfterShutdownHasStarted() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                providerRepository.shutdown();
+
+                FeatureProvider newProvider = createMockedProvider();
+                assertThatThrownBy(() -> setFeatureProvider(newProvider))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("shutting down");
+            }
+
+            // Note: shouldHandleConcurrentShutdownCallsGracefully was removed because starting
+            // multiple threads doesn't guarantee parallel execution. Proper concurrency testing
+            // is done in ProviderRepositoryCT using VMLens which explores all thread interleavings.
         }
     }
 
