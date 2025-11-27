@@ -5,7 +5,6 @@ import dev.openfeature.sdk.EventProvider;
 import dev.openfeature.sdk.Metadata;
 import dev.openfeature.sdk.ProviderEvaluation;
 import dev.openfeature.sdk.ProviderEvent;
-import dev.openfeature.sdk.ProviderEventDetails;
 import dev.openfeature.sdk.Value;
 import java.util.function.Consumer;
 
@@ -38,7 +37,7 @@ public class TestStackedEmitCallsProvider extends EventProvider {
                  * This line deadlocked in the original implementation without the emitterExecutor see
                  * https://github.com/open-feature/java-sdk/issues/1299
                  */
-                //emitProviderReady(ProviderEventDetails.builder().build());
+                // emitProviderReady(ProviderEventDetails.builder().build());
             }
         }
     }
