@@ -13,8 +13,8 @@ jobs:
             build:
                 - java: 17
                   profile: codequality
-                #- java: 11
-                #  profile: java11
+                - java: 11
+                  profile: java11
     name: with Java ${{ matrix.build.java }}
     runs-on: ${{ matrix.os}}
     steps:
@@ -45,10 +45,7 @@ jobs:
                 ${{ runner.os }}${{ matrix.build.java }}-maven-
 
       - name: Verify with Maven
-        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} install
-
-      - name: Verify no breaking changes
-        run: mvn verify
+        run: mvn --batch-mode --update-snapshots --activate-profiles e2e,${{ matrix.build.profile }} verify
 
       - if: matrix.build.java == '17'
         name: Upload coverage to Codecov
