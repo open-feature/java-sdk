@@ -163,8 +163,13 @@ public class OpenFeatureClient implements Client {
         FlagEvaluationDetails<T> details = null;
         HookSupportData hookSupportData = new HookSupportData();
 
-        var flagOptions = ObjectUtils.defaultIfNull(
-                options, () -> FlagEvaluationOptions.builder().build());
+        FlagEvaluationOptions flagOptions;
+        if (options == null) {
+            flagOptions = FlagEvaluationOptions.EMPTY;
+        } else {
+            flagOptions = options;
+        }
+
         hookSupportData.hints = Collections.unmodifiableMap(flagOptions.getHookHints());
         var context = new LayeredEvaluationContext(
                 openfeatureApi.getEvaluationContext(),
@@ -323,8 +328,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Boolean> getBooleanDetails(String key, Boolean defaultValue, EvaluationContext ctx) {
-        return getBooleanDetails(
-                key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+        return getBooleanDetails(key, defaultValue, ctx, FlagEvaluationOptions.EMPTY);
     }
 
     @Override
@@ -356,8 +360,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<String> getStringDetails(String key, String defaultValue, EvaluationContext ctx) {
-        return getStringDetails(
-                key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+        return getStringDetails(key, defaultValue, ctx, FlagEvaluationOptions.EMPTY);
     }
 
     @Override
@@ -389,8 +392,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Integer> getIntegerDetails(String key, Integer defaultValue, EvaluationContext ctx) {
-        return getIntegerDetails(
-                key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+        return getIntegerDetails(key, defaultValue, ctx, FlagEvaluationOptions.EMPTY);
     }
 
     @Override
@@ -454,8 +456,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public FlagEvaluationDetails<Value> getObjectDetails(String key, Value defaultValue, EvaluationContext ctx) {
-        return getObjectDetails(
-                key, defaultValue, ctx, FlagEvaluationOptions.builder().build());
+        return getObjectDetails(key, defaultValue, ctx, FlagEvaluationOptions.EMPTY);
     }
 
     @Override
@@ -466,7 +467,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public ClientMetadata getMetadata() {
-        return () -> domain;
+        return this::getDomain;
     }
 
     /**
