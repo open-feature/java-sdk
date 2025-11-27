@@ -171,6 +171,12 @@ public class OpenFeatureClient implements Client {
         }
 
         hookSupportData.hints = Collections.unmodifiableMap(flagOptions.getHookHints());
+        var context = new LayeredEvaluationContext(
+                openfeatureApi.getEvaluationContext(),
+                openfeatureApi.getTransactionContext(),
+                evaluationContext.get(),
+                ctx);
+        hookSupportData.evaluationContext = context;
 
         try {
             final var stateManager = openfeatureApi.getFeatureProviderStateManager(this.domain);
@@ -185,10 +191,7 @@ public class OpenFeatureClient implements Client {
 
             var sharedHookContext =
                     new SharedHookContext(key, type, this.getMetadata(), provider.getMetadata(), defaultValue);
-            hookSupport.setHookContexts(hookSupportData, sharedHookContext);
-
-            var evalContext = mergeEvaluationContext(ctx);
-            hookSupport.updateEvaluationContext(hookSupportData, evalContext);
+            hookSupport.setHookContexts(hookSupportData, sharedHookContext, context);
 
             hookSupport.executeBeforeHooks(hookSupportData);
 
