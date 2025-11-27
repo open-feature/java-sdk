@@ -387,7 +387,13 @@ class ProviderRepositoryTest {
                         .when(slowInitProvider)
                         .shutdown();
 
-                providerRepository.setProvider(slowInitProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
+                providerRepository.setProvider(
+                        slowInitProvider,
+                        mockAfterSet(),
+                        mockAfterInit(),
+                        mockAfterShutdown(),
+                        mockAfterError(),
+                        false);
 
                 await().atMost(Duration.ofSeconds(1)).untilTrue(initStarted);
 
@@ -412,10 +418,12 @@ class ProviderRepositoryTest {
                         .when(oldProvider)
                         .shutdown();
 
-                providerRepository.setProvider(oldProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), true);
+                providerRepository.setProvider(
+                        oldProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), true);
 
                 // Replace provider (this will trigger old provider shutdown in background)
-                providerRepository.setProvider(newProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
+                providerRepository.setProvider(
+                        newProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
 
                 assertThatCode(() -> providerRepository.shutdown()).doesNotThrowAnyException();
 
@@ -434,7 +442,12 @@ class ProviderRepositoryTest {
 
                 FeatureProvider newProvider = createMockedProvider();
                 assertThatThrownBy(() -> providerRepository.setProvider(
-                                newProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false))
+                                newProvider,
+                                mockAfterSet(),
+                                mockAfterInit(),
+                                mockAfterShutdown(),
+                                mockAfterError(),
+                                false))
                         .isInstanceOf(IllegalStateException.class)
                         .hasMessageContaining("shutting down");
             }
