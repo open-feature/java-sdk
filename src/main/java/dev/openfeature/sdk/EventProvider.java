@@ -59,7 +59,7 @@ public abstract class EventProvider implements FeatureProvider {
      * or timeout period has elapsed.
      */
     @Override
-    public boolean shutdown() {
+    public void shutdown() {
         emitterExecutor.shutdown();
         try {
             if (!emitterExecutor.awaitTermination(EventSupport.SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
@@ -70,8 +70,6 @@ public abstract class EventProvider implements FeatureProvider {
             emitterExecutor.shutdownNow();
             Thread.currentThread().interrupt();
         }
-
-        return true;
     }
 
     /**
@@ -114,7 +112,7 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    public Awaitable emitProviderReady(ProviderEventDetails details) {
+    /*public*/ Awaitable emitProviderReady(ProviderEventDetails details) {
         return emit(ProviderEvent.PROVIDER_READY, details);
     }
 

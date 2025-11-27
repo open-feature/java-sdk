@@ -3,13 +3,14 @@ package dev.openfeature.sdk;
 import org.junit.jupiter.api.Test;
 import dev.openfeature.contrib.providers.flagd.*;
 
-import java.net.URISyntaxException;
+import java.io.File;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NoBreakingChangesTest {
     @Test
-    void noBreakingChanges() throws URISyntaxException {
+    void noBreakingChanges() {
         var testProvider = new FlagdProvider(
                 FlagdOptions.builder()
                         .resolverType(Config.Resolver.FILE)

@@ -199,9 +199,8 @@ class FeatureProviderStateManagerTest {
         }
 
         @Override
-        public boolean shutdown() {
+        public void shutdown() {
             shutdownCalled.incrementAndGet();
-            return true;
         }
     }
 }

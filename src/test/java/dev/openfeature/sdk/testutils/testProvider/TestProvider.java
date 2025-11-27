@@ -91,10 +91,9 @@ public class TestProvider extends EventProvider {
     }
 
     @Override
-    public boolean shutdown() {
+    public void shutdown() {
         super.shutdown();
         isShutdown.set(true);
-        return true;
     }
 
     public boolean isShutdown() {
