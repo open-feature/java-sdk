@@ -7,6 +7,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -57,13 +61,37 @@ class NoBreakingChangesTest {
     }
 
     @Test
-    void noBreakingChanges() {
+    void noBreakingChanges() throws IOException {
+
+        var file = new File("testFlags.json");
+        file.mkdirs();
+        file.createNewFile();
+        file.deleteOnExit();
+
+        System.err.println("Using flag file at: " + file.getAbsolutePath());
+
+        var writer = new BufferedWriter(new FileWriter(file));
+        writer.write("{\n" +
+                "  \"$schema\": \"https://flagd.dev/schema/v0/flags.json\",\n" +
+                "  \"flags\": {\n" +
+                "    \"basic-boolean\": {\n" +
+                "      \"state\": \"ENABLED\",\n" +
+                "      \"defaultVariant\": \"true\",\n" +
+                "      \"variants\": {\n" +
+                "        \"true\": true,\n" +
+                "        \"false\": false\n" +
+                "      },\n" +
+                "      \"targeting\": {}\n" +
+                "    }\n" +
+                "  }\n" +
+                "}\n");
+        writer.flush();
+
+        System.err.println("written to file");
+
         var testProvider = new FlagdProvider(FlagdOptions.builder()
                 .resolverType(Config.Resolver.FILE)
-                .offlineFlagSourcePath(NoBreakingChangesTest.class
-                        .getResource("/testFlags.json")
-                        .getPath()
-                )
+                .offlineFlagSourcePath(file.getAbsolutePath())
                 .build());
         var api = new OpenFeatureAPI();
         api.setProviderAndWait(testProvider);
