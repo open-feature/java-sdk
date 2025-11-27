@@ -28,8 +28,7 @@ class NoBreakingChangesTest {
             var seenThreads = new HashSet<Thread>();
             while (isRunning.get()) {
                 var stacks = Thread.getAllStackTraces();
-                for (var entry : stacks.entrySet()) {
-                    var thread = entry.getKey();
+                for (var thread : stacks.keySet()) {
                     if (seenThreads.add(thread)) {
                         thread.setUncaughtExceptionHandler((thread1, throwable) -> {
                             uncaught.add(throwable);
@@ -72,14 +71,18 @@ class NoBreakingChangesTest {
             api.shutdown();
 
         } finally {
-            try {
-                Thread.sleep(1000); // wait a bit for any uncaught exceptions to be reported
+            assertNoUncaughtExceptions();
+        }
+    }
 
-                isTestRunning.set(false);
-                threadWatcher.join(1000);
-            } finally {
-                assertThat(uncaughtExceptions).isEmpty();
-            }
+    private void assertNoUncaughtExceptions() throws InterruptedException {
+        try {
+            Thread.sleep(1000); // wait a bit for any uncaught exceptions to be reported
+
+            isTestRunning.set(false);
+            threadWatcher.join(1000);
+        } finally {
+            assertThat(uncaughtExceptions).isEmpty();
         }
     }
 }
