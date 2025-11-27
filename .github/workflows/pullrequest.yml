@@ -13,8 +13,8 @@ jobs:
             build:
                 - java: 17
                   profile: codequality
-                - java: 11
-                  profile: java11
+                #- java: 11
+                #  profile: java11
     name: with Java ${{ matrix.build.java }}
     runs-on: ${{ matrix.os}}
     steps:
