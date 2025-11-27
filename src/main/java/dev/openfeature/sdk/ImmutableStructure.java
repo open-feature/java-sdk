@@ -70,8 +70,11 @@ public final class ImmutableStructure extends AbstractStructure {
     private static Map<String, Value> copyAttributes(Map<String, Value> in, String targetingKey) {
         Map<String, Value> copy;
         if (in != null) {
-            var numMappings = in.size() + 1;
-            copy = new HashMap<>((int) Math.ceil(numMappings / .75));
+            var numMappings = in.size();
+            if (targetingKey != null) {
+                numMappings++;
+            }
+            copy = HashMapUtils.forEntries(numMappings);
             for (Entry<String, Value> entry : in.entrySet()) {
                 var key = entry.getKey();
                 var value = entry.getValue();
@@ -79,7 +82,7 @@ public final class ImmutableStructure extends AbstractStructure {
                 copy.put(key, cloned);
             }
         } else {
-            copy = new HashMap<>(1);
+            copy = new HashMap<>(targetingKey == null ? 0 : 1);
         }
         if (targetingKey != null) {
             copy.put(EvaluationContext.TARGETING_KEY, new Value(targetingKey));
