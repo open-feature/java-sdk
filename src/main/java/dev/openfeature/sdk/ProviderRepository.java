@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -24,6 +25,7 @@ class ProviderRepository {
     private final Map<String, FeatureProviderStateManager> stateManagers = new ConcurrentHashMap<>();
     private final AtomicReference<FeatureProviderStateManager> defaultStateManger =
             new AtomicReference<>(new FeatureProviderStateManager(new NoOpProvider()));
+    private final AtomicBoolean isShuttingDown = new AtomicBoolean(false);
     private final ExecutorService taskExecutor =
             Executors.newCachedThreadPool(new ConfigurableThreadFactory("openfeature-provider-thread", true));
     private final Object registerStateManagerLock = new Object();
@@ -163,6 +165,9 @@ class ProviderRepository {
         final FeatureProviderStateManager oldStateManager;
 
         synchronized (registerStateManagerLock) {
+            if (isShuttingDown.get()) {
+                throw new IllegalStateException("Provider cannot be set while repository is shutting down");
+            }
             FeatureProviderStateManager existing = getExistingStateManagerForProvider(newProvider);
             if (existing == null) {
                 newStateManager = new FeatureProviderStateManager(newProvider);
@@ -255,16 +260,27 @@ class ProviderRepository {
     }
 
     private void shutdownProvider(FeatureProvider provider) {
-        taskExecutor.submit(() -> {
+        try {
+            taskExecutor.submit(() -> {
+                try {
+                    provider.shutdown();
+                } catch (Exception e) {
+                    log.error(
+                            "Exception when shutting down feature provider {}",
+                            provider.getClass().getName(),
+                            e);
+                }
+            });
+        } catch (java.util.concurrent.RejectedExecutionException e) {
             try {
                 provider.shutdown();
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 log.error(
                         "Exception when shutting down feature provider {}",
                         provider.getClass().getName(),
-                        e);
+                        ex);
             }
-        });
+        }
     }
 
     /**
@@ -273,10 +289,21 @@ class ProviderRepository {
      * including the default feature provider.
      */
     public void shutdown() {
-        Stream.concat(Stream.of(this.defaultStateManger.get()), this.stateManagers.values().stream())
-                .distinct()
-                .forEach(this::shutdownProvider);
-        this.stateManagers.clear();
+        List<FeatureProviderStateManager> managersToShutdown;
+
+        synchronized (registerStateManagerLock) {
+            if (isShuttingDown.getAndSet(true)) {
+                return;
+            }
+
+            managersToShutdown = Stream.concat(
+                            Stream.of(this.defaultStateManger.get()), this.stateManagers.values().stream())
+                    .distinct()
+                    .collect(Collectors.toList());
+            this.stateManagers.clear();
+        }
+
+        managersToShutdown.forEach(this::shutdownProvider);
         taskExecutor.shutdown();
         try {
             if (!taskExecutor.awaitTermination(3, TimeUnit.SECONDS)) {
