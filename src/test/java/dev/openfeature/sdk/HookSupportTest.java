@@ -1,6 +1,7 @@
 package dev.openfeature.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -111,6 +112,29 @@ class HookSupportTest implements HookFixtures {
 
         assertHookData(testHook1, 1, "before", "after", "finallyAfter", "error");
         assertHookData(testHook2, 2, "before", "after", "finallyAfter", "error");
+    }
+
+    @Test
+    void hookThatReturnsTheGivenContext_doesNotResultInAStackOverflow() {
+        var hookSupportData = new HookSupportData();
+        var recursiveHook = new Hook() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext ctx, Map hints) {
+                return Optional.of(ctx.getCtx());
+            }
+        };
+        var layeredEvaluationContext =
+                new LayeredEvaluationContext(evaluationContextWithValue("key", "value"), null, null, null);
+        hookSupportData.evaluationContext = layeredEvaluationContext;
+        hookSupport.setHooks(hookSupportData, List.of(recursiveHook), FlagValueType.STRING);
+        hookSupport.setHookContexts(
+                hookSupportData, getBaseHookContextForType(FlagValueType.STRING), layeredEvaluationContext);
+
+        callAllHooks(hookSupportData);
+
+        layeredEvaluationContext.asObjectMap();
+
+        assertThatNoException();
     }
 
     private static void callAllHooks(HookSupportData hookSupportData) {

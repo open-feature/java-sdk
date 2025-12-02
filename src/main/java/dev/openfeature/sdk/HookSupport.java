@@ -63,7 +63,8 @@ class HookSupport {
                     .orElse(Optional.empty());
             if (returnedEvalContext.isPresent()) {
                 var returnedContext = returnedEvalContext.get();
-                if (!returnedContext.isEmpty()) {
+                // yes, we want to check for reference equality here, this prevents recursive layered contexts
+                if (returnedContext != hookContext.getCtx() && !returnedContext.isEmpty()) {
                     data.evaluationContext.putHookContext(returnedContext);
                 }
             }
