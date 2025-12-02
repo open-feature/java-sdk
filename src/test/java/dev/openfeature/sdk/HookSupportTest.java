@@ -123,10 +123,16 @@ class HookSupportTest implements HookFixtures {
                 return Optional.of(ctx.getCtx());
             }
         };
+        var emptyHook = new Hook() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext ctx, Map hints) {
+                return Optional.of(ImmutableContext.EMPTY);
+            }
+        };
         var layeredEvaluationContext =
                 new LayeredEvaluationContext(evaluationContextWithValue("key", "value"), null, null, null);
         hookSupportData.evaluationContext = layeredEvaluationContext;
-        hookSupport.setHooks(hookSupportData, List.of(recursiveHook), FlagValueType.STRING);
+        hookSupport.setHooks(hookSupportData, List.of(recursiveHook, emptyHook), FlagValueType.STRING);
         hookSupport.setHookContexts(
                 hookSupportData, getBaseHookContextForType(FlagValueType.STRING), layeredEvaluationContext);
 
