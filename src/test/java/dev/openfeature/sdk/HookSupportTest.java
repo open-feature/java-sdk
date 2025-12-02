@@ -132,9 +132,7 @@ class HookSupportTest implements HookFixtures {
 
         callAllHooks(hookSupportData);
 
-        layeredEvaluationContext.asObjectMap();
-
-        assertThatNoException();
+        assertThatNoException().isThrownBy(layeredEvaluationContext::asObjectMap);
     }
 
     private static void callAllHooks(HookSupportData hookSupportData) {
