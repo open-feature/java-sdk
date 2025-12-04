@@ -25,7 +25,7 @@ jobs:
           submodules: recursive
 
       - name: Set up JDK ${{ matrix.build.java }}
-        uses: actions/setup-java@4e7e684fbb6e33f88ecb2cf1e6b3797739cf499b
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e
         with:
             java-version: ${{ matrix.build.java }}
             distribution: 'temurin'
