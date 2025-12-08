@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.19.2](https://github.com/open-feature/java-sdk/compare/v1.19.1...v1.19.2) (2025-12-08)
+
+
+### 🐛 Bug Fixes
+
+* context serialization missing props (with revert) ([#1768](https://github.com/open-feature/java-sdk/issues/1768)) ([4cb39a4](https://github.com/open-feature/java-sdk/commit/4cb39a41d975537e62af4a9ae267c687f0bf0423))
+* context serialization with revert ([4cb39a4](https://github.com/open-feature/java-sdk/commit/4cb39a41d975537e62af4a9ae267c687f0bf0423))
+
+
+### 🧹 Chore
+
+* **deps:** update com.vmlens.version to v1.2.23 ([#1766](https://github.com/open-feature/java-sdk/issues/1766)) ([04feac8](https://github.com/open-feature/java-sdk/commit/04feac888fa118fa477b46ac6b36016f4b412a08))
+
 ## [1.19.1](https://github.com/open-feature/java-sdk/compare/v1.19.0...v1.19.1) (2025-12-08)
 
 
