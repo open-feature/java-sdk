@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.19.1](https://github.com/open-feature/java-sdk/compare/v1.19.0...v1.19.1) (2025-12-08)
+
+
+### 🐛 Bug Fixes
+
+* equivalent EvaluationContext .equals() not returning true ([#1756](https://github.com/open-feature/java-sdk/issues/1756)) ([6f3a30a](https://github.com/open-feature/java-sdk/commit/6f3a30a9aa10ce2a057ff52504e232ee52893425))
+* possible StackOverflow on recursive contexts ([#1760](https://github.com/open-feature/java-sdk/issues/1760)) ([1f211af](https://github.com/open-feature/java-sdk/commit/1f211afed6bac8b04e17ab7b6603959495799abc))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/checkout digest to 8e8c483 ([#1759](https://github.com/open-feature/java-sdk/issues/1759)) ([f5f595b](https://github.com/open-feature/java-sdk/commit/f5f595bd3af13e7b325c6a789bf60ca178636cff))
+* **deps:** update actions/setup-java digest to f2beeb2 ([#1762](https://github.com/open-feature/java-sdk/issues/1762)) ([79704e4](https://github.com/open-feature/java-sdk/commit/79704e450fa7d1dda20f178b9502d193e47d6b95))
+* **deps:** update dependency com.puppycrawl.tools:checkstyle to v12.2.0 ([#1757](https://github.com/open-feature/java-sdk/issues/1757)) ([01c491c](https://github.com/open-feature/java-sdk/commit/01c491c667b314fb89bad6c6c845ff70a2e2a3cb))
+* **deps:** update dependency org.apache.maven.plugins:maven-source-plugin to v3.4.0 ([#1755](https://github.com/open-feature/java-sdk/issues/1755)) ([595a0db](https://github.com/open-feature/java-sdk/commit/595a0db8509eef87330b45f2615aca39a5bce3be))
+* **deps:** update github/codeql-action digest to 149d184 ([#1764](https://github.com/open-feature/java-sdk/issues/1764)) ([1506a10](https://github.com/open-feature/java-sdk/commit/1506a108b67de890241c54ee904c7e3e0fd49370))
+* **deps:** update github/codeql-action digest to 267c467 ([#1761](https://github.com/open-feature/java-sdk/issues/1761)) ([acdbf88](https://github.com/open-feature/java-sdk/commit/acdbf885081c65a5ca7691a723bb0440dee3ade2))
+* **deps:** update github/codeql-action digest to c178e03 ([#1751](https://github.com/open-feature/java-sdk/issues/1751)) ([4e24bab](https://github.com/open-feature/java-sdk/commit/4e24babb7c70f23e1115100e2cc98e8b5f5837b0))
+* **deps:** update github/codeql-action digest to ecec1f8 ([#1753](https://github.com/open-feature/java-sdk/issues/1753)) ([2a63632](https://github.com/open-feature/java-sdk/commit/2a636325ee5f5472f1bbd3a2d05d367f424df327))
+* **deps:** update github/codeql-action digest to f0ac9bf ([#1758](https://github.com/open-feature/java-sdk/issues/1758)) ([ec3f30e](https://github.com/open-feature/java-sdk/commit/ec3f30ec246897bde2f80d7ff69fa75cc0fb2c9b))
+* **deps:** update github/codeql-action digest to f5c63fa ([#1763](https://github.com/open-feature/java-sdk/issues/1763)) ([412ccf8](https://github.com/open-feature/java-sdk/commit/412ccf81fbb6e134dfb7fac4e098678a2482b643))
+
 ## [1.19.0](https://github.com/open-feature/java-sdk/compare/v1.18.2...v1.19.0) (2025-11-27)
 
 
