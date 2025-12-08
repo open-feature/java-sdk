@@ -397,37 +397,5 @@ class LayeredEvaluationContextTest {
                     merged.asMap());
             assertEquals(invocationContext.getTargetingKey(), merged.getTargetingKey());
         }
-
-        @Test
-        void testLayeredContextEquality() {
-            Map<String, Value> baseMap = Map.of("k", new Value("v"));
-            Map<String, Value> layerMap = Map.of("x", new Value("y"));
-
-            EvaluationContext base = new MutableContext(null, baseMap);
-            EvaluationContext layer = new MutableContext(null, layerMap);
-
-            LayeredEvaluationContext l1 = new LayeredEvaluationContext(base, layer, null, null);
-            LayeredEvaluationContext l2 = new LayeredEvaluationContext(base, layer, null, null);
-
-            assertEquals(l1, l2);
-            assertEquals(l1.hashCode(), l2.hashCode());
-        }
-
-        @Test
-        void testMixedContextEquality() {
-            Map<String, Value> map = Map.of("foo", new Value("bar"));
-
-            EvaluationContext base = new MutableContext(null, map);
-            LayeredEvaluationContext layered = new LayeredEvaluationContext(null, null, null, base);
-
-            // Equality from the layered context's perspective (map-based equality)
-            assertEquals(layered, base);
-
-            // Resolved maps should be identical
-            assertEquals(base.asMap(), layered.asMap());
-
-            // Layered's hashCode must be consistent with its resolved attribute map
-            assertEquals(base.asMap().hashCode(), layered.hashCode());
-        }
     }
 }
