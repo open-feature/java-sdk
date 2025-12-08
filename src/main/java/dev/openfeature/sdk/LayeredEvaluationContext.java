@@ -266,7 +266,7 @@ public class LayeredEvaluationContext implements EvaluationContext {
             return this.getResolvedMap().equals(((LayeredEvaluationContext) that).getResolvedMap());
         }
 
-        return this.getResolvedMap().equals(that.asMap());
+        return this.getResolvedMap().equals(that.asUnmodifiableMap());
     }
 
     @Override

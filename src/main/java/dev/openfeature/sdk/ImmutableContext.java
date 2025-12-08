@@ -114,7 +114,7 @@ public final class ImmutableContext implements EvaluationContext {
             return false;
         }
         EvaluationContext that = (EvaluationContext) o;
-        return this.asMap().equals(that.asMap());
+        return this.asUnmodifiableMap().equals(that.asUnmodifiableMap());
     }
 
     /**
@@ -130,7 +130,7 @@ public final class ImmutableContext implements EvaluationContext {
             synchronized (this) {
                 result = cachedHashCode;
                 if (result == null) {
-                    result = asMap().hashCode();
+                    result = asUnmodifiableMap().hashCode();
                     cachedHashCode = result;
                 }
             }
