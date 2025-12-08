@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Delegate;
 
@@ -17,7 +16,6 @@ import lombok.experimental.Delegate;
  * not be modified after instantiation.
  */
 @ToString
-@EqualsAndHashCode
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public final class ImmutableContext implements EvaluationContext {
 
@@ -25,6 +23,9 @@ public final class ImmutableContext implements EvaluationContext {
 
     @Delegate(excludes = DelegateExclusions.class)
     private final ImmutableStructure structure;
+
+    // Lazily computed hash code, safe because this class is immutable.
+    private volatile Integer cachedHashCode;
 
     /**
      * Create an immutable context with an empty targeting_key and attributes
@@ -94,6 +95,47 @@ public final class ImmutableContext implements EvaluationContext {
         Map<String, Value> attributes = this.asMap();
         EvaluationContext.mergeMaps(ImmutableStructure::new, attributes, overridingContext.asUnmodifiableMap());
         return new ImmutableContext(attributes);
+    }
+
+    /**
+     * Equality for EvaluationContext implementations is defined in terms of their resolved
+     * attribute maps. Two contexts are considered equal if their {@link #asMap()} representations
+     * contain the same key/value pairs, regardless of how the context was constructed or layered.
+     *
+     * @param o the object to compare with this context
+     * @return true if the other object is an EvaluationContext whose resolved attributes match
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EvaluationContext)) {
+            return false;
+        }
+        EvaluationContext that = (EvaluationContext) o;
+        return this.asUnmodifiableMap().equals(that.asUnmodifiableMap());
+    }
+
+    /**
+     * Computes a hash code consistent with {@link #equals(Object)}. Since this context is immutable,
+     * the hash code is lazily computed once from its resolved attribute map and then cached.
+     *
+     * @return the cached hash code derived from this context's attribute map
+     */
+    @Override
+    public int hashCode() {
+        Integer result = cachedHashCode;
+        if (result == null) {
+            synchronized (this) {
+                result = cachedHashCode;
+                if (result == null) {
+                    result = asUnmodifiableMap().hashCode();
+                    cachedHashCode = result;
+                }
+            }
+        }
+        return result;
     }
 
     @SuppressWarnings("all")
