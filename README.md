@@ -129,6 +129,7 @@ See [here](https://javadoc.io/doc/dev.openfeature/sdk/latest/) for the Javadocs.
 | ------ |---------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ✅     | [Providers](#providers)                                             | Integrate with a commercial, open source, or in-house feature management tool.                                                                                |
 | ✅     | [Targeting](#targeting)                                             | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context).                            |
+| ✅     | [Multi-provider (experimental)](#multi-provider-experimental)       | Combine multiple providers and delegate evaluations according to a strategy.                                                                                  |
 | ✅     | [Hooks](#hooks)                                                     | Add functionality to various stages of the flag evaluation life-cycle.                                                                                        |
 | ✅     | [Tracking](#tracking)                                               | Associate user actions with feature flag evaluations.                                                                                                         |
 | ✅     | [Logging](#logging)                                                 | Integrate with popular logging packages.                                                                                                                      |
@@ -147,7 +148,40 @@ Look [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D
 If the provider you're looking for hasn't been created yet, see the [develop a provider](#develop-a-provider) section to learn how to build it yourself.
 
 Once you've added a provider as a dependency, it can be registered with OpenFeature like this:
-   
+
+In some situations, it may be beneficial to register multiple providers in the same application.
+This is possible using [domains](#domains), which is covered in more detail below.
+
+#### Multi-provider (experimental)
+
+In addition to domains, you may want to delegate flag evaluation across multiple providers using a configurable strategy.
+The multi-provider allows you to compose several `FeatureProvider` implementations and determine which provider's result to use.
+
+> **Experimental:** This API is experimental and may change in future releases.
+
+```java
+import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.Client;
+import dev.openfeature.sdk.FeatureProvider;
+import dev.openfeature.sdk.multiprovider.MultiProvider;
+
+import java.util.List;
+
+public void multiProviderExample() throws Exception {
+    FeatureProvider primaryProvider = new MyPrimaryProvider();
+    FeatureProvider fallbackProvider = new MyFallbackProvider();
+
+    MultiProvider multiProvider = new MultiProvider(List.of(primaryProvider, fallbackProvider));
+
+    OpenFeatureAPI api = OpenFeatureAPI.getInstance();
+    api.setProviderAndWait(multiProvider);
+
+    Client client = api.getClient();
+    boolean value = client.getBooleanValue("some-flag", false);
+}
+```
+
+
 #### Synchronous  
   
 To register a provider in a blocking manner to ensure it is ready before further actions are taken, you can use the `setProviderAndWait` method as shown below:     
