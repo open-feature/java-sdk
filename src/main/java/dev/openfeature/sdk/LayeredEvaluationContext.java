@@ -21,9 +21,6 @@ public class LayeredEvaluationContext implements EvaluationContext {
     private ArrayList<EvaluationContext> hookContexts;
     private String targetingKey;
     private Set<String> keySet = null;
-    // Lazily computed resolved attribute map for this layered context.
-    // This must be invalidated whenever the underlying layers change.
-    private Map<String, Value> cachedMap;
 
     /**
      * Constructor for LayeredEvaluationContext.
@@ -177,20 +174,15 @@ public class LayeredEvaluationContext implements EvaluationContext {
         return getFromContext(apiContext, key);
     }
 
-    private Map<String, Value> getResolvedMap() {
-        if (cachedMap != null) {
-            return cachedMap;
-        }
-
+    @Override
+    public Map<String, Value> asMap() {
         if (keySet != null && keySet.isEmpty()) {
-            cachedMap = Collections.emptyMap();
-            return cachedMap;
+            return new HashMap<>(0);
         }
 
         HashMap<String, Value> map;
         if (keySet != null) {
-            // use helper to size the map based on expected entries
-            map = HashMapUtils.forEntries(keySet.size());
+            map = new HashMap<>(keySet.size());
         } else {
             map = new HashMap<>();
         }
@@ -213,15 +205,7 @@ public class LayeredEvaluationContext implements EvaluationContext {
                 map.putAll(hookContext.asMap());
             }
         }
-
-        cachedMap = Collections.unmodifiableMap(map);
-        return cachedMap;
-    }
-
-    @Override
-    public Map<String, Value> asMap() {
-        // Return a defensive copy so callers can't mutate our cached map.
-        return new HashMap<>(getResolvedMap());
+        return map;
     }
 
     @Override
@@ -230,48 +214,41 @@ public class LayeredEvaluationContext implements EvaluationContext {
             return Collections.emptyMap();
         }
 
-        return getResolvedMap();
+        return Collections.unmodifiableMap(asMap());
     }
 
     @Override
     public Map<String, Object> asObjectMap() {
-        // Build the object map directly from the resolved attribute map,
-        // so this stays consistent with equals/hashCode and asMap().
-        Map<String, Value> resolved = getResolvedMap();
-        if (resolved.isEmpty()) {
+        if (keySet != null && keySet.isEmpty()) {
             return new HashMap<>(0);
         }
 
-        HashMap<String, Object> map = HashMapUtils.forEntries(resolved.size());
-        for (Map.Entry<String, Value> entry : resolved.entrySet()) {
-            Value value = entry.getValue();
-            // Value is responsible for exposing the underlying Java representation.
-            map.put(entry.getKey(), value == null ? null : value.asObject());
+        HashMap<String, Object> map;
+        if (keySet != null) {
+            map = new HashMap<>(keySet.size());
+        } else {
+            map = new HashMap<>();
+        }
+
+        if (apiContext != null) {
+            map.putAll(apiContext.asObjectMap());
+        }
+        if (transactionContext != null) {
+            map.putAll(transactionContext.asObjectMap());
+        }
+        if (clientContext != null) {
+            map.putAll(clientContext.asObjectMap());
+        }
+        if (invocationContext != null) {
+            map.putAll(invocationContext.asObjectMap());
+        }
+        if (hookContexts != null) {
+            for (int i = 0; i < hookContexts.size(); i++) {
+                EvaluationContext hookContext = hookContexts.get(i);
+                map.putAll(hookContext.asObjectMap());
+            }
         }
         return map;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof EvaluationContext)) {
-            return false;
-        }
-
-        EvaluationContext that = (EvaluationContext) o;
-
-        if (that instanceof LayeredEvaluationContext) {
-            return this.getResolvedMap().equals(((LayeredEvaluationContext) that).getResolvedMap());
-        }
-
-        return this.getResolvedMap().equals(that.asUnmodifiableMap());
-    }
-
-    @Override
-    public int hashCode() {
-        return getResolvedMap().hashCode();
     }
 
     void putHookContext(EvaluationContext context) {
@@ -288,6 +265,5 @@ public class LayeredEvaluationContext implements EvaluationContext {
         }
         this.hookContexts.add(context);
         this.keySet = null;
-        this.cachedMap = null;
     }
 }
