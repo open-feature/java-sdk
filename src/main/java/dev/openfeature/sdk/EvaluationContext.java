@@ -25,6 +25,31 @@ public interface EvaluationContext extends Structure {
     EvaluationContext merge(EvaluationContext overridingContext);
 
     /**
+     * If the other object is an EvaluationContext, this method compares the results of asUnmodifiableMap() for
+     * equality. Otherwise, it returns false.
+     * <br>
+     * <br>
+     * Implementations of EvaluationContext are encouraged to delegate their equals() method to this method, or provide
+     * a more optimized check with the same semantics.
+     *
+     * @param other the object to compare to
+     * @return true if the other object is an EvaluationContext and has the same map representation, false otherwise
+     */
+    default boolean isEqualTo(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof EvaluationContext)) {
+            return false;
+        }
+        var otherContext = (EvaluationContext) other;
+        return asUnmodifiableMap().equals(otherContext.asUnmodifiableMap());
+    }
+
+    /**
      * Recursively merges the overriding map into the base Value map.
      * The base map is mutated, the overriding map is not.
      * Null maps will cause no-op.

@@ -1,6 +1,11 @@
 package dev.openfeature.sdk;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
 import java.util.Set;
@@ -257,6 +262,75 @@ class LayeredEvaluationContextTest {
             assertNotNull(layeredContext.keySet());
             assertEquals(apiContext.asObjectMap(), layeredContext.asObjectMap());
         }
+
+        @Test
+        void nestedContextsAreUnwrappedCorrectly() {
+            var innerApiContext = new ImmutableContext(Map.of("inner", new Value("api")));
+            var outerApiContext = new ImmutableContext(Map.of("outer", new Value(innerApiContext)));
+
+            var innerClientContext = new ImmutableContext(Map.of("inner", new Value("client")));
+            var outerClientContext = new ImmutableContext(Map.of("outer", new Value(innerClientContext)));
+            var layeredContext = new LayeredEvaluationContext(outerApiContext, null, outerClientContext, null);
+
+            var objectMap = layeredContext.asObjectMap();
+
+            assertEquals(Map.of("outer", Map.of("inner", "client")), objectMap);
+        }
+
+        @Test
+        void nestedStructuresInContextsAreUnwrappedCorrectly() {
+            var innerApiStructure = new ImmutableStructure(Map.of("inner", new Value("api")));
+            var outerApiContext = new ImmutableContext(Map.of("outer", new Value(innerApiStructure)));
+
+            var innerClientStructure = new ImmutableStructure(Map.of("inner", new Value("client")));
+            var outerClientContext = new ImmutableContext(Map.of("outer", new Value(innerClientStructure)));
+            var layeredContext = new LayeredEvaluationContext(outerApiContext, null, outerClientContext, null);
+
+            var objectMap = layeredContext.asObjectMap();
+
+            assertEquals(Map.of("outer", Map.of("inner", "client")), objectMap);
+        }
+
+        @Test
+        void nestedHookContextsAreUnwrappedCorrectly() {
+            var innerApiStructure = new ImmutableStructure(Map.of("inner", new Value("api")));
+            var outerApiContext = new ImmutableContext(Map.of("outer", new Value(innerApiStructure)));
+
+            var innerClientStructure = new ImmutableStructure(Map.of("inner", new Value("client")));
+            var outerClientContext = new ImmutableContext(Map.of("outer", new Value(innerClientStructure)));
+            var layeredContext = new LayeredEvaluationContext(outerApiContext, null, outerClientContext, null);
+
+            var innerHookStructure = new ImmutableStructure(Map.of("inner", new Value("hook")));
+            var outerHookContext = new ImmutableContext(Map.of("outer", new Value(innerHookStructure)));
+
+            layeredContext.putHookContext(outerHookContext);
+
+            var objectMap = layeredContext.asObjectMap();
+
+            assertEquals(Map.of("outer", Map.of("inner", "hook")), objectMap);
+        }
+
+        @Test
+        void objectMapIsMutable() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+
+            var objectMap = layeredContext.asObjectMap();
+            assertDoesNotThrow(() -> objectMap.put("a", "b"));
+            assertEquals("b", objectMap.get("a"));
+        }
+
+        @Test
+        void mutatingObjectMapHasNoSideEffects() {
+            LayeredEvaluationContext layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+
+            var objectMap1 = layeredContext.asObjectMap();
+            objectMap1.put("a", "b");
+
+            var objectMap2 = layeredContext.asObjectMap();
+            assertNull(objectMap2.get("a"));
+        }
     }
 
     @Nested
@@ -396,6 +470,95 @@ class LayeredEvaluationContextTest {
                             "unique", new Value("unique")),
                     merged.asMap());
             assertEquals(invocationContext.getTargetingKey(), merged.getTargetingKey());
+        }
+
+        @Test
+        void testLayeredContextEquality() {
+            Map<String, Value> baseMap = Map.of("k", new Value("v"));
+            Map<String, Value> layerMap = Map.of("x", new Value("y"));
+
+            EvaluationContext base = new MutableContext(null, baseMap);
+            EvaluationContext layer = new MutableContext(null, layerMap);
+
+            LayeredEvaluationContext l1 = new LayeredEvaluationContext(base, layer, null, null);
+            LayeredEvaluationContext l2 = new LayeredEvaluationContext(base, layer, null, null);
+
+            assertEquals(l1, l2);
+            assertEquals(l1.hashCode(), l2.hashCode());
+        }
+
+        @Test
+        void testMixedContextEquality() {
+            Map<String, Value> map = Map.of("foo", new Value("bar"));
+
+            EvaluationContext base = new MutableContext(null, map);
+            LayeredEvaluationContext layered = new LayeredEvaluationContext(null, null, null, base);
+
+            // Equality from the layered context's perspective (map-based equality)
+            assertEquals(layered, base);
+
+            // Resolved maps should be identical
+            assertEquals(base.asMap(), layered.asMap());
+
+            // Layered's hashCode must be consistent with its resolved attribute map
+            assertEquals(base.asMap().hashCode(), layered.hashCode());
+        }
+    }
+
+    @Nested
+    class Equals {
+        @Test
+        void equalsItself() {
+            var layeredContext =
+                    new LayeredEvaluationContext(apiContext, transactionContext, clientContext, invocationContext);
+            layeredContext.putHookContext(hookContext);
+            assertEquals(layeredContext, layeredContext);
+        }
+
+        @Test
+        void equalsDifferentLayeredEvalCtxIfSameValues() {
+            var layeredContext1 = new LayeredEvaluationContext(apiContext, null, null, null);
+            var layeredContext2 = new LayeredEvaluationContext(null, apiContext, null, null);
+            assertEquals(layeredContext1, layeredContext2);
+        }
+
+        @Test
+        void equalsDifferentImmutableEvalCtxIfSameValues() {
+            var immutable = new ImmutableContext("key", Map.of("prop", new Value("erty")));
+            var layeredContext = new LayeredEvaluationContext(immutable, null, null, null);
+            assertEquals(immutable, layeredContext);
+            assertEquals(layeredContext, immutable);
+        }
+
+        @Test
+        void equalsDifferentMutableEvalCtxIfSameValues() {
+            var mutable = new MutableContext("key", Map.of("prop", new Value("erty")));
+            var layeredContext = new LayeredEvaluationContext(mutable, null, null, null);
+            assertEquals(mutable, layeredContext);
+            assertEquals(layeredContext, mutable);
+        }
+    }
+
+    @Nested
+    class HashCode {
+        ImmutableContext immutable = new ImmutableContext("c", Map.of("a", new Value("b")));
+        LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(immutable, null, null, null);
+
+        @Test
+        void hashCodeEqualsItself() {
+            var layeredContext2 = new LayeredEvaluationContext(null, null, immutable, null);
+            assertEquals(layeredContext.hashCode(), layeredContext2.hashCode());
+        }
+
+        @Test
+        void hasSameHashCodeAsImmutableEvalCtxIfSameValues() {
+            assertEquals(immutable.hashCode(), layeredContext.hashCode());
+        }
+
+        @Test
+        void hashCodeEqualsDifferentMutableEvalCtxIfSameValues() {
+            MutableContext ctx = new MutableContext("c", Map.of("a", new Value("b")));
+            assertEquals(immutable.hashCode(), ctx.hashCode());
         }
     }
 }

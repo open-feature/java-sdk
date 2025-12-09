@@ -3,10 +3,9 @@ package dev.openfeature.sdk;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
+import java.util.Objects;
 
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
-@EqualsAndHashCode
 abstract class AbstractStructure implements Structure {
 
     protected final Map<String, Value> attributes;
@@ -47,5 +46,19 @@ abstract class AbstractStructure implements Structure {
                         HashMap::new,
                         (accumulated, entry) -> accumulated.put(entry.getKey(), convertValue(entry.getValue())),
                         HashMap::putAll);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof AbstractStructure)) {
+            return false;
+        }
+        AbstractStructure that = (AbstractStructure) object;
+        return Objects.equals(attributes, that.attributes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(attributes);
     }
 }
