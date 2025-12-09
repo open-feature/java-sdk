@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class MutableContextTest {
@@ -139,30 +140,71 @@ class MutableContextTest {
         assertEquals(3.0, context.getValue("key3").asDouble());
     }
 
-    @DisplayName("Two different MutableContext objects with the different contents are not considered equal")
-    @Test
-    void unequalMutableContextsAreNotEqual() {
-        final Map<String, Value> attributes = new HashMap<>();
-        attributes.put("key1", new Value("val1"));
-        final MutableContext ctx = new MutableContext(attributes);
+    @Nested
+    class Equals {
+        MutableContext ctx = new MutableContext("c", Map.of("a", new Value("b")));
 
-        final Map<String, Value> attributes2 = new HashMap<>();
-        final MutableContext ctx2 = new MutableContext(attributes2);
+        @Test
+        void equalsItself() {
+            assertEquals(ctx, ctx);
+        }
 
-        assertNotEquals(ctx, ctx2);
+        @Test
+        void equalsLayeredEvalCtxIfSameValues() {
+            var layeredContext = new LayeredEvaluationContext(ctx, null, null, null);
+            assertEquals(layeredContext, ctx);
+            assertEquals(ctx, layeredContext);
+        }
+
+        @Test
+        void equalsDifferentMutableEvalCtxIfSameValues() {
+            var immutable = new ImmutableContext("c", Map.of("a", new Value("b")));
+            assertEquals(immutable, ctx);
+            assertEquals(ctx, immutable);
+        }
+
+        @DisplayName("Two different MutableContext objects with the different contents are not considered equal")
+        @Test
+        void unequalMutableContextsAreNotEqual() {
+            final Map<String, Value> attributes = new HashMap<>();
+            attributes.put("key1", new Value("val1"));
+            final MutableContext context = new MutableContext(attributes);
+
+            final Map<String, Value> attributes2 = new HashMap<>();
+            final MutableContext ctx2 = new MutableContext(attributes2);
+
+            assertNotEquals(context, ctx2);
+        }
+
+        @DisplayName("Two different MutableContext objects with the same content are considered equal")
+        @Test
+        void equalMutableContextsAreEqual() {
+            final Map<String, Value> attributes = new HashMap<>();
+            attributes.put("key1", new Value("val1"));
+            final MutableContext context = new MutableContext(attributes);
+
+            final Map<String, Value> attributes2 = new HashMap<>();
+            attributes2.put("key1", new Value("val1"));
+            final MutableContext ctx2 = new MutableContext(attributes2);
+
+            assertEquals(context, ctx2);
+        }
     }
 
-    @DisplayName("Two different MutableContext objects with the same content are considered equal")
-    @Test
-    void equalMutableContextsAreEqual() {
-        final Map<String, Value> attributes = new HashMap<>();
-        attributes.put("key1", new Value("val1"));
-        final MutableContext ctx = new MutableContext(attributes);
+    @Nested
+    class HashCode {
+        MutableContext ctx = new MutableContext("c", Map.of("a", new Value("b")));
 
-        final Map<String, Value> attributes2 = new HashMap<>();
-        attributes2.put("key1", new Value("val1"));
-        final MutableContext ctx2 = new MutableContext(attributes2);
+        @Test
+        void hashCodeEqualsLayeredEvalCtxIfSameValues() {
+            var layeredContext = new LayeredEvaluationContext(ctx, null, null, null);
+            assertEquals(layeredContext.hashCode(), ctx.hashCode());
+        }
 
-        assertEquals(ctx, ctx2);
+        @Test
+        void hashCodeEqualsDifferentMutableEvalCtxIfSameValues() {
+            var immutable = new ImmutableContext("c", Map.of("a", new Value("b")));
+            assertEquals(immutable.hashCode(), ctx.hashCode());
+        }
     }
 }

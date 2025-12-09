@@ -21,6 +21,9 @@ public class LayeredEvaluationContext implements EvaluationContext {
     private ArrayList<EvaluationContext> hookContexts;
     private String targetingKey;
     private Set<String> keySet = null;
+    // Lazily computed resolved attribute map for this layered context.
+    // This must be invalidated whenever the underlying layers change.
+    private Map<String, Value> cachedMap;
 
     /**
      * Constructor for LayeredEvaluationContext.
@@ -174,15 +177,20 @@ public class LayeredEvaluationContext implements EvaluationContext {
         return getFromContext(apiContext, key);
     }
 
-    @Override
-    public Map<String, Value> asMap() {
+    private Map<String, Value> getResolvedMap() {
+        if (cachedMap != null) {
+            return cachedMap;
+        }
+
         if (keySet != null && keySet.isEmpty()) {
-            return new HashMap<>(0);
+            cachedMap = Collections.emptyMap();
+            return cachedMap;
         }
 
         HashMap<String, Value> map;
         if (keySet != null) {
-            map = new HashMap<>(keySet.size());
+            // use helper to size the map based on expected entries
+            map = HashMapUtils.forEntries(keySet.size());
         } else {
             map = new HashMap<>();
         }
@@ -205,7 +213,15 @@ public class LayeredEvaluationContext implements EvaluationContext {
                 map.putAll(hookContext.asMap());
             }
         }
-        return map;
+
+        cachedMap = Collections.unmodifiableMap(map);
+        return cachedMap;
+    }
+
+    @Override
+    public Map<String, Value> asMap() {
+        // Return a defensive copy so callers can't mutate our cached map.
+        return new HashMap<>(getResolvedMap());
     }
 
     @Override
@@ -214,7 +230,7 @@ public class LayeredEvaluationContext implements EvaluationContext {
             return Collections.emptyMap();
         }
 
-        return Collections.unmodifiableMap(asMap());
+        return getResolvedMap();
     }
 
     @Override
@@ -225,7 +241,8 @@ public class LayeredEvaluationContext implements EvaluationContext {
 
         HashMap<String, Object> map;
         if (keySet != null) {
-            map = new HashMap<>(keySet.size());
+            // use helper to size the map based on expected entries
+            map = HashMapUtils.forEntries(keySet.size());
         } else {
             map = new HashMap<>();
         }
@@ -248,7 +265,31 @@ public class LayeredEvaluationContext implements EvaluationContext {
                 map.putAll(hookContext.asObjectMap());
             }
         }
+
         return map;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EvaluationContext)) {
+            return false;
+        }
+
+        EvaluationContext that = (EvaluationContext) o;
+
+        if (that instanceof LayeredEvaluationContext) {
+            return this.getResolvedMap().equals(((LayeredEvaluationContext) that).getResolvedMap());
+        }
+
+        return this.getResolvedMap().equals(that.asUnmodifiableMap());
+    }
+
+    @Override
+    public int hashCode() {
+        return getResolvedMap().hashCode();
     }
 
     void putHookContext(EvaluationContext context) {
@@ -265,5 +306,6 @@ public class LayeredEvaluationContext implements EvaluationContext {
         }
         this.hookContexts.add(context);
         this.keySet = null;
+        this.cachedMap = null;
     }
 }

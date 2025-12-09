@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Delegate;
 
@@ -17,7 +16,6 @@ import lombok.experimental.Delegate;
  * be modified after instantiation.
  */
 @ToString
-@EqualsAndHashCode
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 public class MutableContext implements EvaluationContext {
 
@@ -123,6 +121,24 @@ public class MutableContext implements EvaluationContext {
         Map<String, Value> attributes = this.asMap();
         EvaluationContext.mergeMaps(MutableStructure::new, attributes, overridingContext.asUnmodifiableMap());
         return new MutableContext(attributes);
+    }
+
+    /**
+     * Equality for EvaluationContext implementations is defined in terms of their resolved
+     * attribute maps. Two contexts are considered equal if their {@link #asMap()} representations
+     * contain the same key/value pairs, regardless of how the context was constructed or layered.
+     *
+     * @param o the object to compare with this context
+     * @return true if the other object is an EvaluationContext whose resolved attributes match
+     */
+    @Override
+    public boolean equals(Object o) {
+        return isEqualTo(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return structure.hashCode();
     }
 
     /**
