@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.20.0](https://github.com/open-feature/java-sdk/compare/v1.19.2...v1.20.0) (2025-12-13)
+
+
+### 🐛 Bug Fixes
+
+* .equals false for equivalent contexts ([#1768](https://github.com/open-feature/java-sdk/issues/1768))" ([ae69411](https://github.com/open-feature/java-sdk/commit/ae6941122e5dcc6bbfc816a12d0879c14c6d49ab))
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.33.0 ([#1769](https://github.com/open-feature/java-sdk/issues/1769)) ([a0305f9](https://github.com/open-feature/java-sdk/commit/a0305f965e262022701e09ae59bb20e9be5c0e4c))
+
+
+### ✨ New Features
+
+* all executors now create daemon threads to reduce shutdown time ([#1715](https://github.com/open-feature/java-sdk/issues/1715)) ([0c30896](https://github.com/open-feature/java-sdk/commit/0c308968826f2a45fed492b115ecbb84a17f0765))
+* equivalent EvaluationContext impls are .equal ([#1771](https://github.com/open-feature/java-sdk/issues/1771)) ([ae69411](https://github.com/open-feature/java-sdk/commit/ae6941122e5dcc6bbfc816a12d0879c14c6d49ab))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/cache digest to 9255dc7 ([#1778](https://github.com/open-feature/java-sdk/issues/1778)) ([4a55a8a](https://github.com/open-feature/java-sdk/commit/4a55a8a3f2dabde0eb6ee09b5fe13529a8fb5c7a))
+* **deps:** update actions/cache digest to a783357 ([#1776](https://github.com/open-feature/java-sdk/issues/1776)) ([c36701c](https://github.com/open-feature/java-sdk/commit/c36701c31f89a2a73d0a54d1135e928317b1b2de))
+* **deps:** update codecov/codecov-action action to v5.5.2 ([#1773](https://github.com/open-feature/java-sdk/issues/1773)) ([46aa311](https://github.com/open-feature/java-sdk/commit/46aa311a8caab33e66eddd1cb40c11cadd0cf8ca))
+* **deps:** update dependency org.mockito:mockito-core to v5.21.0 ([#1774](https://github.com/open-feature/java-sdk/issues/1774)) ([3e18496](https://github.com/open-feature/java-sdk/commit/3e184962d6fa7bc70406abb6ed48d9d0eb9540d2))
+* **deps:** update github/codeql-action digest to 1b0b941 ([#1775](https://github.com/open-feature/java-sdk/issues/1775)) ([6d028f0](https://github.com/open-feature/java-sdk/commit/6d028f06831dbdb916981752d946c601dff81d42))
+* **deps:** update github/codeql-action digest to 4b675e4 ([#1777](https://github.com/open-feature/java-sdk/issues/1777)) ([cffa253](https://github.com/open-feature/java-sdk/commit/cffa25347237640e49fc5ed0d690b3e1b4bf27d1))
+* **deps:** update github/codeql-action digest to c43362b ([#1772](https://github.com/open-feature/java-sdk/issues/1772)) ([2a37f46](https://github.com/open-feature/java-sdk/commit/2a37f46e9638a966e71eb30a9b5a7504faf0d817))
+
 ## [1.19.2](https://github.com/open-feature/java-sdk/compare/v1.19.1...v1.19.2) (2025-12-08)
 
 
