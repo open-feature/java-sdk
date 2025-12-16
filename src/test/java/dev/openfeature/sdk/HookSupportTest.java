@@ -1,12 +1,14 @@
 package dev.openfeature.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import dev.openfeature.sdk.fixtures.HookFixtures;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -34,16 +36,18 @@ class HookSupportTest implements HookFixtures {
         when(hook1.before(any(), any())).thenReturn(Optional.of(evaluationContextWithValue("bla", "blubber")));
         when(hook2.before(any(), any())).thenReturn(Optional.of(evaluationContextWithValue("foo", "bar")));
 
+        var layered = new LayeredEvaluationContext(baseEvalContext, null, null, null);
         var sharedContext = getBaseHookContextForType(FlagValueType.STRING);
         var hookSupportData = new HookSupportData();
+        hookSupportData.evaluationContext = layered;
         hookSupport.setHooks(
                 hookSupportData,
                 List.of(hook1, hook2),
                 Collections.emptyList(),
                 new ConcurrentLinkedQueue<>(),
                 new ConcurrentLinkedQueue<>());
-        hookSupport.setHookContexts(hookSupportData, sharedContext);
-        hookSupport.updateEvaluationContext(hookSupportData, baseEvalContext);
+        hookSupport.setHooks(hookSupportData, Arrays.asList(hook1, hook2), FlagValueType.STRING);
+        hookSupport.setHookContexts(hookSupportData, sharedContext, layered);
 
         hookSupport.executeBeforeHooks(hookSupportData);
 
@@ -124,6 +128,33 @@ class HookSupportTest implements HookFixtures {
 
         assertHookData(testHook1, 1, "before", "after", "finallyAfter", "error");
         assertHookData(testHook2, 2, "before", "after", "finallyAfter", "error");
+    }
+
+    @Test
+    void hookThatReturnsTheGivenContext_doesNotResultInAStackOverflow() {
+        var hookSupportData = new HookSupportData();
+        var recursiveHook = new Hook() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext ctx, Map hints) {
+                return Optional.of(ctx.getCtx());
+            }
+        };
+        var emptyHook = new Hook() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext ctx, Map hints) {
+                return Optional.of(ImmutableContext.EMPTY);
+            }
+        };
+        var layeredEvaluationContext =
+                new LayeredEvaluationContext(evaluationContextWithValue("key", "value"), null, null, null);
+        hookSupportData.evaluationContext = layeredEvaluationContext;
+        hookSupport.setHooks(hookSupportData, List.of(recursiveHook, emptyHook), FlagValueType.STRING);
+        hookSupport.setHookContexts(
+                hookSupportData, getBaseHookContextForType(FlagValueType.STRING), layeredEvaluationContext);
+
+        callAllHooks(hookSupportData);
+
+        assertThatNoException().isThrownBy(layeredEvaluationContext::asObjectMap);
     }
 
     private static void callAllHooks(HookSupportData hookSupportData) {

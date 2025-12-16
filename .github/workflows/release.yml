@@ -37,13 +37,13 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@71cf2267d89c5cb81562390fa70a37fa40b1305e
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           fetch-depth: 0
           submodules: recursive
 
       - name: Set up JDK 17
-        uses: actions/setup-java@66b945764b75604b3cfd644c3ada5232cf6c90c6
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e
         with:
           java-version: '17'
           distribution: 'temurin'

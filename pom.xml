@@ -5,15 +5,15 @@
 
     <groupId>dev.openfeature</groupId>
     <artifactId>sdk</artifactId>
-    <version>1.18.2</version> <!--x-release-please-version -->
+    <version>1.19.2</version> <!--x-release-please-version -->
 
     <properties>
         <toolchain.jdk.version>[17,)</toolchain.jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
-        <org.mockito.version>5.20.0</org.mockito.version>
-        <com.vmlens.version>1.2.22</com.vmlens.version>
+        <org.mockito.version>5.21.0</org.mockito.version>
+        <com.vmlens.version>1.2.23</com.vmlens.version>
         <!-- exclusion expression for e2e tests -->
         <testExclusions>**/e2e/*.java</testExclusions>
         <module-name>${project.groupId}.${project.artifactId}</module-name>
@@ -214,14 +214,14 @@
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.18.1</version>
+                <version>1.18.2</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy-agent</artifactId>
-                <version>1.18.1</version>
+                <version>1.18.2</version>
                 <scope>test</scope>
             </dependency>
             <!-- End mockito workaround-->
@@ -237,7 +237,7 @@
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>
-                <version>7.31.0</version>
+                <version>7.33.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -464,7 +464,7 @@
                     <plugin>
                         <groupId>com.github.spotbugs</groupId>
                         <artifactId>spotbugs-maven-plugin</artifactId>
-                        <version>4.9.8.1</version>
+                        <version>4.9.8.2</version>
                         <configuration>
                             <excludeFilterFile>spotbugs-exclusions.xml</excludeFilterFile>
                             <plugins>
@@ -508,7 +508,7 @@
                             <dependency>
                                 <groupId>com.puppycrawl.tools</groupId>
                                 <artifactId>checkstyle</artifactId>
-                                <version>12.1.2</version>
+                                <version>12.3.0</version>
                             </dependency>
                         </dependencies>
                         <executions>
@@ -524,7 +524,7 @@
                     <plugin>
                         <groupId>com.diffplug.spotless</groupId>
                         <artifactId>spotless-maven-plugin</artifactId>
-                        <version>3.0.0</version>
+                        <version>3.1.0</version>
                         <configuration>
                             <!-- optional: limit format enforcement to just the files changed by this feature branch -->
                             <!--                <ratchetFrom>origin/main</ratchetFrom>-->
@@ -573,7 +573,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.3.1</version>
+                        <version>3.4.0</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>

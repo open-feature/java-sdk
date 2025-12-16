@@ -12,6 +12,10 @@ import lombok.Singular;
 @lombok.Value
 @Builder
 public class FlagEvaluationOptions {
+
+    public static final FlagEvaluationOptions EMPTY =
+            FlagEvaluationOptions.builder().build();
+
     @Singular
     List<Hook> hooks;
 

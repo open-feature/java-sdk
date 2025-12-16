@@ -11,7 +11,7 @@ import lombok.Getter;
 class HookSupportData {
 
     ArrayList<Pair<Hook, HookContext>> hooks;
-    EvaluationContext evaluationContext;
+    LayeredEvaluationContext evaluationContext;
     Map<String, Object> hints;
 
     HookSupportData() {}

@@ -4,12 +4,16 @@ import static dev.openfeature.sdk.EvaluationContext.TARGETING_KEY;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class ImmutableContextTest {
@@ -50,7 +54,7 @@ class ImmutableContextTest {
         assertEquals("overriding_key", merge.getTargetingKey());
     }
 
-    @DisplayName("targeting key should not changed from the overriding context if missing")
+    @DisplayName("targeting key should not be changed from the overriding context if missing")
     @Test
     void shouldRetainTargetingKeyWhenOverridingContextTargetingKeyValueIsEmpty() {
         HashMap<String, Value> attributes = new HashMap<>();
@@ -66,7 +70,7 @@ class ImmutableContextTest {
     @Test
     void missingTargetingKeyShould() {
         EvaluationContext ctx = new ImmutableContext();
-        assertEquals(null, ctx.getTargetingKey());
+        assertNull(ctx.getTargetingKey());
     }
 
     @DisplayName("Merge should retain all the attributes from the existing context when overriding context is null")
@@ -145,10 +149,26 @@ class ImmutableContextTest {
         EvaluationContext ctx = new ImmutableContext();
         EvaluationContext overriding = new ImmutableContext(attributes);
         EvaluationContext merge = ctx.merge(overriding);
-        assertEquals(new java.util.HashSet<>(java.util.Arrays.asList("key1", "key2")), merge.keySet());
+        assertEquals(new HashSet<>(Arrays.asList("key1", "key2")), merge.keySet());
     }
 
-    @DisplayName("Two different MutableContext objects with the different contents are not considered equal")
+    @DisplayName("Two ImmutableContext objects with identical attributes are considered equal")
+    @Test
+    void testImmutableContextEquality() {
+        Map<String, Value> map1 = new HashMap<>();
+        map1.put("key", new Value("value"));
+
+        Map<String, Value> map2 = new HashMap<>();
+        map2.put("key", new Value("value"));
+
+        ImmutableContext a = new ImmutableContext(null, map1);
+        ImmutableContext b = new ImmutableContext(null, map2);
+
+        assertEquals(a, b);
+        assertEquals(a.hashCode(), b.hashCode());
+    }
+
+    @DisplayName("Two different ImmutableContext objects with different contents are not considered equal")
     @Test
     void unequalImmutableContextsAreNotEqual() {
         final Map<String, Value> attributes = new HashMap<>();
@@ -161,17 +181,57 @@ class ImmutableContextTest {
         assertNotEquals(ctx, ctx2);
     }
 
-    @DisplayName("Two different MutableContext objects with the same content are considered equal")
+    @DisplayName("ImmutableContext hashCode is stable across multiple invocations")
     @Test
-    void equalImmutableContextsAreEqual() {
-        final Map<String, Value> attributes = new HashMap<>();
-        attributes.put("key1", new Value("val1"));
-        final ImmutableContext ctx = new ImmutableContext(attributes);
+    void immutableContextHashCodeIsStable() {
+        Map<String, Value> map = new HashMap<>();
+        map.put("key", new Value("value"));
 
-        final Map<String, Value> attributes2 = new HashMap<>();
-        attributes2.put("key1", new Value("val1"));
-        final ImmutableContext ctx2 = new ImmutableContext(attributes2);
+        ImmutableContext ctx = new ImmutableContext(null, map);
 
-        assertEquals(ctx, ctx2);
+        int first = ctx.hashCode();
+        int second = ctx.hashCode();
+        assertEquals(first, second);
+    }
+
+    @Nested
+    class Equals {
+        ImmutableContext ctx = new ImmutableContext("c", Map.of("a", new Value("b")));
+
+        @Test
+        void equalsItself() {
+            assertEquals(ctx, ctx);
+        }
+
+        @Test
+        void equalsLayeredEvalCtxIfSameValues() {
+            var layeredContext = new LayeredEvaluationContext(ctx, null, null, null);
+            assertEquals(layeredContext, ctx);
+            assertEquals(ctx, layeredContext);
+        }
+
+        @Test
+        void equalsDifferentMutableEvalCtxIfSameValues() {
+            var mutable = new MutableContext("c", Map.of("a", new Value("b")));
+            assertEquals(mutable, ctx);
+            assertEquals(ctx, mutable);
+        }
+    }
+
+    @Nested
+    class HashCode {
+        ImmutableContext ctx = new ImmutableContext("c", Map.of("a", new Value("b")));
+
+        @Test
+        void hashCodeEqualsLayeredEvalCtxIfSameValues() {
+            var layeredContext = new LayeredEvaluationContext(ctx, null, null, null);
+            assertEquals(layeredContext.hashCode(), ctx.hashCode());
+        }
+
+        @Test
+        void hashCodeEqualsDifferentMutableEvalCtxIfSameValues() {
+            var mutable = new MutableContext("c", Map.of("a", new Value("b")));
+            assertEquals(mutable.hashCode(), ctx.hashCode());
+        }
     }
 }

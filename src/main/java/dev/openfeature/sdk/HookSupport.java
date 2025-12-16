@@ -74,29 +74,14 @@ class HookSupport {
      * @param hookSupportData the data object to modify
      * @param sharedContext   the shared context from which the new {@link HookContext} is created
      */
-    public void setHookContexts(HookSupportData hookSupportData, SharedHookContext sharedContext) {
+    public void setHookContexts(
+            HookSupportData hookSupportData,
+            SharedHookContext sharedContext,
+            LayeredEvaluationContext evaluationContext) {
         for (int i = 0; i < hookSupportData.hooks.size(); i++) {
             Pair<Hook, HookContext> hookContextPair = hookSupportData.hooks.get(i);
-            HookContext curHookContext = sharedContext.hookContextFor(null, new DefaultHookData());
+            HookContext curHookContext = sharedContext.hookContextFor(evaluationContext, new DefaultHookData());
             hookContextPair.setValue(curHookContext);
-        }
-    }
-
-    /**
-     * Updates the evaluation context in the given data object's eval context and each hooks eval context.
-     *
-     * @param hookSupportData   the data object to modify
-     * @param evaluationContext the new context to set
-     */
-    public void updateEvaluationContext(HookSupportData hookSupportData, EvaluationContext evaluationContext) {
-        hookSupportData.evaluationContext = evaluationContext;
-        if (hookSupportData.hooks != null) {
-            for (Pair<Hook, HookContext> hookContextPair : hookSupportData.hooks) {
-                var curHookContext = hookContextPair.getValue();
-                if (curHookContext != null) {
-                    curHookContext.setCtx(evaluationContext);
-                }
-            }
         }
     }
 
@@ -112,8 +97,11 @@ class HookSupport {
                             hook.before(hookContext, data.getHints()))
                     .orElse(Optional.empty());
             if (returnedEvalContext.isPresent()) {
-                // update shared evaluation context for all hooks
-                updateEvaluationContext(data, data.getEvaluationContext().merge(returnedEvalContext.get()));
+                var returnedContext = returnedEvalContext.get();
+                // yes, we want to check for reference equality here, this prevents recursive layered contexts
+                if (returnedContext != hookContext.getCtx() && !returnedContext.isEmpty()) {
+                    data.evaluationContext.putHookContext(returnedContext);
+                }
             }
         }
     }

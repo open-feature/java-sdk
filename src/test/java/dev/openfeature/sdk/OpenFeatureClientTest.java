@@ -13,6 +13,8 @@ import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.testProvider.TestProvider;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -284,5 +286,54 @@ class OpenFeatureClientTest implements HookFixtures {
                 assertFalse(hook.afterCalled.get());
             }
         }
+    }
+
+    @Test
+    void flagEvaluationsUseTheCorrectContext() {
+        OpenFeatureAPI api = new OpenFeatureAPI();
+        api.setTransactionContextPropagator(new ThreadLocalTransactionContextPropagator());
+        var provider = TestProvider.builder().allowUnknownFlags(true).initsToReady();
+        api.setProviderAndWait(provider);
+
+        var apiContext = new MutableContext("api-level", Map.of("api", new Value("api"), "override", new Value("api")));
+        var transactionContext = new MutableContext(
+                "transaction-level",
+                Map.of("transaction", new Value("transaction"), "override", new Value("transaction")));
+        var clientContext = new MutableContext(
+                "client-level", Map.of("client", new Value("client"), "override", new Value("client")));
+        var invocationContext = new MutableContext(
+                "invocation-level", Map.of("invocation", new Value("invocation"), "override", new Value("invocation")));
+
+        var hookContext =
+                new MutableContext("hook-level", Map.of("hook", new Value("hook"), "override", new Value("hook")));
+        var ctxHook = new Hook<>() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<Object> ctx, Map<String, Object> hints) {
+                return Optional.of(hookContext);
+            }
+        };
+
+        api.setEvaluationContext(apiContext);
+        api.setTransactionContext(transactionContext);
+
+        var client = api.getClient();
+        client.addHooks(ctxHook);
+        client.setEvaluationContext(clientContext);
+
+        client.getStringValue("flag", "idc", invocationContext);
+
+        var flagEvaluations = provider.getFlagEvaluations();
+        assertThat(flagEvaluations).hasSize(1);
+
+        var evaluation = flagEvaluations.get(0);
+        assertThat(evaluation.evaluationContext.getValue("api").asString()).isEqualTo("api");
+        assertThat(evaluation.evaluationContext.getValue("transaction").asString())
+                .isEqualTo("transaction");
+        assertThat(evaluation.evaluationContext.getValue("client").asString()).isEqualTo("client");
+        assertThat(evaluation.evaluationContext.getValue("invocation").asString())
+                .isEqualTo("invocation");
+        assertThat(evaluation.evaluationContext.getValue("hook").asString()).isEqualTo("hook");
+        assertThat(evaluation.evaluationContext.getValue("override").asString()).isEqualTo("hook");
+        assertThat(evaluation.evaluationContext.getTargetingKey()).isEqualTo("hook-level");
     }
 }
