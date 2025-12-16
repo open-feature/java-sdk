@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import dev.openfeature.sdk.fixtures.HookFixtures;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +45,6 @@ class HookSupportTest implements HookFixtures {
                 Collections.emptyList(),
                 new ConcurrentLinkedQueue<>(),
                 new ConcurrentLinkedQueue<>());
-        hookSupport.setHooks(hookSupportData, Arrays.asList(hook1, hook2), FlagValueType.STRING);
         hookSupport.setHookContexts(hookSupportData, sharedContext, layered);
 
         hookSupport.executeBeforeHooks(hookSupportData);
@@ -91,7 +89,8 @@ class HookSupportTest implements HookFixtures {
                 Collections.emptyList(),
                 new ConcurrentLinkedQueue<>(),
                 new ConcurrentLinkedQueue<>());
-        hookSupport.setHookContexts(hookSupportData, getBaseHookContextForType(flagValueType));
+        hookSupport.setHookContexts(hookSupportData, getBaseHookContextForType(flagValueType),
+                LayeredEvaluationContext.empty());
 
         hookSupport.executeBeforeHooks(hookSupportData);
         assertHookData(testHook, "before");
@@ -122,7 +121,8 @@ class HookSupportTest implements HookFixtures {
                 Collections.emptyList(),
                 new ConcurrentLinkedQueue<>(),
                 new ConcurrentLinkedQueue<>());
-        hookSupport.setHookContexts(hookSupportData, getBaseHookContextForType(flagValueType));
+        hookSupport.setHookContexts(hookSupportData, getBaseHookContextForType(flagValueType),
+                LayeredEvaluationContext.empty());
 
         callAllHooks(hookSupportData);
 
@@ -148,7 +148,8 @@ class HookSupportTest implements HookFixtures {
         var layeredEvaluationContext =
                 new LayeredEvaluationContext(evaluationContextWithValue("key", "value"), null, null, null);
         hookSupportData.evaluationContext = layeredEvaluationContext;
-        hookSupport.setHooks(hookSupportData, List.of(recursiveHook, emptyHook), FlagValueType.STRING);
+        hookSupport.setHooks(hookSupportData, List.of(recursiveHook, emptyHook), Collections.emptyList(),
+                new ConcurrentLinkedQueue<>(), new ConcurrentLinkedQueue<>());
         hookSupport.setHookContexts(
                 hookSupportData, getBaseHookContextForType(FlagValueType.STRING), layeredEvaluationContext);
 
