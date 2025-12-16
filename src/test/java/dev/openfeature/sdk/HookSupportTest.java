@@ -89,8 +89,8 @@ class HookSupportTest implements HookFixtures {
                 Collections.emptyList(),
                 new ConcurrentLinkedQueue<>(),
                 new ConcurrentLinkedQueue<>());
-        hookSupport.setHookContexts(hookSupportData, getBaseHookContextForType(flagValueType),
-                LayeredEvaluationContext.empty());
+        hookSupport.setHookContexts(
+                hookSupportData, getBaseHookContextForType(flagValueType), LayeredEvaluationContext.empty());
 
         hookSupport.executeBeforeHooks(hookSupportData);
         assertHookData(testHook, "before");
@@ -121,8 +121,8 @@ class HookSupportTest implements HookFixtures {
                 Collections.emptyList(),
                 new ConcurrentLinkedQueue<>(),
                 new ConcurrentLinkedQueue<>());
-        hookSupport.setHookContexts(hookSupportData, getBaseHookContextForType(flagValueType),
-                LayeredEvaluationContext.empty());
+        hookSupport.setHookContexts(
+                hookSupportData, getBaseHookContextForType(flagValueType), LayeredEvaluationContext.empty());
 
         callAllHooks(hookSupportData);
 
@@ -148,8 +148,12 @@ class HookSupportTest implements HookFixtures {
         var layeredEvaluationContext =
                 new LayeredEvaluationContext(evaluationContextWithValue("key", "value"), null, null, null);
         hookSupportData.evaluationContext = layeredEvaluationContext;
-        hookSupport.setHooks(hookSupportData, List.of(recursiveHook, emptyHook), Collections.emptyList(),
-                new ConcurrentLinkedQueue<>(), new ConcurrentLinkedQueue<>());
+        hookSupport.setHooks(
+                hookSupportData,
+                List.of(recursiveHook, emptyHook),
+                Collections.emptyList(),
+                new ConcurrentLinkedQueue<>(),
+                new ConcurrentLinkedQueue<>());
         hookSupport.setHookContexts(
                 hookSupportData, getBaseHookContextForType(FlagValueType.STRING), layeredEvaluationContext);
 
