@@ -35,7 +35,8 @@ public class MultiProvider extends EventProvider {
     @Getter
     private static final String NAME = "multiprovider";
 
-    public static final int INIT_THREADS_COUNT = 8;
+    // Use CPU count as upper bound for init threads.
+    public static final int INIT_THREADS_COUNT = Runtime.getRuntime().availableProcessors();
 
     private final Map<String, FeatureProvider> providers;
     private final Strategy strategy;
@@ -68,7 +69,7 @@ public class MultiProvider extends EventProvider {
             FeatureProvider prevProvider =
                     providersMap.put(provider.getMetadata().getName(), provider);
             if (prevProvider != null) {
-                log.warn("duplicated provider name: {}", provider.getMetadata().getName());
+                log.info("duplicated provider name: {}", provider.getMetadata().getName());
             }
         }
         return Collections.unmodifiableMap(providersMap);
@@ -113,17 +114,12 @@ public class MultiProvider extends EventProvider {
                 result.get();
             }
         } catch (Exception e) {
-            // If initialization fails for any provider, attempt to shut down all providers
-            // to avoid a partial/limbo state.
-            for (FeatureProvider provider : providers.values()) {
-                try {
-                    provider.shutdown();
-                } catch (Exception shutdownEx) {
-                    log.error(
-                            "error shutting down provider {} after failed initialize",
-                            provider.getMetadata().getName(),
-                            shutdownEx);
-                }
+            // If initialization fails for any provider, attempt to shut down via the
+            // standard shutdown path to avoid a partial/limbo state.
+            try {
+                shutdown();
+            } catch (Exception shutdownEx) {
+                log.error("error during shutdown after failed initialize", shutdownEx);
             }
             throw e;
         } finally {
