@@ -75,6 +75,21 @@ class MutableContextTest {
         assertEquals("", ctx.getTargetingKey());
     }
 
+    @DisplayName("whitespace-only string is a valid targeting key via constructor")
+    @Test
+    void whitespaceOnlyStringIsValidTargetingKeyViaConstructor() {
+        EvaluationContext ctx = new MutableContext("   ");
+        assertEquals("   ", ctx.getTargetingKey());
+    }
+
+    @DisplayName("whitespace-only string is a valid targeting key via setter")
+    @Test
+    void whitespaceOnlyStringIsValidTargetingKeyViaSetter() {
+        MutableContext ctx = new MutableContext();
+        ctx.setTargetingKey("   ");
+        assertEquals("   ", ctx.getTargetingKey());
+    }
+
     @DisplayName("Merge should retain all the attributes from the existing context when overriding context is null")
     @Test
     void mergeShouldReturnAllTheValuesFromTheContextWhenOverridingContextIsNull() {
