@@ -60,6 +60,15 @@ class MutableContextTest {
         assertEquals(null, ctx.getTargetingKey());
     }
 
+    @DisplayName("setTargetingKey with null should not set targeting key")
+    @Test
+    void setTargetingKeyWithNullShouldNotSet() {
+        MutableContext ctx = new MutableContext("original");
+        ctx.setTargetingKey(null);
+        // null should not override the existing targeting key
+        assertEquals("original", ctx.getTargetingKey());
+    }
+
     @DisplayName("empty string is a valid targeting key via constructor")
     @Test
     void emptyStringIsValidTargetingKeyViaConstructor() {
