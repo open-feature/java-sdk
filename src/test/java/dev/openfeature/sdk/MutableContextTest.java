@@ -67,26 +67,22 @@ class MutableContextTest {
         assertEquals("", ctx.getTargetingKey());
     }
 
-    @DisplayName("empty string is a valid targeting key via setter")
+    @DisplayName("empty and whitespace-only strings are valid targeting keys via setter")
     @Test
-    void emptyStringIsValidTargetingKeyViaSetter() {
+    void emptyAndWhitespaceAreValidTargetingKeysViaSetter() {
         MutableContext ctx = new MutableContext();
+
         ctx.setTargetingKey("");
         assertEquals("", ctx.getTargetingKey());
+
+        ctx.setTargetingKey("   ");
+        assertEquals("   ", ctx.getTargetingKey());
     }
 
     @DisplayName("whitespace-only string is a valid targeting key via constructor")
     @Test
     void whitespaceOnlyStringIsValidTargetingKeyViaConstructor() {
         EvaluationContext ctx = new MutableContext("   ");
-        assertEquals("   ", ctx.getTargetingKey());
-    }
-
-    @DisplayName("whitespace-only string is a valid targeting key via setter")
-    @Test
-    void whitespaceOnlyStringIsValidTargetingKeyViaSetter() {
-        MutableContext ctx = new MutableContext();
-        ctx.setTargetingKey("   ");
         assertEquals("   ", ctx.getTargetingKey());
     }
 
