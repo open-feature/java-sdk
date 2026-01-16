@@ -40,16 +40,17 @@ class MutableContextTest {
         assertEquals("overriding_key", merge.getTargetingKey());
     }
 
-    @DisplayName("targeting key should not changed from the overriding context if missing")
+    @DisplayName("targeting key should be changed from the overriding context even if empty string")
     @Test
-    void shouldRetainTargetingKeyWhenOverridingContextTargetingKeyValueIsEmpty() {
+    void shouldOverrideTargetingKeyWhenOverridingContextTargetingKeyIsEmptyString() {
         HashMap<String, Value> attributes = new HashMap<>();
         attributes.put("key1", new Value("val1"));
         attributes.put("key2", new Value("val2"));
         EvaluationContext ctx = new MutableContext("targeting_key", attributes);
         EvaluationContext overriding = new MutableContext("");
         EvaluationContext merge = ctx.merge(overriding);
-        assertEquals("targeting_key", merge.getTargetingKey());
+        // Empty string is a valid targeting key and should override
+        assertEquals("", merge.getTargetingKey());
     }
 
     @DisplayName("missing targeting key should return null")
@@ -57,6 +58,21 @@ class MutableContextTest {
     void missingTargetingKeyShould() {
         EvaluationContext ctx = new MutableContext();
         assertEquals(null, ctx.getTargetingKey());
+    }
+
+    @DisplayName("empty string is a valid targeting key via constructor")
+    @Test
+    void emptyStringIsValidTargetingKeyViaConstructor() {
+        EvaluationContext ctx = new MutableContext("");
+        assertEquals("", ctx.getTargetingKey());
+    }
+
+    @DisplayName("empty string is a valid targeting key via setter")
+    @Test
+    void emptyStringIsValidTargetingKeyViaSetter() {
+        MutableContext ctx = new MutableContext();
+        ctx.setTargetingKey("");
+        assertEquals("", ctx.getTargetingKey());
     }
 
     @DisplayName("Merge should retain all the attributes from the existing context when overriding context is null")
