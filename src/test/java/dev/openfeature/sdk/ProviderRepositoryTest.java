@@ -4,6 +4,7 @@ import static dev.openfeature.sdk.fixtures.ProviderFixture.*;
 import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doDelayResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -15,6 +16,7 @@ import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -287,6 +289,191 @@ class ProviderRepositoryTest {
                 verify(afterInit, never()).accept(any());
                 ;
                 verify(afterError, timeout(TIMEOUT)).accept(eq(errorFeatureProvider), any());
+            }
+        }
+
+        @Nested
+        class GracefulShutdownBehavior {
+
+            @Test
+            @DisplayName("should complete shutdown successfully when executor terminates within timeout")
+            void shouldCompleteShutdownSuccessfullyWhenExecutorTerminatesWithinTimeout() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                assertThatCode(() -> providerRepository.shutdown()).doesNotThrowAnyException();
+
+                verify(provider, timeout(TIMEOUT)).shutdown();
+            }
+
+            @Test
+            @DisplayName("should force shutdown when executor does not terminate within timeout")
+            void shouldForceShutdownWhenExecutorDoesNotTerminateWithinTimeout() throws Exception {
+                FeatureProvider provider = createMockedProvider();
+                AtomicBoolean wasInterrupted = new AtomicBoolean(false);
+                doAnswer(invocation -> {
+                            try {
+                                Thread.sleep(TIMEOUT);
+                            } catch (InterruptedException e) {
+                                wasInterrupted.set(true);
+                                throw e;
+                            }
+                            return null;
+                        })
+                        .when(provider)
+                        .shutdown();
+
+                setFeatureProvider(provider);
+
+                assertThatCode(() -> providerRepository.shutdown()).doesNotThrowAnyException();
+
+                verify(provider, timeout(TIMEOUT)).shutdown();
+                // Verify that shutdownNow() interrupted the running shutdown task
+                await().atMost(Duration.ofSeconds(1))
+                        .untilAsserted(() -> assertThat(wasInterrupted.get()).isTrue());
+            }
+
+            @Test
+            @DisplayName("should handle interruption during shutdown gracefully")
+            void shouldHandleInterruptionDuringShutdownGracefully() throws Exception {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                Thread shutdownThread = new Thread(() -> {
+                    providerRepository.shutdown();
+                });
+
+                shutdownThread.start();
+                shutdownThread.interrupt();
+                shutdownThread.join(TIMEOUT);
+
+                assertThat(shutdownThread.isAlive()).isFalse();
+                verify(provider, timeout(TIMEOUT)).shutdown();
+            }
+
+            @Test
+            @DisplayName("should not hang indefinitely on shutdown")
+            void shouldNotHangIndefinitelyOnShutdown() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                await().alias("shutdown should complete within reasonable time")
+                        .atMost(Duration.ofSeconds(5))
+                        .until(() -> {
+                            providerRepository.shutdown();
+                            return true;
+                        });
+            }
+
+            @Test
+            @DisplayName("should handle shutdown during provider initialization")
+            void shouldHandleShutdownDuringProviderInitialization() throws Exception {
+                FeatureProvider slowInitProvider = createMockedProvider();
+                AtomicBoolean initStarted = new AtomicBoolean(false);
+                AtomicBoolean shutdownCalled = new AtomicBoolean(false);
+
+                doAnswer(invocation -> {
+                            initStarted.set(true);
+                            Thread.sleep(500);
+                            return null;
+                        })
+                        .when(slowInitProvider)
+                        .initialize(any());
+
+                doAnswer(invocation -> {
+                            shutdownCalled.set(true);
+                            return null;
+                        })
+                        .when(slowInitProvider)
+                        .shutdown();
+
+                providerRepository.setProvider(
+                        slowInitProvider,
+                        mockAfterSet(),
+                        mockAfterInit(),
+                        mockAfterShutdown(),
+                        mockAfterError(),
+                        false);
+
+                await().atMost(Duration.ofSeconds(1)).untilTrue(initStarted);
+
+                // Call shutdown while initialization is in progress
+                assertThatCode(() -> providerRepository.shutdown()).doesNotThrowAnyException();
+
+                await().atMost(Duration.ofSeconds(1)).untilTrue(shutdownCalled);
+                verify(slowInitProvider, times(1)).shutdown();
+            }
+
+            @Test
+            @DisplayName("should handle provider replacement during shutdown")
+            void shouldHandleProviderReplacementDuringShutdown() throws Exception {
+                FeatureProvider oldProvider = createMockedProvider();
+                FeatureProvider newProvider = createMockedProvider();
+                AtomicBoolean oldProviderShutdownCalled = new AtomicBoolean(false);
+
+                doAnswer(invocation -> {
+                            oldProviderShutdownCalled.set(true);
+                            return null;
+                        })
+                        .when(oldProvider)
+                        .shutdown();
+
+                providerRepository.setProvider(
+                        oldProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), true);
+
+                // Replace provider (this will trigger old provider shutdown in background)
+                providerRepository.setProvider(
+                        newProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
+
+                assertThatCode(() -> providerRepository.shutdown()).doesNotThrowAnyException();
+
+                await().atMost(Duration.ofSeconds(1)).untilTrue(oldProviderShutdownCalled);
+                verify(oldProvider, times(1)).shutdown();
+                verify(newProvider, times(1)).shutdown();
+            }
+
+            @Test
+            @DisplayName("should prevent adding providers after shutdown has started")
+            void shouldPreventAddingProvidersAfterShutdownHasStarted() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                providerRepository.shutdown();
+
+                FeatureProvider newProvider = createMockedProvider();
+                assertThatThrownBy(() -> providerRepository.setProvider(
+                                newProvider,
+                                mockAfterSet(),
+                                mockAfterInit(),
+                                mockAfterShutdown(),
+                                mockAfterError(),
+                                false))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("shutting down");
+            }
+
+            @Test
+            @DisplayName("should handle concurrent shutdown calls gracefully")
+            void shouldHandleConcurrentShutdownCallsGracefully() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                assertThatCode(() -> {
+                            Thread t1 = new Thread(() -> providerRepository.shutdown());
+                            Thread t2 = new Thread(() -> providerRepository.shutdown());
+                            Thread t3 = new Thread(() -> providerRepository.shutdown());
+
+                            t1.start();
+                            t2.start();
+                            t3.start();
+
+                            t1.join(TIMEOUT);
+                            t2.join(TIMEOUT);
+                            t3.join(TIMEOUT);
+                        })
+                        .doesNotThrowAnyException();
+
+                verify(provider, times(1)).shutdown();
             }
         }
     }
