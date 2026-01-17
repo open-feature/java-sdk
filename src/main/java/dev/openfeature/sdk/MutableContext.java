@@ -36,14 +36,14 @@ public class MutableContext implements EvaluationContext {
 
     /**
      * Create a mutable context with given targetingKey and attributes provided. TargetingKey should be non-null
-     * and non-empty to be accepted.
+     * to be accepted. Empty string is a valid targeting key value.
      *
      * @param targetingKey targeting key
      * @param attributes   evaluation context attributes
      */
     public MutableContext(String targetingKey, Map<String, Value> attributes) {
         this.structure = new MutableStructure(new HashMap<>(attributes));
-        if (targetingKey != null && !targetingKey.trim().isEmpty()) {
+        if (targetingKey != null) {
             this.structure.attributes.put(TARGETING_KEY, new Value(targetingKey));
         }
     }
@@ -85,10 +85,11 @@ public class MutableContext implements EvaluationContext {
     }
 
     /**
-     * Override or set targeting key for this mutable context. Value should be non-null and non-empty to be accepted.
+     * Override or set targeting key for this mutable context. Value should be non-null to be accepted.
+     * Empty string is a valid targeting key value.
      */
     public MutableContext setTargetingKey(String targetingKey) {
-        if (targetingKey != null && !targetingKey.trim().isEmpty()) {
+        if (targetingKey != null) {
             this.add(TARGETING_KEY, targetingKey);
         }
         return this;

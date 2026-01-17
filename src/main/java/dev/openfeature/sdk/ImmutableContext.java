@@ -55,12 +55,13 @@ public final class ImmutableContext implements EvaluationContext {
 
     /**
      * Create an immutable context with given targetingKey and attributes provided.
+     * Empty string is a valid targeting key value.
      *
      * @param targetingKey targeting key
      * @param attributes   evaluation context attributes
      */
     public ImmutableContext(String targetingKey, Map<String, Value> attributes) {
-        if (targetingKey != null && !targetingKey.isBlank()) {
+        if (targetingKey != null) {
             this.structure = new ImmutableStructure(targetingKey, attributes);
         } else {
             this.structure = new ImmutableStructure(attributes);
