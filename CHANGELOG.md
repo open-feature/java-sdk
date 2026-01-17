@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.20.1](https://github.com/open-feature/java-sdk/compare/v1.20.0...v1.20.1) (2026-01-17)
+
+
+### 🧹 Chore
+
+* **deps:** update actions/cache digest to 8b402f5 ([#1808](https://github.com/open-feature/java-sdk/issues/1808)) ([bf226d7](https://github.com/open-feature/java-sdk/commit/bf226d7cde44395be7c8222be05aaa7e199a7a9c))
+* **deps:** update github/codeql-action digest to fb650c2 ([#1809](https://github.com/open-feature/java-sdk/issues/1809)) ([852e256](https://github.com/open-feature/java-sdk/commit/852e256019a6e82ebd2b4a23a4e83e5bf1462a73))
+
 ## [1.20.0](https://github.com/open-feature/java-sdk/compare/v1.19.2...v1.20.0) (2026-01-16)
 
 
