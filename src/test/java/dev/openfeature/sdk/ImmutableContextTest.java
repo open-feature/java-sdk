@@ -74,6 +74,13 @@ class ImmutableContextTest {
         assertNull(ctx.getTargetingKey());
     }
 
+    @DisplayName("null targeting key in constructor should result in no targeting key")
+    @Test
+    void nullTargetingKeyInConstructorShouldResultInNoTargetingKey() {
+        EvaluationContext ctx = new ImmutableContext(null);
+        assertNull(ctx.getTargetingKey());
+    }
+
     @DisplayName("empty string is a valid targeting key")
     @Test
     void emptyStringIsValidTargetingKey() {
