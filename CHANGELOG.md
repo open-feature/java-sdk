@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.20.1](https://github.com/open-feature/java-sdk/compare/v1.20.0...v1.20.1) (2026-01-22)
+
+
+### 🐛 Bug Fixes
+
+* Allow empty string as a valid targeting key ([#1807](https://github.com/open-feature/java-sdk/issues/1807)) ([e8fb3a1](https://github.com/open-feature/java-sdk/commit/e8fb3a18ca514c686b4a0655f95562ff1f4d1529))
+* **deps:** update dependency com.fasterxml.jackson:jackson-bom to v2.21.0 ([#1811](https://github.com/open-feature/java-sdk/issues/1811)) ([925477d](https://github.com/open-feature/java-sdk/commit/925477d4e8f6c795bc6000112ebc3830069a430f))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/cache digest to 8b402f5 ([#1808](https://github.com/open-feature/java-sdk/issues/1808)) ([bf226d7](https://github.com/open-feature/java-sdk/commit/bf226d7cde44395be7c8222be05aaa7e199a7a9c))
+* **deps:** update actions/setup-java digest to 1b1bbe1 ([#1814](https://github.com/open-feature/java-sdk/issues/1814)) ([968b5ed](https://github.com/open-feature/java-sdk/commit/968b5ede67928f4906070508b29578fd4af90bfc))
+* **deps:** update actions/setup-java digest to be666c2 ([#1819](https://github.com/open-feature/java-sdk/issues/1819)) ([1b41846](https://github.com/open-feature/java-sdk/commit/1b41846c8f928478c93589c85ca48b7fdfd8e945))
+* **deps:** update actions/setup-java digest to d81c4e4 ([#1816](https://github.com/open-feature/java-sdk/issues/1816)) ([084539f](https://github.com/open-feature/java-sdk/commit/084539f8cbc080c08d6044e835351594bd19b73c))
+* **deps:** update dependency org.sonatype.central:central-publishing-maven-plugin to v0.10.0 ([#1798](https://github.com/open-feature/java-sdk/issues/1798)) ([3dd51c3](https://github.com/open-feature/java-sdk/commit/3dd51c3f719ea6181c6cf58a22c4836cd44348c1))
+* **deps:** update github/codeql-action digest to 044ff10 ([#1815](https://github.com/open-feature/java-sdk/issues/1815)) ([c499677](https://github.com/open-feature/java-sdk/commit/c49967717b0025e4716441e1e0a2c5e548a33ba7))
+* **deps:** update github/codeql-action digest to 1c4c0b3 ([#1818](https://github.com/open-feature/java-sdk/issues/1818)) ([d3df294](https://github.com/open-feature/java-sdk/commit/d3df29476df0144b808c44ac7dc636f83ee55467))
+* **deps:** update github/codeql-action digest to 1ec7dd2 ([#1813](https://github.com/open-feature/java-sdk/issues/1813)) ([cc81a91](https://github.com/open-feature/java-sdk/commit/cc81a918a39a8b3d363903a91a3c369aec84067d))
+* **deps:** update github/codeql-action digest to 32d41f3 ([#1817](https://github.com/open-feature/java-sdk/issues/1817)) ([ca7de48](https://github.com/open-feature/java-sdk/commit/ca7de4823b50d8eea4696d554c4d76bf16f7c235))
+* **deps:** update github/codeql-action digest to f687ebf ([#1812](https://github.com/open-feature/java-sdk/issues/1812)) ([1b9eb9b](https://github.com/open-feature/java-sdk/commit/1b9eb9be8b25440b45afe5f541e09b963643cefe))
+* **deps:** update github/codeql-action digest to fb650c2 ([#1809](https://github.com/open-feature/java-sdk/issues/1809)) ([852e256](https://github.com/open-feature/java-sdk/commit/852e256019a6e82ebd2b4a23a4e83e5bf1462a73))
+
 ## [1.20.0](https://github.com/open-feature/java-sdk/compare/v1.19.2...v1.20.0) (2026-01-16)
 
 
