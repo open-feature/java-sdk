@@ -173,9 +173,10 @@ public class EvalContextTest {
         ctxMerged = ctx1.merge(ctx2);
         assertEquals(key2, ctxMerged.getTargetingKey());
 
+        // Whitespace is now a valid targeting key and should override
         ctx2 = new ImmutableContext(" ", new HashMap<>());
         ctxMerged = ctx1.merge(ctx2);
-        assertEquals(key1, ctxMerged.getTargetingKey());
+        assertEquals(" ", ctxMerged.getTargetingKey());
     }
 
     @Test
@@ -200,9 +201,10 @@ public class EvalContextTest {
         ctxMerged = ctx1.merge(ctx2);
         assertEquals(key2, ctxMerged.getTargetingKey());
 
+        // Whitespace is now a valid targeting key and should override
         ctx2.setTargetingKey("  ");
         ctxMerged = ctx1.merge(ctx2);
-        assertEquals(key2, ctxMerged.getTargetingKey());
+        assertEquals("  ", ctxMerged.getTargetingKey());
     }
 
     @Test

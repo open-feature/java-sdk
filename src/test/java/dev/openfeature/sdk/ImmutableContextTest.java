@@ -54,16 +54,17 @@ class ImmutableContextTest {
         assertEquals("overriding_key", merge.getTargetingKey());
     }
 
-    @DisplayName("targeting key should not be changed from the overriding context if missing")
+    @DisplayName("targeting key should be changed from the overriding context even if empty string")
     @Test
-    void shouldRetainTargetingKeyWhenOverridingContextTargetingKeyValueIsEmpty() {
+    void shouldOverrideTargetingKeyWhenOverridingContextTargetingKeyIsEmptyString() {
         HashMap<String, Value> attributes = new HashMap<>();
         attributes.put("key1", new Value("val1"));
         attributes.put("key2", new Value("val2"));
         EvaluationContext ctx = new ImmutableContext("targeting_key", attributes);
         EvaluationContext overriding = new ImmutableContext("");
         EvaluationContext merge = ctx.merge(overriding);
-        assertEquals("targeting_key", merge.getTargetingKey());
+        // Empty string is a valid targeting key and should override
+        assertEquals("", merge.getTargetingKey());
     }
 
     @DisplayName("missing targeting key should return null")
@@ -71,6 +72,27 @@ class ImmutableContextTest {
     void missingTargetingKeyShould() {
         EvaluationContext ctx = new ImmutableContext();
         assertNull(ctx.getTargetingKey());
+    }
+
+    @DisplayName("null targeting key in constructor should result in no targeting key")
+    @Test
+    void nullTargetingKeyInConstructorShouldResultInNoTargetingKey() {
+        EvaluationContext ctx = new ImmutableContext((String) null);
+        assertNull(ctx.getTargetingKey());
+    }
+
+    @DisplayName("empty string is a valid targeting key")
+    @Test
+    void emptyStringIsValidTargetingKey() {
+        EvaluationContext ctx = new ImmutableContext("");
+        assertEquals("", ctx.getTargetingKey());
+    }
+
+    @DisplayName("whitespace-only string is a valid targeting key")
+    @Test
+    void whitespaceOnlyStringIsValidTargetingKey() {
+        EvaluationContext ctx = new ImmutableContext("   ");
+        assertEquals("   ", ctx.getTargetingKey());
     }
 
     @DisplayName("Merge should retain all the attributes from the existing context when overriding context is null")
