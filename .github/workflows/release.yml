@@ -43,7 +43,7 @@ jobs:
           submodules: recursive
 
       - name: Set up JDK 17
-        uses: actions/setup-java@5d7b2146334bacf88728daaa70414a99f5164e0f
+        uses: actions/setup-java@d81c4e45f3ac973cc936d79104023e20054ba578
         with:
           java-version: '17'
           distribution: 'temurin'
