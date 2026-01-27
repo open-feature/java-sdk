@@ -30,18 +30,14 @@ class ProviderRepositoryCT {
     import java.util.concurrent.atomic.AtomicInteger;
     import org.junit.jupiter.api.Test;
 
-    private FeatureProvider createMockedProvider(String name, AtomicInteger shutdownCounter) {
+    private FeatureProvider createMockedProvider(String name, AtomicInteger shutdownCounter) throws Exception {
         FeatureProvider provider = mock(FeatureProvider.class);
         when(provider.getMetadata()).thenReturn(() -> name);
         doAnswer(invocation -> {
             shutdownCounter.incrementAndGet();
             return null;
         }).when(provider).shutdown();
-        try {
-            doAnswer(invocation -> null).when(provider).initialize(any());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        doAnswer(invocation -> null).when(provider).initialize(any());
         return provider;
     }
 
