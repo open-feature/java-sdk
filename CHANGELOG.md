@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.20.2](https://github.com/open-feature/java-sdk/compare/v1.20.1...v1.20.2) (2026-01-29)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.34.1 ([#1834](https://github.com/open-feature/java-sdk/issues/1834)) ([f549956](https://github.com/open-feature/java-sdk/commit/f5499569e3c6e8c95b7a58185e8cf79aef7386ad))
+
+
+### 🧹 Chore
+
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.2.0 ([#1822](https://github.com/open-feature/java-sdk/issues/1822)) ([2942daf](https://github.com/open-feature/java-sdk/commit/2942daf9005816696d96d8d7e58c7bf261c5c086))
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.2.1 ([#1831](https://github.com/open-feature/java-sdk/issues/1831)) ([cfd1864](https://github.com/open-feature/java-sdk/commit/cfd1864c0057d98b185afe3d0cec02509d40c4b1))
+* **deps:** update dependency org.assertj:assertj-core to v3.27.7 ([#1824](https://github.com/open-feature/java-sdk/issues/1824)) ([40ac67a](https://github.com/open-feature/java-sdk/commit/40ac67aaaf30fb7ef4565ed4a76ec5a68526ee15))
+* **deps:** update github/codeql-action digest to 25a224b ([#1825](https://github.com/open-feature/java-sdk/issues/1825)) ([181a28e](https://github.com/open-feature/java-sdk/commit/181a28eff5bc3720204862d9c143449debcf3ab6))
+* **deps:** update github/codeql-action digest to 55252c7 ([#1823](https://github.com/open-feature/java-sdk/issues/1823)) ([55becc0](https://github.com/open-feature/java-sdk/commit/55becc045d8e9d833d7d2293b9496b484f4e4e5e))
+* **deps:** update github/codeql-action digest to 5e767ef ([#1826](https://github.com/open-feature/java-sdk/issues/1826)) ([c1428cb](https://github.com/open-feature/java-sdk/commit/c1428cb683accd5bcd22a22f585d305c8bea3b69))
+* **deps:** update github/codeql-action digest to 5e98e18 ([#1820](https://github.com/open-feature/java-sdk/issues/1820)) ([dde333f](https://github.com/open-feature/java-sdk/commit/dde333f61e24a57c702d851c604b7ce3353f5277))
+* **deps:** update github/codeql-action digest to b126fac ([#1830](https://github.com/open-feature/java-sdk/issues/1830)) ([b57667a](https://github.com/open-feature/java-sdk/commit/b57667a143014235cf87efaecbefc5c40ac13de3))
+* **deps:** update github/codeql-action digest to b2ff80d ([#1833](https://github.com/open-feature/java-sdk/issues/1833)) ([0fd4dfc](https://github.com/open-feature/java-sdk/commit/0fd4dfc99066b60421cb3067049ac5a5366ccdaa))
+* **deps:** update github/codeql-action digest to bd9f639 ([#1828](https://github.com/open-feature/java-sdk/issues/1828)) ([0c20c29](https://github.com/open-feature/java-sdk/commit/0c20c29b1c792a08e2274d69b9958966b5ba16cf))
+* **deps:** update github/codeql-action digest to eb5bd2d ([#1832](https://github.com/open-feature/java-sdk/issues/1832)) ([6a11e0e](https://github.com/open-feature/java-sdk/commit/6a11e0ee60dadf97dff81ae34e8539614eefa6fb))
+* **deps:** update github/codeql-action digest to ee1e139 ([#1827](https://github.com/open-feature/java-sdk/issues/1827)) ([f57c70d](https://github.com/open-feature/java-sdk/commit/f57c70d24173ca50e510b9577277ab6629297605))
+* **deps:** update github/codeql-action digest to fa9b76a ([#1829](https://github.com/open-feature/java-sdk/issues/1829)) ([1ce8a5e](https://github.com/open-feature/java-sdk/commit/1ce8a5e0e1b877273f86ea03ab62fd259323d494))
+
 ## [1.20.1](https://github.com/open-feature/java-sdk/compare/v1.20.0...v1.20.1) (2026-01-22)
 
 
