@@ -234,9 +234,11 @@ class ProviderRepository {
     }
 
     private void shutDownOld(FeatureProviderStateManager oldManager, Consumer<FeatureProvider> afterShutdown) {
-        if (oldManager != null && !isStateManagerRegistered(oldManager)) {
-            shutdownProvider(oldManager);
-            afterShutdown.accept(oldManager.getProvider());
+        synchronized (registerStateManagerLock) {
+            if (oldManager != null && !isStateManagerRegistered(oldManager)) {
+                shutdownProvider(oldManager);
+                afterShutdown.accept(oldManager.getProvider());
+            }
         }
     }
 
@@ -289,20 +291,42 @@ class ProviderRepository {
      * including the default feature provider.
      */
     public void shutdown() {
-        List<FeatureProviderStateManager> managersToShutdown;
+        List<FeatureProviderStateManager> managersToShutdown = prepareShutdown();
+        if (managersToShutdown != null) {
+            completeShutdown(managersToShutdown);
+        }
+    }
 
+    /**
+     * Prepares the repository for shutdown by marking it as shutting down and
+     * collecting all managers that need to be shut down.
+     *
+     * <p>After this call, any attempt to set a provider will throw IllegalStateException.
+     *
+     * @return list of managers to shut down, or null if shutdown was already initiated
+     */
+    List<FeatureProviderStateManager> prepareShutdown() {
         synchronized (registerStateManagerLock) {
             if (isShuttingDown.getAndSet(true)) {
-                return;
+                return null;
             }
 
-            managersToShutdown = Stream.concat(
+            List<FeatureProviderStateManager> managersToShutdown = Stream.concat(
                             Stream.of(this.defaultStateManger.get()), this.stateManagers.values().stream())
                     .distinct()
                     .collect(Collectors.toList());
             this.stateManagers.clear();
+            return managersToShutdown;
         }
+    }
 
+    /**
+     * Completes the shutdown by shutting down all providers and waiting for
+     * pending tasks to complete.
+     *
+     * @param managersToShutdown the managers to shut down (from prepareShutdown)
+     */
+    void completeShutdown(List<FeatureProviderStateManager> managersToShutdown) {
         managersToShutdown.forEach(this::shutdownProvider);
         taskExecutor.shutdown();
         try {

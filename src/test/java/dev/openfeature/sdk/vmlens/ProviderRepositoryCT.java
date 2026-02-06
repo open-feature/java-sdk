@@ -1,34 +1,25 @@
 package dev.openfeature.sdk.vmlens;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.vmlens.api.AllInterleavings;
+import com.vmlens.api.Runner;
+import dev.openfeature.sdk.FeatureProvider;
+import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.OpenFeatureAPITestUtil;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.Test;
 /**
  * Concurrency tests for ProviderRepository shutdown behavior using VMLens.
  *
- * These tests verify that concurrent shutdown operations are safe and produce
+ * <p>These tests verify that concurrent shutdown operations are safe and produce
  * consistent results regardless of thread interleaving. Tests operate through
  * the public OpenFeatureAPI since ProviderRepository is package-private.
- *
- * NOTE: Tests are commented out due to a VMLens limitation/bug where calling
- * ThreadPoolExecutor.shutdown() inside AllInterleavings causes VMLens to crash
- * with a NullPointerException in ThreadPoolMap.joinAll(). This is because VMLens
- * instruments ThreadPoolExecutor and cannot handle shutdown() being called during
- * test execution. See: https://github.com/vmlens/vmlens
  */
 class ProviderRepositoryCT {
-
-    /*
-    import static org.assertj.core.api.Assertions.assertThat;
-    import static org.mockito.ArgumentMatchers.any;
-    import static org.mockito.Mockito.doAnswer;
-    import static org.mockito.Mockito.mock;
-    import static org.mockito.Mockito.when;
-
-    import com.vmlens.api.AllInterleavings;
-    import com.vmlens.api.Runner;
-    import dev.openfeature.sdk.FeatureProvider;
-    import dev.openfeature.sdk.OpenFeatureAPI;
-    import dev.openfeature.sdk.OpenFeatureAPITestUtil;
-    import java.util.concurrent.atomic.AtomicInteger;
-    import org.junit.jupiter.api.Test;
 
     private FeatureProvider createMockedProvider(String name, AtomicInteger shutdownCounter) throws Exception {
         FeatureProvider provider = mock(FeatureProvider.class);
@@ -42,7 +33,7 @@ class ProviderRepositoryCT {
     }
 
     @Test
-    void concurrentShutdown_providerShutdownCalledExactlyOnce() throws InterruptedException {
+    void concurrentShutdown_providerShutdownCalledExactlyOnce() throws Exception {
         try (AllInterleavings allInterleavings =
                 new AllInterleavings("Concurrent API shutdown - provider called once")) {
             while (allInterleavings.hasNext()) {
@@ -66,7 +57,7 @@ class ProviderRepositoryCT {
     }
 
     @Test
-    void setProviderDuringShutdown_eitherSucceedsOrThrows() throws InterruptedException {
+    void setProviderDuringShutdown_eitherSucceedsOrThrows() throws Exception {
         try (AllInterleavings allInterleavings =
                 new AllInterleavings("setProvider racing with shutdown")) {
             while (allInterleavings.hasNext()) {
@@ -115,7 +106,7 @@ class ProviderRepositoryCT {
     }
 
     @Test
-    void concurrentShutdown_allDomainProvidersShutdownExactlyOnce() throws InterruptedException {
+    void concurrentShutdown_allDomainProvidersShutdownExactlyOnce() throws Exception {
         try (AllInterleavings allInterleavings =
                 new AllInterleavings("Concurrent shutdown - all domain providers")) {
             while (allInterleavings.hasNext()) {
@@ -150,5 +141,4 @@ class ProviderRepositoryCT {
             }
         }
     }
-    */
 }
