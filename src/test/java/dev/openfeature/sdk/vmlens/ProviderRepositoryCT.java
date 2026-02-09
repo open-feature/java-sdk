@@ -61,6 +61,27 @@ class ProviderRepositoryCT {
     }
 
     @Test
+    void concurrentShutdown_providerShutdownCalledExactlyOnce_duringPendingInit() throws Exception {
+        try (AllInterleavings allInterleavings = new AllInterleavings("Shutdown during pending initialization")) {
+            while (allInterleavings.hasNext()) {
+                AtomicInteger shutdownCount = new AtomicInteger(0);
+                FeatureProvider provider = createMockedProvider("test-provider", shutdownCount);
+                OpenFeatureAPI api = OpenFeatureAPITestUtil.createAPI();
+
+                // Set provider without waiting - initialization task is pending on executor
+                api.setProvider(provider);
+
+                // Shutdown while init task may still be pending
+                api.shutdown();
+
+                assertThat(shutdownCount.get())
+                        .as("Provider.shutdown() should be called exactly once")
+                        .isEqualTo(1);
+            }
+        }
+    }
+
+    @Test
     void setProviderDuringShutdown_eitherSucceedsOrThrows() throws Exception {
         try (AllInterleavings allInterleavings = new AllInterleavings("setProvider racing with shutdown")) {
             while (allInterleavings.hasNext()) {
