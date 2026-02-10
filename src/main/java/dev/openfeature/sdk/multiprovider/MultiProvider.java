@@ -10,13 +10,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import lombok.Getter;
@@ -38,7 +34,7 @@ public class MultiProvider extends EventProvider {
     // Use CPU count as upper bound for init threads.
     public static final int INIT_THREADS_COUNT = Runtime.getRuntime().availableProcessors();
 
-    private final Map<String, FeatureProvider> providers;
+    private final List<FeatureProvider> providers;
     private final Strategy strategy;
     private MultiProviderMetadata metadata;
 
@@ -59,20 +55,8 @@ public class MultiProvider extends EventProvider {
      * @param strategy  the strategy (if {@code null}, {@link FirstMatchStrategy} is used)
      */
     public MultiProvider(List<FeatureProvider> providers, Strategy strategy) {
-        this.providers = buildProviders(providers);
+        this.providers = providers;
         this.strategy = Objects.requireNonNull(strategy, "strategy must not be null");
-    }
-
-    protected static Map<String, FeatureProvider> buildProviders(List<FeatureProvider> providers) {
-        Map<String, FeatureProvider> providersMap = new LinkedHashMap<>(providers.size());
-        for (FeatureProvider provider : providers) {
-            FeatureProvider prevProvider =
-                    providersMap.put(provider.getMetadata().getName(), provider);
-            if (prevProvider != null) {
-                log.info("duplicated provider name: {}", provider.getMetadata().getName());
-            }
-        }
-        return Collections.unmodifiableMap(providersMap);
     }
 
     /**
@@ -85,27 +69,27 @@ public class MultiProvider extends EventProvider {
     @Override
     public void initialize(EvaluationContext evaluationContext) throws Exception {
         var metadataBuilder = MultiProviderMetadata.builder().name(NAME);
-        HashMap<String, Metadata> providersMetadata = new HashMap<>();
 
         if (providers.isEmpty()) {
-            metadataBuilder.originalMetadata(Collections.unmodifiableMap(providersMetadata));
+            metadataBuilder.originalMetadata(Collections.emptyList());
             metadata = metadataBuilder.build();
             return;
         }
 
-        ExecutorService executorService = Executors.newFixedThreadPool(Math.min(INIT_THREADS_COUNT, providers.size()));
+        List<Metadata> providersMetadata = new ArrayList<>(providers.size());
+
+        var executorService = Executors.newFixedThreadPool(Math.min(INIT_THREADS_COUNT, providers.size()));
         try {
             Collection<Callable<Void>> tasks = new ArrayList<>(providers.size());
-            for (FeatureProvider provider : providers.values()) {
+            for (FeatureProvider provider : providers) {
                 tasks.add(() -> {
                     provider.initialize(evaluationContext);
                     return null;
                 });
-                Metadata providerMetadata = provider.getMetadata();
-                providersMetadata.put(providerMetadata.getName(), providerMetadata);
+                providersMetadata.add(provider.getMetadata());
             }
 
-            metadataBuilder.originalMetadata(Collections.unmodifiableMap(providersMetadata));
+            metadataBuilder.originalMetadata(Collections.unmodifiableList(providersMetadata));
 
             List<Future<Void>> results = executorService.invokeAll(tasks);
             for (Future<Void> result : results) {
@@ -165,7 +149,7 @@ public class MultiProvider extends EventProvider {
     @Override
     public void shutdown() {
         log.debug("shutdown begin");
-        for (FeatureProvider provider : providers.values()) {
+        for (FeatureProvider provider : providers) {
             try {
                 provider.shutdown();
             } catch (Exception e) {
