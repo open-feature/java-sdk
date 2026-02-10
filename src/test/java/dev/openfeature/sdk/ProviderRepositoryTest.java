@@ -423,9 +423,66 @@ class ProviderRepositoryTest {
                         .hasMessageContaining("shutting down");
             }
 
-            // Note: shouldHandleConcurrentShutdownCallsGracefully was removed because starting
-            // multiple threads doesn't guarantee parallel execution. Proper concurrency testing
-            // is done in ProviderRepositoryCT using VMLens which explores all thread interleavings.
+            @Test
+            @DisplayName("prepareShutdown should return null on second call")
+            void prepareShutdownShouldReturnNullOnSecondCall() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                // First call should return managers list
+                var managers = providerRepository.prepareShutdown();
+                assertThat(managers).isNotNull();
+                assertThat(managers).isNotEmpty();
+
+                // Second call should be a no-op and return null (already shutting down)
+                var secondResult = providerRepository.prepareShutdown();
+                assertThat(secondResult).isNull();
+            }
+
+            @Test
+            @DisplayName("should fall back to direct shutdown when executor rejects tasks")
+            void shouldFallBackToDirectShutdownWhenExecutorRejectsTasks() throws Exception {
+                FeatureProvider oldProvider = createMockedProvider();
+                FeatureProvider newProvider = createMockedProvider();
+                AtomicBoolean initializationStarted = new AtomicBoolean(false);
+                AtomicBoolean proceedWithInit = new AtomicBoolean(false);
+
+                // Make oldProvider's initialization block until we signal
+                doAnswer(invocation -> {
+                            initializationStarted.set(true);
+                            while (!proceedWithInit.get()) {
+                                Thread.sleep(10);
+                            }
+                            return null;
+                        })
+                        .when(oldProvider)
+                        .initialize(any());
+
+                // Start async initialization (will block)
+                providerRepository.setProvider(
+                        oldProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
+
+                // Wait for initialization to start
+                await().atMost(Duration.ofSeconds(1)).untilTrue(initializationStarted);
+
+                // Now set a new provider - this will trigger shutDownOld for oldProvider
+                // after initialization completes, but we haven't completed init yet
+                providerRepository.setProvider(
+                        newProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
+
+                // Call shutdown on repository - this will shutdown the executor
+                var managers = providerRepository.prepareShutdown();
+                providerRepository.completeShutdown(managers);
+
+                // Now let the initialization complete - shutDownOld will be called but executor is shutdown
+                // This triggers the RejectedExecutionException path which falls back to direct shutdown
+                proceedWithInit.set(true);
+
+                // Both providers should eventually be shut down (oldProvider via direct call due to
+                // RejectedExecutionException)
+                verify(oldProvider, timeout(TIMEOUT)).shutdown();
+                verify(newProvider, timeout(TIMEOUT)).shutdown();
+            }
         }
     }
 
