@@ -3,7 +3,7 @@ package dev.openfeature.sdk.multiprovider;
 import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.ProviderEvaluation;
-import java.util.Map;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -30,7 +30,7 @@ public interface Strategy {
      * @return the resolved {@link ProviderEvaluation}
      */
     <T> ProviderEvaluation<T> evaluate(
-            Map<String, FeatureProvider> providers,
+            List<FeatureProvider> providers,
             String key,
             T defaultValue,
             EvaluationContext ctx,

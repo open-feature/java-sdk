@@ -7,7 +7,7 @@ import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.ProviderEvaluation;
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
-import java.util.Map;
+import java.util.List;
 import java.util.function.Function;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,12 +31,12 @@ public class FirstMatchStrategy implements Strategy {
 
     @Override
     public <T> ProviderEvaluation<T> evaluate(
-            Map<String, FeatureProvider> providers,
+            List<FeatureProvider> providers,
             String key,
             T defaultValue,
             EvaluationContext ctx,
             Function<FeatureProvider, ProviderEvaluation<T>> providerFunction) {
-        for (FeatureProvider provider : providers.values()) {
+        for (FeatureProvider provider : providers) {
             try {
                 ProviderEvaluation<T> res = providerFunction.apply(provider);
                 ErrorCode errorCode = res.getErrorCode();

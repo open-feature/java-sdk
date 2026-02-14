@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -19,7 +20,6 @@ import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import lombok.SneakyThrows;
@@ -46,9 +46,9 @@ class MultiProviderTest extends BaseStrategyTest {
         multiProvider.initialize(null);
 
         MultiProviderMetadata metadata = (MultiProviderMetadata) multiProvider.getMetadata();
-        Map<String, Metadata> map = metadata.getOriginalMetadata();
-        assertEquals(mockMetaData1, map.get(mockProvider1.getMetadata().getName()));
-        assertEquals(mockMetaData2, map.get(mockProvider2.getMetadata().getName()));
+        List<Metadata> list = metadata.getOriginalMetadata();
+        assertTrue(list.contains(mockMetaData1));
+        assertTrue(list.contains(mockMetaData2));
         assertEquals("multiprovider", multiProvider.getMetadata().getName());
     }
 
@@ -93,8 +93,8 @@ class MultiProviderTest extends BaseStrategyTest {
         MultiProvider multiProvider = new MultiProvider(providers, mockStrategy);
         multiProvider.initialize(null);
         MultiProviderMetadata metadata = (MultiProviderMetadata) multiProvider.getMetadata();
-        Map<String, Metadata> map = metadata.getOriginalMetadata();
-        assertEquals(mockMetaData1, map.get(mockProvider1.getMetadata().getName()));
+        List<Metadata> list = metadata.getOriginalMetadata();
+        assertTrue(list.contains(mockMetaData1));
     }
 
     @SneakyThrows
@@ -126,7 +126,7 @@ class MultiProviderTest extends BaseStrategyTest {
 
             @Override
             public <T> ProviderEvaluation<T> evaluate(
-                    Map<String, FeatureProvider> providers,
+                    List<FeatureProvider> providers,
                     String key,
                     T defaultValue,
                     EvaluationContext ctx,
@@ -138,7 +138,10 @@ class MultiProviderTest extends BaseStrategyTest {
                 }
 
                 if (contextProvider != null && "new-provider".equals(contextProvider.asString())) {
-                    return providerFunction.apply(providers.get("new-provider"));
+                    return providerFunction.apply(providers.stream()
+                            .filter(p -> "new-provider".equals(p.getMetadata().getName()))
+                            .findFirst()
+                            .orElseThrow());
                 }
                 return fallbackStrategy.evaluate(providers, key, defaultValue, ctx, providerFunction);
             }

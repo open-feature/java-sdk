@@ -13,8 +13,9 @@ import dev.openfeature.sdk.ProviderEvaluation;
 import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -31,7 +32,7 @@ public abstract class BaseStrategyTest {
     protected InMemoryProvider inMemoryProvider1;
     protected InMemoryProvider inMemoryProvider2;
 
-    protected Map<String, FeatureProvider> orderedProviders;
+    protected List<FeatureProvider> orderedProviders;
 
     protected EvaluationContext contextWithNewProvider;
 
@@ -84,10 +85,10 @@ public abstract class BaseStrategyTest {
     }
 
     protected void setupOrderedProviders() {
-        orderedProviders = new LinkedHashMap<>();
-        orderedProviders.put("provider1", mockProvider1);
-        orderedProviders.put("provider2", mockProvider2);
-        orderedProviders.put("provider3", mockProvider3);
+        orderedProviders = new ArrayList<>(3);
+        orderedProviders.add(mockProvider1);
+        orderedProviders.add(mockProvider2);
+        orderedProviders.add(mockProvider3);
     }
 
     protected void setupEvaluationContexts() {
