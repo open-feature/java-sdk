@@ -4,6 +4,7 @@ import static dev.openfeature.sdk.fixtures.ProviderFixture.*;
 import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doDelayResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -15,6 +16,7 @@ import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -287,6 +289,199 @@ class ProviderRepositoryTest {
                 verify(afterInit, never()).accept(any());
                 ;
                 verify(afterError, timeout(TIMEOUT)).accept(eq(errorFeatureProvider), any());
+            }
+        }
+
+        @Nested
+        class GracefulShutdownBehavior {
+
+            @Test
+            @DisplayName("should complete shutdown successfully when executor terminates within timeout")
+            void shouldCompleteShutdownSuccessfullyWhenExecutorTerminatesWithinTimeout() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                assertThatCode(() -> providerRepository.shutdown()).doesNotThrowAnyException();
+
+                verify(provider, timeout(TIMEOUT)).shutdown();
+            }
+
+            @Test
+            @DisplayName("should force shutdown when executor does not terminate within timeout")
+            void shouldForceShutdownWhenExecutorDoesNotTerminateWithinTimeout() throws Exception {
+                FeatureProvider provider = createMockedProvider();
+                AtomicBoolean wasInterrupted = new AtomicBoolean(false);
+                doAnswer(invocation -> {
+                            try {
+                                Thread.sleep(TIMEOUT);
+                            } catch (InterruptedException e) {
+                                wasInterrupted.set(true);
+                                throw e;
+                            }
+                            return null;
+                        })
+                        .when(provider)
+                        .shutdown();
+
+                setFeatureProvider(provider);
+
+                assertThatCode(() -> providerRepository.shutdown()).doesNotThrowAnyException();
+
+                verify(provider, timeout(TIMEOUT)).shutdown();
+                // Verify that shutdownNow() interrupted the running shutdown task
+                await().atMost(Duration.ofSeconds(1))
+                        .untilAsserted(() -> assertThat(wasInterrupted.get()).isTrue());
+            }
+
+            // Note: shouldHandleInterruptionDuringShutdownGracefully was removed because the
+            // interrupt timing is not guaranteed. Proper concurrency testing is done in
+            // ProviderRepositoryCT using VMLens.
+
+            @Test
+            @DisplayName("should not hang indefinitely on shutdown")
+            void shouldNotHangIndefinitelyOnShutdown() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                await().alias("shutdown should complete within reasonable time")
+                        .atMost(Duration.ofSeconds(5))
+                        .until(() -> {
+                            providerRepository.shutdown();
+                            return true;
+                        });
+            }
+
+            @Test
+            @DisplayName("should handle shutdown during provider initialization")
+            void shouldHandleShutdownDuringProviderInitialization() throws Exception {
+                FeatureProvider slowInitProvider = createMockedProvider();
+                AtomicBoolean shutdownCalled = new AtomicBoolean(false);
+
+                doDelayResponse(Duration.ofMillis(500)).when(slowInitProvider).initialize(any());
+
+                doAnswer(invocation -> {
+                            shutdownCalled.set(true);
+                            return null;
+                        })
+                        .when(slowInitProvider)
+                        .shutdown();
+
+                providerRepository.setProvider(
+                        slowInitProvider,
+                        mockAfterSet(),
+                        mockAfterInit(),
+                        mockAfterShutdown(),
+                        mockAfterError(),
+                        false);
+
+                // Call shutdown while initialization is in progress
+                assertThatCode(() -> providerRepository.shutdown()).doesNotThrowAnyException();
+
+                await().atMost(Duration.ofSeconds(1)).untilTrue(shutdownCalled);
+                verify(slowInitProvider, times(1)).shutdown();
+            }
+
+            @Test
+            @DisplayName("should handle provider replacement during shutdown")
+            void shouldHandleProviderReplacementDuringShutdown() throws Exception {
+                FeatureProvider oldProvider = createMockedProvider();
+                FeatureProvider newProvider = createMockedProvider();
+                AtomicBoolean oldProviderShutdownCalled = new AtomicBoolean(false);
+
+                doAnswer(invocation -> {
+                            oldProviderShutdownCalled.set(true);
+                            return null;
+                        })
+                        .when(oldProvider)
+                        .shutdown();
+
+                providerRepository.setProvider(
+                        oldProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), true);
+
+                // Replace provider (this will trigger old provider shutdown in background)
+                providerRepository.setProvider(
+                        newProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
+
+                assertThatCode(() -> providerRepository.shutdown()).doesNotThrowAnyException();
+
+                await().atMost(Duration.ofSeconds(1)).untilTrue(oldProviderShutdownCalled);
+                verify(oldProvider, times(1)).shutdown();
+                verify(newProvider, times(1)).shutdown();
+            }
+
+            @Test
+            @DisplayName("should prevent adding providers after shutdown has started")
+            void shouldPreventAddingProvidersAfterShutdownHasStarted() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                providerRepository.shutdown();
+
+                FeatureProvider newProvider = createMockedProvider();
+                assertThatThrownBy(() -> setFeatureProvider(newProvider))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("shutting down");
+            }
+
+            @Test
+            @DisplayName("prepareShutdown should return null on second call")
+            void prepareShutdownShouldReturnNullOnSecondCall() {
+                FeatureProvider provider = createMockedProvider();
+                setFeatureProvider(provider);
+
+                // First call should return managers list
+                var managers = providerRepository.prepareShutdown();
+                assertThat(managers).isNotNull();
+                assertThat(managers).isNotEmpty();
+
+                // Second call should be a no-op and return null (already shutting down)
+                var secondResult = providerRepository.prepareShutdown();
+                assertThat(secondResult).isNull();
+            }
+
+            @Test
+            @DisplayName("should fall back to direct shutdown when executor rejects tasks")
+            void shouldFallBackToDirectShutdownWhenExecutorRejectsTasks() throws Exception {
+                FeatureProvider oldProvider = createMockedProvider();
+                FeatureProvider newProvider = createMockedProvider();
+                AtomicBoolean initializationStarted = new AtomicBoolean(false);
+                AtomicBoolean proceedWithInit = new AtomicBoolean(false);
+
+                // Make oldProvider's initialization block until we signal
+                doAnswer(invocation -> {
+                            initializationStarted.set(true);
+                            while (!proceedWithInit.get()) {
+                                Thread.sleep(10);
+                            }
+                            return null;
+                        })
+                        .when(oldProvider)
+                        .initialize(any());
+
+                // Start async initialization (will block)
+                providerRepository.setProvider(
+                        oldProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
+
+                // Wait for initialization to start
+                await().atMost(Duration.ofSeconds(1)).untilTrue(initializationStarted);
+
+                // Now set a new provider - this will trigger shutDownOld for oldProvider
+                // after initialization completes, but we haven't completed init yet
+                providerRepository.setProvider(
+                        newProvider, mockAfterSet(), mockAfterInit(), mockAfterShutdown(), mockAfterError(), false);
+
+                // Call shutdown on repository - this will shutdown the executor
+                var managers = providerRepository.prepareShutdown();
+                providerRepository.completeShutdown(managers);
+
+                // Now let the initialization complete - shutDownOld will be called but executor is shutdown
+                // This triggers the RejectedExecutionException path which falls back to direct shutdown
+                proceedWithInit.set(true);
+
+                // Both providers should eventually be shut down (oldProvider via direct call due to
+                // RejectedExecutionException)
+                verify(oldProvider, timeout(TIMEOUT)).shutdown();
+                verify(newProvider, timeout(TIMEOUT)).shutdown();
             }
         }
     }

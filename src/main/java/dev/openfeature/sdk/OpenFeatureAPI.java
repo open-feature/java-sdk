@@ -339,12 +339,23 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * Once shut down is complete, API is reset and ready to use again.
      */
     public void shutdown() {
+        List<FeatureProviderStateManager> managersToShutdown;
         try (AutoCloseableLock ignored = lock.writeLockAutoCloseable()) {
-            providerRepository.shutdown();
+            // Mark repository as shutting down while holding lock.
+            // This ensures setProvider calls will throw IllegalStateException.
+            managersToShutdown = providerRepository.prepareShutdown();
+        }
+
+        if (managersToShutdown != null) {
+            // Complete shutdown without holding lock to avoid deadlock.
+            // Pending tasks (e.g., initializeProvider) may need the read lock to emit events.
+            providerRepository.completeShutdown(managersToShutdown);
             eventSupport.shutdown();
 
-            providerRepository = new ProviderRepository(this);
-            eventSupport = new EventSupport();
+            try (AutoCloseableLock ignored = lock.writeLockAutoCloseable()) {
+                providerRepository = new ProviderRepository(this);
+                eventSupport = new EventSupport();
+            }
         }
     }
 
