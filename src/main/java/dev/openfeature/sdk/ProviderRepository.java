@@ -330,7 +330,7 @@ class ProviderRepository {
         managersToShutdown.forEach(this::shutdownProvider);
         taskExecutor.shutdown();
         try {
-            if (!taskExecutor.awaitTermination(3, TimeUnit.SECONDS)) {
+            if (!taskExecutor.awaitTermination(EventSupport.SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                 log.warn("Task executor did not terminate before the timeout period had elapsed");
                 taskExecutor.shutdownNow();
             }
