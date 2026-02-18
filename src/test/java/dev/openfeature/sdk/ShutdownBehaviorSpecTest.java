@@ -142,5 +142,19 @@ class ShutdownBehaviorSpecTest {
             NoOpProvider p2 = new NoOpProvider();
             api.setProvider(p2);
         }
+
+        @Test
+        @DisplayName("calling shutdown twice should be safe and idempotent")
+        void callingShutdownTwiceShouldBeSafe() {
+            FeatureProvider provider = ProviderFixture.createMockedProvider();
+            setFeatureProvider(provider);
+
+            api.shutdown();
+
+            // Second shutdown should be a no-op (no exception, provider not called twice)
+            api.shutdown();
+
+            verify(provider, times(1)).shutdown();
+        }
     }
 }
