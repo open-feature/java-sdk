@@ -112,7 +112,7 @@ public abstract class EventProvider implements FeatureProvider {
      *
      * @param details The details of the event
      */
-    public Awaitable emitProviderReady(ProviderEventDetails details) {
+    /*public*/ Awaitable emitProviderReady(ProviderEventDetails details) {
         return emit(ProviderEvent.PROVIDER_READY, details);
     }
 
