@@ -14,6 +14,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import dev.openfeature.sdk.e2e.Flag;
 import dev.openfeature.sdk.exceptions.GeneralError;
@@ -143,6 +144,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
     void hook_addition() {
         Hook h1 = mock(Hook.class);
         Hook h2 = mock(Hook.class);
+        when(h1.supportsFlagValueType(any())).thenReturn(true);
+        when(h2.supportsFlagValueType(any())).thenReturn(true);
         api.addHooks(h1);
 
         assertEquals(1, api.getHooks().size());
@@ -150,7 +153,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
 
         api.addHooks(h2);
         assertEquals(2, api.getHooks().size());
-        assertEquals(h2, api.getHooks().get(1));
+        assertTrue(api.getHooks().contains(h2));
     }
 
     @Specification(
@@ -175,6 +178,8 @@ class FlagEvaluationSpecTest implements HookFixtures {
         Client c = _client();
         Hook m1 = mock(Hook.class);
         Hook m2 = mock(Hook.class);
+        when(m1.supportsFlagValueType(any())).thenReturn(true);
+        when(m2.supportsFlagValueType(any())).thenReturn(true);
         c.addHooks(m1);
         c.addHooks(m2);
         List<Hook> hooks = c.getHooks();

@@ -5,15 +5,13 @@ import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
-import dev.openfeature.sdk.internal.ObjectUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -47,7 +45,7 @@ public class OpenFeatureClient implements Client {
     @Getter
     private final String version;
 
-    private final ConcurrentLinkedQueue<Hook> clientHooks;
+    private final ConcurrentHashMap<FlagValueType, ConcurrentLinkedQueue<Hook>> clientHooks;
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
 
     private final HookSupport hookSupport;
@@ -69,7 +67,11 @@ public class OpenFeatureClient implements Client {
         this.domain = domain;
         this.version = version;
         this.hookSupport = new HookSupport();
-        this.clientHooks = new ConcurrentLinkedQueue<>();
+        var values = FlagValueType.values();
+        this.clientHooks = new ConcurrentHashMap<>(values.length);
+        for (FlagValueType value : values) {
+            this.clientHooks.put(value, new ConcurrentLinkedQueue<>());
+        }
     }
 
     /**
@@ -125,7 +127,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public OpenFeatureClient addHooks(Hook... hooks) {
-        this.clientHooks.addAll(Arrays.asList(hooks));
+        HookSupport.addHooks(clientHooks, hooks);
         return this;
     }
 
@@ -134,7 +136,7 @@ public class OpenFeatureClient implements Client {
      */
     @Override
     public List<Hook> getHooks() {
-        return new ArrayList<>(this.clientHooks);
+        return HookSupport.getAllUniqueHooks(clientHooks);
     }
 
     /**
@@ -185,9 +187,12 @@ public class OpenFeatureClient implements Client {
             final var state = stateManager.getState();
 
             // Hooks are initialized as early as possible to enable the execution of error stages
-            var mergedHooks = ObjectUtils.merge(
-                    provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
-            hookSupport.setHooks(hookSupportData, mergedHooks, type);
+            hookSupport.setHooks(
+                    hookSupportData,
+                    provider.getProviderHooks(type),
+                    flagOptions.getHooks(type),
+                    clientHooks.get(type),
+                    openfeatureApi.getHooks(type));
 
             var sharedHookContext =
                     new SharedHookContext(key, type, this.getMetadata(), provider.getMetadata(), defaultValue);
