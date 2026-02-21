@@ -15,12 +15,43 @@ public interface FeatureProvider {
         return new ArrayList<>();
     }
 
+    /**
+     * Resolves a feature flag value as a {@link Number}.
+     *
+     * @param key          the unique identifier for the flag
+     * @param defaultValue the default value to return if the flag cannot be resolved
+     * @param ctx          the evaluation context containing any relevant information for resolution
+     * @return a {@link ProviderEvaluation} containing the resolved {@code Number} value and additional eval details
+     */
+    default ProviderEvaluation<Number> getNumberEvaluation(String key, Number defaultValue, EvaluationContext ctx) {
+        ProviderEvaluation<Double> dep = getDoubleEvaluation(key, defaultValue.doubleValue(), ctx);
+        return new ProviderEvaluation<>(
+                dep.getValue(),
+                dep.getReason(),
+                dep.getVariant(),
+                dep.getErrorCode(),
+                dep.getErrorMessage(),
+                dep.getFlagMetadata());
+    }
+
     ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx);
 
     ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx);
 
+    /**
+     * Evaluate feature flag returning an integer value.
+     *
+     * @deprecated please use {@link #getNumberEvaluation(String, Number, EvaluationContext)}
+     */
+    @Deprecated
     ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx);
 
+    /**
+     * Evaluate a feature flag returning a double value.
+     *
+     * @deprecated please use {@link #getNumberEvaluation(String, Number, EvaluationContext)}
+     */
+    @Deprecated
     ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx);
 
     ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx);
