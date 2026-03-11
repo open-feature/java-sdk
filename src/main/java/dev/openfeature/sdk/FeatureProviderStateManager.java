@@ -8,11 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class FeatureProviderStateManager implements EventProviderListener {
     private final FeatureProvider delegate;
+    private final boolean delegateManagesState;
     private final AtomicBoolean isInitialized = new AtomicBoolean();
     private final AtomicReference<ProviderState> state = new AtomicReference<>(ProviderState.NOT_READY);
 
     public FeatureProviderStateManager(FeatureProvider delegate) {
         this.delegate = delegate;
+        this.delegateManagesState = delegate instanceof StateManagingProvider;
         if (delegate instanceof EventProvider) {
             ((EventProvider) delegate).setEventProviderListener(this);
         }
@@ -24,17 +26,23 @@ class FeatureProviderStateManager implements EventProviderListener {
         }
         try {
             delegate.initialize(evaluationContext);
-            setState(ProviderState.READY);
+            if (!delegateManagesState) {
+                setState(ProviderState.READY);
+            }
         } catch (OpenFeatureError openFeatureError) {
-            if (ErrorCode.PROVIDER_FATAL.equals(openFeatureError.getErrorCode())) {
-                setState(ProviderState.FATAL);
-            } else {
-                setState(ProviderState.ERROR);
+            if (!delegateManagesState) {
+                if (ErrorCode.PROVIDER_FATAL.equals(openFeatureError.getErrorCode())) {
+                    setState(ProviderState.FATAL);
+                } else {
+                    setState(ProviderState.ERROR);
+                }
             }
             isInitialized.set(false);
             throw openFeatureError;
         } catch (Exception e) {
-            setState(ProviderState.ERROR);
+            if (!delegateManagesState) {
+                setState(ProviderState.ERROR);
+            }
             isInitialized.set(false);
             throw e;
         }
@@ -42,12 +50,17 @@ class FeatureProviderStateManager implements EventProviderListener {
 
     public void shutdown() {
         delegate.shutdown();
-        setState(ProviderState.NOT_READY);
+        if (!delegateManagesState) {
+            setState(ProviderState.NOT_READY);
+        }
         isInitialized.set(false);
     }
 
     @Override
     public void onEmit(ProviderEvent event, ProviderEventDetails details) {
+        if (delegateManagesState) {
+            return;
+        }
         if (ProviderEvent.PROVIDER_ERROR.equals(event)) {
             if (details != null && details.getErrorCode() == ErrorCode.PROVIDER_FATAL) {
                 setState(ProviderState.FATAL);
@@ -75,11 +88,21 @@ class FeatureProviderStateManager implements EventProviderListener {
     }
 
     public ProviderState getState() {
+        if (delegateManagesState) {
+            return delegate.getState();
+        }
         return state.get();
     }
 
     FeatureProvider getProvider() {
         return delegate;
+    }
+
+    /**
+     * Returns true if the delegate provider manages its own state.
+     */
+    boolean delegateManagesState() {
+        return delegateManagesState;
     }
 
     public boolean hasSameProvider(FeatureProvider featureProvider) {
