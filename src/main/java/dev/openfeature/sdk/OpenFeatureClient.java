@@ -203,8 +203,9 @@ public class OpenFeatureClient implements Client {
                 throw new FatalError("Provider is in an irrecoverable error state");
             }
 
-            var providerEval = (ProviderEvaluation<T>)
-                    createProviderEvaluation(type, key, defaultValue, provider, hookSupportData.getEvaluationContext());
+            var providerEval = (ProviderEvaluation<T>) createProviderEvaluation(
+                    type, key, defaultValue, provider,
+                    hookSupportData.getEvaluationContext());
 
             details = FlagEvaluationDetails.from(providerEval, key);
             if (details.getErrorCode() != null) {

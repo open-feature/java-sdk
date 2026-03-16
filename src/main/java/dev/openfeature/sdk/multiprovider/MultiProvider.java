@@ -17,6 +17,7 @@ import dev.openfeature.sdk.ProviderEvaluation;
 import dev.openfeature.sdk.ProviderEvent;
 import dev.openfeature.sdk.ProviderEventDetails;
 import dev.openfeature.sdk.ProviderState;
+import dev.openfeature.sdk.Reason;
 import dev.openfeature.sdk.TrackingEventDetails;
 import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.exceptions.ExceptionUtils;
@@ -30,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -61,6 +63,8 @@ public class MultiProvider extends EventProvider {
     private final Map<String, ProviderState> providerStates = new ConcurrentHashMap<>();
     private final Map<String, BiConsumer<ProviderEvent, ProviderEventDetails>> providerEventObservers =
             new ConcurrentHashMap<>();
+    private final ThreadLocal<HookExecutionContext> hookExecutionContextThreadLocal =
+            new ThreadLocal<>();
     private final ClientMetadata hookClientMetadata = MultiProvider::getNAME;
     private final Map<String, Object> emptyHookHints = Collections.emptyMap();
     private ProviderState aggregateState;
@@ -87,6 +91,38 @@ public class MultiProvider extends EventProvider {
         this.strategy = Objects.requireNonNull(strategy, "strategy must not be null");
         initializeProviderStates();
         this.aggregateState = determineAggregateState();
+    }
+
+    /**
+     * Returns provider-level hooks for this MultiProvider.
+     *
+     * <p>Includes a {@code before} hook that captures the {@link ClientMetadata}
+     * and hook hints from the SDK's hook lifecycle. This context is then available
+     * during per-child-provider hook execution, matching the JS SDK's WeakMap-based
+     * approach for passing hook context into the provider evaluation.
+     *
+     * @return the list of provider hooks
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Override
+    public List<Hook> getProviderHooks() {
+        Hook contextCapturingHook = new Hook() {
+            @Override
+            public Optional before(HookContext ctx, Map hints) {
+                hookExecutionContextThreadLocal.set(
+                        new HookExecutionContext(
+                                ctx.getClientMetadata(),
+                                hints != null ? hints : emptyHookHints));
+                return Optional.empty();
+            }
+
+            @Override
+            public void finallyAfter(HookContext ctx, FlagEvaluationDetails details,
+                    Map hints) {
+                hookExecutionContextThreadLocal.remove();
+            }
+        };
+        return List.of(contextCapturingHook);
     }
 
     protected static Map<String, FeatureProvider> buildProviders(List<FeatureProvider> providers) {
@@ -172,7 +208,7 @@ public class MultiProvider extends EventProvider {
                 tasks.add(() -> {
                     try {
                         provider.initialize(evaluationContext);
-                        setProviderState(providerName, ProviderState.READY, ProviderEventDetails.builder().build());
+                        setProviderReadyIfStillNotReady(providerName);
                         return null;
                     } catch (Exception e) {
                         setProviderState(providerName, toStateFromException(e), providerErrorDetails(e));
@@ -215,6 +251,7 @@ public class MultiProvider extends EventProvider {
 
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookExecutionContext = currentHookExecutionContext();
         return strategy.evaluate(
                 providers,
                 key,
@@ -225,12 +262,14 @@ public class MultiProvider extends EventProvider {
                         key,
                         defaultValue,
                         ctx,
+                        hookExecutionContext,
                         FlagValueType.BOOLEAN,
                         (p, evaluationContext) -> p.getBooleanEvaluation(key, defaultValue, evaluationContext)));
     }
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookExecutionContext = currentHookExecutionContext();
         return strategy.evaluate(
                 providers,
                 key,
@@ -241,12 +280,14 @@ public class MultiProvider extends EventProvider {
                         key,
                         defaultValue,
                         ctx,
+                        hookExecutionContext,
                         FlagValueType.STRING,
                         (p, evaluationContext) -> p.getStringEvaluation(key, defaultValue, evaluationContext)));
     }
 
     @Override
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookExecutionContext = currentHookExecutionContext();
         return strategy.evaluate(
                 providers,
                 key,
@@ -257,12 +298,14 @@ public class MultiProvider extends EventProvider {
                         key,
                         defaultValue,
                         ctx,
+                        hookExecutionContext,
                         FlagValueType.INTEGER,
                         (p, evaluationContext) -> p.getIntegerEvaluation(key, defaultValue, evaluationContext)));
     }
 
     @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookExecutionContext = currentHookExecutionContext();
         return strategy.evaluate(
                 providers,
                 key,
@@ -273,12 +316,14 @@ public class MultiProvider extends EventProvider {
                         key,
                         defaultValue,
                         ctx,
+                        hookExecutionContext,
                         FlagValueType.DOUBLE,
                         (p, evaluationContext) -> p.getDoubleEvaluation(key, defaultValue, evaluationContext)));
     }
 
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookExecutionContext = currentHookExecutionContext();
         return strategy.evaluate(
                 providers,
                 key,
@@ -289,6 +334,7 @@ public class MultiProvider extends EventProvider {
                         key,
                         defaultValue,
                         ctx,
+                        hookExecutionContext,
                         FlagValueType.OBJECT,
                         (p, evaluationContext) -> p.getObjectEvaluation(key, defaultValue, evaluationContext)));
     }
@@ -366,6 +412,15 @@ public class MultiProvider extends EventProvider {
         providerStates.put(providerName, providerState);
         ProviderState aggregate = determineAggregateState();
         emitAggregateStateChange(aggregate, details);
+    }
+
+    private synchronized void setProviderReadyIfStillNotReady(String providerName) {
+        if (!ProviderState.NOT_READY.equals(providerStates.get(providerName))) {
+            return;
+        }
+        providerStates.put(providerName, ProviderState.READY);
+        ProviderState aggregate = determineAggregateState();
+        emitAggregateStateChange(aggregate, ProviderEventDetails.builder().build());
     }
 
     private void emitAggregateStateChange(ProviderState aggregate, ProviderEventDetails details) {
@@ -514,43 +569,58 @@ public class MultiProvider extends EventProvider {
                 providerEvaluation.getErrorMessage());
     }
 
+    @SuppressWarnings("deprecation")
     private <T> HookContext<T> createHookContext(
             String key,
             FlagValueType valueType,
             T defaultValue,
             EvaluationContext evaluationContext,
             FeatureProvider provider,
+            HookExecutionContext hookExecutionContext,
             HookData hookData) {
         return HookContext.<T>builder()
                 .flagKey(key)
                 .type(valueType)
                 .defaultValue(normalizeDefaultValue(valueType, defaultValue))
                 .ctx(evaluationContext)
-                .clientMetadata(hookClientMetadata)
+                .clientMetadata(resolveClientMetadata(hookExecutionContext))
                 .providerMetadata(provider.getMetadata())
                 .hookData(hookData)
                 .build();
     }
 
+    /**
+     * Returns a non-null default value for use in hook contexts when the caller
+     * passes {@code null}. The returned object is always assignment-compatible
+     * with the expected type for {@code valueType}.
+     */
     @SuppressWarnings("unchecked")
     private <T> T normalizeDefaultValue(FlagValueType valueType, T defaultValue) {
         if (defaultValue != null) {
             return defaultValue;
         }
+        Object fallback;
         switch (valueType) {
             case BOOLEAN:
-                return (T) Boolean.FALSE;
+                fallback = Boolean.FALSE;
+                break;
             case STRING:
-                return (T) "";
+                fallback = "";
+                break;
             case INTEGER:
-                return (T) Integer.valueOf(0);
+                fallback = Integer.valueOf(0);
+                break;
             case DOUBLE:
-                return (T) Double.valueOf(0d);
+                fallback = Double.valueOf(0d);
+                break;
             case OBJECT:
-                return (T) new Value();
+                fallback = new Value();
+                break;
             default:
                 return defaultValue;
         }
+        // Safe: the SDK guarantees T matches the valueType enum.
+        return (T) fallback;
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -559,6 +629,7 @@ public class MultiProvider extends EventProvider {
             String key,
             T defaultValue,
             EvaluationContext ctx,
+            HookExecutionContext hookExecutionContext,
             FlagValueType valueType,
             BiFunction<FeatureProvider, EvaluationContext, ProviderEvaluation<T>> providerFunction) {
         List<Hook> providerHooks = provider.getProviderHooks();
@@ -580,13 +651,16 @@ public class MultiProvider extends EventProvider {
         EvaluationContext evaluatedContext = copyEvaluationContext(ctx);
         ProviderEvaluation<T> providerEvaluation = null;
         FlagEvaluationDetails<T> details = null;
+        Map<String, Object> hookHints = resolveHookHints(hookExecutionContext);
 
         try {
             for (int i = hooks.size() - 1; i >= 0; i--) {
                 HookExecution<T> execution = hooks.get(i);
-                HookContext<T> hookContext =
-                        createHookContext(key, valueType, defaultValue, evaluatedContext, provider, execution.hookData);
-                var contextUpdate = execution.hook.before(hookContext, emptyHookHints);
+                HookContext<T> hookContext = createHookContext(
+                        key, valueType, defaultValue,
+                        evaluatedContext, provider,
+                        hookExecutionContext, execution.hookData);
+                var contextUpdate = execution.hook.before(hookContext, hookHints);
                 if (contextUpdate != null
                         && contextUpdate.isPresent()
                         && contextUpdate.get() != hookContext.getCtx()
@@ -607,11 +681,13 @@ public class MultiProvider extends EventProvider {
                                     defaultValue,
                                     evaluatedContext,
                                     provider,
+                                    hookExecutionContext,
                                     execution.hookData),
                             details,
-                            emptyHookHints);
+                            hookHints);
                 }
             } else {
+                enrichDetailsWithErrorDefaults(defaultValue, details);
                 Exception providerException = toEvaluationException(providerEvaluation);
                 for (HookExecution<T> execution : hooks) {
                     try {
@@ -622,9 +698,10 @@ public class MultiProvider extends EventProvider {
                                         defaultValue,
                                         evaluatedContext,
                                         provider,
+                                        hookExecutionContext,
                                         execution.hookData),
                                 providerException,
-                                emptyHookHints);
+                                hookHints);
                     } catch (Exception e) {
                         log.error("error executing provider hook error stage", e);
                     }
@@ -633,6 +710,7 @@ public class MultiProvider extends EventProvider {
 
             return providerEvaluation;
         } catch (Exception e) {
+            details = buildErrorDetails(key, defaultValue, details, e);
             for (HookExecution<T> execution : hooks) {
                 try {
                     execution.hook.error(
@@ -642,9 +720,10 @@ public class MultiProvider extends EventProvider {
                                     defaultValue,
                                     evaluatedContext,
                                     provider,
+                                    hookExecutionContext,
                                     execution.hookData),
                             e,
-                            emptyHookHints);
+                            hookHints);
                 } catch (Exception hookError) {
                     log.error("error executing provider hook error stage", hookError);
                 }
@@ -663,14 +742,53 @@ public class MultiProvider extends EventProvider {
                                     defaultValue,
                                     evaluatedContext,
                                     provider,
+                                    hookExecutionContext,
                                     execution.hookData),
                             finalDetails,
-                            emptyHookHints);
+                            hookHints);
                 } catch (Exception e) {
                     log.error("error executing provider hook finally stage", e);
                 }
             }
         }
+    }
+
+    private HookExecutionContext currentHookExecutionContext() {
+        return hookExecutionContextThreadLocal.get();
+    }
+
+    private ClientMetadata resolveClientMetadata(HookExecutionContext hookExecutionContext) {
+        if (hookExecutionContext == null || hookExecutionContext.clientMetadata == null) {
+            return hookClientMetadata;
+        }
+        return hookExecutionContext.clientMetadata;
+    }
+
+    private Map<String, Object> resolveHookHints(HookExecutionContext hookExecutionContext) {
+        if (hookExecutionContext == null || hookExecutionContext.hints == null) {
+            return emptyHookHints;
+        }
+        return hookExecutionContext.hints;
+    }
+
+    private <T> FlagEvaluationDetails<T> buildErrorDetails(
+            String key, T defaultValue, FlagEvaluationDetails<T> details, Exception error) {
+        FlagEvaluationDetails<T> errorDetails = details == null
+                ? FlagEvaluationDetails.<T>builder().flagKey(key).build()
+                : details;
+        if (error instanceof OpenFeatureError) {
+            errorDetails.setErrorCode(((OpenFeatureError) error).getErrorCode());
+        } else {
+            errorDetails.setErrorCode(ErrorCode.GENERAL);
+        }
+        errorDetails.setErrorMessage(error.getMessage());
+        enrichDetailsWithErrorDefaults(defaultValue, errorDetails);
+        return errorDetails;
+    }
+
+    private <T> void enrichDetailsWithErrorDefaults(T defaultValue, FlagEvaluationDetails<T> details) {
+        details.setValue(defaultValue);
+        details.setReason(Reason.ERROR.toString());
     }
 
     private static final class HookExecution<T> {
@@ -680,6 +798,16 @@ public class MultiProvider extends EventProvider {
         private HookExecution(Hook<T> hook, HookData hookData) {
             this.hook = hook;
             this.hookData = hookData;
+        }
+    }
+
+    private static final class HookExecutionContext {
+        private final ClientMetadata clientMetadata;
+        private final Map<String, Object> hints;
+
+        private HookExecutionContext(ClientMetadata clientMetadata, Map<String, Object> hints) {
+            this.clientMetadata = clientMetadata;
+            this.hints = hints;
         }
     }
 }
