@@ -9,12 +9,14 @@ import dev.openfeature.sdk.EventProvider;
 import dev.openfeature.sdk.Metadata;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.ProviderEvaluation;
+import dev.openfeature.sdk.ProviderEvent;
 import dev.openfeature.sdk.ProviderEventDetails;
 import dev.openfeature.sdk.ProviderState;
 import dev.openfeature.sdk.TrackingEventDetails;
 import dev.openfeature.sdk.Value;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
@@ -63,6 +65,20 @@ class MultiProviderEventsAndTrackingTest {
         } finally {
             api.shutdown();
         }
+    }
+
+    @Test
+    void shouldPreserveChildStateEmittedDuringInitialize() throws Exception {
+        TrackingProvider provider1 = new InitializingStateProvider("provider1", ProviderState.STALE);
+        TrackingProvider provider2 = new TrackingProvider("provider2");
+        MultiProvider multiProvider = new MultiProvider(List.of(provider1, provider2));
+        List<ProviderEvent> emittedEvents = new CopyOnWriteArrayList<>();
+        multiProvider.addEventObserver((event, details) -> emittedEvents.add(event));
+
+        multiProvider.initialize(null);
+
+        await().atMost(Duration.ofSeconds(2)).until(() -> emittedEvents.contains(ProviderEvent.PROVIDER_STALE));
+        assertEquals(List.of(ProviderEvent.PROVIDER_STALE), emittedEvents);
     }
 
     @Test
@@ -134,6 +150,34 @@ class MultiProviderEventsAndTrackingTest {
         @Override
         public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
             return ProviderEvaluation.<Value>builder().value(new Value("value")).build();
+        }
+    }
+
+    static class InitializingStateProvider extends TrackingProvider {
+        private final ProviderState initializeState;
+
+        InitializingStateProvider(String name, ProviderState initializeState) {
+            super(name);
+            this.initializeState = initializeState;
+        }
+
+        @Override
+        public void initialize(EvaluationContext evaluationContext) throws Exception {
+            if (ProviderState.STALE.equals(initializeState)) {
+                emitProviderStale(ProviderEventDetails.builder().message("stale during init").build()).await();
+            } else if (ProviderState.FATAL.equals(initializeState)) {
+                emitProviderError(ProviderEventDetails.builder()
+                                .errorCode(dev.openfeature.sdk.ErrorCode.PROVIDER_FATAL)
+                                .message("fatal during init")
+                                .build())
+                        .await();
+            } else if (ProviderState.ERROR.equals(initializeState)) {
+                emitProviderError(ProviderEventDetails.builder()
+                                .errorCode(dev.openfeature.sdk.ErrorCode.GENERAL)
+                                .message("error during init")
+                                .build())
+                        .await();
+            }
         }
     }
 

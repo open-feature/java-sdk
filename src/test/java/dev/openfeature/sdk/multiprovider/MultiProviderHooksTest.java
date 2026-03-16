@@ -1,17 +1,24 @@
 package dev.openfeature.sdk.multiprovider;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import dev.openfeature.sdk.Client;
+import dev.openfeature.sdk.ErrorCode;
 import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.EventProvider;
+import dev.openfeature.sdk.FlagEvaluationDetails;
+import dev.openfeature.sdk.FlagEvaluationOptions;
 import dev.openfeature.sdk.Hook;
 import dev.openfeature.sdk.HookContext;
+import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.Metadata;
 import dev.openfeature.sdk.MutableContext;
+import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.ProviderEvaluation;
+import dev.openfeature.sdk.Reason;
 import dev.openfeature.sdk.Value;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,9 +63,73 @@ class MultiProviderHooksTest {
 
         assertEquals("provider1", provider1.lastEvaluationContext.getValue("hookOwner").asString());
         assertNull(provider1.lastEvaluationContext.getValue("provider2Marker"));
+        assertNotNull(firstHook.lastFinallyDetails);
+        assertEquals(ErrorCode.GENERAL, firstHook.lastFinallyDetails.getErrorCode());
+        assertEquals(Reason.ERROR.toString(), firstHook.lastFinallyDetails.getReason());
+        assertEquals("default", firstHook.lastFinallyDetails.getValue());
+        assertEquals("failed", firstHook.lastFinallyDetails.getErrorMessage());
 
         assertEquals("provider2", provider2.lastEvaluationContext.getValue("hookOwner").asString());
         assertNull(provider2.lastEvaluationContext.getValue("provider1Marker"));
+    }
+
+    @Test
+    void shouldExposeContextCapturingProviderHook() throws Exception {
+        HookedStringProvider provider1 = new HookedStringProvider(
+                "provider1",
+                List.of(),
+                ProviderEvaluation.<String>builder().value("ok").build());
+
+        MultiProvider multiProvider = new MultiProvider(
+                List.of(provider1), new FirstSuccessfulStrategy());
+        multiProvider.initialize(null);
+
+        // MultiProvider should expose a provider hook for context capture
+        var providerHooks = multiProvider.getProviderHooks();
+        assertNotNull(providerHooks);
+        assertEquals(1, providerHooks.size(), "Should have exactly one context-capturing hook");
+    }
+
+    @Test
+    void shouldPassHookHintsAndClientMetadataAndEnrichThrownProviderErrors() throws Exception {
+        RecordingHook firstHook = new RecordingHook("provider1");
+        RecordingHook secondHook = new RecordingHook("provider2");
+
+        HookedStringProvider provider1 = new HookedStringProvider("provider1", List.of(firstHook), new RuntimeException("boom"));
+        HookedStringProvider provider2 = new HookedStringProvider(
+                "provider2",
+                List.of(secondHook),
+                ProviderEvaluation.<String>builder().value("ok").build());
+
+        MultiProvider multiProvider = new MultiProvider(List.of(provider1, provider2), new FirstSuccessfulStrategy());
+
+        OpenFeatureAPI api = new TestOpenFeatureAPI();
+        api.shutdown();
+        try {
+            api.setProviderAndWait("multiProviderHooks", multiProvider);
+            Client client = api.getClient("multiProviderHooks");
+
+            var evaluation = client.getStringDetails(
+                    "flag",
+                    "default",
+                    new ImmutableContext(),
+                    FlagEvaluationOptions.builder().hookHints(Map.of("hintKey", "hintValue")).build());
+
+            assertEquals("ok", evaluation.getValue());
+
+            assertEquals("hintValue", firstHook.lastHints.get("hintKey"));
+            assertEquals("hintValue", secondHook.lastHints.get("hintKey"));
+            assertEquals("multiProviderHooks", firstHook.lastClientDomain);
+            assertEquals("multiProviderHooks", secondHook.lastClientDomain);
+
+            assertNotNull(firstHook.lastFinallyDetails);
+            assertEquals(ErrorCode.GENERAL, firstHook.lastFinallyDetails.getErrorCode());
+            assertEquals(Reason.ERROR.toString(), firstHook.lastFinallyDetails.getReason());
+            assertEquals("default", firstHook.lastFinallyDetails.getValue());
+            assertEquals("boom", firstHook.lastFinallyDetails.getErrorMessage());
+        } finally {
+            api.shutdown();
+        }
     }
 
     static class RecordingHook implements Hook<String> {
@@ -67,6 +138,9 @@ class MultiProviderHooksTest {
         private final AtomicInteger afterCount = new AtomicInteger();
         private final AtomicInteger errorCount = new AtomicInteger();
         private final AtomicInteger finallyCount = new AtomicInteger();
+        private Map<String, Object> lastHints = Map.of();
+        private String lastClientDomain;
+        private FlagEvaluationDetails<String> lastFinallyDetails;
 
         RecordingHook(String providerName) {
             this.providerName = providerName;
@@ -76,6 +150,8 @@ class MultiProviderHooksTest {
         public Optional<EvaluationContext> before(HookContext<String> ctx, Map<String, Object> hints) {
             beforeCount.incrementAndGet();
             ctx.getHookData().set("provider", providerName);
+            lastHints = hints;
+            lastClientDomain = ctx.getClientMetadata().getDomain();
             return Optional.of(new MutableContext()
                     .add("hookOwner", providerName)
                     .add(providerName + "Marker", providerName));
@@ -88,12 +164,16 @@ class MultiProviderHooksTest {
                 Map<String, Object> hints) {
             afterCount.incrementAndGet();
             assertEquals(providerName, ctx.getHookData().get("provider"));
+            lastHints = hints;
+            lastClientDomain = ctx.getClientMetadata().getDomain();
         }
 
         @Override
         public void error(HookContext<String> ctx, Exception error, Map<String, Object> hints) {
             errorCount.incrementAndGet();
             assertEquals(providerName, ctx.getHookData().get("provider"));
+            lastHints = hints;
+            lastClientDomain = ctx.getClientMetadata().getDomain();
         }
 
         @Override
@@ -103,19 +183,31 @@ class MultiProviderHooksTest {
                 Map<String, Object> hints) {
             finallyCount.incrementAndGet();
             assertEquals(providerName, ctx.getHookData().get("provider"));
+            lastHints = hints;
+            lastClientDomain = ctx.getClientMetadata().getDomain();
+            lastFinallyDetails = details;
         }
     }
 
     static class HookedStringProvider extends EventProvider {
         private final String name;
-        private final List<Hook> hooks;
+        private final List<Hook<String>> hooks;
         private final ProviderEvaluation<String> evaluation;
+        private final RuntimeException evaluationException;
         private EvaluationContext lastEvaluationContext;
 
-        HookedStringProvider(String name, List<Hook> hooks, ProviderEvaluation<String> evaluation) {
+        HookedStringProvider(String name, List<Hook<String>> hooks, ProviderEvaluation<String> evaluation) {
             this.name = name;
             this.hooks = hooks;
             this.evaluation = evaluation;
+            this.evaluationException = null;
+        }
+
+        HookedStringProvider(String name, List<Hook<String>> hooks, RuntimeException evaluationException) {
+            this.name = name;
+            this.hooks = hooks;
+            this.evaluation = null;
+            this.evaluationException = evaluationException;
         }
 
         @Override
@@ -124,8 +216,9 @@ class MultiProviderHooksTest {
         }
 
         @Override
+        @SuppressWarnings("rawtypes")
         public List<Hook> getProviderHooks() {
-            return hooks;
+            return List.copyOf(hooks);
         }
 
         @Override
@@ -136,6 +229,9 @@ class MultiProviderHooksTest {
         @Override
         public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
             lastEvaluationContext = ctx == null ? new MutableContext() : ctx;
+            if (evaluationException != null) {
+                throw evaluationException;
+            }
             return evaluation;
         }
 
@@ -152,6 +248,12 @@ class MultiProviderHooksTest {
         @Override
         public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
             return ProviderEvaluation.<Value>builder().value(defaultValue).build();
+        }
+    }
+
+    static class TestOpenFeatureAPI extends OpenFeatureAPI {
+        TestOpenFeatureAPI() {
+            super();
         }
     }
 }
