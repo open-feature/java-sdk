@@ -7,8 +7,11 @@ import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.ProviderEvaluation;
 import dev.openfeature.sdk.exceptions.FlagNotFoundError;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,7 +23,8 @@ import lombok.extern.slf4j.Slf4j;
  *   <li>Skip providers that indicate they had no value due to {@code FLAG_NOT_FOUND}.</li>
  *   <li>On any other error code, return that error result.</li>
  *   <li>If a provider throws {@link FlagNotFoundError}, it is treated like {@code FLAG_NOT_FOUND}.</li>
- *   <li>If all providers report {@code FLAG_NOT_FOUND}, return a {@code FLAG_NOT_FOUND} error.</li>
+ *   <li>If all providers report {@code FLAG_NOT_FOUND}, return a {@code FLAG_NOT_FOUND} error
+ *       with per-provider error details.</li>
  * </ul>
  * As soon as a non-{@code FLAG_NOT_FOUND} result is returned by a provider (success or other error),
  * the rest of the operation short-circuits and does not call the remaining providers.
@@ -36,7 +40,11 @@ public class FirstMatchStrategy implements Strategy {
             T defaultValue,
             EvaluationContext ctx,
             Function<FeatureProvider, ProviderEvaluation<T>> providerFunction) {
-        for (FeatureProvider provider : providers.values()) {
+        List<ProviderError> collectedErrors = new ArrayList<>();
+
+        for (Map.Entry<String, FeatureProvider> entry : providers.entrySet()) {
+            String providerName = entry.getKey();
+            FeatureProvider provider = entry.getValue();
             try {
                 ProviderEvaluation<T> res = providerFunction.apply(provider);
                 ErrorCode errorCode = res.getErrorCode();
@@ -45,19 +53,31 @@ public class FirstMatchStrategy implements Strategy {
                     return res;
                 }
                 if (!FLAG_NOT_FOUND.equals(errorCode)) {
-                    // Any non-FLAG_NOT_FOUND error bubbles up
+                    // Any non-FLAG_NOT_FOUND error bubbles up immediately
                     return res;
                 }
-                // else FLAG_NOT_FOUND: skip to next provider
-            } catch (FlagNotFoundError ignored) {
-                // do not log in hot path, just skip
+                // FLAG_NOT_FOUND: record and skip to next provider
+                collectedErrors.add(ProviderError.fromResult(providerName, FLAG_NOT_FOUND, res.getErrorMessage()));
+            } catch (FlagNotFoundError e) {
+                // Treat thrown FlagNotFoundError like a FLAG_NOT_FOUND result
+                collectedErrors.add(ProviderError.fromException(providerName, e));
             }
         }
 
         // All providers either threw or returned FLAG_NOT_FOUND
-        return ProviderEvaluation.<T>builder()
-                .errorMessage("Flag not found in any provider")
+        String aggregateMessage = buildAggregateMessage(collectedErrors);
+        return MultiProviderEvaluation.<T>multiProviderBuilder()
+                .errorMessage(aggregateMessage)
                 .errorCode(FLAG_NOT_FOUND)
+                .providerErrors(collectedErrors)
                 .build();
+    }
+
+    private static String buildAggregateMessage(List<ProviderError> errors) {
+        if (errors.isEmpty()) {
+            return "Flag not found in any provider";
+        }
+        String details = errors.stream().map(ProviderError::toString).collect(Collectors.joining(", "));
+        return "Flag not found in any provider. Provider errors: [" + details + "]";
     }
 }

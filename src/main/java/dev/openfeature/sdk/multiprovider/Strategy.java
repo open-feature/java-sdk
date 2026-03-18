@@ -14,6 +14,10 @@ import java.util.function.Function;
  *   <li>Order or select providers</li>
  *   <li>Handle {@code FLAG_NOT_FOUND} results</li>
  *   <li>Handle errors and exceptions from providers</li>
+ *   <li>Collect per-provider error details when no provider returns a successful result.
+ *       Implementations should return a {@link MultiProviderEvaluation} populated with
+ *       a {@link ProviderError} for each failed provider, so that callers can inspect individual
+ *       failure reasons.</li>
  * </ul>
  */
 public interface Strategy {

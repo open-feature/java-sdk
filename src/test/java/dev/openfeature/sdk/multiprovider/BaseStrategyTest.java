@@ -211,4 +211,17 @@ public abstract class BaseStrategyTest {
         when(provider.getStringEvaluation(BaseStrategyTest.FLAG_KEY, DEFAULT_STRING, null))
                 .thenReturn(result);
     }
+
+    protected void setupProviderErrorWithMessage(FeatureProvider provider, ErrorCode errorCode, String errorMessage) {
+        ProviderEvaluation<String> result = mock(ProviderEvaluation.class);
+        when(result.getErrorCode()).thenReturn(errorCode);
+        when(result.getErrorMessage()).thenReturn(errorMessage);
+        when(provider.getStringEvaluation(BaseStrategyTest.FLAG_KEY, DEFAULT_STRING, null))
+                .thenReturn(result);
+    }
+
+    protected void setupProviderException(FeatureProvider provider, RuntimeException exception) {
+        when(provider.getStringEvaluation(BaseStrategyTest.FLAG_KEY, DEFAULT_STRING, null))
+                .thenThrow(exception);
+    }
 }
