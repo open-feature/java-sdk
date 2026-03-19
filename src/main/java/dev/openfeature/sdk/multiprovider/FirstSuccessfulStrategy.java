@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,19 +49,11 @@ public class FirstSuccessfulStrategy implements Strategy {
             }
         }
 
-        String aggregateMessage = buildAggregateMessage(collectedErrors);
         return MultiProviderEvaluation.<T>multiProviderBuilder()
-                .errorMessage(aggregateMessage)
+                .errorMessage(
+                        ProviderError.buildAggregateMessage("No provider successfully responded", collectedErrors))
                 .errorCode(ErrorCode.GENERAL)
                 .providerErrors(collectedErrors)
                 .build();
-    }
-
-    private static String buildAggregateMessage(List<ProviderError> errors) {
-        if (errors.isEmpty()) {
-            return "No provider successfully responded";
-        }
-        String details = errors.stream().map(ProviderError::toString).collect(Collectors.joining(", "));
-        return "No provider successfully responded. Provider errors: [" + details + "]";
     }
 }

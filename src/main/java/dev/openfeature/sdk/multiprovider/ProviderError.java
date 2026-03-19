@@ -2,6 +2,8 @@ package dev.openfeature.sdk.multiprovider;
 
 import dev.openfeature.sdk.ErrorCode;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -47,6 +49,18 @@ public class ProviderError {
             code = ((OpenFeatureError) exception).getErrorCode();
         }
         return new ProviderError(providerName, code, exception.getMessage(), exception);
+    }
+
+    /**
+     * Build an aggregate error message from a list of provider errors.
+     *
+     * @param baseMessage the base message to use (e.g. "No provider successfully responded")
+     * @param errors      the list of per-provider errors
+     * @return an aggregate message including per-provider details
+     */
+    public static String buildAggregateMessage(String baseMessage, List<ProviderError> errors) {
+        String details = errors.stream().map(ProviderError::toString).collect(Collectors.joining(", "));
+        return baseMessage + ". Provider errors: [" + details + "]";
     }
 
     @Override

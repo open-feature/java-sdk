@@ -7,12 +7,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A {@link ProviderEvaluation} subtype returned by multi-provider strategies when all providers
- * fail to produce a successful result.
+ * A {@link ProviderEvaluation} subtype returned by multi-provider strategies that carries
+ * per-provider error details.
  *
- * <p>This type carries per-provider error details so that callers can inspect why each individual
- * provider failed. It is only returned in error scenarios; successful evaluations always return
- * a plain {@link ProviderEvaluation}.
+ * <p>This type can represent both successful and failed evaluations. When a strategy exhausts
+ * all providers without a successful result, the per-provider errors describe why each provider
+ * failed. Custom strategies may also use this type for successful results to surface information
+ * about providers that were skipped or failed before the successful one.
  *
  * <p>Usage:
  * <pre>{@code

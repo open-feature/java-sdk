@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,19 +64,10 @@ public class FirstMatchStrategy implements Strategy {
         }
 
         // All providers either threw or returned FLAG_NOT_FOUND
-        String aggregateMessage = buildAggregateMessage(collectedErrors);
         return MultiProviderEvaluation.<T>multiProviderBuilder()
-                .errorMessage(aggregateMessage)
+                .errorMessage(ProviderError.buildAggregateMessage("Flag not found in any provider", collectedErrors))
                 .errorCode(FLAG_NOT_FOUND)
                 .providerErrors(collectedErrors)
                 .build();
-    }
-
-    private static String buildAggregateMessage(List<ProviderError> errors) {
-        if (errors.isEmpty()) {
-            return "Flag not found in any provider";
-        }
-        String details = errors.stream().map(ProviderError::toString).collect(Collectors.joining(", "));
-        return "Flag not found in any provider. Provider errors: [" + details + "]";
     }
 }
