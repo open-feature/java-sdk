@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Contains information about how the a flag was evaluated, including the resolved value.
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
  * @param <T> the type of the flag being evaluated.
  */
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProviderEvaluation<T> implements BaseEvaluation<T> {

@@ -64,7 +64,7 @@ public class FirstMatchStrategy implements Strategy {
         }
 
         // All providers either threw or returned FLAG_NOT_FOUND
-        return MultiProviderEvaluation.<T>multiProviderBuilder()
+        return MultiProviderEvaluation.<T>builder()
                 .errorMessage(ProviderError.buildAggregateMessage("Flag not found in any provider", collectedErrors))
                 .errorCode(FLAG_NOT_FOUND)
                 .providerErrors(collectedErrors)

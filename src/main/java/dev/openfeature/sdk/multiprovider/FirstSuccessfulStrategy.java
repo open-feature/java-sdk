@@ -49,7 +49,7 @@ public class FirstSuccessfulStrategy implements Strategy {
             }
         }
 
-        return MultiProviderEvaluation.<T>multiProviderBuilder()
+        return MultiProviderEvaluation.<T>builder()
                 .errorMessage(
                         ProviderError.buildAggregateMessage("No provider successfully responded", collectedErrors))
                 .errorCode(ErrorCode.GENERAL)
