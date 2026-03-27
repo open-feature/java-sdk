@@ -115,7 +115,11 @@ class MultiProviderTest extends BaseStrategyTest {
 
         ProviderEvaluation<String> providerEvaluation = multiProvider.getStringEvaluation("non-existing", "", null);
         assertEquals(ErrorCode.FLAG_NOT_FOUND, providerEvaluation.getErrorCode());
-        assertEquals("Flag not found in any provider", providerEvaluation.getErrorMessage());
+        assertEquals(
+                "Flag not found in any provider. Provider errors: ["
+                        + "old-provider: FLAG_NOT_FOUND (flag non-existing not found), "
+                        + "new-provider: FLAG_NOT_FOUND (flag non-existing not found)]",
+                providerEvaluation.getErrorMessage());
     }
 
     @SneakyThrows
