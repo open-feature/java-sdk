@@ -215,7 +215,10 @@ class ProviderRepository {
         try {
             if (ProviderState.NOT_READY.equals(newManager.getState())) {
                 newManager.initialize(openFeatureAPI.getEvaluationContext());
-                afterInit.accept(newManager.getProvider());
+                // State-managing providers emit their own events; skip SDK-side emission.
+                if (!newManager.delegateManagesState()) {
+                    afterInit.accept(newManager.getProvider());
+                }
             }
             shutDownOld(oldManager, afterShutdown);
         } catch (OpenFeatureError e) {
@@ -223,13 +226,19 @@ class ProviderRepository {
                     "Exception when initializing feature provider {}",
                     newManager.getProvider().getClass().getName(),
                     e);
-            afterError.accept(newManager.getProvider(), e);
+            // State-managing providers emit their own events; skip SDK-side emission.
+            if (!newManager.delegateManagesState()) {
+                afterError.accept(newManager.getProvider(), e);
+            }
         } catch (Exception e) {
             log.error(
                     "Exception when initializing feature provider {}",
                     newManager.getProvider().getClass().getName(),
                     e);
-            afterError.accept(newManager.getProvider(), new GeneralError(e));
+            // State-managing providers emit their own events; skip SDK-side emission.
+            if (!newManager.delegateManagesState()) {
+                afterError.accept(newManager.getProvider(), new GeneralError(e));
+            }
         }
     }
 
