@@ -73,7 +73,12 @@ class MultiProviderTest extends BaseStrategyTest {
         List<FeatureProvider> providers = new ArrayList<>(2);
         providers.add(mockProvider1);
         providers.add(mockProvider2);
-        assertDoesNotThrow(() -> new MultiProvider(providers).initialize(null));
+        MultiProvider multiProvider = new MultiProvider(providers);
+        assertDoesNotThrow(() -> multiProvider.initialize(null));
+        MultiProviderMetadata metadata = (MultiProviderMetadata) multiProvider.getMetadata();
+        assertEquals(2, metadata.getOriginalMetadata().size());
+        assertNotNull(metadata.getOriginalMetadata().get("provider"));
+        assertNotNull(metadata.getOriginalMetadata().get("provider-1"));
     }
 
     @Test

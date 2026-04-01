@@ -1,11 +1,27 @@
 package dev.openfeature.sdk.multiprovider;
 
+import dev.openfeature.sdk.ClientMetadata;
+import dev.openfeature.sdk.DefaultHookData;
+import dev.openfeature.sdk.ErrorCode;
 import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.EventProvider;
 import dev.openfeature.sdk.FeatureProvider;
+import dev.openfeature.sdk.FlagEvaluationDetails;
+import dev.openfeature.sdk.FlagValueType;
+import dev.openfeature.sdk.Hook;
+import dev.openfeature.sdk.HookContext;
+import dev.openfeature.sdk.HookData;
+import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.Metadata;
 import dev.openfeature.sdk.ProviderEvaluation;
+import dev.openfeature.sdk.ProviderEvent;
+import dev.openfeature.sdk.ProviderEventDetails;
+import dev.openfeature.sdk.ProviderState;
+import dev.openfeature.sdk.Reason;
+import dev.openfeature.sdk.TrackingEventDetails;
 import dev.openfeature.sdk.Value;
+import dev.openfeature.sdk.exceptions.ExceptionUtils;
+import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,10 +31,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,6 +60,14 @@ public class MultiProvider extends EventProvider {
 
     private final Map<String, FeatureProvider> providers;
     private final Strategy strategy;
+    private final Map<String, ProviderState> providerStates = new ConcurrentHashMap<>();
+    private final Map<String, BiConsumer<ProviderEvent, ProviderEventDetails>> providerEventObservers =
+            new ConcurrentHashMap<>();
+    private final ThreadLocal<HookExecutionContext> hookExecutionContextThreadLocal =
+            new ThreadLocal<>();
+    private final ClientMetadata hookClientMetadata = MultiProvider::getNAME;
+    private final Map<String, Object> emptyHookHints = Collections.emptyMap();
+    private ProviderState aggregateState;
     private MultiProviderMetadata metadata;
 
     /**
@@ -61,18 +89,91 @@ public class MultiProvider extends EventProvider {
     public MultiProvider(List<FeatureProvider> providers, Strategy strategy) {
         this.providers = buildProviders(providers);
         this.strategy = Objects.requireNonNull(strategy, "strategy must not be null");
+        initializeProviderStates();
+        this.aggregateState = determineAggregateState();
+    }
+
+    /**
+     * Returns provider-level hooks for this MultiProvider.
+     *
+     * <p>Includes a {@code before} hook that captures the {@link ClientMetadata}
+     * and hook hints from the SDK's hook lifecycle. This context is then available
+     * during per-child-provider hook execution, matching the JS SDK's WeakMap-based
+     * approach for passing hook context into the provider evaluation.
+     *
+     * @return the list of provider hooks
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Override
+    public List<Hook> getProviderHooks() {
+        Hook contextCapturingHook = new Hook() {
+            @Override
+            public Optional before(HookContext ctx, Map hints) {
+                hookExecutionContextThreadLocal.set(
+                        new HookExecutionContext(
+                                ctx.getClientMetadata(),
+                                hints != null ? hints : emptyHookHints));
+                return Optional.empty();
+            }
+
+            @Override
+            public void finallyAfter(HookContext ctx, FlagEvaluationDetails details,
+                    Map hints) {
+                hookExecutionContextThreadLocal.remove();
+            }
+        };
+        return List.of(contextCapturingHook);
     }
 
     protected static Map<String, FeatureProvider> buildProviders(List<FeatureProvider> providers) {
+        Objects.requireNonNull(providers, "providers must not be null");
         Map<String, FeatureProvider> providersMap = new LinkedHashMap<>(providers.size());
+        Map<String, Integer> suffixesByBaseName = new HashMap<>(providers.size());
         for (FeatureProvider provider : providers) {
-            FeatureProvider prevProvider =
-                    providersMap.put(provider.getMetadata().getName(), provider);
-            if (prevProvider != null) {
-                log.info("duplicated provider name: {}", provider.getMetadata().getName());
+            Objects.requireNonNull(provider, "provider must not be null");
+            String baseName = getProviderBaseName(provider);
+            String resolvedName = resolveUniqueProviderName(baseName, providersMap, suffixesByBaseName);
+            if (!baseName.equals(resolvedName)) {
+                log.info("deduplicated provider name from {} to {}", baseName, resolvedName);
             }
+            providersMap.put(resolvedName, provider);
         }
         return Collections.unmodifiableMap(providersMap);
+    }
+
+    private static String getProviderBaseName(FeatureProvider provider) {
+        Metadata providerMetadata = provider.getMetadata();
+        if (providerMetadata == null || providerMetadata.getName() == null || providerMetadata.getName().isEmpty()) {
+            return "provider";
+        }
+        return providerMetadata.getName();
+    }
+
+    private static String resolveUniqueProviderName(
+            String baseName,
+            Map<String, FeatureProvider> providersMap,
+            Map<String, Integer> suffixesByBaseName) {
+        if (!providersMap.containsKey(baseName)) {
+            suffixesByBaseName.putIfAbsent(baseName, 1);
+            return baseName;
+        }
+        int suffix = suffixesByBaseName.getOrDefault(baseName, 1);
+        String resolvedName = baseName + "-" + suffix;
+        while (providersMap.containsKey(resolvedName)) {
+            suffix++;
+            resolvedName = baseName + "-" + suffix;
+        }
+        suffixesByBaseName.put(baseName, suffix + 1);
+        return resolvedName;
+    }
+
+    private void initializeProviderStates() {
+        providerStates.clear();
+        if (!providers.isEmpty()) {
+            for (String providerName : providers.keySet()) {
+                providerStates.put(providerName, ProviderState.NOT_READY);
+            }
+        }
     }
 
     /**
@@ -85,7 +186,11 @@ public class MultiProvider extends EventProvider {
     @Override
     public void initialize(EvaluationContext evaluationContext) throws Exception {
         var metadataBuilder = MultiProviderMetadata.builder().name(NAME);
-        HashMap<String, Metadata> providersMetadata = new HashMap<>();
+        Map<String, Metadata> providersMetadata = new LinkedHashMap<>();
+        initializeProviderStates();
+        synchronized (this) {
+            emitAggregateStateChange(determineAggregateState(), ProviderEventDetails.builder().build());
+        }
 
         if (providers.isEmpty()) {
             metadataBuilder.originalMetadata(Collections.unmodifiableMap(providersMetadata));
@@ -96,13 +201,22 @@ public class MultiProvider extends EventProvider {
         ExecutorService executorService = Executors.newFixedThreadPool(Math.min(INIT_THREADS_COUNT, providers.size()));
         try {
             Collection<Callable<Void>> tasks = new ArrayList<>(providers.size());
-            for (FeatureProvider provider : providers.values()) {
+            for (Map.Entry<String, FeatureProvider> entry : providers.entrySet()) {
+                String providerName = entry.getKey();
+                FeatureProvider provider = entry.getValue();
+                registerChildProviderObserver(providerName, provider);
                 tasks.add(() -> {
-                    provider.initialize(evaluationContext);
-                    return null;
+                    try {
+                        provider.initialize(evaluationContext);
+                        setProviderReadyIfStillNotReady(providerName);
+                        return null;
+                    } catch (Exception e) {
+                        setProviderState(providerName, toStateFromException(e), providerErrorDetails(e));
+                        throw e;
+                    }
                 });
                 Metadata providerMetadata = provider.getMetadata();
-                providersMetadata.put(providerMetadata.getName(), providerMetadata);
+                providersMetadata.put(providerName, providerMetadata);
             }
 
             metadataBuilder.originalMetadata(Collections.unmodifiableMap(providersMetadata));
@@ -137,43 +251,563 @@ public class MultiProvider extends EventProvider {
 
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookExecutionContext = currentHookExecutionContext();
         return strategy.evaluate(
-                providers, key, defaultValue, ctx, p -> p.getBooleanEvaluation(key, defaultValue, ctx));
+                providers,
+                key,
+                defaultValue,
+                ctx,
+                provider -> evaluateWithProviderHooks(
+                        provider,
+                        key,
+                        defaultValue,
+                        ctx,
+                        hookExecutionContext,
+                        FlagValueType.BOOLEAN,
+                        (p, evaluationContext) -> p.getBooleanEvaluation(key, defaultValue, evaluationContext)));
     }
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
-        return strategy.evaluate(providers, key, defaultValue, ctx, p -> p.getStringEvaluation(key, defaultValue, ctx));
+        HookExecutionContext hookExecutionContext = currentHookExecutionContext();
+        return strategy.evaluate(
+                providers,
+                key,
+                defaultValue,
+                ctx,
+                provider -> evaluateWithProviderHooks(
+                        provider,
+                        key,
+                        defaultValue,
+                        ctx,
+                        hookExecutionContext,
+                        FlagValueType.STRING,
+                        (p, evaluationContext) -> p.getStringEvaluation(key, defaultValue, evaluationContext)));
     }
 
     @Override
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookExecutionContext = currentHookExecutionContext();
         return strategy.evaluate(
-                providers, key, defaultValue, ctx, p -> p.getIntegerEvaluation(key, defaultValue, ctx));
+                providers,
+                key,
+                defaultValue,
+                ctx,
+                provider -> evaluateWithProviderHooks(
+                        provider,
+                        key,
+                        defaultValue,
+                        ctx,
+                        hookExecutionContext,
+                        FlagValueType.INTEGER,
+                        (p, evaluationContext) -> p.getIntegerEvaluation(key, defaultValue, evaluationContext)));
     }
 
     @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
-        return strategy.evaluate(providers, key, defaultValue, ctx, p -> p.getDoubleEvaluation(key, defaultValue, ctx));
+        HookExecutionContext hookExecutionContext = currentHookExecutionContext();
+        return strategy.evaluate(
+                providers,
+                key,
+                defaultValue,
+                ctx,
+                provider -> evaluateWithProviderHooks(
+                        provider,
+                        key,
+                        defaultValue,
+                        ctx,
+                        hookExecutionContext,
+                        FlagValueType.DOUBLE,
+                        (p, evaluationContext) -> p.getDoubleEvaluation(key, defaultValue, evaluationContext)));
     }
 
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
-        return strategy.evaluate(providers, key, defaultValue, ctx, p -> p.getObjectEvaluation(key, defaultValue, ctx));
+        HookExecutionContext hookExecutionContext = currentHookExecutionContext();
+        return strategy.evaluate(
+                providers,
+                key,
+                defaultValue,
+                ctx,
+                provider -> evaluateWithProviderHooks(
+                        provider,
+                        key,
+                        defaultValue,
+                        ctx,
+                        hookExecutionContext,
+                        FlagValueType.OBJECT,
+                        (p, evaluationContext) -> p.getObjectEvaluation(key, defaultValue, evaluationContext)));
+    }
+
+    @Override
+    public void track(String eventName, EvaluationContext context, TrackingEventDetails details) {
+        for (Map.Entry<String, FeatureProvider> entry : providers.entrySet()) {
+            String providerName = entry.getKey();
+            FeatureProvider provider = entry.getValue();
+            if (!shouldTrackProvider(providerName)) {
+                continue;
+            }
+            try {
+                provider.track(eventName, context, details);
+            } catch (Exception e) {
+                log.error("error forwarding track to provider {}", providerName, e);
+            }
+        }
     }
 
     @Override
     public void shutdown() {
         log.debug("shutdown begin");
-        for (FeatureProvider provider : providers.values()) {
+        for (Map.Entry<String, FeatureProvider> entry : providers.entrySet()) {
+            String providerName = entry.getKey();
+            FeatureProvider provider = entry.getValue();
             try {
+                unregisterChildProviderObserver(providerName, provider);
                 provider.shutdown();
             } catch (Exception e) {
-                log.error("error shutdown provider {}", provider.getMetadata().getName(), e);
+                log.error("error shutdown provider {}", providerName, e);
             }
         }
+        synchronized (this) {
+            initializeProviderStates();
+            emitAggregateStateChange(ProviderState.NOT_READY, ProviderEventDetails.builder().build());
+        }
         log.debug("shutdown end");
-        // Important: ensure EventProvider's executor is also shut down
         super.shutdown();
+    }
+
+    private void registerChildProviderObserver(String providerName, FeatureProvider provider) {
+        if (provider instanceof EventProvider) {
+            BiConsumer<ProviderEvent, ProviderEventDetails> observer =
+                    (event, details) -> onChildProviderEvent(providerName, event, details);
+            ((EventProvider) provider).addEventObserver(observer);
+            providerEventObservers.put(providerName, observer);
+        }
+    }
+
+    private void unregisterChildProviderObserver(String providerName, FeatureProvider provider) {
+        if (provider instanceof EventProvider) {
+            BiConsumer<ProviderEvent, ProviderEventDetails> observer = providerEventObservers.remove(providerName);
+            if (observer != null) {
+                ((EventProvider) provider).removeEventObserver(observer);
+            }
+        }
+    }
+
+    private void onChildProviderEvent(String providerName, ProviderEvent event, ProviderEventDetails details) {
+        if (ProviderEvent.PROVIDER_CONFIGURATION_CHANGED.equals(event)) {
+            emitProviderConfigurationChanged(details);
+            return;
+        }
+        ProviderState state = toStateFromEvent(event, details);
+        if (state != null) {
+            setProviderState(providerName, state, details);
+        }
+    }
+
+    private synchronized void setProviderState(
+            String providerName,
+            ProviderState providerState,
+            ProviderEventDetails details) {
+        providerStates.put(providerName, providerState);
+        ProviderState aggregate = determineAggregateState();
+        emitAggregateStateChange(aggregate, details);
+    }
+
+    private synchronized void setProviderReadyIfStillNotReady(String providerName) {
+        if (!ProviderState.NOT_READY.equals(providerStates.get(providerName))) {
+            return;
+        }
+        providerStates.put(providerName, ProviderState.READY);
+        ProviderState aggregate = determineAggregateState();
+        emitAggregateStateChange(aggregate, ProviderEventDetails.builder().build());
+    }
+
+    private void emitAggregateStateChange(ProviderState aggregate, ProviderEventDetails details) {
+        ProviderState previous = aggregateState;
+        if (previous == aggregate) {
+            return;
+        }
+        aggregateState = aggregate;
+        switch (aggregate) {
+            case READY:
+                emitProviderReady(detailsOrEmpty(details));
+                break;
+            case STALE:
+                emitProviderStale(detailsOrEmpty(details));
+                break;
+            case ERROR:
+                emitProviderError(ensureErrorDetails(details, ErrorCode.GENERAL));
+                break;
+            case FATAL:
+                emitProviderError(ensureErrorDetails(details, ErrorCode.PROVIDER_FATAL));
+                break;
+            case NOT_READY:
+                break;
+            default:
+                break;
+        }
+    }
+
+    private ProviderState determineAggregateState() {
+        if (providerStates.isEmpty()) {
+            return ProviderState.READY;
+        }
+        ProviderState aggregate = ProviderState.READY;
+        for (ProviderState state : providerStates.values()) {
+            if (stateSeverity(state) > stateSeverity(aggregate)) {
+                aggregate = state;
+            }
+        }
+        return aggregate;
+    }
+
+    private int stateSeverity(ProviderState state) {
+        if (state == null) {
+            return 0;
+        }
+        switch (state) {
+            case FATAL:
+                return 5;
+            case NOT_READY:
+                return 4;
+            case ERROR:
+                return 3;
+            case STALE:
+                return 2;
+            case READY:
+                return 1;
+            default:
+                return 0;
+        }
+    }
+
+    private ProviderEventDetails detailsOrEmpty(ProviderEventDetails details) {
+        if (details == null) {
+            return ProviderEventDetails.builder().build();
+        }
+        return details;
+    }
+
+    private ProviderEventDetails ensureErrorDetails(ProviderEventDetails details, ErrorCode defaultErrorCode) {
+        if (details == null) {
+            return ProviderEventDetails.builder().errorCode(defaultErrorCode).build();
+        }
+        if (details.getErrorCode() == null) {
+            return details.toBuilder().errorCode(defaultErrorCode).build();
+        }
+        return details;
+    }
+
+    private ProviderState toStateFromEvent(ProviderEvent event, ProviderEventDetails details) {
+        if (ProviderEvent.PROVIDER_READY.equals(event)) {
+            return ProviderState.READY;
+        }
+        if (ProviderEvent.PROVIDER_STALE.equals(event)) {
+            return ProviderState.STALE;
+        }
+        if (ProviderEvent.PROVIDER_ERROR.equals(event)) {
+            if (details != null && ErrorCode.PROVIDER_FATAL.equals(details.getErrorCode())) {
+                return ProviderState.FATAL;
+            }
+            return ProviderState.ERROR;
+        }
+        return null;
+    }
+
+    private ProviderState toStateFromException(Exception exception) {
+        if (exception instanceof OpenFeatureError
+                && ErrorCode.PROVIDER_FATAL.equals(((OpenFeatureError) exception).getErrorCode())) {
+            return ProviderState.FATAL;
+        }
+        return ProviderState.ERROR;
+    }
+
+    private ProviderEventDetails providerErrorDetails(Exception exception) {
+        if (exception instanceof OpenFeatureError) {
+            ErrorCode errorCode = ((OpenFeatureError) exception).getErrorCode();
+            return ProviderEventDetails.builder()
+                    .errorCode(errorCode)
+                    .message(exception.getMessage())
+                    .build();
+        }
+        return ProviderEventDetails.builder()
+                .errorCode(ErrorCode.GENERAL)
+                .message(exception.getMessage())
+                .build();
+    }
+
+    private boolean shouldTrackProvider(String providerName) {
+        ProviderState providerState = providerStates.getOrDefault(providerName, ProviderState.READY);
+        return !ProviderState.NOT_READY.equals(providerState) && !ProviderState.FATAL.equals(providerState);
+    }
+
+    private EvaluationContext copyEvaluationContext(EvaluationContext context) {
+        if (context == null) {
+            return ImmutableContext.EMPTY;
+        }
+        String targetingKey = context.getTargetingKey();
+        if (targetingKey == null) {
+            return new ImmutableContext(context.asMap());
+        }
+        return new ImmutableContext(targetingKey, context.asMap());
+    }
+
+    private EvaluationContext toProviderContext(EvaluationContext originalContext, EvaluationContext evaluatedContext) {
+        if (originalContext == null && (evaluatedContext == null || evaluatedContext.isEmpty())) {
+            return null;
+        }
+        return evaluatedContext;
+    }
+
+    private Exception toEvaluationException(ProviderEvaluation<?> providerEvaluation) {
+        if (providerEvaluation == null || providerEvaluation.getErrorCode() == null) {
+            return new RuntimeException("Provider evaluation returned an error");
+        }
+        return ExceptionUtils.instantiateErrorByErrorCode(
+                providerEvaluation.getErrorCode(),
+                providerEvaluation.getErrorMessage());
+    }
+
+    @SuppressWarnings("deprecation")
+    private <T> HookContext<T> createHookContext(
+            String key,
+            FlagValueType valueType,
+            T defaultValue,
+            EvaluationContext evaluationContext,
+            FeatureProvider provider,
+            HookExecutionContext hookExecutionContext,
+            HookData hookData) {
+        return HookContext.<T>builder()
+                .flagKey(key)
+                .type(valueType)
+                .defaultValue(normalizeDefaultValue(valueType, defaultValue))
+                .ctx(evaluationContext)
+                .clientMetadata(resolveClientMetadata(hookExecutionContext))
+                .providerMetadata(provider.getMetadata())
+                .hookData(hookData)
+                .build();
+    }
+
+    /**
+     * Returns a non-null default value for use in hook contexts when the caller
+     * passes {@code null}. The returned object is always assignment-compatible
+     * with the expected type for {@code valueType}.
+     */
+    @SuppressWarnings("unchecked")
+    private <T> T normalizeDefaultValue(FlagValueType valueType, T defaultValue) {
+        if (defaultValue != null) {
+            return defaultValue;
+        }
+        Object fallback;
+        switch (valueType) {
+            case BOOLEAN:
+                fallback = Boolean.FALSE;
+                break;
+            case STRING:
+                fallback = "";
+                break;
+            case INTEGER:
+                fallback = Integer.valueOf(0);
+                break;
+            case DOUBLE:
+                fallback = Double.valueOf(0d);
+                break;
+            case OBJECT:
+                fallback = new Value();
+                break;
+            default:
+                return defaultValue;
+        }
+        // Safe: the SDK guarantees T matches the valueType enum.
+        return (T) fallback;
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private <T> ProviderEvaluation<T> evaluateWithProviderHooks(
+            FeatureProvider provider,
+            String key,
+            T defaultValue,
+            EvaluationContext ctx,
+            HookExecutionContext hookExecutionContext,
+            FlagValueType valueType,
+            BiFunction<FeatureProvider, EvaluationContext, ProviderEvaluation<T>> providerFunction) {
+        List<Hook> providerHooks = provider.getProviderHooks();
+        if (providerHooks == null || providerHooks.isEmpty()) {
+            return providerFunction.apply(provider, ctx);
+        }
+
+        List<HookExecution<T>> hooks = new ArrayList<>(providerHooks.size());
+        for (Hook hook : providerHooks) {
+            if (hook.supportsFlagValueType(valueType)) {
+                hooks.add(new HookExecution<>(hook, new DefaultHookData()));
+            }
+        }
+
+        if (hooks.isEmpty()) {
+            return providerFunction.apply(provider, ctx);
+        }
+
+        EvaluationContext evaluatedContext = copyEvaluationContext(ctx);
+        ProviderEvaluation<T> providerEvaluation = null;
+        FlagEvaluationDetails<T> details = null;
+        Map<String, Object> hookHints = resolveHookHints(hookExecutionContext);
+
+        try {
+            for (int i = hooks.size() - 1; i >= 0; i--) {
+                HookExecution<T> execution = hooks.get(i);
+                HookContext<T> hookContext = createHookContext(
+                        key, valueType, defaultValue,
+                        evaluatedContext, provider,
+                        hookExecutionContext, execution.hookData);
+                var contextUpdate = execution.hook.before(hookContext, hookHints);
+                if (contextUpdate != null
+                        && contextUpdate.isPresent()
+                        && contextUpdate.get() != hookContext.getCtx()
+                        && !contextUpdate.get().isEmpty()) {
+                    evaluatedContext = evaluatedContext.merge(contextUpdate.get());
+                }
+            }
+
+            providerEvaluation = providerFunction.apply(provider, toProviderContext(ctx, evaluatedContext));
+            details = FlagEvaluationDetails.from(providerEvaluation, key);
+
+            if (providerEvaluation.getErrorCode() == null) {
+                for (HookExecution<T> execution : hooks) {
+                    execution.hook.after(
+                            createHookContext(
+                                    key,
+                                    valueType,
+                                    defaultValue,
+                                    evaluatedContext,
+                                    provider,
+                                    hookExecutionContext,
+                                    execution.hookData),
+                            details,
+                            hookHints);
+                }
+            } else {
+                enrichDetailsWithErrorDefaults(defaultValue, details);
+                Exception providerException = toEvaluationException(providerEvaluation);
+                for (HookExecution<T> execution : hooks) {
+                    try {
+                        execution.hook.error(
+                                createHookContext(
+                                        key,
+                                        valueType,
+                                        defaultValue,
+                                        evaluatedContext,
+                                        provider,
+                                        hookExecutionContext,
+                                        execution.hookData),
+                                providerException,
+                                hookHints);
+                    } catch (Exception e) {
+                        log.error("error executing provider hook error stage", e);
+                    }
+                }
+            }
+
+            return providerEvaluation;
+        } catch (Exception e) {
+            details = buildErrorDetails(key, defaultValue, details, e);
+            for (HookExecution<T> execution : hooks) {
+                try {
+                    execution.hook.error(
+                            createHookContext(
+                                    key,
+                                    valueType,
+                                    defaultValue,
+                                    evaluatedContext,
+                                    provider,
+                                    hookExecutionContext,
+                                    execution.hookData),
+                            e,
+                            hookHints);
+                } catch (Exception hookError) {
+                    log.error("error executing provider hook error stage", hookError);
+                }
+            }
+            throw e;
+        } finally {
+            FlagEvaluationDetails<T> finalDetails = details == null
+                    ? FlagEvaluationDetails.<T>builder().flagKey(key).value(defaultValue).build()
+                    : details;
+            for (HookExecution<T> execution : hooks) {
+                try {
+                    execution.hook.finallyAfter(
+                            createHookContext(
+                                    key,
+                                    valueType,
+                                    defaultValue,
+                                    evaluatedContext,
+                                    provider,
+                                    hookExecutionContext,
+                                    execution.hookData),
+                            finalDetails,
+                            hookHints);
+                } catch (Exception e) {
+                    log.error("error executing provider hook finally stage", e);
+                }
+            }
+        }
+    }
+
+    private HookExecutionContext currentHookExecutionContext() {
+        return hookExecutionContextThreadLocal.get();
+    }
+
+    private ClientMetadata resolveClientMetadata(HookExecutionContext hookExecutionContext) {
+        if (hookExecutionContext == null || hookExecutionContext.clientMetadata == null) {
+            return hookClientMetadata;
+        }
+        return hookExecutionContext.clientMetadata;
+    }
+
+    private Map<String, Object> resolveHookHints(HookExecutionContext hookExecutionContext) {
+        if (hookExecutionContext == null || hookExecutionContext.hints == null) {
+            return emptyHookHints;
+        }
+        return hookExecutionContext.hints;
+    }
+
+    private <T> FlagEvaluationDetails<T> buildErrorDetails(
+            String key, T defaultValue, FlagEvaluationDetails<T> details, Exception error) {
+        FlagEvaluationDetails<T> errorDetails = details == null
+                ? FlagEvaluationDetails.<T>builder().flagKey(key).build()
+                : details;
+        if (error instanceof OpenFeatureError) {
+            errorDetails.setErrorCode(((OpenFeatureError) error).getErrorCode());
+        } else {
+            errorDetails.setErrorCode(ErrorCode.GENERAL);
+        }
+        errorDetails.setErrorMessage(error.getMessage());
+        enrichDetailsWithErrorDefaults(defaultValue, errorDetails);
+        return errorDetails;
+    }
+
+    private <T> void enrichDetailsWithErrorDefaults(T defaultValue, FlagEvaluationDetails<T> details) {
+        details.setValue(defaultValue);
+        details.setReason(Reason.ERROR.toString());
+    }
+
+    private static final class HookExecution<T> {
+        private final Hook<T> hook;
+        private final HookData hookData;
+
+        private HookExecution(Hook<T> hook, HookData hookData) {
+            this.hook = hook;
+            this.hookData = hookData;
+        }
+    }
+
+    private static final class HookExecutionContext {
+        private final ClientMetadata clientMetadata;
+        private final Map<String, Object> hints;
+
+        private HookExecutionContext(ClientMetadata clientMetadata, Map<String, Object> hints) {
+            this.clientMetadata = clientMetadata;
+            this.hints = hints;
+        }
     }
 }
