@@ -1,16 +1,22 @@
 package dev.openfeature.sdk;
 
+import static dev.openfeature.sdk.ProviderEvent.PROVIDER_CONFIGURATION_CHANGED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import dev.openfeature.sdk.testutils.testProvider.TestProvider;
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class OpenFeatureAPITest {
@@ -114,5 +120,43 @@ class OpenFeatureAPITest {
         verify(featureProvider).initialize(any());
         verify(featureProvider, times(2)).getMetadata();
         verify(featureProvider).track(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("Domainless provider initialized after domain provider - OnConfigurationChanged handlers are invoked for both providers after emitting PROVIDER_CONFIGURATION_CHANGED")
+    void onConfigurationChangedAreCalledForDomainlessAndDomainProviders() throws InterruptedException {
+        EventProvider domainlessFeatureProvider = spy(EventProvider.class);
+        EventProvider featureProvider = spy(EventProvider.class);
+
+        Client domainlessClient = api.getClient();
+        Client client = api.getClient("domain");
+
+        CountDownLatch domainlessLatch = new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        domainlessClient.onProviderConfigurationChanged(
+                eventDetails -> domainlessLatch.countDown()
+        );
+        client.onProviderConfigurationChanged(
+                eventDetails -> latch.countDown()
+        );
+
+        api.setProviderAndWait("domain", featureProvider);
+        api.setProviderAndWait(domainlessFeatureProvider);
+
+        featureProvider.emit(PROVIDER_CONFIGURATION_CHANGED, mock(ProviderEventDetails.class));
+        domainlessFeatureProvider.emit(PROVIDER_CONFIGURATION_CHANGED, mock(ProviderEventDetails.class));
+
+        boolean domainlessCompleted = domainlessLatch.await(5, TimeUnit.SECONDS);
+        assertTrue(
+                domainlessCompleted,
+                "onProviderConfigurationChanged was not be invoked for a client with default domain"
+        );
+
+        boolean completed = latch.await(5, TimeUnit.SECONDS);
+        assertTrue(
+                completed,
+                "onProviderConfigurationChanged was not be invoked for a client with domain 'domain'"
+        );
     }
 }
