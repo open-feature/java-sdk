@@ -123,7 +123,8 @@ class OpenFeatureAPITest {
     }
 
     @Test
-    @DisplayName("Domainless provider initialized after domain provider - OnConfigurationChanged handlers are invoked for both providers after emitting PROVIDER_CONFIGURATION_CHANGED")
+    @DisplayName(
+            "Domainless provider initialized after domain provider - OnConfigurationChanged handlers are invoked for both providers after emitting PROVIDER_CONFIGURATION_CHANGED")
     void onConfigurationChangedAreCalledForDomainlessAndDomainProviders() throws InterruptedException {
         EventProvider domainlessFeatureProvider = spy(EventProvider.class);
         EventProvider featureProvider = spy(EventProvider.class);
@@ -134,12 +135,8 @@ class OpenFeatureAPITest {
         CountDownLatch domainlessLatch = new CountDownLatch(1);
         CountDownLatch latch = new CountDownLatch(1);
 
-        domainlessClient.onProviderConfigurationChanged(
-                eventDetails -> domainlessLatch.countDown()
-        );
-        client.onProviderConfigurationChanged(
-                eventDetails -> latch.countDown()
-        );
+        domainlessClient.onProviderConfigurationChanged(eventDetails -> domainlessLatch.countDown());
+        client.onProviderConfigurationChanged(eventDetails -> latch.countDown());
 
         api.setProviderAndWait("domain", featureProvider);
         api.setProviderAndWait(domainlessFeatureProvider);
@@ -150,13 +147,9 @@ class OpenFeatureAPITest {
         boolean domainlessCompleted = domainlessLatch.await(5, TimeUnit.SECONDS);
         assertTrue(
                 domainlessCompleted,
-                "onProviderConfigurationChanged was not be invoked for a client with default domain"
-        );
+                "onProviderConfigurationChanged was not be invoked for a client with default domain");
 
         boolean completed = latch.await(5, TimeUnit.SECONDS);
-        assertTrue(
-                completed,
-                "onProviderConfigurationChanged was not be invoked for a client with domain 'domain'"
-        );
+        assertTrue(completed, "onProviderConfigurationChanged was not be invoked for a client with domain 'domain'");
     }
 }
