@@ -33,7 +33,7 @@ class LockingSingeltonTest {
         client = (OpenFeatureClient) api.getClient("LockingTest");
 
         apiLock = setupLock(apiLock, mockInnerReadLock(), mockInnerWriteLock());
-        OpenFeatureAPI.lock = apiLock;
+        api.lock = apiLock;
 
         clientHooksLock = setupLock(clientHooksLock, mockInnerReadLock(), mockInnerWriteLock());
     }

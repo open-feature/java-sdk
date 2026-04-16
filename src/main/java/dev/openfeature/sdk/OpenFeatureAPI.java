@@ -22,8 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SuppressWarnings("PMD.UnusedLocalVariable")
 public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
-    // package-private multi-read/single-write lock
-    static AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
+    // package-private multi-read/single-write lock (instance-level for isolation)
+    AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
     private final ConcurrentLinkedQueue<Hook> apiHooks;
     private ProviderRepository providerRepository;
     private EventSupport eventSupport;
@@ -48,6 +48,24 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      */
     public static OpenFeatureAPI getInstance() {
         return SingletonHolder.INSTANCE;
+    }
+
+    /**
+     * Creates a new, independent {@link OpenFeatureAPI} instance with fully
+     * isolated state.
+     *
+     * <p>Each instance maintains its own providers, evaluation context, hooks,
+     * event handlers, and transaction context propagators. Instances do not
+     * share state with the global singleton or with each other.
+     *
+     * <p>For better discoverability, prefer using
+     * {@link dev.openfeature.sdk.isolated.OpenFeatureAPIFactory#createAPI()}.
+     *
+     * @return a new API instance
+     * @see dev.openfeature.sdk.isolated.OpenFeatureAPIFactory#createAPI()
+     */
+    public static OpenFeatureAPI createIsolated() {
+        return new OpenFeatureAPI();
     }
 
     /**
@@ -251,7 +269,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
 
     private void attachEventProvider(FeatureProvider provider) {
         if (provider instanceof EventProvider) {
-            ((EventProvider) provider).attach(this::runHandlersForProvider);
+            ((EventProvider) provider).attach(this::runHandlersForProvider, this.lock);
         }
     }
 
