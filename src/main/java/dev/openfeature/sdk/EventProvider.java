@@ -41,8 +41,9 @@ public abstract class EventProvider implements FeatureProvider {
      * @param lock   the API instance's read/write lock for thread safety.
      * @throws IllegalStateException if attempted to bind a new emitter for already bound provider
      */
-    void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit,
-                AutoCloseableReentrantReadWriteLock lock) {
+    void attach(
+            TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit,
+            AutoCloseableReentrantReadWriteLock lock) {
         if (this.onEmit != null && this.onEmit != onEmit) {
             // if we are trying to attach this provider to a different onEmit, something has gone wrong
             throw new IllegalStateException("Provider " + this.getMetadata().getName() + " is already attached.");
