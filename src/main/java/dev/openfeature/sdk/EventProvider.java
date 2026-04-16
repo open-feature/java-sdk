@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import dev.openfeature.sdk.internal.ConfigurableThreadFactory;
 import dev.openfeature.sdk.internal.TriConsumer;
 import java.util.concurrent.ExecutorService;
@@ -30,20 +31,24 @@ public abstract class EventProvider implements FeatureProvider {
     }
 
     private TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = null;
+    private AutoCloseableReentrantReadWriteLock lock = null;
 
     /**
      * "Attach" this EventProvider to an SDK, which allows events to propagate from this provider.
      * No-op if the same onEmit is already attached.
      *
      * @param onEmit the function to run when a provider emits events.
+     * @param lock   the API instance's read/write lock for thread safety.
      * @throws IllegalStateException if attempted to bind a new emitter for already bound provider
      */
-    void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit) {
+    void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit,
+                AutoCloseableReentrantReadWriteLock lock) {
         if (this.onEmit != null && this.onEmit != onEmit) {
             // if we are trying to attach this provider to a different onEmit, something has gone wrong
             throw new IllegalStateException("Provider " + this.getMetadata().getName() + " is already attached.");
         } else {
             this.onEmit = onEmit;
+            this.lock = lock;
         }
     }
 
@@ -52,6 +57,7 @@ public abstract class EventProvider implements FeatureProvider {
      */
     void detach() {
         this.onEmit = null;
+        this.lock = null;
     }
 
     /**
@@ -81,6 +87,7 @@ public abstract class EventProvider implements FeatureProvider {
     public Awaitable emit(final ProviderEvent event, final ProviderEventDetails details) {
         final var localEventProviderListener = this.eventProviderListener;
         final var localOnEmit = this.onEmit;
+        final var localLock = this.lock;
 
         if (localEventProviderListener == null && localOnEmit == null) {
             return Awaitable.FINISHED;
@@ -91,7 +98,7 @@ public abstract class EventProvider implements FeatureProvider {
         // These calls need to be executed on a different thread to prevent deadlocks when the provider initialization
         // relies on a ready event to be emitted
         emitterExecutor.submit(() -> {
-            try (var ignored = OpenFeatureAPI.lock.readLockAutoCloseable()) {
+            try (var ignored = localLock != null ? localLock.readLockAutoCloseable() : null) {
                 if (localEventProviderListener != null) {
                     localEventProviderListener.onEmit(event, details);
                 }

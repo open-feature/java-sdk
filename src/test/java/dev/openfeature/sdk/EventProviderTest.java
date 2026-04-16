@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import dev.openfeature.sdk.internal.TriConsumer;
 import dev.openfeature.sdk.testutils.TestStackedEmitCallsProvider;
 import io.cucumber.java.AfterAll;
@@ -36,7 +37,7 @@ class EventProviderTest {
     @DisplayName("should run attached onEmit with emitters")
     void emitsEventsWhenAttached() {
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = mockOnEmit();
-        eventProvider.attach(onEmit);
+        eventProvider.attach(onEmit, new AutoCloseableReentrantReadWriteLock());
 
         ProviderEventDetails details = ProviderEventDetails.builder().build();
         eventProvider.emit(ProviderEvent.PROVIDER_READY, details);
@@ -73,8 +74,9 @@ class EventProviderTest {
     void throwsWhenOnEmitDifferent() {
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit1 = mockOnEmit();
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit2 = mockOnEmit();
-        eventProvider.attach(onEmit1);
-        assertThrows(IllegalStateException.class, () -> eventProvider.attach(onEmit2));
+        eventProvider.attach(onEmit1, new AutoCloseableReentrantReadWriteLock());
+        assertThrows(IllegalStateException.class,
+                () -> eventProvider.attach(onEmit2, new AutoCloseableReentrantReadWriteLock()));
     }
 
     @Test
@@ -82,8 +84,8 @@ class EventProviderTest {
     void doesNotThrowWhenOnEmitSame() {
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit1 = mockOnEmit();
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit2 = onEmit1;
-        eventProvider.attach(onEmit1);
-        eventProvider.attach(onEmit2); // should not throw, same instance. noop
+        eventProvider.attach(onEmit1, new AutoCloseableReentrantReadWriteLock());
+        eventProvider.attach(onEmit2, new AutoCloseableReentrantReadWriteLock()); // should not throw, same instance. noop
     }
 
     @Test
@@ -132,8 +134,9 @@ class EventProviderTest {
         }
 
         @Override
-        public void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit) {
-            super.attach(onEmit);
+        public void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit,
+                           AutoCloseableReentrantReadWriteLock lock) {
+            super.attach(onEmit, lock);
         }
     }
 
