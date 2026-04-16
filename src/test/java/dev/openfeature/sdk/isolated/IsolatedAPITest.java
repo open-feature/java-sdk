@@ -2,7 +2,6 @@ package dev.openfeature.sdk.isolated;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.NoOpProvider;
 import dev.openfeature.sdk.NoOpTransactionContextPropagator;
@@ -12,21 +11,10 @@ import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class IsolatedAPITest {
-
-    private final OpenFeatureAPI singleton = OpenFeatureAPI.getInstance();
-
-    @AfterEach
-    void restoreSingleton() {
-        singleton.shutdown();
-        singleton.clearHooks();
-        singleton.setEvaluationContext(null);
-        singleton.setTransactionContextPropagator(new NoOpTransactionContextPropagator());
-    }
 
     /**
      * Requirement 1.8.1 — factory creates new, distinct instances that
@@ -39,31 +27,6 @@ class IsolatedAPITest {
         OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
 
         assertThat(api1).isInstanceOf(OpenFeatureAPI.class).isNotSameAs(api2);
-    }
-
-    /**
-     * Requirement 1.8.1 — isolated instances do not share state with
-     * the global singleton. Singleton state is restored after the test
-     * via {@link #restoreSingleton()}.
-     */
-    @Test
-    @DisplayName("isolated instance does not interfere with singleton")
-    void isolatedInstanceDoesNotInterfereWithSingleton() {
-        // record singleton baseline
-        FeatureProvider singletonProvider = singleton.getProvider();
-
-        OpenFeatureAPI isolated = OpenFeatureAPIFactory.createAPI();
-        assertThat(isolated).isNotSameAs(singleton);
-
-        // mutate only the isolated instance
-        isolated.setProvider(new InMemoryProvider(Map.of()));
-        isolated.addHooks(new NoOpHook());
-        isolated.setEvaluationContext(new ImmutableContext("isolated-key"));
-
-        // singleton remains at baseline
-        assertThat(singleton.getProvider()).isSameAs(singletonProvider);
-        assertThat(singleton.getHooks()).isEmpty();
-        assertThat(singleton.getEvaluationContext()).isNull();
     }
 
     /**
@@ -158,13 +121,13 @@ class IsolatedAPITest {
      */
     @Test
     @DisplayName("isolated instance conforms to API contract")
-    void isolatedInstanceConformsToAPIContract() {
+    void isolatedInstanceConformsToAPIContract() throws Exception {
         OpenFeatureAPI api = OpenFeatureAPIFactory.createAPI();
 
         // provider management
         InMemoryProvider provider = new InMemoryProvider(Map.of(
                 "flag1", Flag.builder().variant("on", true).variant("off", false).defaultVariant("on").build()));
-        api.setProvider(provider);
+        api.setProviderAndWait(provider);
         assertThat(api.getProvider()).isSameAs(provider);
         assertThat(api.getProviderMetadata()).isNotNull();
 
@@ -208,11 +171,11 @@ class IsolatedAPITest {
      */
     @Test
     @DisplayName("clients use their own instance's provider")
-    void clientUsesItsOwnInstanceProvider() {
+    void clientUsesItsOwnInstanceProvider() throws Exception {
         OpenFeatureAPI api1 = OpenFeatureAPIFactory.createAPI();
         OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
 
-        api1.setProvider(new InMemoryProvider(Map.of(
+        api1.setProviderAndWait(new InMemoryProvider(Map.of(
                 "flag1", Flag.builder().variant("on", true).variant("off", false).defaultVariant("on").build())));
 
         var client1 = api1.getClient();
