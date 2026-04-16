@@ -75,7 +75,8 @@ class EventProviderTest {
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit1 = mockOnEmit();
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit2 = mockOnEmit();
         eventProvider.attach(onEmit1, new AutoCloseableReentrantReadWriteLock());
-        assertThrows(IllegalStateException.class,
+        assertThrows(
+                IllegalStateException.class,
                 () -> eventProvider.attach(onEmit2, new AutoCloseableReentrantReadWriteLock()));
     }
 
@@ -85,7 +86,8 @@ class EventProviderTest {
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit1 = mockOnEmit();
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit2 = onEmit1;
         eventProvider.attach(onEmit1, new AutoCloseableReentrantReadWriteLock());
-        eventProvider.attach(onEmit2, new AutoCloseableReentrantReadWriteLock()); // should not throw, same instance. noop
+        eventProvider.attach(
+                onEmit2, new AutoCloseableReentrantReadWriteLock()); // should not throw, same instance. noop
     }
 
     @Test
@@ -134,8 +136,9 @@ class EventProviderTest {
         }
 
         @Override
-        public void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit,
-                           AutoCloseableReentrantReadWriteLock lock) {
+        public void attach(
+                TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit,
+                AutoCloseableReentrantReadWriteLock lock) {
             super.attach(onEmit, lock);
         }
     }

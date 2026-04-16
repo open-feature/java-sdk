@@ -126,7 +126,12 @@ class IsolatedAPITest {
 
         // provider management
         InMemoryProvider provider = new InMemoryProvider(Map.of(
-                "flag1", Flag.builder().variant("on", true).variant("off", false).defaultVariant("on").build()));
+                "flag1",
+                Flag.builder()
+                        .variant("on", true)
+                        .variant("off", false)
+                        .defaultVariant("on")
+                        .build()));
         api.setProviderAndWait(provider);
         assertThat(api.getProvider()).isSameAs(provider);
         assertThat(api.getProviderMetadata()).isNotNull();
@@ -176,7 +181,12 @@ class IsolatedAPITest {
         OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
 
         api1.setProviderAndWait(new InMemoryProvider(Map.of(
-                "flag1", Flag.builder().variant("on", true).variant("off", false).defaultVariant("on").build())));
+                "flag1",
+                Flag.builder()
+                        .variant("on", true)
+                        .variant("off", false)
+                        .defaultVariant("on")
+                        .build())));
 
         var client1 = api1.getClient();
         var client2 = api2.getClient();
