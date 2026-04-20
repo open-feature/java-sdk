@@ -6,6 +6,7 @@ import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.NoOpProvider;
 import dev.openfeature.sdk.NoOpTransactionContextPropagator;
 import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.OpenFeatureAPIFactory;
 import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;

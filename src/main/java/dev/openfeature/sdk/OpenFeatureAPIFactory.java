@@ -1,6 +1,4 @@
-package dev.openfeature.sdk.isolated;
-
-import dev.openfeature.sdk.OpenFeatureAPI;
+package dev.openfeature.sdk;
 
 /**
  * Factory for creating isolated OpenFeature API instances.
@@ -16,7 +14,6 @@ import dev.openfeature.sdk.OpenFeatureAPI;
  * <p><strong>Spec references:</strong>
  * <ul>
  *   <li>Requirement 1.8.1 &mdash; factory function for isolated instances</li>
- *   <li>Requirement 1.8.3 &mdash; distinct package for discoverability</li>
  * </ul>
  *
  * @see <a href="https://openfeature.dev/specification/sections/flag-evaluation#18-isolated-api-instances">
@@ -40,9 +37,8 @@ public final class OpenFeatureAPIFactory {
      * }</pre>
      *
      * @return a new API instance
-     * @see OpenFeatureAPI#createIsolated()
      */
     public static OpenFeatureAPI createAPI() {
-        return OpenFeatureAPI.createIsolated();
+        return new OpenFeatureAPI();
     }
 }
