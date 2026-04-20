@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings("PMD.UnusedLocalVariable")
 public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     // package-private multi-read/single-write lock (instance-level for isolation)
-    AutoCloseableReentrantReadWriteLock lock;
+    final AutoCloseableReentrantReadWriteLock lock;
     private final ConcurrentLinkedQueue<Hook> apiHooks;
     private ProviderRepository providerRepository;
     private EventSupport eventSupport;
