@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,23 +16,16 @@ import org.junit.jupiter.api.parallel.Isolated;
 @Isolated()
 class LockingSingeltonTest {
 
-    private static OpenFeatureAPI api;
+    private OpenFeatureAPI api;
     private OpenFeatureClient client;
     private AutoCloseableReentrantReadWriteLock apiLock;
     private AutoCloseableReentrantReadWriteLock clientHooksLock;
 
-    @BeforeAll
-    static void beforeAll() {
-        api = OpenFeatureAPI.getInstance();
-        OpenFeatureAPI.getInstance().setProvider("LockingTest", new NoOpProvider());
-    }
-
     @BeforeEach
     void beforeEach() {
-        client = (OpenFeatureClient) api.getClient("LockingTest");
-
         apiLock = setupLock(apiLock, mockInnerReadLock(), mockInnerWriteLock());
-        api.lock = apiLock;
+        api = new OpenFeatureAPI(apiLock);
+        client = (OpenFeatureClient) api.getClient("LockingTest");
 
         clientHooksLock = setupLock(clientHooksLock, mockInnerReadLock(), mockInnerWriteLock());
     }
