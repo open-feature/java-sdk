@@ -57,24 +57,6 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * Creates a new, independent {@link OpenFeatureAPI} instance with fully
-     * isolated state.
-     *
-     * <p>Each instance maintains its own providers, evaluation context, hooks,
-     * event handlers, and transaction context propagators. Instances do not
-     * share state with the global singleton or with each other.
-     *
-     * <p>For better discoverability, prefer using
-     * {@link dev.openfeature.sdk.isolated.OpenFeatureAPIFactory#createAPI()}.
-     *
-     * @return a new API instance
-     * @see dev.openfeature.sdk.isolated.OpenFeatureAPIFactory#createAPI()
-     */
-    public static OpenFeatureAPI createIsolated() {
-        return new OpenFeatureAPI();
-    }
-
-    /**
      * Get metadata about the default provider.
      *
      * @return the provider metadata

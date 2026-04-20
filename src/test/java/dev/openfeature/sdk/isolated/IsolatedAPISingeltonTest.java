@@ -6,6 +6,7 @@ import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.NoOpTransactionContextPropagator;
 import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.OpenFeatureAPIFactory;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
