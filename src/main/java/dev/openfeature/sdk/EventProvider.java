@@ -30,8 +30,21 @@ public abstract class EventProvider implements FeatureProvider {
         this.eventProviderListener = eventProviderListener;
     }
 
-    private TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = null;
-    private AutoCloseableReentrantReadWriteLock lock = null;
+    // Bundles onEmit and lock into a single volatile reference so they are always read atomically:
+    // a non-null attachment guarantees a non-null lock.
+    private static final class Attachment {
+        final TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit;
+        final AutoCloseableReentrantReadWriteLock lock;
+
+        Attachment(
+                TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit,
+                AutoCloseableReentrantReadWriteLock lock) {
+            this.onEmit = onEmit;
+            this.lock = lock;
+        }
+    }
+
+    private volatile Attachment attachment = null;
 
     /**
      * "Attach" this EventProvider to an SDK, which allows events to propagate from this provider.
@@ -44,21 +57,19 @@ public abstract class EventProvider implements FeatureProvider {
     void attach(
             TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit,
             AutoCloseableReentrantReadWriteLock lock) {
-        if (this.onEmit != null && this.onEmit != onEmit) {
+        Attachment existing = this.attachment;
+        if (existing != null && existing.onEmit != onEmit) {
             // if we are trying to attach this provider to a different onEmit, something has gone wrong
             throw new IllegalStateException("Provider " + this.getMetadata().getName() + " is already attached.");
-        } else {
-            this.onEmit = onEmit;
-            this.lock = lock;
         }
+        this.attachment = new Attachment(onEmit, lock);
     }
 
     /**
      * "Detach" this EventProvider from an SDK, stopping propagation of all events.
      */
     void detach() {
-        this.onEmit = null;
-        this.lock = null;
+        this.attachment = null;
     }
 
     /**
@@ -87,10 +98,9 @@ public abstract class EventProvider implements FeatureProvider {
      */
     public Awaitable emit(final ProviderEvent event, final ProviderEventDetails details) {
         final var localEventProviderListener = this.eventProviderListener;
-        final var localOnEmit = this.onEmit;
-        final var localLock = this.lock;
+        final var localAttachment = this.attachment;
 
-        if (localEventProviderListener == null && localOnEmit == null) {
+        if (localEventProviderListener == null && localAttachment == null) {
             return Awaitable.FINISHED;
         }
 
@@ -99,12 +109,14 @@ public abstract class EventProvider implements FeatureProvider {
         // These calls need to be executed on a different thread to prevent deadlocks when the provider initialization
         // relies on a ready event to be emitted
         emitterExecutor.submit(() -> {
-            try (var ignored = localLock != null ? localLock.readLockAutoCloseable() : null) {
+            // Lock is only needed when attached to an API instance. A non-null attachment always
+            // carries a non-null lock, so no null check on the lock itself is required.
+            try (var ignored = localAttachment != null ? localAttachment.lock.readLockAutoCloseable() : null) {
                 if (localEventProviderListener != null) {
                     localEventProviderListener.onEmit(event, details);
                 }
-                if (localOnEmit != null) {
-                    localOnEmit.accept(this, event, details);
+                if (localAttachment != null) {
+                    localAttachment.onEmit.accept(this, event, details);
                 }
             } finally {
                 awaitable.wakeup();

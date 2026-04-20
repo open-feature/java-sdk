@@ -74,10 +74,9 @@ class EventProviderTest {
     void throwsWhenOnEmitDifferent() {
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit1 = mockOnEmit();
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit2 = mockOnEmit();
-        eventProvider.attach(onEmit1, new AutoCloseableReentrantReadWriteLock());
-        assertThrows(
-                IllegalStateException.class,
-                () -> eventProvider.attach(onEmit2, new AutoCloseableReentrantReadWriteLock()));
+        AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
+        eventProvider.attach(onEmit1, lock);
+        assertThrows(IllegalStateException.class, () -> eventProvider.attach(onEmit2, lock));
     }
 
     @Test
