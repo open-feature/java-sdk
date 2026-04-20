@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings("PMD.UnusedLocalVariable")
 public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     // package-private multi-read/single-write lock (instance-level for isolation)
-    AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
+    AutoCloseableReentrantReadWriteLock lock;
     private final ConcurrentLinkedQueue<Hook> apiHooks;
     private ProviderRepository providerRepository;
     private EventSupport eventSupport;
@@ -31,6 +31,12 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     private TransactionContextPropagator transactionContextPropagator;
 
     protected OpenFeatureAPI() {
+        this(new AutoCloseableReentrantReadWriteLock());
+    }
+
+    // Package-private constructor for testing with a custom lock.
+    OpenFeatureAPI(AutoCloseableReentrantReadWriteLock lock) {
+        this.lock = lock;
         apiHooks = new ConcurrentLinkedQueue<>();
         providerRepository = new ProviderRepository(this);
         eventSupport = new EventSupport();

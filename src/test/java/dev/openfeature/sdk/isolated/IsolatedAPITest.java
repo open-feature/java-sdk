@@ -10,9 +10,12 @@ import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 class IsolatedAPITest {
 
@@ -80,21 +83,23 @@ class IsolatedAPITest {
      * Requirement 1.8.1 — event handlers are isolated between instances.
      */
     @Test
+    @Timeout(value = 2, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
     @DisplayName("event handlers are isolated between instances")
     void eventHandlerIsolation() throws Exception {
         OpenFeatureAPI api1 = OpenFeatureAPIFactory.createAPI();
         OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
 
-        AtomicBoolean api1HandlerCalled = new AtomicBoolean(false);
+        CountDownLatch api1HandlerLatch = new CountDownLatch(1);
         AtomicBoolean api2HandlerCalled = new AtomicBoolean(false);
 
-        api1.onProviderReady(details -> api1HandlerCalled.set(true));
+        // Handlers are dispatched asynchronously; use a latch to await api1's handler.
+        api1.onProviderReady(details -> api1HandlerLatch.countDown());
         api2.onProviderReady(details -> api2HandlerCalled.set(true));
 
         // setting a provider on api1 should only trigger api1's handler
         api1.setProviderAndWait(new NoOpProvider());
 
-        assertThat(api1HandlerCalled.get()).isTrue();
+        assertThat(api1HandlerLatch.await(1, TimeUnit.SECONDS)).isTrue();
         assertThat(api2HandlerCalled.get()).isFalse();
     }
 
