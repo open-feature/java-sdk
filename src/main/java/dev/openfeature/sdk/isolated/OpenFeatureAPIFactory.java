@@ -1,4 +1,6 @@
-package dev.openfeature.sdk;
+package dev.openfeature.sdk.isolated;
+
+import dev.openfeature.sdk.OpenFeatureAPI;
 
 /**
  * Factory for creating isolated OpenFeature API instances.
@@ -8,12 +10,18 @@ package dev.openfeature.sdk;
  * transaction context propagators. Instances do not share state with the
  * global singleton ({@link OpenFeatureAPI#getInstance()}) or with each other.
  *
+ * <p>This class lives in a distinct package ({@code dev.openfeature.sdk.isolated})
+ * to make isolated instances intentionally less discoverable than the global
+ * singleton, reducing the chance of accidental use when the singleton would be
+ * appropriate.
+ *
  * <p>This is useful for dependency injection frameworks, testing scenarios,
  * and applications composed of multiple submodules requiring distinct providers.
  *
  * <p><strong>Spec references:</strong>
  * <ul>
  *   <li>Requirement 1.8.1 &mdash; factory function for isolated instances</li>
+ *   <li>Requirement 1.8.3 &mdash; factory in a distinct package/module</li>
  * </ul>
  *
  * @see <a href="https://openfeature.dev/specification/sections/flag-evaluation#18-isolated-api-instances">

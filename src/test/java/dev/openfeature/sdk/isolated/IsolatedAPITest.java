@@ -1,12 +1,12 @@
 package dev.openfeature.sdk.isolated;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.contains;
 
 import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.NoOpProvider;
 import dev.openfeature.sdk.NoOpTransactionContextPropagator;
 import dev.openfeature.sdk.OpenFeatureAPI;
-import dev.openfeature.sdk.OpenFeatureAPIFactory;
 import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
@@ -17,6 +17,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.mockito.Mockito;
+import org.simplify4u.slf4jmock.LoggerMock;
+import org.slf4j.Logger;
 
 class IsolatedAPITest {
 
@@ -200,5 +203,28 @@ class IsolatedAPITest {
         assertThat(client1.getBooleanValue("flag1", false)).isTrue();
         // api2 has NoOpProvider, so it returns the default
         assertThat(client2.getBooleanValue("flag1", false)).isFalse();
+    }
+
+    /**
+     * Requirement 1.8.4 — a warning is logged when the same provider instance
+     * is registered with more than one API instance simultaneously.
+     */
+    @Test
+    @DisplayName("warn when same provider bound to multiple API instances (req 1.8.4)")
+    void warnWhenProviderBoundToMultipleInstances() {
+        Logger mockLogger = Mockito.mock(Logger.class);
+        LoggerMock.setMock(OpenFeatureAPI.class, mockLogger);
+        try {
+            OpenFeatureAPI api1 = OpenFeatureAPIFactory.createAPI();
+            OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
+
+            NoOpProvider provider = new NoOpProvider();
+            api1.setProvider(provider);
+            api2.setProvider(provider);
+
+            Mockito.verify(mockLogger).warn(contains("1.8.4"));
+        } finally {
+            LoggerMock.setMock(OpenFeatureAPI.class, null);
+        }
     }
 }

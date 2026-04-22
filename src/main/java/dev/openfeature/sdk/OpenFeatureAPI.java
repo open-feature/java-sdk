@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -22,6 +23,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SuppressWarnings("PMD.UnusedLocalVariable")
 public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
+
+    /**
+     * Global registry tracking which API instance each provider is currently bound to.
+     * Used to detect violations of spec requirement 1.8.4 (a provider SHOULD NOT be
+     * registered with more than one API instance simultaneously).
+     */
+    private static final ConcurrentHashMap<FeatureProvider, OpenFeatureAPI> GLOBAL_PROVIDER_REGISTRY =
+            new ConcurrentHashMap<>();
+
     // package-private multi-read/single-write lock (instance-level for isolation)
     final AutoCloseableReentrantReadWriteLock lock;
     private final ConcurrentLinkedQueue<Hook> apiHooks;
@@ -30,7 +40,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
     private TransactionContextPropagator transactionContextPropagator;
 
-    protected OpenFeatureAPI() {
+    public OpenFeatureAPI() {
         this(new AutoCloseableReentrantReadWriteLock());
     }
 
@@ -336,6 +346,30 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      */
     public void clearHooks() {
         this.apiHooks.clear();
+    }
+
+    /**
+     * Registers a provider with the global registry, warning if it is already
+     * bound to a different API instance (spec requirement 1.8.4).
+     */
+    void registerGlobalProvider(FeatureProvider provider) {
+        GLOBAL_PROVIDER_REGISTRY.compute(provider, (p, existing) -> {
+            if (existing != null && existing != this) {
+                log.warn("Provider "
+                        + provider.getClass().getName()
+                        + " is already registered with another API instance. "
+                        + "A provider SHOULD NOT be bound to more than one API instance "
+                        + "simultaneously (spec requirement 1.8.4).");
+            }
+            return this;
+        });
+    }
+
+    /**
+     * Removes the provider from the global registry if this instance is the current owner.
+     */
+    void deregisterGlobalProvider(FeatureProvider provider) {
+        GLOBAL_PROVIDER_REGISTRY.remove(provider, this);
     }
 
     /**
