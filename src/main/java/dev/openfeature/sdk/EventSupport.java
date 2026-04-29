@@ -2,6 +2,7 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.internal.ConfigurableThreadFactory;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -117,7 +118,7 @@ class EventSupport {
      * @return set of domain names
      */
     public Set<String> getAllDomainNames() {
-        return this.handlerStores.keySet();
+        return new HashSet<>(this.handlerStores.keySet());
     }
 
     /**
