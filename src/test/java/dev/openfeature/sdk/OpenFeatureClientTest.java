@@ -2,6 +2,7 @@ package dev.openfeature.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -12,6 +13,7 @@ import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.testProvider.TestProvider;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.simplify4u.slf4jmock.LoggerMock;
@@ -130,11 +133,158 @@ class OpenFeatureClientTest implements HookFixtures {
         assertThat(testHook.hookData.get("before")).isEqualTo("test-data");
         assertThat(testHook.hookData.get("finallyAfter")).isEqualTo("test-data");
         if (isError) {
-            assertThat(testHook.hookData.get("after")).isEqualTo(null);
+            assertThat(testHook.hookData.get("after")).isNull();
             assertThat(testHook.hookData.get("error")).isEqualTo("test-data");
         } else {
             assertThat(testHook.hookData.get("after")).isEqualTo("test-data");
-            assertThat(testHook.hookData.get("error")).isEqualTo(null);
+            assertThat(testHook.hookData.get("error")).isNull();
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(FlagValueType.class)
+    @DisplayName("Should call hooks that support the flag value type")
+    void shouldExecuteAppropriateHooks(FlagValueType flagValueType) {
+        var allTypes = FlagValueType.values();
+        var apiHooks = new TypedTestHook[allTypes.length];
+        var clientHooks = new TypedTestHook[allTypes.length];
+        var providerHooks = new TypedTestHook[allTypes.length];
+        var evaluationHooks = new TypedTestHook[allTypes.length];
+        for (int i = 0; i < allTypes.length; i++) {
+            apiHooks[i] = new TypedTestHook(allTypes[i]);
+            clientHooks[i] = new TypedTestHook(allTypes[i]);
+            providerHooks[i] = new TypedTestHook(allTypes[i]);
+            evaluationHooks[i] = new TypedTestHook(allTypes[i]);
+        }
+        var allHooks = new TypedTestHook[][] {apiHooks, clientHooks, providerHooks, evaluationHooks};
+
+        OpenFeatureAPI api = new OpenFeatureAPI();
+        var provider = TestProvider.builder()
+                .withHooks(providerHooks)
+                .allowUnknownFlags()
+                .initsToReady();
+        api.setProviderAndWait(provider);
+
+        Client client = api.getClient();
+
+        api.addHooks(apiHooks);
+        client.addHooks(clientHooks);
+
+        var options =
+                FlagEvaluationOptions.builder().hooks(List.of(evaluationHooks)).build();
+
+        if (flagValueType == FlagValueType.BOOLEAN) {
+            client.getBooleanDetails("key", true, ImmutableContext.EMPTY, options);
+        } else if (flagValueType == FlagValueType.STRING) {
+            client.getStringDetails("key", "default", ImmutableContext.EMPTY, options);
+        } else if (flagValueType == FlagValueType.INTEGER) {
+            client.getIntegerDetails("key", 42, ImmutableContext.EMPTY, options);
+        } else if (flagValueType == FlagValueType.DOUBLE) {
+            client.getDoubleValue("key", 3.14, ImmutableContext.EMPTY, options);
+        } else if (flagValueType == FlagValueType.OBJECT) {
+            client.getObjectDetails("key", new Value(1), ImmutableContext.EMPTY, options);
+        }
+
+        for (TypedTestHook[] level : allHooks) {
+            for (TypedTestHook hook : level) {
+                assertEquals(
+                        flagValueType == hook.flagValueType,
+                        hook.beforeCalled.get(),
+                        () -> hook.flagValueType
+                                + " hook called? "
+                                + hook.beforeCalled.get()
+                                + ", should have been called? "
+                                + (flagValueType == hook.flagValueType));
+                assertEquals(
+                        flagValueType == hook.flagValueType,
+                        hook.afterCalled.get(),
+                        () -> hook.flagValueType
+                                + " hook called? "
+                                + hook.afterCalled.get()
+                                + ", should have been called? "
+                                + (flagValueType == hook.flagValueType));
+                assertEquals(
+                        flagValueType == hook.flagValueType,
+                        hook.finallyAfterCalled.get(),
+                        () -> hook.flagValueType
+                                + " hook called? "
+                                + hook.finallyAfterCalled.get()
+                                + ", should have been called? "
+                                + (flagValueType == hook.flagValueType));
+                assertFalse(hook.errorCalled.get());
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(FlagValueType.class)
+    @DisplayName("Should call hooks that support the flag value type in error scenarios")
+    void shouldExecuteAppropriateErrorHooks(FlagValueType flagValueType) {
+        var allTypes = FlagValueType.values();
+        var apiHooks = new TypedTestHook[allTypes.length];
+        var clientHooks = new TypedTestHook[allTypes.length];
+        var providerHooks = new TypedTestHook[allTypes.length];
+        var evaluationHooks = new TypedTestHook[allTypes.length];
+        for (int i = 0; i < allTypes.length; i++) {
+            apiHooks[i] = new TypedTestHook(allTypes[i]);
+            clientHooks[i] = new TypedTestHook(allTypes[i]);
+            providerHooks[i] = new TypedTestHook(allTypes[i]);
+            evaluationHooks[i] = new TypedTestHook(allTypes[i]);
+        }
+        var allHooks = new TypedTestHook[][] {apiHooks, clientHooks, providerHooks, evaluationHooks};
+
+        OpenFeatureAPI api = new OpenFeatureAPI();
+        var provider = TestProvider.builder().withHooks(providerHooks).initsToReady();
+        api.setProviderAndWait(provider);
+
+        Client client = api.getClient();
+
+        api.addHooks(apiHooks);
+        client.addHooks(clientHooks);
+
+        var options =
+                FlagEvaluationOptions.builder().hooks(List.of(evaluationHooks)).build();
+
+        if (flagValueType == FlagValueType.BOOLEAN) {
+            client.getBooleanDetails("key", true, ImmutableContext.EMPTY, options);
+        } else if (flagValueType == FlagValueType.STRING) {
+            client.getStringDetails("key", "default", ImmutableContext.EMPTY, options);
+        } else if (flagValueType == FlagValueType.INTEGER) {
+            client.getIntegerDetails("key", 42, ImmutableContext.EMPTY, options);
+        } else if (flagValueType == FlagValueType.DOUBLE) {
+            client.getDoubleValue("key", 3.14, ImmutableContext.EMPTY, options);
+        } else if (flagValueType == FlagValueType.OBJECT) {
+            client.getObjectDetails("key", new Value(1), ImmutableContext.EMPTY, options);
+        }
+
+        for (TypedTestHook[] level : allHooks) {
+            for (TypedTestHook hook : level) {
+                assertEquals(
+                        flagValueType == hook.flagValueType,
+                        hook.beforeCalled.get(),
+                        () -> hook.flagValueType
+                                + " hook called? "
+                                + hook.beforeCalled.get()
+                                + ", should have been called? "
+                                + (flagValueType == hook.flagValueType));
+                assertEquals(
+                        flagValueType == hook.flagValueType,
+                        hook.errorCalled.get(),
+                        () -> hook.flagValueType
+                                + " hook called? "
+                                + hook.errorCalled.get()
+                                + ", should have been called? "
+                                + (flagValueType == hook.flagValueType));
+                assertEquals(
+                        flagValueType == hook.flagValueType,
+                        hook.finallyAfterCalled.get(),
+                        () -> hook.flagValueType
+                                + " hook called? "
+                                + hook.finallyAfterCalled.get()
+                                + ", should have been called? "
+                                + (flagValueType == hook.flagValueType));
+                assertFalse(hook.afterCalled.get());
+            }
         }
     }
 

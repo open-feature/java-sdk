@@ -1,6 +1,6 @@
 package dev.openfeature.sdk;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import lombok.Getter;
 
@@ -10,7 +10,7 @@ import lombok.Getter;
 @Getter
 class HookSupportData {
 
-    List<Pair<Hook, HookContext>> hooks;
+    ArrayList<Pair<Hook, HookContext>> hooks;
     LayeredEvaluationContext evaluationContext;
     Map<String, Object> hints;
 

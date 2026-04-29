@@ -51,6 +51,10 @@ public class LayeredEvaluationContext implements EvaluationContext {
         }
     }
 
+    public static LayeredEvaluationContext empty() {
+        return new LayeredEvaluationContext(null, null, null, null);
+    }
+
     @Override
     public String getTargetingKey() {
         return targetingKey;
