@@ -104,6 +104,11 @@ class IsolatedAPITest {
         api1.setProviderAndWait(new NoOpProvider());
 
         assertThat(api1HandlerLatch.await(1, TimeUnit.SECONDS)).isTrue();
+
+        // Short delay to allow any (incorrect) async dispatch to api2 to land
+        // before we assert the negative. Without this, a bug in isolation could
+        // slip past if api2's handler fires just after the assertion.
+        Thread.sleep(200);
         assertThat(api2HandlerCalled.get()).isFalse();
     }
 
