@@ -24,6 +24,7 @@ import dev.openfeature.sdk.OpenFeatureAPI;
  *   <li>Requirement 1.8.3 &mdash; factory in a distinct package/module</li>
  * </ul>
  *
+ * @apiNote This API is experimental and subject to change.
  * @see <a href="https://openfeature.dev/specification/sections/flag-evaluation#18-isolated-api-instances">
  *     Spec &sect;1.8 &mdash; Isolated API Instances</a>
  */
