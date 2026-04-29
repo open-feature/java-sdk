@@ -6,6 +6,7 @@ import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.NoOpTransactionContextPropagator;
 import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
@@ -46,5 +47,30 @@ class IsolatedAPISingeltonTest {
         assertThat(singleton.getProvider()).isSameAs(singletonProvider);
         assertThat(singleton.getHooks()).isEmpty();
         assertThat(singleton.getEvaluationContext()).isNull();
+    }
+
+    /**
+     * Requirement 1.8.1 — mutating the singleton does not affect a
+     * previously created isolated instance.
+     */
+    @Test
+    @DisplayName("singleton does not interfere with isolated instance")
+    void singletonDoesNotInterfereWithIsolatedInstance() {
+        OpenFeatureAPI isolated = OpenFeatureAPIFactory.createAPI();
+
+        // record isolated baseline
+        FeatureProvider isolatedProvider = isolated.getProvider();
+
+        // mutate only the singleton
+        singleton.setProvider(new InMemoryProvider(Map.of()));
+        singleton.addHooks(new NoOpHook());
+        singleton.setEvaluationContext(new ImmutableContext("singleton-key"));
+        singleton.setTransactionContextPropagator(new ThreadLocalTransactionContextPropagator());
+
+        // isolated instance remains at baseline
+        assertThat(isolated.getProvider()).isSameAs(isolatedProvider);
+        assertThat(isolated.getHooks()).isEmpty();
+        assertThat(isolated.getEvaluationContext()).isNull();
+        assertThat(isolated.getTransactionContextPropagator()).isInstanceOf(NoOpTransactionContextPropagator.class);
     }
 }
