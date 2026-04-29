@@ -14,6 +14,7 @@
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <org.mockito.version>5.23.0</org.mockito.version>
         <com.vmlens.version>1.2.28</com.vmlens.version>
+        <cel.version>0.12.0</cel.version>
         <!-- exclusion expression for e2e tests -->
         <testExclusions>**/e2e/*.java</testExclusions>
         <module-name>${project.groupId}.${project.artifactId}</module-name>
@@ -191,8 +192,20 @@
 
         <dependency>
             <groupId>dev.cel</groupId>
-            <artifactId>cel</artifactId>
-            <version>0.11.1</version>
+            <artifactId>compiler</artifactId>
+            <version>${cel.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.cel</groupId>
+            <artifactId>runtime</artifactId>
+            <version>${cel.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.cel</groupId>
+            <artifactId>common</artifactId>
+            <version>${cel.version}</version>
             <scope>test</scope>
         </dependency>
 
