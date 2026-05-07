@@ -35,7 +35,7 @@ class IsolatedAPISingeltonTest {
         // record singleton baseline
         FeatureProvider singletonProvider = singleton.getProvider();
 
-        OpenFeatureAPI isolated = OpenFeatureAPIFactory.createAPI();
+        OpenFeatureAPI isolated = new OpenFeatureAPI();
         assertThat(isolated).isNotSameAs(singleton);
 
         // mutate only the isolated instance
@@ -56,7 +56,7 @@ class IsolatedAPISingeltonTest {
     @Test
     @DisplayName("singleton does not interfere with isolated instance")
     void singletonDoesNotInterfereWithIsolatedInstance() {
-        OpenFeatureAPI isolated = OpenFeatureAPIFactory.createAPI();
+        OpenFeatureAPI isolated = new OpenFeatureAPI();
 
         // record isolated baseline
         FeatureProvider isolatedProvider = isolated.getProvider();
