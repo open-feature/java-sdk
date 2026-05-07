@@ -16,9 +16,17 @@ import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A global singleton which holds base configuration for the OpenFeature
- * library.
- * Configuration here will be shared across all {@link Client}s.
+ * Holds base configuration for the OpenFeature library.
+ *
+ * <p>Most applications should use the global singleton via {@link #getInstance()}; configuration
+ * there is shared across all {@link Client}s. For dependency-injection frameworks, testing, or
+ * multi-tenant scenarios that need fully independent state (providers, hooks, evaluation context,
+ * event handlers, transaction context propagators), instantiate a new instance directly with
+ * {@code new OpenFeatureAPI()}.
+ *
+ * @apiNote Isolated API instances (per spec section 1.8) are experimental and subject to change.
+ * @see <a href="https://openfeature.dev/specification/sections/flag-evaluation#18-isolated-api-instances">
+ *     Spec &sect;1.8 &mdash; Isolated API Instances</a>
  */
 @Slf4j
 @SuppressWarnings("PMD.UnusedLocalVariable")
@@ -40,6 +48,14 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
     private TransactionContextPropagator transactionContextPropagator;
 
+    /**
+     * Creates a new, independent {@link OpenFeatureAPI} instance with fully isolated state
+     * (providers, hooks, evaluation context, event handlers, transaction context propagators).
+     *
+     * <p>For typical usage, prefer the global singleton via {@link #getInstance()}.
+     *
+     * @apiNote Isolated API instances (per spec section 1.8) are experimental and subject to change.
+     */
     public OpenFeatureAPI() {
         this(new AutoCloseableReentrantReadWriteLock());
     }
