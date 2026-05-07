@@ -24,7 +24,9 @@ import lombok.extern.slf4j.Slf4j;
  * event handlers, transaction context propagators), instantiate a new instance directly with
  * {@code new OpenFeatureAPI()}.
  *
- * @apiNote Isolated API instances (per spec section 1.8) are experimental and subject to change.
+ * <p><strong>Note:</strong> Isolated API instances (per spec section 1.8) are experimental and
+ * subject to change.
+ *
  * @see <a href="https://openfeature.dev/specification/sections/flag-evaluation#18-isolated-api-instances">
  *     Spec &sect;1.8 &mdash; Isolated API Instances</a>
  */
@@ -54,7 +56,8 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      *
      * <p>For typical usage, prefer the global singleton via {@link #getInstance()}.
      *
-     * @apiNote Isolated API instances (per spec section 1.8) are experimental and subject to change.
+     * <p><strong>Note:</strong> Isolated API instances (per spec section 1.8) are experimental and
+     * subject to change.
      */
     public OpenFeatureAPI() {
         this(new AutoCloseableReentrantReadWriteLock());
