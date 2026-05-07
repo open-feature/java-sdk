@@ -355,6 +355,9 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
             try (AutoCloseableLock ignored = lock.writeLockAutoCloseable()) {
                 providerRepository = new ProviderRepository(this);
                 eventSupport = new EventSupport();
+                clearHooks();
+                setEvaluationContext(new ImmutableContext());
+                setTransactionContextPropagator(new NoOpTransactionContextPropagator());
             }
         }
     }
