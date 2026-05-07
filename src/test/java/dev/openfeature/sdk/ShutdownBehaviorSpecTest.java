@@ -141,9 +141,10 @@ class ShutdownBehaviorSpecTest {
         void apiStateMustBeResetOnShuttingDownApi() {
 
             FeatureProvider provider = ProviderFixture.createMockedProvider();
-            TransactionContextPropagator transactionContextPropagator = new NoOpTransactionContextPropagator();
+            TransactionContextPropagator transactionContextPropagator = mock(TransactionContextPropagator.class);
             EvaluationContext evaluationContext = mock(EvaluationContext.class);
 
+            api.addHooks(mock(Hook.class));
             api.setProvider(provider);
             api.setEvaluationContext(evaluationContext);
             api.setTransactionContextPropagator(transactionContextPropagator);
