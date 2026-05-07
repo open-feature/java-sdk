@@ -9,28 +9,63 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A global singleton which holds base configuration for the OpenFeature
- * library.
- * Configuration here will be shared across all {@link Client}s.
+ * Holds base configuration for the OpenFeature library.
+ *
+ * <p>Most applications should use the global singleton via {@link #getInstance()}; configuration
+ * there is shared across all {@link Client}s. For dependency-injection frameworks, testing, or
+ * multi-tenant scenarios that need fully independent state (providers, hooks, evaluation context,
+ * event handlers, transaction context propagators), instantiate a new instance directly with
+ * {@code new OpenFeatureAPI()}.
+ *
+ * <p><strong>Note:</strong> Isolated API instances (per spec section 1.8) are experimental and
+ * subject to change.
+ *
+ * @see <a href="https://openfeature.dev/specification/sections/flag-evaluation#18-isolated-api-instances">
+ *     Spec &sect;1.8 &mdash; Isolated API Instances</a>
  */
 @Slf4j
 @SuppressWarnings("PMD.UnusedLocalVariable")
 public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
-    // package-private multi-read/single-write lock
-    static AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
+
+    /**
+     * Global registry tracking which API instance each provider is currently bound to.
+     * Used to detect violations of spec requirement 1.8.4 (a provider SHOULD NOT be
+     * registered with more than one API instance simultaneously).
+     */
+    private static final ConcurrentHashMap<FeatureProvider, OpenFeatureAPI> GLOBAL_PROVIDER_REGISTRY =
+            new ConcurrentHashMap<>();
+
+    // package-private multi-read/single-write lock (instance-level for isolation)
+    final AutoCloseableReentrantReadWriteLock lock;
     private final ConcurrentLinkedQueue<Hook> apiHooks;
     private ProviderRepository providerRepository;
     private EventSupport eventSupport;
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
     private TransactionContextPropagator transactionContextPropagator;
 
-    protected OpenFeatureAPI() {
+    /**
+     * Creates a new, independent {@link OpenFeatureAPI} instance with fully isolated state
+     * (providers, hooks, evaluation context, event handlers, transaction context propagators).
+     *
+     * <p>For typical usage, prefer the global singleton via {@link #getInstance()}.
+     *
+     * <p><strong>Note:</strong> Isolated API instances (per spec section 1.8) are experimental and
+     * subject to change.
+     */
+    public OpenFeatureAPI() {
+        this(new AutoCloseableReentrantReadWriteLock());
+    }
+
+    // Package-private constructor for testing with a custom lock.
+    OpenFeatureAPI(AutoCloseableReentrantReadWriteLock lock) {
+        this.lock = lock;
         apiHooks = new ConcurrentLinkedQueue<>();
         providerRepository = new ProviderRepository(this);
         eventSupport = new EventSupport();
@@ -251,7 +286,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
 
     private void attachEventProvider(FeatureProvider provider) {
         if (provider instanceof EventProvider) {
-            ((EventProvider) provider).attach(this::runHandlersForProvider);
+            ((EventProvider) provider).attach(this::runHandlersForProvider, this.lock);
         }
     }
 
@@ -330,6 +365,30 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      */
     public void clearHooks() {
         this.apiHooks.clear();
+    }
+
+    /**
+     * Registers a provider with the global registry, warning if it is already
+     * bound to a different API instance (spec requirement 1.8.4).
+     */
+    void registerGlobalProvider(FeatureProvider provider) {
+        GLOBAL_PROVIDER_REGISTRY.compute(provider, (p, existing) -> {
+            if (existing != null && existing != this) {
+                log.warn("Provider "
+                        + provider.getClass().getName()
+                        + " is already registered with another API instance. "
+                        + "A provider SHOULD NOT be bound to more than one API instance "
+                        + "simultaneously (spec requirement 1.8.4).");
+            }
+            return this;
+        });
+    }
+
+    /**
+     * Removes the provider from the global registry if this instance is the current owner.
+     */
+    void deregisterGlobalProvider(FeatureProvider provider) {
+        GLOBAL_PROVIDER_REGISTRY.remove(provider, this);
     }
 
     /**
