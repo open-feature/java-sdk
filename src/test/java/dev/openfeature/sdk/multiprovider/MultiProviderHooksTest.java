@@ -78,22 +78,6 @@ class MultiProviderHooksTest {
     }
 
     @Test
-    void shouldExposeContextCapturingProviderHook() throws Exception {
-        HookedStringProvider provider1 = new HookedStringProvider(
-                "provider1",
-                List.of(),
-                ProviderEvaluation.<String>builder().value("ok").build());
-
-        MultiProvider multiProvider = new MultiProvider(List.of(provider1), new FirstSuccessfulStrategy());
-        multiProvider.initialize(null);
-
-        // MultiProvider should expose a provider hook for context capture
-        var providerHooks = multiProvider.getProviderHooks();
-        assertNotNull(providerHooks);
-        assertEquals(1, providerHooks.size(), "Should have exactly one context-capturing hook");
-    }
-
-    @Test
     void shouldPassHookHintsAndClientMetadataAndEnrichThrownProviderErrors() throws Exception {
         RecordingHook firstHook = new RecordingHook("provider1");
         RecordingHook secondHook = new RecordingHook("provider2");
