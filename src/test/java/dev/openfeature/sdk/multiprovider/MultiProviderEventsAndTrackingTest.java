@@ -39,14 +39,22 @@ class MultiProviderEventsAndTrackingTest {
             AtomicInteger configurationChangedCount = new AtomicInteger();
             client.onProviderConfigurationChanged(details -> configurationChangedCount.incrementAndGet());
 
-            provider1.emitProviderConfigurationChanged(ProviderEventDetails.builder().message("changed").build()).await();
+            provider1
+                    .emitProviderConfigurationChanged(
+                            ProviderEventDetails.builder().message("changed").build())
+                    .await();
             await().atMost(Duration.ofSeconds(2)).until(() -> configurationChangedCount.get() == 1);
 
-            provider1.emitProviderStale(ProviderEventDetails.builder().message("stale").build()).await();
+            provider1
+                    .emitProviderStale(
+                            ProviderEventDetails.builder().message("stale").build())
+                    .await();
             await().atMost(Duration.ofSeconds(2)).until(() -> client.getProviderState() == ProviderState.STALE);
 
-            provider2.emitProviderError(
-                            ProviderEventDetails.builder().errorCode(dev.openfeature.sdk.ErrorCode.GENERAL).build())
+            provider2
+                    .emitProviderError(ProviderEventDetails.builder()
+                            .errorCode(dev.openfeature.sdk.ErrorCode.GENERAL)
+                            .build())
                     .await();
             await().atMost(Duration.ofSeconds(2)).until(() -> client.getProviderState() == ProviderState.ERROR);
 
@@ -56,10 +64,10 @@ class MultiProviderEventsAndTrackingTest {
             provider1.emitProviderReady(ProviderEventDetails.builder().build()).await();
             await().atMost(Duration.ofSeconds(2)).until(() -> client.getProviderState() == ProviderState.READY);
 
-            provider1.emitProviderError(
-                            ProviderEventDetails.builder()
-                                    .errorCode(dev.openfeature.sdk.ErrorCode.PROVIDER_FATAL)
-                                    .build())
+            provider1
+                    .emitProviderError(ProviderEventDetails.builder()
+                            .errorCode(dev.openfeature.sdk.ErrorCode.PROVIDER_FATAL)
+                            .build())
                     .await();
             await().atMost(Duration.ofSeconds(2)).until(() -> client.getProviderState() == ProviderState.FATAL);
         } finally {
@@ -94,10 +102,10 @@ class MultiProviderEventsAndTrackingTest {
         assertEquals(1, provider1.trackCount.get());
         assertEquals(1, provider2.trackCount.get());
 
-        provider1.emitProviderError(
-                        ProviderEventDetails.builder()
-                                .errorCode(dev.openfeature.sdk.ErrorCode.PROVIDER_FATAL)
-                                .build())
+        provider1
+                .emitProviderError(ProviderEventDetails.builder()
+                        .errorCode(dev.openfeature.sdk.ErrorCode.PROVIDER_FATAL)
+                        .build())
                 .await();
 
         multiProvider.track("event2", null, null);
@@ -128,7 +136,8 @@ class MultiProviderEventsAndTrackingTest {
         }
 
         @Override
-        public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
+        public ProviderEvaluation<Boolean> getBooleanEvaluation(
+                String key, Boolean defaultValue, EvaluationContext ctx) {
             return ProviderEvaluation.<Boolean>builder().value(Boolean.TRUE).build();
         }
 
@@ -138,7 +147,8 @@ class MultiProviderEventsAndTrackingTest {
         }
 
         @Override
-        public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
+        public ProviderEvaluation<Integer> getIntegerEvaluation(
+                String key, Integer defaultValue, EvaluationContext ctx) {
             return ProviderEvaluation.<Integer>builder().value(1).build();
         }
 
@@ -164,7 +174,10 @@ class MultiProviderEventsAndTrackingTest {
         @Override
         public void initialize(EvaluationContext evaluationContext) throws Exception {
             if (ProviderState.STALE.equals(initializeState)) {
-                emitProviderStale(ProviderEventDetails.builder().message("stale during init").build()).await();
+                emitProviderStale(ProviderEventDetails.builder()
+                                .message("stale during init")
+                                .build())
+                        .await();
             } else if (ProviderState.FATAL.equals(initializeState)) {
                 emitProviderError(ProviderEventDetails.builder()
                                 .errorCode(dev.openfeature.sdk.ErrorCode.PROVIDER_FATAL)

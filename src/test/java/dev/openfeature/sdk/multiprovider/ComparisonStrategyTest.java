@@ -33,11 +33,7 @@ class ComparisonStrategyTest extends BaseStrategyTest {
 
         ComparisonStrategy strategy = new ComparisonStrategy("provider2");
         ProviderEvaluation<String> result = strategy.evaluate(
-                providers,
-                FLAG_KEY,
-                DEFAULT_STRING,
-                null,
-                p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
+                providers, FLAG_KEY, DEFAULT_STRING, null, p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
 
         assertNotNull(result);
         assertEquals("same", result.getValue());
@@ -54,16 +50,11 @@ class ComparisonStrategyTest extends BaseStrategyTest {
         providers.put("provider2", mockProvider2);
 
         AtomicInteger callbackCount = new AtomicInteger();
-        ComparisonStrategy strategy = new ComparisonStrategy(
-                "provider2",
-                (key, evaluations) -> callbackCount.incrementAndGet());
+        ComparisonStrategy strategy =
+                new ComparisonStrategy("provider2", (key, evaluations) -> callbackCount.incrementAndGet());
 
         ProviderEvaluation<String> result = strategy.evaluate(
-                providers,
-                FLAG_KEY,
-                DEFAULT_STRING,
-                null,
-                p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
+                providers, FLAG_KEY, DEFAULT_STRING, null, p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
 
         assertEquals("second", result.getValue());
         assertNull(result.getErrorCode());
@@ -81,11 +72,7 @@ class ComparisonStrategyTest extends BaseStrategyTest {
 
         ComparisonStrategy strategy = new ComparisonStrategy("provider1");
         ProviderEvaluation<String> result = strategy.evaluate(
-                providers,
-                FLAG_KEY,
-                DEFAULT_STRING,
-                null,
-                p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
+                providers, FLAG_KEY, DEFAULT_STRING, null, p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
 
         assertEquals(ErrorCode.GENERAL, result.getErrorCode());
         assertTrue(result.getErrorMessage().contains("provider2"));
@@ -126,24 +113,18 @@ class ComparisonStrategyTest extends BaseStrategyTest {
         setupProviderSuccess(mockProvider2, "val");
 
         ComparisonStrategy strategy = new ComparisonStrategy("provider1");
-        ProviderEvaluation<String> result = strategy.evaluate(
-                providers,
-                FLAG_KEY,
-                DEFAULT_STRING,
-                null,
-                provider -> {
-                    threadNames.add(Thread.currentThread().getName());
-                    bothStarted.countDown();
-                    try {
-                        // Wait for both providers to signal they've started
-                        bothStarted.await(5, TimeUnit.SECONDS);
-                        proceed.countDown();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                    return provider.getStringEvaluation(
-                            FLAG_KEY, DEFAULT_STRING, null);
-                });
+        ProviderEvaluation<String> result = strategy.evaluate(providers, FLAG_KEY, DEFAULT_STRING, null, provider -> {
+            threadNames.add(Thread.currentThread().getName());
+            bothStarted.countDown();
+            try {
+                // Wait for both providers to signal they've started
+                bothStarted.await(5, TimeUnit.SECONDS);
+                proceed.countDown();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            return provider.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null);
+        });
 
         assertNotNull(result);
         assertEquals("val", result.getValue());
@@ -151,8 +132,7 @@ class ComparisonStrategyTest extends BaseStrategyTest {
         // Verify that at least 2 different threads were used
         assertTrue(
                 threadNames.size() >= 2,
-                "Expected concurrent execution on multiple threads, "
-                        + "but only saw: " + threadNames);
+                "Expected concurrent execution on multiple threads, " + "but only saw: " + threadNames);
     }
 
     @Test
@@ -166,8 +146,7 @@ class ComparisonStrategyTest extends BaseStrategyTest {
             providers.put("provider1", mockProvider1);
             providers.put("provider2", mockProvider2);
 
-            ComparisonStrategy strategy = new ComparisonStrategy(
-                    "provider1", null, customExecutor, 5000);
+            ComparisonStrategy strategy = new ComparisonStrategy("provider1", null, customExecutor, 5000);
 
             // Execute twice to confirm the same executor is reused
             for (int i = 0; i < 2; i++) {
@@ -176,17 +155,14 @@ class ComparisonStrategyTest extends BaseStrategyTest {
                         FLAG_KEY,
                         DEFAULT_STRING,
                         null,
-                        p -> p.getStringEvaluation(
-                                FLAG_KEY, DEFAULT_STRING, null));
+                        p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
                 assertNotNull(result);
                 assertEquals("ok", result.getValue());
                 assertNull(result.getErrorCode());
             }
 
             // Executor should still be usable (not shut down)
-            assertTrue(
-                    !customExecutor.isShutdown(),
-                    "Executor should not be shut down by the strategy");
+            assertTrue(!customExecutor.isShutdown(), "Executor should not be shut down by the strategy");
         } finally {
             customExecutor.shutdown();
         }
@@ -203,18 +179,10 @@ class ComparisonStrategyTest extends BaseStrategyTest {
 
         ComparisonStrategy strategy = new ComparisonStrategy("provider1");
         ProviderEvaluation<String> result = strategy.evaluate(
-                providers,
-                FLAG_KEY,
-                DEFAULT_STRING,
-                null,
-                p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
+                providers, FLAG_KEY, DEFAULT_STRING, null, p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
 
         assertEquals(ErrorCode.GENERAL, result.getErrorCode());
-        assertTrue(
-                result.getErrorMessage().contains("provider1"),
-                "Error should mention provider1");
-        assertTrue(
-                result.getErrorMessage().contains("provider2"),
-                "Error should mention provider2");
+        assertTrue(result.getErrorMessage().contains("provider1"), "Error should mention provider1");
+        assertTrue(result.getErrorMessage().contains("provider2"), "Error should mention provider2");
     }
 }

@@ -63,8 +63,7 @@ public class MultiProvider extends EventProvider {
     private final Map<String, ProviderState> providerStates = new ConcurrentHashMap<>();
     private final Map<String, BiConsumer<ProviderEvent, ProviderEventDetails>> providerEventObservers =
             new ConcurrentHashMap<>();
-    private final ThreadLocal<HookExecutionContext> hookExecutionContextThreadLocal =
-            new ThreadLocal<>();
+    private final ThreadLocal<HookExecutionContext> hookExecutionContextThreadLocal = new ThreadLocal<>();
     private final ClientMetadata hookClientMetadata = MultiProvider::getNAME;
     private final Map<String, Object> emptyHookHints = Collections.emptyMap();
     private ProviderState aggregateState;
@@ -110,15 +109,12 @@ public class MultiProvider extends EventProvider {
             @Override
             public Optional before(HookContext ctx, Map hints) {
                 hookExecutionContextThreadLocal.set(
-                        new HookExecutionContext(
-                                ctx.getClientMetadata(),
-                                hints != null ? hints : emptyHookHints));
+                        new HookExecutionContext(ctx.getClientMetadata(), hints != null ? hints : emptyHookHints));
                 return Optional.empty();
             }
 
             @Override
-            public void finallyAfter(HookContext ctx, FlagEvaluationDetails details,
-                    Map hints) {
+            public void finallyAfter(HookContext ctx, FlagEvaluationDetails details, Map hints) {
                 hookExecutionContextThreadLocal.remove();
             }
         };
@@ -143,16 +139,16 @@ public class MultiProvider extends EventProvider {
 
     private static String getProviderBaseName(FeatureProvider provider) {
         Metadata providerMetadata = provider.getMetadata();
-        if (providerMetadata == null || providerMetadata.getName() == null || providerMetadata.getName().isEmpty()) {
+        if (providerMetadata == null
+                || providerMetadata.getName() == null
+                || providerMetadata.getName().isEmpty()) {
             return "provider";
         }
         return providerMetadata.getName();
     }
 
     private static String resolveUniqueProviderName(
-            String baseName,
-            Map<String, FeatureProvider> providersMap,
-            Map<String, Integer> suffixesByBaseName) {
+            String baseName, Map<String, FeatureProvider> providersMap, Map<String, Integer> suffixesByBaseName) {
         if (!providersMap.containsKey(baseName)) {
             suffixesByBaseName.putIfAbsent(baseName, 1);
             return baseName;
@@ -189,7 +185,8 @@ public class MultiProvider extends EventProvider {
         Map<String, Metadata> providersMetadata = new LinkedHashMap<>();
         initializeProviderStates();
         synchronized (this) {
-            emitAggregateStateChange(determineAggregateState(), ProviderEventDetails.builder().build());
+            emitAggregateStateChange(
+                    determineAggregateState(), ProviderEventDetails.builder().build());
         }
 
         if (providers.isEmpty()) {
@@ -370,7 +367,8 @@ public class MultiProvider extends EventProvider {
         }
         synchronized (this) {
             initializeProviderStates();
-            emitAggregateStateChange(ProviderState.NOT_READY, ProviderEventDetails.builder().build());
+            emitAggregateStateChange(
+                    ProviderState.NOT_READY, ProviderEventDetails.builder().build());
         }
         log.debug("shutdown end");
         super.shutdown();
@@ -406,9 +404,7 @@ public class MultiProvider extends EventProvider {
     }
 
     private synchronized void setProviderState(
-            String providerName,
-            ProviderState providerState,
-            ProviderEventDetails details) {
+            String providerName, ProviderState providerState, ProviderEventDetails details) {
         providerStates.put(providerName, providerState);
         ProviderState aggregate = determineAggregateState();
         emitAggregateStateChange(aggregate, details);
@@ -565,8 +561,7 @@ public class MultiProvider extends EventProvider {
             return new RuntimeException("Provider evaluation returned an error");
         }
         return ExceptionUtils.instantiateErrorByErrorCode(
-                providerEvaluation.getErrorCode(),
-                providerEvaluation.getErrorMessage());
+                providerEvaluation.getErrorCode(), providerEvaluation.getErrorMessage());
     }
 
     @SuppressWarnings("deprecation")
@@ -657,12 +652,16 @@ public class MultiProvider extends EventProvider {
             for (int i = hooks.size() - 1; i >= 0; i--) {
                 HookExecution<T> execution = hooks.get(i);
                 HookContext<T> hookContext = createHookContext(
-                        key, valueType, defaultValue,
-                        evaluatedContext, provider,
-                        hookExecutionContext, execution.hookData);
+                        key,
+                        valueType,
+                        defaultValue,
+                        evaluatedContext,
+                        provider,
+                        hookExecutionContext,
+                        execution.hookData);
                 var contextUpdate = execution.hook.before(hookContext, hookHints);
                 if (contextUpdate != null
-                        && contextUpdate.isPresent()
+                        && contextUpdate.isPresent() // NOSONAR: hooks may return null instead of Optional.empty()
                         && contextUpdate.get() != hookContext.getCtx()
                         && !contextUpdate.get().isEmpty()) {
                     evaluatedContext = evaluatedContext.merge(contextUpdate.get());
@@ -731,7 +730,10 @@ public class MultiProvider extends EventProvider {
             throw e;
         } finally {
             FlagEvaluationDetails<T> finalDetails = details == null
-                    ? FlagEvaluationDetails.<T>builder().flagKey(key).value(defaultValue).build()
+                    ? FlagEvaluationDetails.<T>builder()
+                            .flagKey(key)
+                            .value(defaultValue)
+                            .build()
                     : details;
             for (HookExecution<T> execution : hooks) {
                 try {

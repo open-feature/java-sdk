@@ -61,7 +61,9 @@ class MultiProviderHooksTest {
         assertEquals(0, secondHook.errorCount.get());
         assertEquals(1, secondHook.finallyCount.get());
 
-        assertEquals("provider1", provider1.lastEvaluationContext.getValue("hookOwner").asString());
+        assertEquals(
+                "provider1",
+                provider1.lastEvaluationContext.getValue("hookOwner").asString());
         assertNull(provider1.lastEvaluationContext.getValue("provider2Marker"));
         assertNotNull(firstHook.lastFinallyDetails);
         assertEquals(ErrorCode.GENERAL, firstHook.lastFinallyDetails.getErrorCode());
@@ -69,7 +71,9 @@ class MultiProviderHooksTest {
         assertEquals("default", firstHook.lastFinallyDetails.getValue());
         assertEquals("failed", firstHook.lastFinallyDetails.getErrorMessage());
 
-        assertEquals("provider2", provider2.lastEvaluationContext.getValue("hookOwner").asString());
+        assertEquals(
+                "provider2",
+                provider2.lastEvaluationContext.getValue("hookOwner").asString());
         assertNull(provider2.lastEvaluationContext.getValue("provider1Marker"));
     }
 
@@ -80,8 +84,7 @@ class MultiProviderHooksTest {
                 List.of(),
                 ProviderEvaluation.<String>builder().value("ok").build());
 
-        MultiProvider multiProvider = new MultiProvider(
-                List.of(provider1), new FirstSuccessfulStrategy());
+        MultiProvider multiProvider = new MultiProvider(List.of(provider1), new FirstSuccessfulStrategy());
         multiProvider.initialize(null);
 
         // MultiProvider should expose a provider hook for context capture
@@ -95,7 +98,8 @@ class MultiProviderHooksTest {
         RecordingHook firstHook = new RecordingHook("provider1");
         RecordingHook secondHook = new RecordingHook("provider2");
 
-        HookedStringProvider provider1 = new HookedStringProvider("provider1", List.of(firstHook), new RuntimeException("boom"));
+        HookedStringProvider provider1 =
+                new HookedStringProvider("provider1", List.of(firstHook), new RuntimeException("boom"));
         HookedStringProvider provider2 = new HookedStringProvider(
                 "provider2",
                 List.of(secondHook),
@@ -113,7 +117,9 @@ class MultiProviderHooksTest {
                     "flag",
                     "default",
                     new ImmutableContext(),
-                    FlagEvaluationOptions.builder().hookHints(Map.of("hintKey", "hintValue")).build());
+                    FlagEvaluationOptions.builder()
+                            .hookHints(Map.of("hintKey", "hintValue"))
+                            .build());
 
             assertEquals("ok", evaluation.getValue());
 
@@ -152,9 +158,8 @@ class MultiProviderHooksTest {
             ctx.getHookData().set("provider", providerName);
             lastHints = hints;
             lastClientDomain = ctx.getClientMetadata().getDomain();
-            return Optional.of(new MutableContext()
-                    .add("hookOwner", providerName)
-                    .add(providerName + "Marker", providerName));
+            return Optional.of(
+                    new MutableContext().add("hookOwner", providerName).add(providerName + "Marker", providerName));
         }
 
         @Override
@@ -222,7 +227,8 @@ class MultiProviderHooksTest {
         }
 
         @Override
-        public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
+        public ProviderEvaluation<Boolean> getBooleanEvaluation(
+                String key, Boolean defaultValue, EvaluationContext ctx) {
             return ProviderEvaluation.<Boolean>builder().value(defaultValue).build();
         }
 
@@ -236,7 +242,8 @@ class MultiProviderHooksTest {
         }
 
         @Override
-        public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
+        public ProviderEvaluation<Integer> getIntegerEvaluation(
+                String key, Integer defaultValue, EvaluationContext ctx) {
             return ProviderEvaluation.<Integer>builder().value(defaultValue).build();
         }
 
