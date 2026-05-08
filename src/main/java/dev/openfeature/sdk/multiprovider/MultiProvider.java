@@ -65,7 +65,6 @@ public class MultiProvider extends EventProvider {
             new ConcurrentHashMap<>();
     private final ThreadLocal<HookExecutionContext> hookExecutionContextThreadLocal = new ThreadLocal<>();
     private final ClientMetadata hookClientMetadata = MultiProvider::getNAME;
-    private final Map<String, Object> emptyHookHints = Collections.emptyMap();
     private ProviderState aggregateState;
     private MultiProviderMetadata metadata;
 
@@ -103,22 +102,23 @@ public class MultiProvider extends EventProvider {
      * @return the list of provider hooks
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
+    private final List<Hook> providerHooks = List.of(new Hook() {
+        @Override
+        public Optional before(HookContext ctx, Map hints) {
+            hookExecutionContextThreadLocal.set(
+                    new HookExecutionContext(ctx.getClientMetadata(), hints != null ? hints : Collections.emptyMap()));
+            return Optional.empty();
+        }
+
+        @Override
+        public void finallyAfter(HookContext ctx, FlagEvaluationDetails details, Map hints) {
+            hookExecutionContextThreadLocal.remove();
+        }
+    });
+
     @Override
     public List<Hook> getProviderHooks() {
-        Hook contextCapturingHook = new Hook() {
-            @Override
-            public Optional before(HookContext ctx, Map hints) {
-                hookExecutionContextThreadLocal.set(
-                        new HookExecutionContext(ctx.getClientMetadata(), hints != null ? hints : emptyHookHints));
-                return Optional.empty();
-            }
-
-            @Override
-            public void finallyAfter(HookContext ctx, FlagEvaluationDetails details, Map hints) {
-                hookExecutionContextThreadLocal.remove();
-            }
-        };
-        return List.of(contextCapturingHook);
+        return providerHooks;
     }
 
     protected static Map<String, FeatureProvider> buildProviders(List<FeatureProvider> providers) {
@@ -220,13 +220,10 @@ public class MultiProvider extends EventProvider {
 
             List<Future<Void>> results = executorService.invokeAll(tasks);
             for (Future<Void> result : results) {
-                // This will re-throw any exception from the provider's initialize method,
-                // wrapped in an ExecutionException.
                 result.get();
             }
         } catch (Exception e) {
-            // If initialization fails for any provider, attempt to shut down via the
-            // standard shutdown path to avoid a partial/limbo state.
+            // Clean up to avoid leaving child providers in a partially initialised state.
             try {
                 shutdown();
             } catch (Exception shutdownEx) {
@@ -660,8 +657,9 @@ public class MultiProvider extends EventProvider {
                         hookExecutionContext,
                         execution.hookData);
                 var contextUpdate = execution.hook.before(hookContext, hookHints);
-                if (contextUpdate != null
-                        && contextUpdate.isPresent() // NOSONAR: hooks may return null instead of Optional.empty()
+                // Raw-type invocation: third-party hooks predating Optional may return null.
+                if (contextUpdate != null // NOSONAR
+                        && contextUpdate.isPresent()
                         && contextUpdate.get() != hookContext.getCtx()
                         && !contextUpdate.get().isEmpty()) {
                     evaluatedContext = evaluatedContext.merge(contextUpdate.get());
@@ -768,7 +766,7 @@ public class MultiProvider extends EventProvider {
 
     private Map<String, Object> resolveHookHints(HookExecutionContext hookExecutionContext) {
         if (hookExecutionContext == null || hookExecutionContext.hints == null) {
-            return emptyHookHints;
+            return Collections.emptyMap();
         }
         return hookExecutionContext.hints;
     }
