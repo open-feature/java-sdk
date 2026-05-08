@@ -39,7 +39,6 @@ public class ComparisonStrategy implements Strategy {
 
     private final BiConsumer<String, Map<String, ProviderEvaluation<?>>> onMismatch;
     private final ExecutorService executorService;
-    private final boolean ownsExecutorService;
     private final long timeoutMs;
 
     /**
@@ -65,10 +64,8 @@ public class ComparisonStrategy implements Strategy {
      *                         when they disagree
      */
     public ComparisonStrategy(
-            String fallbackProvider,
-            BiConsumer<String, Map<String, ProviderEvaluation<?>>> onMismatch) {
-        this(fallbackProvider, onMismatch, ForkJoinPool.commonPool(),
-                false, DEFAULT_TIMEOUT_MS);
+            String fallbackProvider, BiConsumer<String, Map<String, ProviderEvaluation<?>>> onMismatch) {
+        this(fallbackProvider, onMismatch, ForkJoinPool.commonPool(), DEFAULT_TIMEOUT_MS);
     }
 
     /**
@@ -87,22 +84,9 @@ public class ComparisonStrategy implements Strategy {
             BiConsumer<String, Map<String, ProviderEvaluation<?>>> onMismatch,
             ExecutorService executorService,
             long timeoutMs) {
-        this(fallbackProvider, onMismatch, executorService,
-                false, timeoutMs);
-    }
-
-    private ComparisonStrategy(
-            String fallbackProvider,
-            BiConsumer<String, Map<String, ProviderEvaluation<?>>> onMismatch,
-            ExecutorService executorService,
-            boolean ownsExecutorService,
-            long timeoutMs) {
-        this.fallbackProvider = Objects.requireNonNull(
-                fallbackProvider, "fallbackProvider must not be null");
+        this.fallbackProvider = Objects.requireNonNull(fallbackProvider, "fallbackProvider must not be null");
         this.onMismatch = onMismatch;
-        this.executorService = Objects.requireNonNull(
-                executorService, "executorService must not be null");
-        this.ownsExecutorService = ownsExecutorService;
+        this.executorService = Objects.requireNonNull(executorService, "executorService must not be null");
         this.timeoutMs = timeoutMs;
     }
 
@@ -120,85 +104,69 @@ public class ComparisonStrategy implements Strategy {
                     .build();
         }
         if (!providers.containsKey(fallbackProvider)) {
-            throw new IllegalArgumentException(
-                    "fallbackProvider not found in providers: "
-                            + fallbackProvider);
+            throw new IllegalArgumentException("fallbackProvider not found in providers: " + fallbackProvider);
         }
 
-        Map<String, ProviderEvaluation<T>> successfulResults =
-                new ConcurrentHashMap<>(providers.size());
-        Map<String, String> providerErrors =
-                new ConcurrentHashMap<>(providers.size());
+        Map<String, ProviderEvaluation<T>> successfulResults = new ConcurrentHashMap<>(providers.size());
+        Map<String, String> providerErrors = new ConcurrentHashMap<>(providers.size());
 
         try {
             List<Callable<Void>> tasks = new ArrayList<>(providers.size());
-            for (Map.Entry<String, FeatureProvider> entry
-                    : providers.entrySet()) {
+            for (Map.Entry<String, FeatureProvider> entry : providers.entrySet()) {
                 String providerName = entry.getKey();
                 FeatureProvider provider = entry.getValue();
                 tasks.add(() -> {
                     try {
-                        ProviderEvaluation<T> evaluation =
-                                providerFunction.apply(provider);
+                        ProviderEvaluation<T> evaluation = providerFunction.apply(provider);
                         if (evaluation == null) {
-                            providerErrors.put(
-                                    providerName, "null evaluation");
+                            providerErrors.put(providerName, "null evaluation");
                         } else if (evaluation.getErrorCode() == null) {
-                            successfulResults.put(
-                                    providerName, evaluation);
+                            successfulResults.put(providerName, evaluation);
                         } else {
                             providerErrors.put(
-                                    providerName,
-                                    evaluation.getErrorCode() + ": "
-                                            + evaluation.getErrorMessage());
+                                    providerName, evaluation.getErrorCode() + ": " + evaluation.getErrorMessage());
                         }
                     } catch (Exception e) {
-                        providerErrors.put(
-                                providerName,
-                                e.getClass().getSimpleName() + ": "
-                                        + e.getMessage());
+                        providerErrors.put(providerName, e.getClass().getSimpleName() + ": " + e.getMessage());
                     }
                     return null;
                 });
             }
-            List<Future<Void>> futures =
-                    executorService.invokeAll(
-                            tasks, timeoutMs, TimeUnit.MILLISECONDS);
+            List<Future<Void>> futures = executorService.invokeAll(tasks, timeoutMs, TimeUnit.MILLISECONDS);
             for (Future<Void> future : futures) {
                 if (future.isCancelled()) {
                     return ProviderEvaluation.<T>builder()
                             .errorCode(ErrorCode.GENERAL)
-                            .errorMessage(
-                                    "Comparison strategy timed out after "
-                                            + timeoutMs + "ms")
+                            .errorMessage("Comparison strategy timed out after " + timeoutMs + "ms")
                             .build();
                 }
                 future.get();
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return ProviderEvaluation.<T>builder()
+                    .errorCode(ErrorCode.GENERAL)
+                    .errorMessage("Comparison strategy interrupted: " + e.getMessage())
+                    .build();
         } catch (Exception e) {
             return ProviderEvaluation.<T>builder()
                     .errorCode(ErrorCode.GENERAL)
-                    .errorMessage("Comparison strategy failed: "
-                            + e.getMessage())
+                    .errorMessage("Comparison strategy failed: " + e.getMessage())
                     .build();
         }
 
         if (!providerErrors.isEmpty()) {
             return ProviderEvaluation.<T>builder()
                     .errorCode(ErrorCode.GENERAL)
-                    .errorMessage("Provider errors: "
-                            + buildErrorSummary(providerErrors))
+                    .errorMessage("Provider errors: " + buildErrorSummary(providerErrors))
                     .build();
         }
 
-        ProviderEvaluation<T> fallbackResult =
-                successfulResults.get(fallbackProvider);
+        ProviderEvaluation<T> fallbackResult = successfulResults.get(fallbackProvider);
         if (fallbackResult == null) {
             return ProviderEvaluation.<T>builder()
                     .errorCode(ErrorCode.GENERAL)
-                    .errorMessage(
-                            "Fallback provider did not return a successful "
-                                    + "evaluation: " + fallbackProvider)
+                    .errorMessage("Fallback provider did not return a successful " + "evaluation: " + fallbackProvider)
                     .build();
         }
 
@@ -207,10 +175,8 @@ public class ComparisonStrategy implements Strategy {
         }
 
         if (onMismatch != null) {
-            Map<String, ProviderEvaluation<?>> mismatchPayload =
-                    new LinkedHashMap<>(successfulResults);
-            onMismatch.accept(
-                    key, Collections.unmodifiableMap(mismatchPayload));
+            Map<String, ProviderEvaluation<?>> mismatchPayload = new LinkedHashMap<>(successfulResults);
+            onMismatch.accept(key, Collections.unmodifiableMap(mismatchPayload));
         }
         return fallbackResult;
     }
@@ -223,23 +189,19 @@ public class ComparisonStrategy implements Strategy {
                 builder.append("; ");
             }
             first = false;
-            builder.append(entry.getKey())
-                    .append(" -> ")
-                    .append(entry.getValue());
+            builder.append(entry.getKey()).append(" -> ").append(entry.getValue());
         }
         return builder.toString();
     }
 
-    private <T> boolean allEvaluationsMatch(
-            Map<String, ProviderEvaluation<T>> results) {
+    private <T> boolean allEvaluationsMatch(Map<String, ProviderEvaluation<T>> results) {
         ProviderEvaluation<T> baseline = null;
         for (ProviderEvaluation<T> evaluation : results.values()) {
             if (baseline == null) {
                 baseline = evaluation;
                 continue;
             }
-            if (!Objects.equals(
-                    baseline.getValue(), evaluation.getValue())) {
+            if (!Objects.equals(baseline.getValue(), evaluation.getValue())) {
                 return false;
             }
         }
