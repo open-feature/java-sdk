@@ -18,6 +18,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.Getter;
 
 /**
@@ -107,8 +108,9 @@ public class ComparisonStrategy implements Strategy {
             throw new IllegalArgumentException("fallbackProvider not found in providers: " + fallbackProvider);
         }
 
-        Map<String, ProviderEvaluation<T>> successfulResults = new ConcurrentHashMap<>(providers.size());
-        Map<String, String> providerErrors = new ConcurrentHashMap<>(providers.size());
+        int capacity = providers.size() * 4 / 3 + 1;
+        Map<String, ProviderEvaluation<T>> successfulResults = new ConcurrentHashMap<>(capacity);
+        Map<String, String> providerErrors = new ConcurrentHashMap<>(capacity);
 
         try {
             List<Callable<Void>> tasks = new ArrayList<>(providers.size());
@@ -166,7 +168,7 @@ public class ComparisonStrategy implements Strategy {
         if (fallbackResult == null) {
             return ProviderEvaluation.<T>builder()
                     .errorCode(ErrorCode.GENERAL)
-                    .errorMessage("Fallback provider did not return a successful " + "evaluation: " + fallbackProvider)
+                    .errorMessage("Fallback provider did not return a successful evaluation: " + fallbackProvider)
                     .build();
         }
 
@@ -181,17 +183,10 @@ public class ComparisonStrategy implements Strategy {
         return fallbackResult;
     }
 
-    private String buildErrorSummary(Map<String, String> providerErrors) {
-        StringBuilder builder = new StringBuilder();
-        boolean first = true;
-        for (Map.Entry<String, String> entry : providerErrors.entrySet()) {
-            if (!first) {
-                builder.append("; ");
-            }
-            first = false;
-            builder.append(entry.getKey()).append(" -> ").append(entry.getValue());
-        }
-        return builder.toString();
+    private String buildErrorSummary(Map<String, String> errors) {
+        return errors.entrySet().stream()
+                .map(e -> e.getKey() + " -> " + e.getValue())
+                .collect(Collectors.joining("; "));
     }
 
     private <T> boolean allEvaluationsMatch(Map<String, ProviderEvaluation<T>> results) {
