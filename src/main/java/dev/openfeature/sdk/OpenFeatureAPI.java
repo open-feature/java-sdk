@@ -356,7 +356,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
                 providerRepository = new ProviderRepository(this);
                 eventSupport = new EventSupport();
                 clearHooks();
-                setEvaluationContext(new ImmutableContext());
+                setEvaluationContext(ImmutableContext.EMPTY);
                 setTransactionContextPropagator(new NoOpTransactionContextPropagator());
             }
         }

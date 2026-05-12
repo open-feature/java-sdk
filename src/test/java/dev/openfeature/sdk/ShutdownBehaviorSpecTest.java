@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -155,6 +156,10 @@ class ShutdownBehaviorSpecTest {
             assertTrue(api.getHooks().isEmpty());
             assertNotEquals(evaluationContext, api.getEvaluationContext());
             assertNotEquals(transactionContextPropagator, api.getTransactionContextPropagator());
+
+            assertInstanceOf(NoOpProvider.class, api.getProvider());
+            assertInstanceOf(ImmutableContext.class, api.getEvaluationContext());
+            assertInstanceOf(NoOpTransactionContextPropagator.class, api.getTransactionContextPropagator());
         }
 
         @Test
