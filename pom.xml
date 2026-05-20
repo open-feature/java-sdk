@@ -55,7 +55,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.44</version>
+            <version>1.18.46</version>
             <scope>provided</scope>
         </dependency>
 
@@ -77,7 +77,7 @@
         <dependency>
             <groupId>com.tngtech.archunit</groupId>
             <artifactId>archunit-junit5</artifactId>
-            <version>1.4.1</version>
+            <version>1.4.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -153,7 +153,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.5.0-jre</version>
+            <version>33.6.0-jre</version>
             <scope>test</scope>
         </dependency>
 
@@ -229,7 +229,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
-                <version>2.21.2</version> <!-- Use the desired version -->
+                <version>2.21.3</version> <!-- Use the desired version -->
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
