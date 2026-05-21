@@ -6,6 +6,7 @@ import dev.openfeature.sdk.internal.TriConsumer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -44,7 +45,7 @@ public abstract class EventProvider implements FeatureProvider {
         }
     }
 
-    private volatile Attachment attachment = null;
+    private final AtomicReference<Attachment> attachment = new AtomicReference<>(null);
 
     /**
      * "Attach" this EventProvider to an SDK, which allows events to propagate from this provider.
@@ -57,19 +58,25 @@ public abstract class EventProvider implements FeatureProvider {
     void attach(
             TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit,
             AutoCloseableReentrantReadWriteLock lock) {
-        Attachment existing = this.attachment;
-        if (existing != null && existing.onEmit != onEmit) {
-            // if we are trying to attach this provider to a different onEmit, something has gone wrong
-            throw new IllegalStateException("Provider " + this.getMetadata().getName() + " is already attached.");
+        Attachment newAttachment = new Attachment(onEmit, lock);
+        while (true) {
+            Attachment existing = this.attachment.get();
+            if (existing != null && existing.onEmit != onEmit) {
+                // if we are trying to attach this provider to a different onEmit, something has gone wrong
+                throw new IllegalStateException(
+                        "Provider " + this.getMetadata().getName() + " is already attached.");
+            }
+            if (this.attachment.compareAndSet(existing, newAttachment)) {
+                return;
+            }
         }
-        this.attachment = new Attachment(onEmit, lock);
     }
 
     /**
      * "Detach" this EventProvider from an SDK, stopping propagation of all events.
      */
     void detach() {
-        this.attachment = null;
+        this.attachment.set(null);
     }
 
     /**
@@ -98,7 +105,7 @@ public abstract class EventProvider implements FeatureProvider {
      */
     public Awaitable emit(final ProviderEvent event, final ProviderEventDetails details) {
         final var localEventProviderListener = this.eventProviderListener;
-        final var localAttachment = this.attachment;
+        final var localAttachment = this.attachment.get();
 
         if (localEventProviderListener == null && localAttachment == null) {
             return Awaitable.FINISHED;

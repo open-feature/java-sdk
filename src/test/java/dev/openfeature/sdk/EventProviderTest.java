@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -8,6 +9,8 @@ import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import dev.openfeature.sdk.internal.TriConsumer;
 import dev.openfeature.sdk.testutils.TestStackedEmitCallsProvider;
 import io.cucumber.java.AfterAll;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -87,6 +90,35 @@ class EventProviderTest {
         eventProvider.attach(onEmit1, new AutoCloseableReentrantReadWriteLock());
         eventProvider.attach(
                 onEmit2, new AutoCloseableReentrantReadWriteLock()); // should not throw, same instance. noop
+    }
+
+    @Test
+    @Timeout(value = 2, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+    @DisplayName("emit should acquire read lock when attached")
+    void emitAcquiresReadLockWhenAttached() throws Exception {
+        AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
+        CountDownLatch lockAcquired = new CountDownLatch(1);
+
+        TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = (ep, event, details) -> {
+            // When the onEmit callback runs, the read lock must already be held
+            assertThat(lock.getReadLockCount()).isGreaterThan(0);
+            lockAcquired.countDown();
+        };
+
+        eventProvider.attach(onEmit, lock);
+        eventProvider.emit(ProviderEvent.PROVIDER_READY, ProviderEventDetails.builder().build());
+
+        assertThat(lockAcquired.await(1, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    @Timeout(value = 2, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+    @DisplayName("emit should not acquire lock when not attached")
+    void emitDoesNotAcquireLockWhenNotAttached() {
+        // emit without attaching — should return immediately without error
+        Awaitable result =
+                eventProvider.emit(ProviderEvent.PROVIDER_READY, ProviderEventDetails.builder().build());
+        assertThat(result).isSameAs(Awaitable.FINISHED);
     }
 
     @Test
