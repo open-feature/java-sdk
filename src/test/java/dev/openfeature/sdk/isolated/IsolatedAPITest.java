@@ -8,6 +8,7 @@ import dev.openfeature.sdk.NoOpProvider;
 import dev.openfeature.sdk.NoOpTransactionContextPropagator;
 import dev.openfeature.sdk.OpenFeatureAPI;
 import dev.openfeature.sdk.ThreadLocalTransactionContextPropagator;
+import dev.openfeature.sdk.isolated.OpenFeatureAPIFactory;
 import dev.openfeature.sdk.providers.memory.Flag;
 import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import java.util.Map;
@@ -30,8 +31,8 @@ class IsolatedAPITest {
     @Test
     @DisplayName("factory creates distinct API instances")
     void factoryCreatesDistinctInstances() {
-        OpenFeatureAPI api1 = new OpenFeatureAPI();
-        OpenFeatureAPI api2 = new OpenFeatureAPI();
+        OpenFeatureAPI api1 = OpenFeatureAPIFactory.createAPI();
+        OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
 
         assertThat(api1).isInstanceOf(OpenFeatureAPI.class).isNotSameAs(api2);
     }
@@ -42,8 +43,8 @@ class IsolatedAPITest {
     @Test
     @DisplayName("providers are isolated between instances")
     void providerIsolation() {
-        OpenFeatureAPI api1 = new OpenFeatureAPI();
-        OpenFeatureAPI api2 = new OpenFeatureAPI();
+        OpenFeatureAPI api1 = OpenFeatureAPIFactory.createAPI();
+        OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
 
         InMemoryProvider provider = new InMemoryProvider(Map.of());
         api1.setProvider(provider);
@@ -58,8 +59,8 @@ class IsolatedAPITest {
     @Test
     @DisplayName("hooks are isolated between instances")
     void hookIsolation() {
-        OpenFeatureAPI api1 = new OpenFeatureAPI();
-        OpenFeatureAPI api2 = new OpenFeatureAPI();
+        OpenFeatureAPI api1 = OpenFeatureAPIFactory.createAPI();
+        OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
 
         api1.addHooks(new NoOpHook());
 
@@ -73,8 +74,8 @@ class IsolatedAPITest {
     @Test
     @DisplayName("evaluation context is isolated between instances")
     void evaluationContextIsolation() {
-        OpenFeatureAPI api1 = new OpenFeatureAPI();
-        OpenFeatureAPI api2 = new OpenFeatureAPI();
+        OpenFeatureAPI api1 = OpenFeatureAPIFactory.createAPI();
+        OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
 
         api1.setEvaluationContext(new ImmutableContext("key-1"));
         api2.setEvaluationContext(new ImmutableContext("key-2"));
@@ -90,8 +91,8 @@ class IsolatedAPITest {
     @Timeout(value = 2, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
     @DisplayName("event handlers are isolated between instances")
     void eventHandlerIsolation() throws Exception {
-        OpenFeatureAPI api1 = new OpenFeatureAPI();
-        OpenFeatureAPI api2 = new OpenFeatureAPI();
+        OpenFeatureAPI api1 = OpenFeatureAPIFactory.createAPI();
+        OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
 
         CountDownLatch api1HandlerLatch = new CountDownLatch(1);
         AtomicBoolean api2HandlerCalled = new AtomicBoolean(false);
@@ -119,8 +120,8 @@ class IsolatedAPITest {
     @Test
     @DisplayName("transaction context propagator is isolated between instances")
     void transactionContextPropagatorIsolation() {
-        OpenFeatureAPI api1 = new OpenFeatureAPI();
-        OpenFeatureAPI api2 = new OpenFeatureAPI();
+        OpenFeatureAPI api1 = OpenFeatureAPIFactory.createAPI();
+        OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
 
         ThreadLocalTransactionContextPropagator propagator = new ThreadLocalTransactionContextPropagator();
         api1.setTransactionContextPropagator(propagator);
@@ -136,7 +137,7 @@ class IsolatedAPITest {
     @Test
     @DisplayName("isolated instance conforms to API contract")
     void isolatedInstanceConformsToAPIContract() throws Exception {
-        OpenFeatureAPI api = new OpenFeatureAPI();
+        OpenFeatureAPI api = OpenFeatureAPIFactory.createAPI();
 
         // provider management
         InMemoryProvider provider = new InMemoryProvider(Map.of(
@@ -171,8 +172,8 @@ class IsolatedAPITest {
     @Test
     @DisplayName("clearHooks does not affect other instances")
     void clearHooksDoesNotAffectOtherInstances() {
-        OpenFeatureAPI api1 = new OpenFeatureAPI();
-        OpenFeatureAPI api2 = new OpenFeatureAPI();
+        OpenFeatureAPI api1 = OpenFeatureAPIFactory.createAPI();
+        OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
 
         NoOpHook hook = new NoOpHook();
         api1.addHooks(hook);
@@ -191,8 +192,8 @@ class IsolatedAPITest {
     @Test
     @DisplayName("clients use their own instance's provider")
     void clientUsesItsOwnInstanceProvider() throws Exception {
-        OpenFeatureAPI api1 = new OpenFeatureAPI();
-        OpenFeatureAPI api2 = new OpenFeatureAPI();
+        OpenFeatureAPI api1 = OpenFeatureAPIFactory.createAPI();
+        OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
 
         api1.setProviderAndWait(new InMemoryProvider(Map.of(
                 "flag1",
@@ -220,8 +221,8 @@ class IsolatedAPITest {
         Logger mockLogger = Mockito.mock(Logger.class);
         LoggerMock.setMock(OpenFeatureAPI.class, mockLogger);
         try {
-            OpenFeatureAPI api1 = new OpenFeatureAPI();
-            OpenFeatureAPI api2 = new OpenFeatureAPI();
+            OpenFeatureAPI api1 = OpenFeatureAPIFactory.createAPI();
+            OpenFeatureAPI api2 = OpenFeatureAPIFactory.createAPI();
 
             NoOpProvider provider = new NoOpProvider();
             api1.setProvider(provider);

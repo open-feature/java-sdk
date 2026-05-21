@@ -21,8 +21,8 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Most applications should use the global singleton via {@link #getInstance()}; configuration
  * there is shared across all {@link Client}s. For dependency-injection frameworks, testing, or
  * multi-tenant scenarios that need fully independent state (providers, hooks, evaluation context,
- * event handlers, transaction context propagators), instantiate a new instance directly with
- * {@code new OpenFeatureAPI()}.
+ * event handlers, transaction context propagators), create isolated instances via
+ * {@code dev.openfeature.sdk.isolated.OpenFeatureAPIFactory.createAPI()}.
  *
  * <p><strong>Note:</strong> Isolated API instances (per spec section 1.8) are experimental and
  * subject to change.
@@ -51,15 +51,24 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     private TransactionContextPropagator transactionContextPropagator;
 
     /**
-     * Creates a new, independent {@link OpenFeatureAPI} instance with fully isolated state
-     * (providers, hooks, evaluation context, event handlers, transaction context propagators).
+     * Creates and returns a new, independent {@link OpenFeatureAPI} instance with fully isolated
+     * state (providers, hooks, evaluation context, event handlers, transaction context
+     * propagators).
      *
-     * <p>For typical usage, prefer the global singleton via {@link #getInstance()}.
+     * <p>Prefer {@code OpenFeatureAPIFactory.createAPI()} from
+     * {@code dev.openfeature.sdk.isolated}, which satisfies spec requirement 1.8.3
+     * (factory in a distinct package for intentional discoverability).
      *
-     * <p><strong>Note:</strong> Isolated API instances (per spec section 1.8) are experimental and
-     * subject to change.
+     * @apiNote This API is experimental and subject to change.
+     * @see <a href="https://openfeature.dev/specification/sections/flag-evaluation#18-isolated-api-instances">
+     *     Spec &sect;1.8 &mdash; Isolated API Instances</a>
      */
-    public OpenFeatureAPI() {
+    public static OpenFeatureAPI createIsolated() {
+        return new OpenFeatureAPI();
+    }
+
+    // Package-private: not part of the public API; use createIsolated() or OpenFeatureAPIFactory.
+    OpenFeatureAPI() {
         this(new AutoCloseableReentrantReadWriteLock());
     }
 
