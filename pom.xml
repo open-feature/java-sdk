@@ -352,6 +352,10 @@
                 <version>1.7.0</version>
                 <configuration>
                     <flattenMode>ossrh</flattenMode>
+                    <pomElements>
+                        <!-- keep distributionManagement so the central-publishing plugin can resolve the snapshot repo during deploy -->
+                        <distributionManagement>resolve</distributionManagement>
+                    </pomElements>
                 </configuration>
                 <executions>
                     <execution>
