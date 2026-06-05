@@ -51,6 +51,7 @@ public class OpenFeatureClient implements Client {
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
 
     private final HookSupport hookSupport;
+    private final ClientMetadata clientMetadata;
 
     /**
      * Deprecated public constructor. Use OpenFeature.API.getClient() instead.
@@ -70,6 +71,7 @@ public class OpenFeatureClient implements Client {
         this.version = version;
         this.hookSupport = new HookSupport();
         this.clientHooks = new ConcurrentLinkedQueue<>();
+        this.clientMetadata = this::getDomain;
     }
 
     /**
@@ -467,7 +469,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public ClientMetadata getMetadata() {
-        return this::getDomain;
+        return clientMetadata;
     }
 
     /**
