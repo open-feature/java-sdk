@@ -170,7 +170,8 @@ public class OpenFeatureClient implements Client {
             flagOptions = options;
         }
 
-        hookSupportData.hints = Collections.unmodifiableMap(flagOptions.getHookHints());
+        var hookHints = flagOptions.getHookHints();
+        hookSupportData.hints = hookHints.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(hookHints);
         var context = new LayeredEvaluationContext(
                 openfeatureApi.getEvaluationContext(),
                 openfeatureApi.getTransactionContext(),
