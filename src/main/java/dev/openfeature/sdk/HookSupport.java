@@ -1,7 +1,6 @@
 package dev.openfeature.sdk;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -51,10 +50,9 @@ class HookSupport {
 
     public void executeBeforeHooks(HookSupportData data) {
         // These traverse backwards from normal.
-        List<Pair<Hook, HookContext>> reversedHooks = new ArrayList<>(data.getHooks());
-        Collections.reverse(reversedHooks);
-
-        for (Pair<Hook, HookContext> hookContextPair : reversedHooks) {
+        List<Pair<Hook, HookContext>> hooks = data.getHooks();
+        for (int i = hooks.size() - 1; i >= 0; i--) {
+            var hookContextPair = hooks.get(i);
             var hook = hookContextPair.getKey();
             var hookContext = hookContextPair.getValue();
 
