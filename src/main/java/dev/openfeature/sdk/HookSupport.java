@@ -56,10 +56,8 @@ class HookSupport {
             var hook = hookContextPair.getKey();
             var hookContext = hookContextPair.getValue();
 
-            Optional<EvaluationContext> returnedEvalContext = Optional.ofNullable(
-                            hook.before(hookContext, data.getHints()))
-                    .orElse(Optional.empty());
-            if (returnedEvalContext.isPresent()) {
+            Optional<EvaluationContext> returnedEvalContext = hook.before(hookContext, data.getHints());
+            if (returnedEvalContext != null && returnedEvalContext.isPresent()) {
                 var returnedContext = returnedEvalContext.get();
                 // yes, we want to check for reference equality here, this prevents recursive layered contexts
                 if (returnedContext != hookContext.getCtx() && !returnedContext.isEmpty()) {
