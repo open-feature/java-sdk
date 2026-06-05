@@ -53,18 +53,22 @@
     <dependencies>
 
         <dependency>
+            <!-- compile-time annotation processor; not needed by consumers at runtime -->
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.46</version>
             <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
             <!-- used so that lombok can generate suppressions for spotbugs. It needs to find it on the relevant classpath -->
+            <!-- compile-time only; not needed by consumers at runtime -->
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs</artifactId>
             <version>4.9.8</version>
             <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -339,6 +343,59 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
+            </plugin>
+
+            <!-- flatten the POM that gets deployed to Maven Central, removing test deps and build-time noise -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.7.0</version>
+                <configuration>
+                    <flattenMode>ossrh</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- bundle the root LICENSE file into published JARs -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-license</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}</directory>
+                                    <includes>
+                                        <include>LICENSE</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
