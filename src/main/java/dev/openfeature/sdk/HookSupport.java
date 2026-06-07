@@ -1,9 +1,12 @@
 package dev.openfeature.sdk;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -17,18 +20,51 @@ class HookSupport {
      * Sets the {@link Hook}-{@link HookContext}-{@link Pair} list in the given data object with {@link HookContext}
      * set to null. Filters hooks by supported {@link FlagValueType}.
      *
-     * @param hookSupportData the data object to modify
-     * @param hooks           the hooks to set
-     * @param type            the flag value type to filter unsupported hooks
+     * @param hookSupportData  the data object to modify
+     * @param providerHooks    the hooks filtered for the proper flag value type from the respective layer
+     * @param flagOptionsHooks the hooks filtered for the proper flag value type from the respective layer
+     * @param clientHooks      the hooks filtered for the proper flag value type from the respective layer
+     * @param apiHooks         the hooks filtered for the proper flag value type from the respective layer
      */
-    public void setHooks(HookSupportData hookSupportData, List<Hook> hooks, FlagValueType type) {
-        List<Pair<Hook, HookContext>> hookContextPairs = new ArrayList<>();
-        for (Hook hook : hooks) {
-            if (hook.supportsFlagValueType(type)) {
-                hookContextPairs.add(Pair.of(hook, null));
-            }
+    public void setHooks(
+            HookSupportData hookSupportData,
+            List<Hook> providerHooks,
+            List<Hook> flagOptionsHooks,
+            ConcurrentLinkedQueue<Hook> clientHooks,
+            ConcurrentLinkedQueue<Hook> apiHooks) {
+        var lengthEstimate = 0;
+
+        if (providerHooks != null) {
+            lengthEstimate += providerHooks.size();
         }
+        if (flagOptionsHooks != null) {
+            lengthEstimate += flagOptionsHooks.size();
+        }
+        if (clientHooks != null) {
+            lengthEstimate += clientHooks.size();
+        }
+        if (apiHooks != null) {
+            lengthEstimate += apiHooks.size();
+        }
+
+        ArrayList<Pair<Hook, HookContext>> hookContextPairs = new ArrayList<>(lengthEstimate);
+
+        addAll(hookContextPairs, providerHooks);
+        addAll(hookContextPairs, flagOptionsHooks);
+        addAll(hookContextPairs, clientHooks);
+        addAll(hookContextPairs, apiHooks);
+
         hookSupportData.hooks = hookContextPairs;
+    }
+
+    private void addAll(List<Pair<Hook, HookContext>> accumulator, Collection<Hook> toAdd) {
+        if (toAdd == null || toAdd.isEmpty()) {
+            return;
+        }
+
+        for (Hook hook : toAdd) {
+            accumulator.add(Pair.of(hook, null));
+        }
     }
 
     /**
@@ -51,10 +87,9 @@ class HookSupport {
 
     public void executeBeforeHooks(HookSupportData data) {
         // These traverse backwards from normal.
-        List<Pair<Hook, HookContext>> reversedHooks = new ArrayList<>(data.getHooks());
-        Collections.reverse(reversedHooks);
-
-        for (Pair<Hook, HookContext> hookContextPair : reversedHooks) {
+        var hooks = data.getHooks();
+        for (int i = hooks.size() - 1; i >= 0; i--) {
+            var hookContextPair = hooks.get(i);
             var hook = hookContextPair.getKey();
             var hookContext = hookContextPair.getValue();
 
@@ -110,5 +145,27 @@ class HookSupport {
                         e);
             }
         }
+    }
+
+    static void addHooks(Map<FlagValueType, ConcurrentLinkedQueue<Hook>> hookMap, Hook... hooksToAdd) {
+        var types = FlagValueType.values();
+        for (int i = 0; i < hooksToAdd.length; i++) {
+            var current = hooksToAdd[i];
+            for (int j = 0; j < types.length; j++) {
+                var type = types[j];
+                if (current.supportsFlagValueType(type)) {
+                    hookMap.get(type).add(current);
+                }
+            }
+        }
+    }
+
+    static ArrayList<Hook> getAllUniqueHooks(Map<FlagValueType, ConcurrentLinkedQueue<Hook>> hookMap) {
+        // Hooks can be duplicated if they support multiple FlagValueTypes
+        var allHooks = new HashSet<Hook>();
+        for (var queue : hookMap.values()) {
+            allHooks.addAll(queue);
+        }
+        return new ArrayList<>(allHooks);
     }
 }

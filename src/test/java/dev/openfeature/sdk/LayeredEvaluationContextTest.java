@@ -26,7 +26,7 @@ class LayeredEvaluationContextTest {
 
     @Test
     void creatingLayeredContextWithNullsWorks() {
-        LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+        LayeredEvaluationContext layeredContext = LayeredEvaluationContext.empty();
         assertNotNull(layeredContext);
         assertNull(layeredContext.getTargetingKey());
         assertEquals(Map.of(), layeredContext.asMap());
@@ -38,7 +38,7 @@ class LayeredEvaluationContextTest {
 
     @Test
     void addingNullHookWorks() {
-        LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+        LayeredEvaluationContext layeredContext = LayeredEvaluationContext.empty();
         assertDoesNotThrow(() -> layeredContext.putHookContext(null));
     }
 
@@ -205,7 +205,7 @@ class LayeredEvaluationContextTest {
 
         @Test
         void emptyContextGeneratesEmptyMap() {
-            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+            LayeredEvaluationContext layeredContext = LayeredEvaluationContext.empty();
             assertEquals(Map.of(), layeredContext.asMap());
             assertEquals(Map.of(), layeredContext.asUnmodifiableMap());
             assertEquals(Map.of(), layeredContext.asObjectMap());
@@ -251,7 +251,7 @@ class LayeredEvaluationContextTest {
 
         @Test
         void creatingMapWithCachedEmptyKeySetWorks() {
-            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+            LayeredEvaluationContext layeredContext = LayeredEvaluationContext.empty();
             assertNotNull(layeredContext.keySet());
             assertEquals(Map.of(), layeredContext.asObjectMap());
         }
@@ -337,7 +337,7 @@ class LayeredEvaluationContextTest {
     class IsEmpty {
         @Test
         void isEmptyWhenAllContextsAreNull() {
-            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+            LayeredEvaluationContext layeredContext = LayeredEvaluationContext.empty();
             assertTrue(layeredContext.isEmpty());
         }
 
@@ -389,14 +389,14 @@ class LayeredEvaluationContextTest {
 
         @Test
         void isNotEmptyWhenHookContextIsSet() {
-            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+            LayeredEvaluationContext layeredContext = LayeredEvaluationContext.empty();
             layeredContext.putHookContext(hookContext);
             assertFalse(layeredContext.isEmpty());
         }
 
         @Test
         void isEmptyIfHookContextIsEmpty() {
-            LayeredEvaluationContext layeredContext = new LayeredEvaluationContext(null, null, null, null);
+            LayeredEvaluationContext layeredContext = LayeredEvaluationContext.empty();
             layeredContext.putHookContext(new MutableContext());
             assertTrue(layeredContext.isEmpty());
         }
