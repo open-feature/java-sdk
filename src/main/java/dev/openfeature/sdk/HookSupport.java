@@ -48,6 +48,8 @@ class HookSupport {
         }
     }
 
+    // S2789: Hook is user-implemented; defensive null check against non-conforming impls returning null.
+    @SuppressWarnings("java:S2789")
     public void executeBeforeHooks(HookSupportData data) {
         // These traverse backwards from normal.
         List<Pair<Hook, HookContext>> hooks = data.getHooks();
