@@ -511,6 +511,13 @@ class HookSpecTest implements HookFixtures {
     }
 
     @Test
+    void null_hook_hints_does_not_throw() {
+        FlagEvaluationOptions feo =
+                FlagEvaluationOptions.builder().hookHints(null).build();
+        assertThat(feo.getHookHints()).isNotNull().isEmpty();
+    }
+
+    @Test
     void flag_eval_hook_order() {
         Hook hook = mockBooleanHook();
         FeatureProvider provider = mock(FeatureProvider.class);
