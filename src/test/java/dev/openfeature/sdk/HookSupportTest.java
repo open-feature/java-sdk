@@ -66,9 +66,9 @@ class HookSupportTest implements HookFixtures {
         var hookSupportData = new HookSupportData();
         hookSupport.setHooks(
                 hookSupportData,
-                Collections.emptyList(),
-                Collections.emptyList(),
                 List.of(genericHook),
+                Collections.emptyList(),
+                Collections.emptyList(),
                 Collections.emptyList(),
                 flagValueType);
 
@@ -89,8 +89,8 @@ class HookSupportTest implements HookFixtures {
         hookSupport.setHooks(
                 hookSupportData,
                 Collections.emptyList(),
-                Collections.emptyList(),
                 List.of(testHook),
+                Collections.emptyList(),
                 Collections.emptyList(),
                 flagValueType);
         hookSupport.setHookContexts(
@@ -125,8 +125,8 @@ class HookSupportTest implements HookFixtures {
                 hookSupportData,
                 Collections.emptyList(),
                 Collections.emptyList(),
-                List.of(testHook1, testHook2),
                 Collections.emptyList(),
+                List.of(testHook1, testHook2),
                 flagValueType);
         hookSupport.setHookContexts(
                 hookSupportData,
@@ -137,6 +137,28 @@ class HookSupportTest implements HookFixtures {
 
         assertHookData(testHook1, 1, "before", "after", "finallyAfter", "error");
         assertHookData(testHook2, 2, "before", "after", "finallyAfter", "error");
+    }
+
+    @Test
+    @DisplayName("should place hooks in provider → options → client → API order")
+    void shouldOrderHooksBySource() {
+        Hook<?> providerHook = mockGenericHook();
+        Hook<?> optionHook = mockGenericHook();
+        Hook<?> clientHook = mockGenericHook();
+        Hook<?> apiHook = mockGenericHook();
+
+        var hookSupportData = new HookSupportData();
+        hookSupport.setHooks(
+                hookSupportData,
+                List.of(providerHook),
+                List.of(optionHook),
+                List.of(clientHook),
+                List.of(apiHook),
+                FlagValueType.STRING);
+
+        assertThat(hookSupportData.getHooks())
+                .extracting(Pair::getKey)
+                .containsExactly(providerHook, optionHook, clientHook, apiHook);
     }
 
     @Test
