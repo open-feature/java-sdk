@@ -83,16 +83,6 @@ class EventProviderTest {
     }
 
     @Test
-    @DisplayName("should not throw if second same onEmit attached")
-    void doesNotThrowWhenOnEmitSame() {
-        TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit1 = mockOnEmit();
-        TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit2 = onEmit1;
-        eventProvider.attach(onEmit1, new AutoCloseableReentrantReadWriteLock());
-        eventProvider.attach(
-                onEmit2, new AutoCloseableReentrantReadWriteLock()); // should not throw, same instance. noop
-    }
-
-    @Test
     @Timeout(value = 2, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
     @DisplayName("emit should acquire read lock when attached")
     void emitAcquiresReadLockWhenAttached() throws Exception {

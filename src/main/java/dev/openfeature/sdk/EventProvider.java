@@ -49,7 +49,6 @@ public abstract class EventProvider implements FeatureProvider {
 
     /**
      * "Attach" this EventProvider to an SDK, which allows events to propagate from this provider.
-     * No-op if the same onEmit is already attached.
      *
      * @param onEmit the function to run when a provider emits events.
      * @param lock   the API instance's read/write lock for thread safety.
@@ -59,16 +58,9 @@ public abstract class EventProvider implements FeatureProvider {
             TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit,
             AutoCloseableReentrantReadWriteLock lock) {
         Attachment newAttachment = new Attachment(onEmit, lock);
-        while (true) {
-            Attachment existing = this.attachment.get();
-            if (existing != null && existing.onEmit != onEmit) {
-                // if we are trying to attach this provider to a different onEmit, something has gone wrong
-                throw new IllegalStateException(
-                        "Provider " + this.getMetadata().getName() + " is already attached.");
-            }
-            if (this.attachment.compareAndSet(existing, newAttachment)) {
-                return;
-            }
+        if (!this.attachment.compareAndSet(null, newAttachment)) {
+            throw new IllegalStateException(
+                    "Provider " + this.getMetadata().getName() + " is already attached.");
         }
     }
 
