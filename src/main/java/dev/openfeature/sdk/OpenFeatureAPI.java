@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  * there is shared across all {@link Client}s. For dependency-injection frameworks, testing, or
  * multi-tenant scenarios that need fully independent state (providers, hooks, evaluation context,
  * event handlers, transaction context propagators), create isolated instances via
- * {@code dev.openfeature.sdk.isolated.OpenFeatureAPIFactory.createAPI()}.
+ * {@link #createIsolated()}.
  *
  * <p><strong>Note:</strong> Isolated API instances (per spec section 1.8) are experimental and
  * subject to change.
@@ -55,10 +55,6 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * state (providers, hooks, evaluation context, event handlers, transaction context
      * propagators).
      *
-     * <p>Prefer {@code OpenFeatureAPIFactory.createAPI()} from
-     * {@code dev.openfeature.sdk.isolated}, which satisfies spec requirement 1.8.3
-     * (factory in a distinct package for intentional discoverability).
-     *
      * @apiNote This API is experimental and subject to change.
      * @see <a href="https://openfeature.dev/specification/sections/flag-evaluation#18-isolated-api-instances">
      *     Spec &sect;1.8 &mdash; Isolated API Instances</a>
@@ -67,7 +63,7 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         return new OpenFeatureAPI();
     }
 
-    // Package-private: not part of the public API; use createIsolated() or OpenFeatureAPIFactory.
+    // Package-private: not part of the public API; use createIsolated().
     OpenFeatureAPI() {
         this(new AutoCloseableReentrantReadWriteLock());
     }
