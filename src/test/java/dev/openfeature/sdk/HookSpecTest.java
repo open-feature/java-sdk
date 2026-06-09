@@ -524,7 +524,10 @@ class HookSpecTest implements HookFixtures {
                         "key",
                         false,
                         new ImmutableContext(),
-                        FlagEvaluationOptions.builder().hook(hook).hookHints(null).build()))
+                        FlagEvaluationOptions.builder()
+                                .hook(hook)
+                                .hookHints(null)
+                                .build()))
                 .doesNotThrowAnyException();
     }
 
