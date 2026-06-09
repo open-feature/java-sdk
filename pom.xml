@@ -653,6 +653,26 @@
                             <failOnWarnings>true</failOnWarnings>
                             <doclint>all,-missing
                             </doclint> <!-- ignore missing javadoc, these are enforced with more customizability in the checkstyle plugin -->
+                            <!-- recognize JDK doc-tags (@apiNote, @implSpec, @implNote); these are
+                                 standard in the JDK source but not enabled by default in javadoc.
+                                 No runtime dependency; only affects generated javadoc. -->
+                            <tags>
+                                <tag>
+                                    <name>apiNote</name>
+                                    <placement>a</placement>
+                                    <head>API Note:</head>
+                                </tag>
+                                <tag>
+                                    <name>implSpec</name>
+                                    <placement>a</placement>
+                                    <head>Implementation Requirements:</head>
+                                </tag>
+                                <tag>
+                                    <name>implNote</name>
+                                    <placement>a</placement>
+                                    <head>Implementation Note:</head>
+                                </tag>
+                            </tags>
                         </configuration>
                         <executions>
                             <execution>
