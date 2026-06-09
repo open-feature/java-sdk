@@ -1,6 +1,5 @@
 package dev.openfeature.sdk;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.never;

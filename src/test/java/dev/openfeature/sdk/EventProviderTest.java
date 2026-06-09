@@ -96,7 +96,8 @@ class EventProviderTest {
         };
 
         eventProvider.attach(onEmit, lock);
-        eventProvider.emit(ProviderEvent.PROVIDER_READY, ProviderEventDetails.builder().build());
+        eventProvider.emit(
+                ProviderEvent.PROVIDER_READY, ProviderEventDetails.builder().build());
 
         assertThat(lockAcquired.await(1, TimeUnit.SECONDS)).isTrue();
     }
@@ -106,8 +107,8 @@ class EventProviderTest {
     @DisplayName("emit should not acquire lock when not attached")
     void emitDoesNotAcquireLockWhenNotAttached() {
         // emit without attaching — should return immediately without error
-        Awaitable result =
-                eventProvider.emit(ProviderEvent.PROVIDER_READY, ProviderEventDetails.builder().build());
+        Awaitable result = eventProvider.emit(
+                ProviderEvent.PROVIDER_READY, ProviderEventDetails.builder().build());
         assertThat(result).isSameAs(Awaitable.FINISHED);
     }
 

@@ -59,8 +59,7 @@ public abstract class EventProvider implements FeatureProvider {
             AutoCloseableReentrantReadWriteLock lock) {
         Attachment newAttachment = new Attachment(onEmit, lock);
         if (!this.attachment.compareAndSet(null, newAttachment)) {
-            throw new IllegalStateException(
-                    "Provider " + this.getMetadata().getName() + " is already attached.");
+            throw new IllegalStateException("Provider " + this.getMetadata().getName() + " is already attached.");
         }
     }
 
