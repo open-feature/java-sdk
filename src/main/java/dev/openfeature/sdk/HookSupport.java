@@ -1,7 +1,6 @@
 package dev.openfeature.sdk;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -49,19 +48,18 @@ class HookSupport {
         }
     }
 
+    // S2789: Hook is user-implemented; defensive null check against non-conforming impls returning null.
+    @SuppressWarnings("java:S2789")
     public void executeBeforeHooks(HookSupportData data) {
         // These traverse backwards from normal.
-        List<Pair<Hook, HookContext>> reversedHooks = new ArrayList<>(data.getHooks());
-        Collections.reverse(reversedHooks);
-
-        for (Pair<Hook, HookContext> hookContextPair : reversedHooks) {
+        List<Pair<Hook, HookContext>> hooks = data.getHooks();
+        for (int i = hooks.size() - 1; i >= 0; i--) {
+            var hookContextPair = hooks.get(i);
             var hook = hookContextPair.getKey();
             var hookContext = hookContextPair.getValue();
 
-            Optional<EvaluationContext> returnedEvalContext = Optional.ofNullable(
-                            hook.before(hookContext, data.getHints()))
-                    .orElse(Optional.empty());
-            if (returnedEvalContext.isPresent()) {
+            Optional<EvaluationContext> returnedEvalContext = hook.before(hookContext, data.getHints());
+            if (returnedEvalContext != null && returnedEvalContext.isPresent()) {
                 var returnedContext = returnedEvalContext.get();
                 // yes, we want to check for reference equality here, this prevents recursive layered contexts
                 if (returnedContext != hookContext.getCtx() && !returnedContext.isEmpty()) {
