@@ -511,6 +511,27 @@ class HookSpecTest implements HookFixtures {
     }
 
     @Test
+    void null_hook_hints_does_not_throw() {
+        Hook hook = mockBooleanHook();
+        FeatureProvider provider = mock(FeatureProvider.class);
+        when(provider.getBooleanEvaluation(any(), any(), any()))
+                .thenReturn(ProviderEvaluation.<Boolean>builder().value(true).build());
+
+        api.setProviderAndWait(provider);
+        Client client = api.getClient();
+
+        assertThatCode(() -> client.getBooleanValue(
+                        "key",
+                        false,
+                        new ImmutableContext(),
+                        FlagEvaluationOptions.builder()
+                                .hook(hook)
+                                .hookHints(null)
+                                .build()))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
     void flag_eval_hook_order() {
         Hook hook = mockBooleanHook();
         FeatureProvider provider = mock(FeatureProvider.class);
