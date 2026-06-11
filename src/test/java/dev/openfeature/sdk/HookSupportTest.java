@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,13 @@ class HookSupportTest implements HookFixtures {
         var sharedContext = getBaseHookContextForType(FlagValueType.STRING);
         var hookSupportData = new HookSupportData();
         hookSupportData.evaluationContext = layered;
-        hookSupport.setHooks(hookSupportData, Arrays.asList(hook1, hook2), FlagValueType.STRING);
+        hookSupport.setHooks(
+                hookSupportData,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Arrays.asList(hook1, hook2),
+                Collections.emptyList(),
+                FlagValueType.STRING);
         hookSupport.setHookContexts(hookSupportData, sharedContext, layered);
 
         hookSupport.executeBeforeHooks(hookSupportData);
@@ -57,7 +64,13 @@ class HookSupportTest implements HookFixtures {
         Hook<?> genericHook = mockGenericHook();
 
         var hookSupportData = new HookSupportData();
-        hookSupport.setHooks(hookSupportData, List.of(genericHook), flagValueType);
+        hookSupport.setHooks(
+                hookSupportData,
+                List.of(genericHook),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                flagValueType);
 
         callAllHooks(hookSupportData);
 
@@ -73,7 +86,13 @@ class HookSupportTest implements HookFixtures {
     void shouldPassDataAcrossStages(FlagValueType flagValueType) {
         var testHook = new TestHookWithData();
         var hookSupportData = new HookSupportData();
-        hookSupport.setHooks(hookSupportData, List.of(testHook), flagValueType);
+        hookSupport.setHooks(
+                hookSupportData,
+                Collections.emptyList(),
+                List.of(testHook),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                flagValueType);
         hookSupport.setHookContexts(
                 hookSupportData,
                 getBaseHookContextForType(flagValueType),
@@ -102,7 +121,13 @@ class HookSupportTest implements HookFixtures {
         var testHook2 = new TestHookWithData(2);
 
         var hookSupportData = new HookSupportData();
-        hookSupport.setHooks(hookSupportData, List.of(testHook1, testHook2), flagValueType);
+        hookSupport.setHooks(
+                hookSupportData,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                List.of(testHook1, testHook2),
+                flagValueType);
         hookSupport.setHookContexts(
                 hookSupportData,
                 getBaseHookContextForType(flagValueType),
@@ -112,6 +137,28 @@ class HookSupportTest implements HookFixtures {
 
         assertHookData(testHook1, 1, "before", "after", "finallyAfter", "error");
         assertHookData(testHook2, 2, "before", "after", "finallyAfter", "error");
+    }
+
+    @Test
+    @DisplayName("should place hooks in provider → options → client → API order")
+    void shouldOrderHooksBySource() {
+        Hook<?> providerHook = mockGenericHook();
+        Hook<?> optionHook = mockGenericHook();
+        Hook<?> clientHook = mockGenericHook();
+        Hook<?> apiHook = mockGenericHook();
+
+        var hookSupportData = new HookSupportData();
+        hookSupport.setHooks(
+                hookSupportData,
+                List.of(providerHook),
+                List.of(optionHook),
+                List.of(clientHook),
+                List.of(apiHook),
+                FlagValueType.STRING);
+
+        assertThat(hookSupportData.getHooks())
+                .extracting(Pair::getKey)
+                .containsExactly(providerHook, optionHook, clientHook, apiHook);
     }
 
     @Test
@@ -132,7 +179,13 @@ class HookSupportTest implements HookFixtures {
         var layeredEvaluationContext =
                 new LayeredEvaluationContext(evaluationContextWithValue("key", "value"), null, null, null);
         hookSupportData.evaluationContext = layeredEvaluationContext;
-        hookSupport.setHooks(hookSupportData, List.of(recursiveHook, emptyHook), FlagValueType.STRING);
+        hookSupport.setHooks(
+                hookSupportData,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                List.of(recursiveHook, emptyHook),
+                Collections.emptyList(),
+                FlagValueType.STRING);
         hookSupport.setHookContexts(
                 hookSupportData, getBaseHookContextForType(FlagValueType.STRING), layeredEvaluationContext);
 

@@ -5,7 +5,6 @@ import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
-import dev.openfeature.sdk.internal.ObjectUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -188,9 +187,13 @@ public class OpenFeatureClient implements Client {
             final var state = stateManager.getState();
 
             // Hooks are initialized as early as possible to enable the execution of error stages
-            var mergedHooks = ObjectUtils.merge(
-                    provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
-            hookSupport.setHooks(hookSupportData, mergedHooks, type);
+            hookSupport.setHooks(
+                    hookSupportData,
+                    provider.getProviderHooks(),
+                    flagOptions.getHooks(),
+                    clientHooks,
+                    openfeatureApi.getMutableHooks(),
+                    type);
 
             var sharedHookContext =
                     new SharedHookContext(key, type, this.getMetadata(), provider.getMetadata(), defaultValue);

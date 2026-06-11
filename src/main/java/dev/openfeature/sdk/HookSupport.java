@@ -1,6 +1,7 @@
 package dev.openfeature.sdk;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -15,19 +16,40 @@ class HookSupport {
     /**
      * Sets the {@link Hook}-{@link HookContext}-{@link Pair} list in the given data object with {@link HookContext}
      * set to null. Filters hooks by supported {@link FlagValueType}.
+     * Sources are iterated in order: provider, options, client, API (reversed for the {@code before} stage by
+     * {@link #executeBeforeHooks}).
+     *
+     * <p>The four hook sources are accepted as separate collections to avoid allocation on the evaluation hot path.
      *
      * @param hookSupportData the data object to modify
-     * @param hooks           the hooks to set
+     * @param providerHooks   provider-level hooks
+     * @param optionHooks     per-evaluation option hooks
+     * @param clientHooks     client-level hooks
+     * @param apiHooks        API-level hooks
      * @param type            the flag value type to filter unsupported hooks
      */
-    public void setHooks(HookSupportData hookSupportData, List<Hook> hooks, FlagValueType type) {
+    public void setHooks(
+            HookSupportData hookSupportData,
+            Collection<Hook> providerHooks,
+            Collection<Hook> optionHooks,
+            Collection<Hook> clientHooks,
+            Collection<Hook> apiHooks,
+            FlagValueType type) {
         List<Pair<Hook, HookContext>> hookContextPairs = new ArrayList<>();
-        for (Hook hook : hooks) {
+        addFilteredHooks(hookContextPairs, providerHooks, type);
+        addFilteredHooks(hookContextPairs, optionHooks, type);
+        addFilteredHooks(hookContextPairs, clientHooks, type);
+        addFilteredHooks(hookContextPairs, apiHooks, type);
+        hookSupportData.hooks = hookContextPairs;
+    }
+
+    private static void addFilteredHooks(
+            List<Pair<Hook, HookContext>> dest, Collection<Hook> source, FlagValueType type) {
+        for (Hook hook : source) {
             if (hook.supportsFlagValueType(type)) {
-                hookContextPairs.add(Pair.of(hook, null));
+                dest.add(Pair.of(hook, null));
             }
         }
-        hookSupportData.hooks = hookContextPairs;
     }
 
     /**
