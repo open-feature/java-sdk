@@ -16,7 +16,10 @@ class HookSupport {
     /**
      * Sets the {@link Hook}-{@link HookContext}-{@link Pair} list in the given data object with {@link HookContext}
      * set to null. Filters hooks by supported {@link FlagValueType}.
-     * Sources are iterated in order: provider → options → client → API.
+     * Sources are iterated in order: provider, options, client, API (reversed for the {@code before} stage by
+     * {@link #executeBeforeHooks}).
+     *
+     * <p>The four hook sources are accepted as separate collections to avoid allocation on the evaluation hot path.
      *
      * @param hookSupportData the data object to modify
      * @param providerHooks   provider-level hooks
