@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -159,6 +160,37 @@ class HookSupportTest implements HookFixtures {
         assertThat(hookSupportData.getHooks())
                 .extracting(Pair::getKey)
                 .containsExactly(providerHook, optionHook, clientHook, apiHook);
+    }
+
+    @Test
+    @DisplayName("empty ConcurrentLinkedQueue sources produce no hooks")
+    void emptyQueueSourcesProduceNoHooks() {
+        var hookSupportData = new HookSupportData();
+        hookSupport.setHooks(
+                hookSupportData,
+                new ConcurrentLinkedQueue<>(),
+                new ConcurrentLinkedQueue<>(),
+                new ConcurrentLinkedQueue<>(),
+                new ConcurrentLinkedQueue<>(),
+                FlagValueType.STRING);
+        assertThat(hookSupportData.getHooks()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("non-empty ConcurrentLinkedQueue source is not skipped")
+    void nonEmptyQueueSourceIsNotSkipped() {
+        Hook<?> hook = mockGenericHook();
+        var queue = new ConcurrentLinkedQueue<Hook>();
+        queue.add(hook);
+        var hookSupportData = new HookSupportData();
+        hookSupport.setHooks(
+                hookSupportData,
+                new ConcurrentLinkedQueue<>(),
+                new ConcurrentLinkedQueue<>(),
+                queue,
+                new ConcurrentLinkedQueue<>(),
+                FlagValueType.STRING);
+        assertThat(hookSupportData.getHooks()).extracting(Pair::getKey).containsExactly(hook);
     }
 
     @Test
