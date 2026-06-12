@@ -170,11 +170,10 @@ class ProviderRepository {
             }
             FeatureProviderStateManager existing = getExistingStateManagerForProvider(newProvider);
             if (existing == null) {
+                openFeatureAPI.registerGlobalProvider(newProvider);
                 newStateManager = new FeatureProviderStateManager(newProvider);
                 // only run afterSet if new provider is not already attached
                 afterSet.accept(newProvider);
-                // spec 1.8.4: warn if this provider is already bound to another API instance
-                openFeatureAPI.registerGlobalProvider(newProvider);
             } else {
                 newStateManager = existing;
             }

@@ -1,7 +1,7 @@
 package dev.openfeature.sdk.isolated;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.contains;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.NoOpProvider;
@@ -17,9 +17,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.mockito.Mockito;
-import org.simplify4u.slf4jmock.LoggerMock;
-import org.slf4j.Logger;
 
 class IsolatedAPITest {
 
@@ -211,25 +208,20 @@ class IsolatedAPITest {
     }
 
     /**
-     * Requirement 1.8.4 — a warning is logged when the same provider instance
+     * Requirement 1.8.4 — an exception is thrown when the same provider instance
      * is registered with more than one API instance simultaneously.
      */
     @Test
-    @DisplayName("warn when same provider bound to multiple API instances (req 1.8.4)")
-    void warnWhenProviderBoundToMultipleInstances() {
-        Logger mockLogger = Mockito.mock(Logger.class);
-        LoggerMock.setMock(OpenFeatureAPI.class, mockLogger);
-        try {
-            OpenFeatureAPI api1 = OpenFeatureAPI.createIsolated();
-            OpenFeatureAPI api2 = OpenFeatureAPI.createIsolated();
+    @DisplayName("throw when same provider bound to multiple API instances (req 1.8.4)")
+    void throwWhenProviderBoundToMultipleInstances() {
+        OpenFeatureAPI api1 = OpenFeatureAPI.createIsolated();
+        OpenFeatureAPI api2 = OpenFeatureAPI.createIsolated();
 
-            NoOpProvider provider = new NoOpProvider();
-            api1.setProvider(provider);
-            api2.setProvider(provider);
+        NoOpProvider provider = new NoOpProvider();
+        api1.setProvider(provider);
 
-            Mockito.verify(mockLogger).warn(contains("1.8.4"));
-        } finally {
-            LoggerMock.setMock(OpenFeatureAPI.class, null);
-        }
+        assertThatThrownBy(() -> api2.setProvider(provider))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("1.8.4");
     }
 }

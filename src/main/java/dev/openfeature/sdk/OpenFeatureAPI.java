@@ -6,10 +6,12 @@ import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -38,9 +40,12 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
      * Global registry tracking which API instance each provider is currently bound to.
      * Used to detect violations of spec requirement 1.8.4 (a provider SHOULD NOT be
      * registered with more than one API instance simultaneously).
+     *
+     * <p>Backed by a {@link WeakHashMap} so providers that are discarded without explicit
+     * deregistration do not pin the API instance in memory.
      */
-    private static final ConcurrentHashMap<FeatureProvider, OpenFeatureAPI> GLOBAL_PROVIDER_REGISTRY =
-            new ConcurrentHashMap<>();
+    private static final Map<FeatureProvider, OpenFeatureAPI> GLOBAL_PROVIDER_REGISTRY =
+            Collections.synchronizedMap(new WeakHashMap<>());
 
     // package-private multi-read/single-write lock (instance-level for isolation)
     final AutoCloseableReentrantReadWriteLock lock;
@@ -373,20 +378,23 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
     }
 
     /**
-     * Registers a provider with the global registry, warning if it is already
+     * Registers a provider with the global registry, throwing if it is already
      * bound to a different API instance (spec requirement 1.8.4).
+     *
+     * @throws IllegalStateException if the provider is already bound to a different API instance
      */
     void registerGlobalProvider(FeatureProvider provider) {
-        GLOBAL_PROVIDER_REGISTRY.compute(provider, (p, existing) -> {
+        synchronized (GLOBAL_PROVIDER_REGISTRY) {
+            OpenFeatureAPI existing = GLOBAL_PROVIDER_REGISTRY.get(provider);
             if (existing != null && existing != this) {
-                log.warn("Provider "
+                throw new IllegalStateException("Provider "
                         + provider.getClass().getName()
                         + " is already registered with another API instance. "
                         + "A provider SHOULD NOT be bound to more than one API instance "
                         + "simultaneously (spec requirement 1.8.4).");
             }
-            return this;
-        });
+            GLOBAL_PROVIDER_REGISTRY.put(provider, this);
+        }
     }
 
     /**
