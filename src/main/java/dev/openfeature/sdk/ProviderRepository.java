@@ -170,6 +170,7 @@ class ProviderRepository {
             }
             FeatureProviderStateManager existing = getExistingStateManagerForProvider(newProvider);
             if (existing == null) {
+                openFeatureAPI.registerGlobalProvider(newProvider);
                 newStateManager = new FeatureProviderStateManager(newProvider);
                 // only run afterSet if new provider is not already attached
                 afterSet.accept(newProvider);
@@ -236,6 +237,8 @@ class ProviderRepository {
     private void shutDownOld(FeatureProviderStateManager oldManager, Consumer<FeatureProvider> afterShutdown) {
         synchronized (registerStateManagerLock) {
             if (oldManager != null && !isStateManagerRegistered(oldManager)) {
+                // spec 1.8.4: release the provider from the global registry
+                openFeatureAPI.deregisterGlobalProvider(oldManager.getProvider());
                 shutdownProvider(oldManager);
                 afterShutdown.accept(oldManager.getProvider());
             }
@@ -327,7 +330,11 @@ class ProviderRepository {
      * @param managersToShutdown the managers to shut down (from prepareShutdown)
      */
     void completeShutdown(List<FeatureProviderStateManager> managersToShutdown) {
-        managersToShutdown.forEach(this::shutdownProvider);
+        managersToShutdown.forEach(m -> {
+            // spec 1.8.4: release all providers from the global registry on shutdown
+            openFeatureAPI.deregisterGlobalProvider(m.getProvider());
+            shutdownProvider(m);
+        });
         taskExecutor.shutdown();
         try {
             if (!taskExecutor.awaitTermination(EventSupport.SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {

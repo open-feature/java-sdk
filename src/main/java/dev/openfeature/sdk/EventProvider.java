@@ -1,10 +1,12 @@
 package dev.openfeature.sdk;
 
+import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import dev.openfeature.sdk.internal.ConfigurableThreadFactory;
 import dev.openfeature.sdk.internal.TriConsumer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -29,21 +31,35 @@ public abstract class EventProvider implements FeatureProvider {
         this.eventProviderListener = eventProviderListener;
     }
 
-    private TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = null;
+    // Bundles onEmit and lock into a single volatile reference so they are always read atomically:
+    // a non-null attachment guarantees a non-null lock.
+    private static final class Attachment {
+        final TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit;
+        final AutoCloseableReentrantReadWriteLock lock;
+
+        Attachment(
+                TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit,
+                AutoCloseableReentrantReadWriteLock lock) {
+            this.onEmit = onEmit;
+            this.lock = lock;
+        }
+    }
+
+    private final AtomicReference<Attachment> attachment = new AtomicReference<>(null);
 
     /**
      * "Attach" this EventProvider to an SDK, which allows events to propagate from this provider.
-     * No-op if the same onEmit is already attached.
      *
      * @param onEmit the function to run when a provider emits events.
+     * @param lock   the API instance's read/write lock for thread safety.
      * @throws IllegalStateException if attempted to bind a new emitter for already bound provider
      */
-    void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit) {
-        if (this.onEmit != null && this.onEmit != onEmit) {
-            // if we are trying to attach this provider to a different onEmit, something has gone wrong
+    void attach(
+            TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit,
+            AutoCloseableReentrantReadWriteLock lock) {
+        Attachment newAttachment = new Attachment(onEmit, lock);
+        if (!this.attachment.compareAndSet(null, newAttachment)) {
             throw new IllegalStateException("Provider " + this.getMetadata().getName() + " is already attached.");
-        } else {
-            this.onEmit = onEmit;
         }
     }
 
@@ -51,7 +67,7 @@ public abstract class EventProvider implements FeatureProvider {
      * "Detach" this EventProvider from an SDK, stopping propagation of all events.
      */
     void detach() {
-        this.onEmit = null;
+        this.attachment.set(null);
     }
 
     /**
@@ -80,9 +96,9 @@ public abstract class EventProvider implements FeatureProvider {
      */
     public Awaitable emit(final ProviderEvent event, final ProviderEventDetails details) {
         final var localEventProviderListener = this.eventProviderListener;
-        final var localOnEmit = this.onEmit;
+        final var localAttachment = this.attachment.get();
 
-        if (localEventProviderListener == null && localOnEmit == null) {
+        if (localEventProviderListener == null && localAttachment == null) {
             return Awaitable.FINISHED;
         }
 
@@ -91,12 +107,14 @@ public abstract class EventProvider implements FeatureProvider {
         // These calls need to be executed on a different thread to prevent deadlocks when the provider initialization
         // relies on a ready event to be emitted
         emitterExecutor.submit(() -> {
-            try (var ignored = OpenFeatureAPI.lock.readLockAutoCloseable()) {
+            // Lock is only needed when attached to an API instance. A non-null attachment always
+            // carries a non-null lock, so no null check on the lock itself is required.
+            try (var ignored = localAttachment != null ? localAttachment.lock.readLockAutoCloseable() : null) {
                 if (localEventProviderListener != null) {
                     localEventProviderListener.onEmit(event, details);
                 }
-                if (localOnEmit != null) {
-                    localOnEmit.accept(this, event, details);
+                if (localAttachment != null) {
+                    localAttachment.onEmit.accept(this, event, details);
                 }
             } finally {
                 awaitable.wakeup();
