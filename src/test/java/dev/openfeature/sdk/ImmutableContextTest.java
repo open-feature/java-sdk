@@ -1,6 +1,7 @@
 package dev.openfeature.sdk;
 
 import static dev.openfeature.sdk.EvaluationContext.TARGETING_KEY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -214,6 +215,42 @@ class ImmutableContextTest {
         int first = ctx.hashCode();
         int second = ctx.hashCode();
         assertEquals(first, second);
+    }
+
+    @Nested
+    @DisplayName("ImmutableContext(String, Map) branch logic")
+    class ConstructorBranches {
+
+        @Test
+        @DisplayName("non-null targeting key with empty attributes is preserved")
+        void nonNullTargetingKeyWithEmptyAttributesIsPreserved() {
+            ImmutableContext ctx = new ImmutableContext("key", Collections.emptyMap());
+            assertThat(ctx.getTargetingKey()).isEqualTo("key");
+            assertThat(ctx.keySet()).contains(TARGETING_KEY);
+        }
+
+        @Test
+        @DisplayName("non-null targeting key with null attributes is preserved")
+        void nonNullTargetingKeyWithNullAttributesIsPreserved() {
+            ImmutableContext ctx = new ImmutableContext("key", null);
+            assertThat(ctx.getTargetingKey()).isEqualTo("key");
+        }
+
+        @Test
+        @DisplayName("null targeting key with empty attributes yields empty context")
+        void nullTargetingKeyWithEmptyAttributesYieldsEmptyContext() {
+            ImmutableContext ctx = new ImmutableContext((String) null, Collections.emptyMap());
+            assertThat(ctx.getTargetingKey()).isNull();
+            assertThat(ctx.isEmpty()).isTrue();
+        }
+
+        @Test
+        @DisplayName("null targeting key with null attributes yields empty context")
+        void nullTargetingKeyWithNullAttributesYieldsEmptyContext() {
+            ImmutableContext ctx = new ImmutableContext((String) null, null);
+            assertThat(ctx.getTargetingKey()).isNull();
+            assertThat(ctx.isEmpty()).isTrue();
+        }
     }
 
     @Nested
