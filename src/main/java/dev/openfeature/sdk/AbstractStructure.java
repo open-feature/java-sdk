@@ -29,6 +29,9 @@ abstract class AbstractStructure implements Structure {
      * @return immutable map
      */
     public Map<String, Value> asUnmodifiableMap() {
+        if (attributes == null || attributes.isEmpty()) {
+            return Collections.emptyMap();
+        }
         return Collections.unmodifiableMap(attributes);
     }
 
