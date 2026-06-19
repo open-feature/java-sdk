@@ -45,6 +45,9 @@ class HookSupport {
 
     private static void addFilteredHooks(
             List<Pair<Hook, HookContext>> dest, Collection<Hook> source, FlagValueType type) {
+        if (source.isEmpty()) {
+            return;
+        }
         for (Hook hook : source) {
             if (hook.supportsFlagValueType(type)) {
                 dest.add(Pair.of(hook, null));
