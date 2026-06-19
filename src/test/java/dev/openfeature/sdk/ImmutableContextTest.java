@@ -254,6 +254,41 @@ class ImmutableContextTest {
     }
 
     @Nested
+    @DisplayName("ImmutableContext.merge() empty short-circuit")
+    class MergeEmpty {
+
+        @Test
+        @DisplayName("merging two empty contexts returns the EMPTY singleton")
+        void mergingTwoEmptyContextsReturnsEmptySingleton() {
+            EvaluationContext result = new ImmutableContext().merge(new ImmutableContext());
+            assertThat(result).isSameAs(ImmutableContext.EMPTY);
+        }
+
+        @Test
+        @DisplayName("merging empty context with null returns the EMPTY singleton")
+        void mergingEmptyContextWithNullReturnsEmptySingleton() {
+            EvaluationContext result = new ImmutableContext().merge(null);
+            assertThat(result).isSameAs(ImmutableContext.EMPTY);
+        }
+
+        @Test
+        @DisplayName("merging non-empty context with null does not return EMPTY")
+        void mergingNonEmptyContextWithNullDoesNotReturnEmpty() {
+            EvaluationContext result = new ImmutableContext("key").merge(null);
+            assertThat(result).isNotSameAs(ImmutableContext.EMPTY);
+            assertThat(result.getTargetingKey()).isEqualTo("key");
+        }
+
+        @Test
+        @DisplayName("merging non-empty context with empty override does not return EMPTY")
+        void mergingNonEmptyContextWithEmptyOverrideDoesNotReturnEmpty() {
+            EvaluationContext result = new ImmutableContext("key").merge(new ImmutableContext());
+            assertThat(result).isNotSameAs(ImmutableContext.EMPTY);
+            assertThat(result.getTargetingKey()).isEqualTo("key");
+        }
+    }
+
+    @Nested
     class Equals {
         ImmutableContext ctx = new ImmutableContext("c", Map.of("a", new Value("b")));
 
