@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -20,6 +21,8 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:MissingJavadocType"})
 public final class ImmutableStructure extends AbstractStructure {
+
+    static final ImmutableStructure EMPTY = new ImmutableStructure(Collections.emptyMap());
 
     /**
      * create an immutable structure with the empty attributes.
