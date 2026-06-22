@@ -1,5 +1,95 @@
 # Changelog
 
+## [1.21.0](https://github.com/open-feature/java-sdk/compare/v1.20.2...v1.21.0) (2026-06-22)
+
+
+### 🐛 Bug Fixes
+
+* collect and propagate per-provider errors in multi-provider strategies ([#1901](https://github.com/open-feature/java-sdk/issues/1901)) ([f938b26](https://github.com/open-feature/java-sdk/commit/f938b26efbabfe577e304099c26caa3b58513d3c))
+* **deps:** update dependency com.fasterxml.jackson:jackson-bom to v2.21.2 ([#1907](https://github.com/open-feature/java-sdk/issues/1907)) ([bb19ba9](https://github.com/open-feature/java-sdk/commit/bb19ba92722cbe14b0a435bebe90afd584e4408b))
+* **deps:** update dependency com.fasterxml.jackson:jackson-bom to v2.21.3 ([#1935](https://github.com/open-feature/java-sdk/issues/1935)) ([51754a5](https://github.com/open-feature/java-sdk/commit/51754a56e491b6b6868f17cbd6a3692ce5f0c95b))
+* **deps:** update dependency org.junit:junit-bom to v6.1.0 ([#1941](https://github.com/open-feature/java-sdk/issues/1941)) ([76b71c2](https://github.com/open-feature/java-sdk/commit/76b71c205b132b2d5c78f2c2d082eb127df99c39))
+* **deps:** update dependency org.projectlombok:lombok to v1.18.46 ([#1932](https://github.com/open-feature/java-sdk/issues/1932)) ([639ee61](https://github.com/open-feature/java-sdk/commit/639ee618c83b5eea679f6c45ff72fcf744420659))
+* **deps:** update dependency org.slf4j:slf4j-api to v2.0.18 ([#1937](https://github.com/open-feature/java-sdk/issues/1937)) ([ea41f90](https://github.com/open-feature/java-sdk/commit/ea41f9079329a94bbecd581c64a2524840c23555))
+* **deps:** update jackson monorepo to v2.22.0 ([#1946](https://github.com/open-feature/java-sdk/issues/1946)) ([58091f3](https://github.com/open-feature/java-sdk/commit/58091f34a4851513e8adbbf34f88223701544ad4))
+* Domain client event handlers no longer disappear ([#1922](https://github.com/open-feature/java-sdk/issues/1922)) ([5562cb9](https://github.com/open-feature/java-sdk/commit/5562cb93fc8e769ed1b2800f8e6ceece3baaab4e))
+* keep distributionManagement in flattened pom ([#1958](https://github.com/open-feature/java-sdk/issues/1958)) ([08ce6d0](https://github.com/open-feature/java-sdk/commit/08ce6d0c9b7c47601408f5c5d02502bced18a18d))
+* shutdown now clears hooks, evaluationContext and transactionContextPropagator as per spec 1.6.2 ([#1936](https://github.com/open-feature/java-sdk/issues/1936)) ([fb2181f](https://github.com/open-feature/java-sdk/commit/fb2181f974af3d121ee013ede152d4e91eb8e0b3))
+
+
+### ✨ New Features
+
+* support isolated API instances ([#1928](https://github.com/open-feature/java-sdk/issues/1928)) ([231464a](https://github.com/open-feature/java-sdk/commit/231464a0975e2a3eceb33f75e9e31021424de31a))
+
+
+### 🧹 Chore
+
+* **deps:** update codecov/codecov-action action to v6 ([#1913](https://github.com/open-feature/java-sdk/issues/1913)) ([f2f14e3](https://github.com/open-feature/java-sdk/commit/f2f14e3652cdbb031341972a94619c6dc85a4425))
+* **deps:** update codecov/codecov-action action to v6.0.1 ([#1940](https://github.com/open-feature/java-sdk/issues/1940)) ([fb84d68](https://github.com/open-feature/java-sdk/commit/fb84d68157cf7c73762578ff780ff23f8a739ad5))
+* **deps:** update codecov/codecov-action action to v6.0.2 ([#1960](https://github.com/open-feature/java-sdk/issues/1960)) ([039adc4](https://github.com/open-feature/java-sdk/commit/039adc4639f0b0ba63192432cc7dc00bdebd3a4d))
+* **deps:** update codecov/codecov-action action to v7 ([#1961](https://github.com/open-feature/java-sdk/issues/1961)) ([d779ae4](https://github.com/open-feature/java-sdk/commit/d779ae43239203167e39c5a94916de0836a8d2d2))
+* **deps:** update com.vmlens.version to v1.2.28 ([#1923](https://github.com/open-feature/java-sdk/issues/1923)) ([f2f7df7](https://github.com/open-feature/java-sdk/commit/f2f7df7f04699a90e79fa95f7804b11924ff4e31))
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.5.1 ([#1938](https://github.com/open-feature/java-sdk/issues/1938)) ([6367b8a](https://github.com/open-feature/java-sdk/commit/6367b8a1c69d605b86491e5bee266b8369695f93))
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.6.0 ([#1942](https://github.com/open-feature/java-sdk/issues/1942)) ([cd29cd9](https://github.com/open-feature/java-sdk/commit/cd29cd9981cba725ab292567b31807c2b1d2d187))
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.7.0 ([#1967](https://github.com/open-feature/java-sdk/issues/1967)) ([3a05490](https://github.com/open-feature/java-sdk/commit/3a054908e3022920d3e02b9d350f914262c10268))
+* **deps:** update dependency com.github.spotbugs:spotbugs to v4.10.1 ([#1962](https://github.com/open-feature/java-sdk/issues/1962)) ([9375570](https://github.com/open-feature/java-sdk/commit/93755707aad9eb7afa8e90c415e2ad1f0273e974))
+* **deps:** update dependency com.github.spotbugs:spotbugs to v4.10.2 ([#1965](https://github.com/open-feature/java-sdk/issues/1965)) ([50da905](https://github.com/open-feature/java-sdk/commit/50da9052b876c2549913ea115ca889c7e2fcacd3))
+* **deps:** update dependency com.github.spotbugs:spotbugs-maven-plugin to v4.10.2.0 ([#1966](https://github.com/open-feature/java-sdk/issues/1966)) ([75391aa](https://github.com/open-feature/java-sdk/commit/75391aa58af58347eb76f631f4f083e725fbe32c))
+* **deps:** update dependency com.github.spotbugs:spotbugs-maven-plugin to v4.9.8.3 ([#1915](https://github.com/open-feature/java-sdk/issues/1915)) ([c476180](https://github.com/open-feature/java-sdk/commit/c476180e3a4044e28fb9abc6664e881a11d86f6d))
+* **deps:** update dependency com.github.spotbugs:spotbugs-maven-plugin to v4.9.8.4 ([#1963](https://github.com/open-feature/java-sdk/issues/1963)) ([864f9cf](https://github.com/open-feature/java-sdk/commit/864f9cf67799345cf9b70478f6556dd2b8de3a96))
+* **deps:** update dependency com.github.spotbugs:spotbugs-maven-plugin to v4.9.8.5 ([#1964](https://github.com/open-feature/java-sdk/issues/1964)) ([d8eb4fc](https://github.com/open-feature/java-sdk/commit/d8eb4fc177f455b4814d423ee28c4ad1ebd99ac2))
+* **deps:** update dependency com.google.guava:guava to v33.6.0-jre ([#1927](https://github.com/open-feature/java-sdk/issues/1927)) ([c69bb0e](https://github.com/open-feature/java-sdk/commit/c69bb0ebb6a8864085f00049b3885c3b9e01bb9d))
+* **deps:** update dependency com.tngtech.archunit:archunit-junit5 to v1.4.2 ([#1930](https://github.com/open-feature/java-sdk/issues/1930)) ([b683371](https://github.com/open-feature/java-sdk/commit/b683371cca495e16a56558c4bc58352c975ed71a))
+* **deps:** update dependency maven to v3.9.15 ([#1929](https://github.com/open-feature/java-sdk/issues/1929)) ([e300520](https://github.com/open-feature/java-sdk/commit/e300520e22de266056af920b50d4f294a4e91043))
+* **deps:** update dependency maven to v3.9.16 ([#1939](https://github.com/open-feature/java-sdk/issues/1939)) ([b4b913c](https://github.com/open-feature/java-sdk/commit/b4b913c9118833bf75ebe4bff1baa61a7433b7c0))
+* **deps:** update dependency net.bytebuddy:byte-buddy to v1.18.10-jdk5 ([#1949](https://github.com/open-feature/java-sdk/issues/1949)) ([8bd83fc](https://github.com/open-feature/java-sdk/commit/8bd83fc58e2bda990103980a2257aefdbbcaf863))
+* **deps:** update dependency net.bytebuddy:byte-buddy to v1.18.8-jdk5 ([#1917](https://github.com/open-feature/java-sdk/issues/1917)) ([0c26c70](https://github.com/open-feature/java-sdk/commit/0c26c70fd2eb2988d339c0be727af9dc74bbcd2c))
+* **deps:** update dependency net.bytebuddy:byte-buddy to v1.18.9-jdk5 ([#1947](https://github.com/open-feature/java-sdk/issues/1947)) ([78fb82d](https://github.com/open-feature/java-sdk/commit/78fb82df2a20746a00c0226dca8feac1c37af638))
+* **deps:** update dependency net.bytebuddy:byte-buddy-agent to v1.18.10-jdk5 ([#1950](https://github.com/open-feature/java-sdk/issues/1950)) ([484782b](https://github.com/open-feature/java-sdk/commit/484782b2d96e0f234378aac4acd9d2535ba688ba))
+* **deps:** update dependency net.bytebuddy:byte-buddy-agent to v1.18.8-jdk5 ([#1918](https://github.com/open-feature/java-sdk/issues/1918)) ([04ca748](https://github.com/open-feature/java-sdk/commit/04ca748688c6df9ca27efde42bf31e7d75d57459))
+* **deps:** update dependency net.bytebuddy:byte-buddy-agent to v1.18.9-jdk5 ([#1948](https://github.com/open-feature/java-sdk/issues/1948)) ([647bd1d](https://github.com/open-feature/java-sdk/commit/647bd1d933399415adac59486d481e95556a12bf))
+* **deps:** update dependency org.apache.maven.plugins:maven-dependency-plugin to v3.11.0 ([#1945](https://github.com/open-feature/java-sdk/issues/1945)) ([9649ff3](https://github.com/open-feature/java-sdk/commit/9649ff361fc2588bd4494de6ff0c0663f8e97409))
+* **deps:** update dependency org.apache.maven.plugins:maven-failsafe-plugin to v3.5.6 ([#1943](https://github.com/open-feature/java-sdk/issues/1943)) ([d0278bb](https://github.com/open-feature/java-sdk/commit/d0278bb183c79e18cc65976fe9e3955998492865))
+* **deps:** update dependency org.apache.maven.plugins:maven-surefire-plugin to v3.5.6 ([#1944](https://github.com/open-feature/java-sdk/issues/1944)) ([aa284ec](https://github.com/open-feature/java-sdk/commit/aa284eca3ca59e444e029d1a1a8327cd5c2887d5))
+* **deps:** update dependency org.codehaus.mojo:flatten-maven-plugin to v1.7.3 ([#1957](https://github.com/open-feature/java-sdk/issues/1957)) ([733af9e](https://github.com/open-feature/java-sdk/commit/733af9e714f7763363425e0651043dc254afcc91))
+* **deps:** update dependency org.cyclonedx:cyclonedx-maven-plugin to v2.9.2 ([#1976](https://github.com/open-feature/java-sdk/issues/1976)) ([62fda56](https://github.com/open-feature/java-sdk/commit/62fda56d5a9d79c37b16360a000e15cf49ec7187))
+* **deps:** update github/codeql-action digest to 05b1a5d ([#1906](https://github.com/open-feature/java-sdk/issues/1906)) ([d2e15b4](https://github.com/open-feature/java-sdk/commit/d2e15b467005264e3623f6662ab7d4cda35def86))
+* **deps:** update github/codeql-action digest to 30c555a ([#1904](https://github.com/open-feature/java-sdk/issues/1904)) ([4638622](https://github.com/open-feature/java-sdk/commit/463862248405dd916e9d42a76ce9530956cccc32))
+* **deps:** update github/codeql-action digest to 34950e1 ([#1921](https://github.com/open-feature/java-sdk/issues/1921)) ([ea2d573](https://github.com/open-feature/java-sdk/commit/ea2d573d340f17b66570aef3103e613a6422ed1e))
+* **deps:** update github/codeql-action digest to 3d564d9 ([#1910](https://github.com/open-feature/java-sdk/issues/1910)) ([88fb702](https://github.com/open-feature/java-sdk/commit/88fb702984572c26d561ffcbc46f5df37b35f779))
+* **deps:** update github/codeql-action digest to 57ec7e1 ([#1920](https://github.com/open-feature/java-sdk/issues/1920)) ([fcd0773](https://github.com/open-feature/java-sdk/commit/fcd0773043d50f23b8eb0b8df66930091b921c94))
+* **deps:** update github/codeql-action digest to 72c0b0e ([#1908](https://github.com/open-feature/java-sdk/issues/1908)) ([39c9df3](https://github.com/open-feature/java-sdk/commit/39c9df3aebb86aaaebe8d6e5363722e427931202))
+* **deps:** update github/codeql-action digest to a899987 ([#1914](https://github.com/open-feature/java-sdk/issues/1914)) ([eecb2d6](https://github.com/open-feature/java-sdk/commit/eecb2d623210390c7e5127003eac1894b05dec6f))
+* **deps:** update github/codeql-action digest to b623f5f ([#1924](https://github.com/open-feature/java-sdk/issues/1924)) ([d5f7a64](https://github.com/open-feature/java-sdk/commit/d5f7a645688f5f45129626b5eaac1af32280245e))
+* **deps:** update github/codeql-action digest to c618c9b ([#1916](https://github.com/open-feature/java-sdk/issues/1916)) ([36eb2e0](https://github.com/open-feature/java-sdk/commit/36eb2e08e79b86bf14494edae29675b3d5b7539e))
+* **deps:** update github/codeql-action digest to eedab83 ([#1909](https://github.com/open-feature/java-sdk/issues/1909)) ([050633c](https://github.com/open-feature/java-sdk/commit/050633c6770f4fc28890cc8dcc343575c622f21b))
+* **deps:** update github/codeql-action digest to f94817b ([#1911](https://github.com/open-feature/java-sdk/issues/1911)) ([e8a99d8](https://github.com/open-feature/java-sdk/commit/e8a99d8dc33f290c1348f113e109fb7e9ce05499))
+* **deps:** update googleapis/release-please-action action to v5 ([#1933](https://github.com/open-feature/java-sdk/issues/1933)) ([72259d1](https://github.com/open-feature/java-sdk/commit/72259d144f5463a137f5038f6f4114cb4dd5ba62))
+* flatten pom, add licences to jar ([#1951](https://github.com/open-feature/java-sdk/issues/1951)) ([42418c1](https://github.com/open-feature/java-sdk/commit/42418c1701dfd07df46b5deaaed5ef2749e6f3dd))
+
+
+### 📚 Documentation
+
+* fix inaccuracies in README code examples ([#1931](https://github.com/open-feature/java-sdk/issues/1931)) ([cc837b1](https://github.com/open-feature/java-sdk/commit/cc837b17ee2fbd29c9162b973f4db47d29acc489))
+
+
+### 🚀 Performance
+
+* avoid ImmutableStructure allocation for empty ImmutableContext ([#1972](https://github.com/open-feature/java-sdk/issues/1972)) ([b54f6dc](https://github.com/open-feature/java-sdk/commit/b54f6dc0e4502d7182df7da0f311abcda7fc376f))
+* avoid Optional.ofNullable wrapping on hook.before() return value ([#1955](https://github.com/open-feature/java-sdk/issues/1955)) ([b611d55](https://github.com/open-feature/java-sdk/commit/b611d55d5fe54107ea16e06bb866ad899cad73fb))
+* cache clientMetadata lambda to avoid per-call allocation ([#1952](https://github.com/open-feature/java-sdk/issues/1952)) ([85c0047](https://github.com/open-feature/java-sdk/commit/85c0047c04d4ade912b3b405cd8dfda154d7cb98))
+* eliminate merge allocation in setHooks by accepting hook sources directly ([#1956](https://github.com/open-feature/java-sdk/issues/1956)) ([a5ba3c6](https://github.com/open-feature/java-sdk/commit/a5ba3c667d1feec503beebe2b991d6f8561e67f5))
+* empty default for ProviderEvaluation ([#1970](https://github.com/open-feature/java-sdk/issues/1970)) ([7f92622](https://github.com/open-feature/java-sdk/commit/7f92622a455cab102655fa0b25a69dfa359688b4))
+* replace copy+reverse with index-based traversal in executeBefor… ([#1954](https://github.com/open-feature/java-sdk/issues/1954)) ([8fbf507](https://github.com/open-feature/java-sdk/commit/8fbf507202453ad9e308785b96b174c750d144de))
+* replace copy+reverse with index-based traversal in executeBeforeHooks ([8fbf507](https://github.com/open-feature/java-sdk/commit/8fbf507202453ad9e308785b96b174c750d144de))
+* return Collections.emptyMap() from asUnmodifiableMap() when attributes is empty ([#1974](https://github.com/open-feature/java-sdk/issues/1974)) ([a8277d0](https://github.com/open-feature/java-sdk/commit/a8277d0024c0bbb328a8edb1b553ece5b1be28b1))
+* return ImmutableContext.EMPTY from NoOpTransactionContextPropag… ([#1975](https://github.com/open-feature/java-sdk/issues/1975)) ([78afa98](https://github.com/open-feature/java-sdk/commit/78afa9840b06ca6472b100a82578e4893d136eec))
+* return ImmutableContext.EMPTY from NoOpTransactionContextPropagator ([78afa98](https://github.com/open-feature/java-sdk/commit/78afa9840b06ca6472b100a82578e4893d136eec))
+* return ImmutableContext.EMPTY when merging two empty contexts ([#1973](https://github.com/open-feature/java-sdk/issues/1973)) ([d492685](https://github.com/open-feature/java-sdk/commit/d492685423f3a1d375f9639a5f20082a562845da))
+* skip ImmutableMetadata allocation when builder has no entries ([#1971](https://github.com/open-feature/java-sdk/issues/1971)) ([e014572](https://github.com/open-feature/java-sdk/commit/e014572ce6631f2abc59e10c416e923ceba99852))
+* skip iterating over empty list ([#1969](https://github.com/open-feature/java-sdk/issues/1969)) ([b21f4a8](https://github.com/open-feature/java-sdk/commit/b21f4a87dfcf100a13f89454a24c1fd8f1392d86))
+* skip unmodifiableMap wrapper when hookHints is empty ([#1953](https://github.com/open-feature/java-sdk/issues/1953)) ([b592514](https://github.com/open-feature/java-sdk/commit/b592514b6a7f4592330462d763e0124f040a6ff5))
+
 ## [1.20.2](https://github.com/open-feature/java-sdk/compare/v1.20.1...v1.20.2) (2026-03-19)
 
 
