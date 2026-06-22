@@ -23,5 +23,5 @@ public class ProviderEvaluation<T> implements BaseEvaluation<T> {
     private String errorMessage;
 
     @Builder.Default
-    private ImmutableMetadata flagMetadata = ImmutableMetadata.builder().build();
+    private ImmutableMetadata flagMetadata = ImmutableMetadata.EMPTY;
 }
