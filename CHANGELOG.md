@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.21.1](https://github.com/open-feature/java-sdk/compare/v1.21.0...v1.21.1) (2026-06-30)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.34.4 ([#1977](https://github.com/open-feature/java-sdk/issues/1977)) ([e0bac33](https://github.com/open-feature/java-sdk/commit/e0bac3319f6433588e652c61f0847fcd224cd2ad))
+* **deps:** update dependency org.junit:junit-bom to v6.1.1 ([#1979](https://github.com/open-feature/java-sdk/issues/1979)) ([473755e](https://github.com/open-feature/java-sdk/commit/473755e4a4980f3a8fff42d8a8d08859c40b2ea8))
+
+
+### 🧹 Chore
+
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.8.0 ([#1980](https://github.com/open-feature/java-sdk/issues/1980)) ([1b4490e](https://github.com/open-feature/java-sdk/commit/1b4490eee948f512a1cbe9c89565caac42a8dbac))
+
 ## [1.21.0](https://github.com/open-feature/java-sdk/compare/v1.20.2...v1.21.0) (2026-06-22)
 
 
