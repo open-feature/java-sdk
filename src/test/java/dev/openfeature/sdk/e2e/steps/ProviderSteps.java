@@ -112,11 +112,11 @@ public class ProviderSteps {
         switch (providerState) {
             case FATAL:
             case ERROR:
-                mockProvider.emitProviderReady(details).await();
+                //  mockProvider.emitProviderReady(details).await();
                 mockProvider.emitProviderError(details).await();
                 break;
             case STALE:
-                mockProvider.emitProviderReady(details).await();
+                //  mockProvider.emitProviderReady(details).await();
                 mockProvider.emitProviderStale(details).await();
                 break;
             default:
