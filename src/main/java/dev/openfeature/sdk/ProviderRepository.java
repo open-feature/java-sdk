@@ -3,6 +3,7 @@ package dev.openfeature.sdk;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.internal.ConfigurableThreadFactory;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -154,7 +155,7 @@ class ProviderRepository {
     }
 
     private void prepareAndInitializeProvider(
-            String domain,
+            @Nullable String domain,
             FeatureProvider newProvider,
             Consumer<FeatureProvider> afterSet,
             Consumer<FeatureProvider> afterInit,
@@ -168,6 +169,7 @@ class ProviderRepository {
             if (isShuttingDown.get()) {
                 throw new IllegalStateException("Provider cannot be set while repository is shutting down");
             }
+            validateDomainScopedBinding(domain, newProvider);
             FeatureProviderStateManager existing = getExistingStateManagerForProvider(newProvider);
             if (existing == null) {
                 openFeatureAPI.registerGlobalProvider(newProvider);
@@ -185,12 +187,36 @@ class ProviderRepository {
         }
 
         if (waitForInit) {
-            initializeProvider(newStateManager, afterInit, afterShutdown, afterError, oldStateManager);
+            initializeProvider(domain, newStateManager, afterInit, afterShutdown, afterError, oldStateManager);
         } else {
             taskExecutor.submit(() -> {
                 // initialization happens in a different thread if we're not waiting for it
-                initializeProvider(newStateManager, afterInit, afterShutdown, afterError, oldStateManager);
+                initializeProvider(domain, newStateManager, afterInit, afterShutdown, afterError, oldStateManager);
             });
+        }
+    }
+
+    private void validateDomainScopedBinding(@Nullable String domain, FeatureProvider newProvider) {
+        if (!newProvider.isDomainScoped()) {
+            return;
+        }
+        FeatureProviderStateManager existing = getExistingStateManagerForProvider(newProvider);
+        if (existing == null) {
+            return;
+        }
+        boolean currentlyDefault = isDefaultProvider(newProvider);
+        List<String> boundNamedDomains = getDomainsForProvider(newProvider);
+        if (domain == null) {
+            if (!currentlyDefault) {
+                throw new IllegalArgumentException("Domain-scoped provider cannot be bound to more than one domain");
+            }
+            return;
+        }
+        if (boundNamedDomains.contains(domain)) {
+            return;
+        }
+        if (!boundNamedDomains.isEmpty() || currentlyDefault) {
+            throw new IllegalArgumentException("Domain-scoped provider cannot be bound to more than one domain");
         }
     }
 
@@ -208,6 +234,7 @@ class ProviderRepository {
     }
 
     private void initializeProvider(
+            @Nullable String domain,
             FeatureProviderStateManager newManager,
             Consumer<FeatureProvider> afterInit,
             Consumer<FeatureProvider> afterShutdown,
@@ -215,7 +242,7 @@ class ProviderRepository {
             FeatureProviderStateManager oldManager) {
         try {
             if (ProviderState.NOT_READY.equals(newManager.getState())) {
-                newManager.initialize(openFeatureAPI.getEvaluationContext());
+                newManager.initialize(openFeatureAPI.getEvaluationContext(), domain);
                 afterInit.accept(newManager.getProvider());
             }
             shutDownOld(oldManager, afterShutdown);

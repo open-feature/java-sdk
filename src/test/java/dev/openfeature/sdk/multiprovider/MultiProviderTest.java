@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -55,7 +56,7 @@ class MultiProviderTest extends BaseStrategyTest {
     @SneakyThrows
     @Test
     void shouldHandleInitializationFailure() {
-        doThrow(new GeneralError()).when(mockProvider1).initialize(any());
+        doThrow(new GeneralError()).when(mockProvider1).initialize(any(), isNull());
         doThrow(new GeneralError()).when(mockProvider1).shutdown();
         List<FeatureProvider> providers = new ArrayList<>(2);
         providers.add(mockProvider1);

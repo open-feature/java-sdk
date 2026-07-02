@@ -94,10 +94,10 @@ public class ProviderSteps {
                             while (true) {}
                         })
                         .when(mockProvider)
-                        .initialize(any());
+                        .initialize(any(), any());
                 break;
             case FATAL:
-                doThrow(new FatalError(errorMessage)).when(mockProvider).initialize(any());
+                doThrow(new FatalError(errorMessage)).when(mockProvider).initialize(any(), any());
                 break;
         }
         // Configure all evaluation methods with a single helper

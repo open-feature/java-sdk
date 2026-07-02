@@ -6,6 +6,7 @@ import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.Metadata;
 import dev.openfeature.sdk.ProviderEvaluation;
 import dev.openfeature.sdk.Value;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,6 +85,19 @@ public class MultiProvider extends EventProvider {
      */
     @Override
     public void initialize(EvaluationContext evaluationContext) throws Exception {
+        initialize(evaluationContext, null);
+    }
+
+    /**
+     * Initialize the provider with the bound domain, if any.
+     *
+     * @param evaluationContext evaluation context
+     * @param domain            the bound domain, or {@code null} for the default provider
+     * @throws Exception on error (e.g. wrapped {@link java.util.concurrent.ExecutionException}
+     *                   from a failing provider)
+     */
+    @Override
+    public void initialize(EvaluationContext evaluationContext, @Nullable String domain) throws Exception {
         var metadataBuilder = MultiProviderMetadata.builder().name(NAME);
         HashMap<String, Metadata> providersMetadata = new HashMap<>();
 
@@ -98,7 +112,7 @@ public class MultiProvider extends EventProvider {
             Collection<Callable<Void>> tasks = new ArrayList<>(providers.size());
             for (FeatureProvider provider : providers.values()) {
                 tasks.add(() -> {
-                    provider.initialize(evaluationContext);
+                    provider.initialize(evaluationContext, null);
                     return null;
                 });
                 Metadata providerMetadata = provider.getMetadata();

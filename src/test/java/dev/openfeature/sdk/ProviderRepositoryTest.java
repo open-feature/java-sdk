@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
@@ -64,7 +65,7 @@ class ProviderRepositoryTest {
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() throws Exception {
                 FeatureProvider featureProvider = createMockedProvider();
-                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(new ImmutableContext());
+                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(any(), any());
 
                 await().alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))
@@ -77,11 +78,11 @@ class ProviderRepositoryTest {
                                     mockAfterShutdown(),
                                     mockAfterError(),
                                     false);
-                            verify(featureProvider, timeout(TIMEOUT)).initialize(any());
+                            verify(featureProvider, timeout(TIMEOUT)).initialize(any(), isNull());
                             return true;
                         });
 
-                verify(featureProvider, timeout(TIMEOUT)).initialize(any());
+                verify(featureProvider, timeout(TIMEOUT)).initialize(any(), isNull());
             }
         }
 
@@ -121,7 +122,7 @@ class ProviderRepositoryTest {
             @DisplayName("should immediately return when calling the domain provider mutator")
             void shouldImmediatelyReturnWhenCallingTheDomainProviderMutator() throws Exception {
                 FeatureProvider featureProvider = createMockedProvider();
-                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(any());
+                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(any(), any());
 
                 await().alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))
@@ -135,7 +136,7 @@ class ProviderRepositoryTest {
                                     mockAfterShutdown(),
                                     mockAfterError(),
                                     false);
-                            verify(featureProvider, timeout(TIMEOUT)).initialize(any());
+                            verify(featureProvider, timeout(TIMEOUT)).initialize(any(), eq("a domain"));
                             return true;
                         });
             }
@@ -152,7 +153,7 @@ class ProviderRepositoryTest {
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() throws Exception {
                 FeatureProvider newProvider = createMockedProvider();
-                doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any());
+                doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any(), any());
 
                 await().alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))
@@ -165,11 +166,11 @@ class ProviderRepositoryTest {
                                     mockAfterShutdown(),
                                     mockAfterError(),
                                     false);
-                            verify(newProvider, timeout(TIMEOUT)).initialize(any());
+                            verify(newProvider, timeout(TIMEOUT)).initialize(any(), isNull());
                             return true;
                         });
 
-                verify(newProvider, timeout(TIMEOUT)).initialize(any());
+                verify(newProvider, timeout(TIMEOUT)).initialize(any(), isNull());
             }
 
             @Test
@@ -193,7 +194,7 @@ class ProviderRepositoryTest {
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() throws Exception {
                 FeatureProvider newProvider = createMockedProvider();
-                doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any());
+                doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any(), any());
 
                 Future<?> providerMutation = executorService.submit(() -> providerRepository.setProvider(
                         DOMAIN_NAME,
@@ -357,7 +358,7 @@ class ProviderRepositoryTest {
                 FeatureProvider slowInitProvider = createMockedProvider();
                 AtomicBoolean shutdownCalled = new AtomicBoolean(false);
 
-                doDelayResponse(Duration.ofMillis(500)).when(slowInitProvider).initialize(any());
+                doDelayResponse(Duration.ofMillis(500)).when(slowInitProvider).initialize(any(), any());
 
                 doAnswer(invocation -> {
                             shutdownCalled.set(true);
@@ -456,7 +457,7 @@ class ProviderRepositoryTest {
                             return null;
                         })
                         .when(oldProvider)
-                        .initialize(any());
+                        .initialize(any(), any());
 
                 // Start async initialization (will block)
                 providerRepository.setProvider(

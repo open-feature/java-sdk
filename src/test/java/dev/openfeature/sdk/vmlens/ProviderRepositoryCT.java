@@ -32,7 +32,7 @@ class ProviderRepositoryCT {
                 })
                 .when(provider)
                 .shutdown();
-        doAnswer(invocation -> null).when(provider).initialize(any());
+        doAnswer(invocation -> null).when(provider).initialize(any(), any());
         return provider;
     }
 

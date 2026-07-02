@@ -1,6 +1,7 @@
 package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
@@ -19,11 +20,15 @@ class FeatureProviderStateManager implements EventProviderListener {
     }
 
     public void initialize(EvaluationContext evaluationContext) throws Exception {
+        initialize(evaluationContext, null);
+    }
+
+    public void initialize(EvaluationContext evaluationContext, @Nullable String domain) throws Exception {
         if (isInitialized.getAndSet(true)) {
             return;
         }
         try {
-            delegate.initialize(evaluationContext);
+            delegate.initialize(evaluationContext, domain);
             setState(ProviderState.READY);
         } catch (OpenFeatureError openFeatureError) {
             if (ErrorCode.PROVIDER_FATAL.equals(openFeatureError.getErrorCode())) {
