@@ -302,6 +302,8 @@ public class OpenFeatureClient implements Client {
                 return provider.getStringEvaluation(key, (String) defaultValue, invocationContext);
             case INTEGER:
                 return provider.getIntegerEvaluation(key, (Integer) defaultValue, invocationContext);
+            case LONG:
+                return provider.getLongEvaluation(key, (Long) defaultValue, invocationContext);
             case DOUBLE:
                 return provider.getDoubleEvaluation(key, (Double) defaultValue, invocationContext);
             case OBJECT:
@@ -405,6 +407,37 @@ public class OpenFeatureClient implements Client {
     public FlagEvaluationDetails<Integer> getIntegerDetails(
             String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
         return this.evaluateFlag(FlagValueType.INTEGER, key, defaultValue, ctx, options);
+    }
+
+    @Override
+    public Long getLongValue(String key, Long defaultValue) {
+        return getLongDetails(key, defaultValue).getValue();
+    }
+
+    @Override
+    public Long getLongValue(String key, Long defaultValue, EvaluationContext ctx) {
+        return getLongDetails(key, defaultValue, ctx).getValue();
+    }
+
+    @Override
+    public Long getLongValue(String key, Long defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return getLongDetails(key, defaultValue, ctx, options).getValue();
+    }
+
+    @Override
+    public FlagEvaluationDetails<Long> getLongDetails(String key, Long defaultValue) {
+        return getLongDetails(key, defaultValue, null);
+    }
+
+    @Override
+    public FlagEvaluationDetails<Long> getLongDetails(String key, Long defaultValue, EvaluationContext ctx) {
+        return getLongDetails(key, defaultValue, ctx, FlagEvaluationOptions.EMPTY);
+    }
+
+    @Override
+    public FlagEvaluationDetails<Long> getLongDetails(
+            String key, Long defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return this.evaluateFlag(FlagValueType.LONG, key, defaultValue, ctx, options);
     }
 
     @Override
