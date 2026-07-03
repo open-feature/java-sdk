@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.time.Duration;
@@ -96,14 +97,16 @@ class DomainScopedProviderSpecTest {
     void allowsBindingNonDomainScopedProviderToMultipleDomains() throws Exception {
         FeatureProvider provider = mock(FeatureProvider.class);
         doReturn(ProviderState.NOT_READY).when(provider).getState();
+        Metadata metadata = mock(Metadata.class);
+        doReturn("shared-provider").when(metadata).getName();
+        doReturn(metadata).when(provider).getMetadata();
 
-        assertThatCode(() -> {
-                    api.setProvider(DOMAIN_A, provider);
-                    api.setProvider(DOMAIN_B, provider);
-                })
-                .doesNotThrowAnyException();
+        api.setProviderAndWait(DOMAIN_A, provider);
+        api.setProviderAndWait(DOMAIN_B, provider);
 
-        verify(provider, timeout(1000)).initialize(any(), eq(DOMAIN_A));
+        assertThat(api.getProvider(DOMAIN_A)).isSameAs(provider);
+        assertThat(api.getProvider(DOMAIN_B)).isSameAs(provider);
+        verify(provider, times(1)).initialize(any(), eq(DOMAIN_A));
     }
 
     @Specification(
