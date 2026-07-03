@@ -1,8 +1,8 @@
 package dev.openfeature.sdk;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * The interface implemented by upstream flag providers to resolve flags for
