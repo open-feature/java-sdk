@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,11 @@ class DomainScopedProviderSpecTest {
     void setupTest() {
         api = new OpenFeatureAPI();
         api.setProvider(new NoOpProvider());
+    }
+
+    @AfterEach
+    void tearDown() {
+        api.shutdown();
     }
 
     @Specification(
