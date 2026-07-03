@@ -170,7 +170,7 @@ class ProviderRepository {
                 throw new IllegalStateException("Provider cannot be set while repository is shutting down");
             }
             FeatureProviderStateManager existing = getExistingStateManagerForProvider(newProvider);
-            validateDomainScopedBinding(domain, newProvider, existing);
+            validateDomainScopedBinding(domain, newProvider);
             if (existing == null) {
                 openFeatureAPI.registerGlobalProvider(newProvider);
                 newStateManager = new FeatureProviderStateManager(newProvider);
@@ -196,16 +196,18 @@ class ProviderRepository {
         }
     }
 
-    private void validateDomainScopedBinding(
-            @Nullable String domain, FeatureProvider newProvider, @Nullable FeatureProviderStateManager existing) {
+    private void validateDomainScopedBinding(@Nullable String domain, FeatureProvider newProvider) {
         if (!newProvider.isDomainScoped()) {
             return;
         }
-        if (existing == null) {
+
+        boolean currentlyDefault = isDefaultProviderInstance(newProvider);
+        List<String> boundNamedDomains = getBoundDomainsForProviderInstance(newProvider);
+
+        if (!currentlyDefault && boundNamedDomains.isEmpty()) {
             return;
         }
-        boolean currentlyDefault = isDefaultProvider(newProvider);
-        List<String> boundNamedDomains = getDomainsForProvider(newProvider);
+
         if (domain == null) {
             if (!currentlyDefault) {
                 throw new IllegalArgumentException("Domain-scoped provider cannot be bound to more than one domain");
@@ -220,17 +222,35 @@ class ProviderRepository {
         }
     }
 
+    private boolean isDefaultProviderInstance(FeatureProvider provider) {
+        return defaultStateManger.get().getProvider() == provider;
+    }
+
+    private List<String> getBoundDomainsForProviderInstance(FeatureProvider provider) {
+        return stateManagers.entrySet().stream()
+                .filter(entry -> entry.getValue().getProvider() == provider)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
     private FeatureProviderStateManager getExistingStateManagerForProvider(FeatureProvider provider) {
         for (FeatureProviderStateManager stateManager : stateManagers.values()) {
-            if (stateManager.hasSameProvider(provider)) {
+            if (matchesProvider(stateManager.getProvider(), provider)) {
                 return stateManager;
             }
         }
         FeatureProviderStateManager defaultFeatureProviderStateManager = defaultStateManger.get();
-        if (defaultFeatureProviderStateManager.hasSameProvider(provider)) {
+        if (matchesProvider(defaultFeatureProviderStateManager.getProvider(), provider)) {
             return defaultFeatureProviderStateManager;
         }
         return null;
+    }
+
+    private boolean matchesProvider(FeatureProvider registered, FeatureProvider candidate) {
+        if (candidate.isDomainScoped()) {
+            return registered == candidate;
+        }
+        return registered.equals(candidate);
     }
 
     private void initializeProvider(

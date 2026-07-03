@@ -118,6 +118,22 @@ class DomainScopedProviderSpecTest {
     }
 
     @Test
+    @DisplayName("allows equal-but-distinct domain-scoped instances on separate domains")
+    void allowsEqualDistinctDomainScopedInstancesOnSeparateDomains() throws Exception {
+        EqualDomainScopedProvider providerA = new EqualDomainScopedProvider("shared-key");
+        EqualDomainScopedProvider providerB = new EqualDomainScopedProvider("shared-key");
+
+        assertThat(providerA).isEqualTo(providerB);
+        assertThat(providerA).isNotSameAs(providerB);
+
+        api.setProviderAndWait(DOMAIN_A, providerA);
+
+        assertThatCode(() -> api.setProviderAndWait(DOMAIN_B, providerB)).doesNotThrowAnyException();
+        assertThat(api.getProvider(DOMAIN_A)).isSameAs(providerA);
+        assertThat(api.getProvider(DOMAIN_B)).isSameAs(providerB);
+    }
+
+    @Test
     @DisplayName("allows binding a non-domain-scoped provider to multiple domains")
     void allowsBindingNonDomainScopedProviderToMultipleDomains() throws Exception {
         FeatureProvider provider = mock(FeatureProvider.class);
@@ -150,7 +166,7 @@ class DomainScopedProviderSpecTest {
                 .untilAsserted(() -> assertThat(provider.initDomain.get()).isEqualTo(DOMAIN_A));
     }
 
-    private static final class DomainScopedTestProvider extends EventProvider {
+    private static class DomainScopedTestProvider extends EventProvider {
 
         private final AtomicReference<String> initDomain = new AtomicReference<>();
         private final AtomicInteger initializeCount = new AtomicInteger();
@@ -200,6 +216,29 @@ class DomainScopedProviderSpecTest {
 
         int initCount() {
             return initializeCount.get();
+        }
+    }
+
+    private static final class EqualDomainScopedProvider extends DomainScopedTestProvider {
+
+        private final String key;
+
+        EqualDomainScopedProvider(String key) {
+            this.key = key;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof EqualDomainScopedProvider)) {
+                return false;
+            }
+            EqualDomainScopedProvider other = (EqualDomainScopedProvider) obj;
+            return key.equals(other.key);
+        }
+
+        @Override
+        public int hashCode() {
+            return key.hashCode();
         }
     }
 }
