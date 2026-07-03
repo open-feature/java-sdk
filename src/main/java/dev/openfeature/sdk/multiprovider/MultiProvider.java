@@ -112,7 +112,7 @@ public class MultiProvider extends EventProvider {
             Collection<Callable<Void>> tasks = new ArrayList<>(providers.size());
             for (FeatureProvider provider : providers.values()) {
                 tasks.add(() -> {
-                    provider.initialize(evaluationContext, null);
+                    provider.initialize(evaluationContext, domain);
                     return null;
                 });
                 Metadata providerMetadata = provider.getMetadata();

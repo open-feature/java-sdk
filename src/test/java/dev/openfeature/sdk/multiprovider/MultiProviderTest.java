@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import dev.openfeature.sdk.ErrorCode;
@@ -16,8 +19,10 @@ import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.Metadata;
 import dev.openfeature.sdk.MutableContext;
 import dev.openfeature.sdk.ProviderEvaluation;
+import dev.openfeature.sdk.ProviderState;
 import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.exceptions.GeneralError;
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +56,45 @@ class MultiProviderTest extends BaseStrategyTest {
         assertEquals(mockMetaData1, map.get(mockProvider1.getMetadata().getName()));
         assertEquals(mockMetaData2, map.get(mockProvider2.getMetadata().getName()));
         assertEquals("multiprovider", multiProvider.getMetadata().getName());
+    }
+
+    @SneakyThrows
+    @Test
+    void forwardsDomainToChildProviderInitialize() {
+        List<FeatureProvider> providers = new ArrayList<>(2);
+        providers.add(mockProvider1);
+        providers.add(mockProvider2);
+        MultiProvider multiProvider = new MultiProvider(providers);
+        EvaluationContext context = new MutableContext().add("targetingKey", "user");
+
+        multiProvider.initialize(context, "my-domain");
+
+        verify(mockProvider1).initialize(same(context), eq("my-domain"));
+        verify(mockProvider2).initialize(same(context), eq("my-domain"));
+    }
+
+    @SneakyThrows
+    @Test
+    void forwardsDomainToLegacySingleArgChildProvidersWithoutError() {
+        InMemoryProvider legacyProvider1 = new InMemoryProvider(Map.of()) {
+            @Override
+            public Metadata getMetadata() {
+                return () -> "legacy-provider-1";
+            }
+        };
+        InMemoryProvider legacyProvider2 = new InMemoryProvider(Map.of()) {
+            @Override
+            public Metadata getMetadata() {
+                return () -> "legacy-provider-2";
+            }
+        };
+        MultiProvider multiProvider = new MultiProvider(List.of(legacyProvider1, legacyProvider2));
+        EvaluationContext context = new MutableContext().add("targetingKey", "user");
+
+        multiProvider.initialize(context, "my-domain");
+
+        assertEquals(ProviderState.READY, legacyProvider1.getState());
+        assertEquals(ProviderState.READY, legacyProvider2.getState());
     }
 
     @SneakyThrows

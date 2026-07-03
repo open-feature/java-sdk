@@ -169,8 +169,8 @@ class ProviderRepository {
             if (isShuttingDown.get()) {
                 throw new IllegalStateException("Provider cannot be set while repository is shutting down");
             }
-            validateDomainScopedBinding(domain, newProvider);
             FeatureProviderStateManager existing = getExistingStateManagerForProvider(newProvider);
+            validateDomainScopedBinding(domain, newProvider, existing);
             if (existing == null) {
                 openFeatureAPI.registerGlobalProvider(newProvider);
                 newStateManager = new FeatureProviderStateManager(newProvider);
@@ -196,11 +196,11 @@ class ProviderRepository {
         }
     }
 
-    private void validateDomainScopedBinding(@Nullable String domain, FeatureProvider newProvider) {
+    private void validateDomainScopedBinding(
+            @Nullable String domain, FeatureProvider newProvider, @Nullable FeatureProviderStateManager existing) {
         if (!newProvider.isDomainScoped()) {
             return;
         }
-        FeatureProviderStateManager existing = getExistingStateManagerForProvider(newProvider);
         if (existing == null) {
             return;
         }

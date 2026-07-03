@@ -22,80 +22,44 @@ class ProviderInitializeBackwardCompatibilityTest {
         @Test
         @DisplayName("two-arg default delegates to a single-arg override")
         void twoArgDefaultDelegatesToSingleArgOverride() throws Exception {
-            AtomicInteger singleArgInitCount = new AtomicInteger();
-            FeatureProvider provider = new TestProvider() {
-                @Override
-                public void initialize(EvaluationContext evaluationContext) {
-                    singleArgInitCount.incrementAndGet();
-                }
-            };
+            LegacySingleArgInitProvider provider = new LegacySingleArgInitProvider();
 
             provider.initialize(new ImmutableContext(), DOMAIN);
 
-            assertThat(singleArgInitCount).hasValue(1);
+            assertThat(provider.singleArgInitCount()).isOne();
         }
 
         @Test
         @DisplayName("two-arg override is used without invoking single-arg")
         void twoArgOverrideDoesNotInvokeSingleArg() throws Exception {
-            AtomicInteger singleArgInitCount = new AtomicInteger();
-            AtomicReference<String> domainReceived = new AtomicReference<>();
-            FeatureProvider provider = new TestProvider() {
-                @Override
-                public void initialize(EvaluationContext evaluationContext, String domain) {
-                    domainReceived.set(domain);
-                }
-
-                @Override
-                public void initialize(EvaluationContext evaluationContext) {
-                    singleArgInitCount.incrementAndGet();
-                }
-            };
+            TwoArgInitProvider provider = new TwoArgInitProvider();
 
             provider.initialize(new ImmutableContext(), DOMAIN);
 
-            assertThat(domainReceived).hasValue(DOMAIN);
-            assertThat(singleArgInitCount).hasValue(0);
+            assertThat(provider.initDomain()).isEqualTo(DOMAIN);
+            assertThat(provider.singleArgInitCount()).isZero();
         }
 
         @Test
         @DisplayName("two-arg-only override receives null domain for default binding")
         void twoArgOnlyOverrideReceivesNullDomain() throws Exception {
-            AtomicInteger singleArgInitCount = new AtomicInteger();
-            AtomicReference<String> domainReceived = new AtomicReference<>("unset");
-            FeatureProvider provider = new TestProvider() {
-                @Override
-                public void initialize(EvaluationContext evaluationContext, String domain) {
-                    domainReceived.set(domain);
-                }
-
-                @Override
-                public void initialize(EvaluationContext evaluationContext) {
-                    singleArgInitCount.incrementAndGet();
-                }
-            };
+            TwoArgInitProvider provider = new TwoArgInitProvider();
 
             provider.initialize(new ImmutableContext(), null);
 
-            assertThat(domainReceived.get()).isNull();
-            assertThat(singleArgInitCount).hasValue(0);
+            assertThat(provider.initDomain()).isNull();
+            assertThat(provider.singleArgInitCount()).isZero();
         }
 
         @Test
         @DisplayName("single-arg override is only invoked once per initialization")
         void singleArgOverrideIsOnlyInvokedOnce() throws Exception {
-            AtomicInteger singleArgInitCount = new AtomicInteger();
-            FeatureProvider provider = new TestProvider() {
-                @Override
-                public void initialize(EvaluationContext evaluationContext) {
-                    singleArgInitCount.incrementAndGet();
-                }
-            };
+            LegacySingleArgInitProvider provider = new LegacySingleArgInitProvider();
 
             provider.initialize(new ImmutableContext(), DOMAIN);
             provider.initialize(new ImmutableContext(), DOMAIN);
 
-            assertThat(singleArgInitCount).hasValue(2);
+            assertThat(provider.singleArgInitCount()).isEqualTo(2);
         }
     }
 
@@ -114,84 +78,48 @@ class ProviderInitializeBackwardCompatibilityTest {
         @Test
         @DisplayName("legacy single-arg provider is initialized when registered to a named domain")
         void legacySingleArgProviderInitializedForNamedDomain() {
-            AtomicInteger singleArgInitCount = new AtomicInteger();
-            FeatureProvider provider = new TestProvider() {
-                @Override
-                public void initialize(EvaluationContext evaluationContext) {
-                    singleArgInitCount.incrementAndGet();
-                }
-            };
+            LegacySingleArgInitProvider provider = new LegacySingleArgInitProvider();
 
             api.setProvider(DOMAIN, provider);
 
-            await().atMost(Duration.ofSeconds(5))
-                    .untilAsserted(() -> assertThat(singleArgInitCount).hasValue(1));
+            await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> assertThat(provider.singleArgInitCount())
+                    .isOne());
         }
 
         @Test
         @DisplayName("legacy single-arg provider is initialized when registered as the default provider")
         void legacySingleArgProviderInitializedAsDefault() {
-            AtomicInteger singleArgInitCount = new AtomicInteger();
-            FeatureProvider provider = new TestProvider() {
-                @Override
-                public void initialize(EvaluationContext evaluationContext) {
-                    singleArgInitCount.incrementAndGet();
-                }
-            };
+            LegacySingleArgInitProvider provider = new LegacySingleArgInitProvider();
 
             api.setProvider(provider);
 
-            await().atMost(Duration.ofSeconds(5))
-                    .untilAsserted(() -> assertThat(singleArgInitCount).hasValue(1));
+            await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> assertThat(provider.singleArgInitCount())
+                    .isOne());
         }
 
         @Test
         @DisplayName("two-arg-only provider receives the bound domain from the SDK")
         void twoArgOnlyProviderReceivesBoundDomainFromSdk() {
-            AtomicInteger singleArgInitCount = new AtomicInteger();
-            AtomicReference<String> domainReceived = new AtomicReference<>();
-            FeatureProvider provider = new TestProvider() {
-                @Override
-                public void initialize(EvaluationContext evaluationContext, String domain) {
-                    domainReceived.set(domain);
-                }
-
-                @Override
-                public void initialize(EvaluationContext evaluationContext) {
-                    singleArgInitCount.incrementAndGet();
-                }
-            };
+            TwoArgInitProvider provider = new TwoArgInitProvider();
 
             api.setProvider(DOMAIN, provider);
 
             await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
-                assertThat(domainReceived).hasValue(DOMAIN);
-                assertThat(singleArgInitCount).hasValue(0);
+                assertThat(provider.initDomain()).isEqualTo(DOMAIN);
+                assertThat(provider.singleArgInitCount()).isZero();
             });
         }
 
         @Test
         @DisplayName("two-arg-only default provider receives null domain from the SDK")
         void twoArgOnlyDefaultProviderReceivesNullDomainFromSdk() {
-            AtomicInteger singleArgInitCount = new AtomicInteger();
-            AtomicReference<String> domainReceived = new AtomicReference<>("unset");
-            FeatureProvider provider = new TestProvider() {
-                @Override
-                public void initialize(EvaluationContext evaluationContext, String domain) {
-                    domainReceived.set(domain);
-                }
-
-                @Override
-                public void initialize(EvaluationContext evaluationContext) {
-                    singleArgInitCount.incrementAndGet();
-                }
-            };
+            TwoArgInitProvider provider = new TwoArgInitProvider();
 
             api.setProvider(provider);
 
             await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
-                assertThat(domainReceived.get()).isNull();
-                assertThat(singleArgInitCount).hasValue(0);
+                assertThat(provider.initDomain()).isNull();
+                assertThat(provider.singleArgInitCount()).isZero();
             });
         }
     }
@@ -203,40 +131,74 @@ class ProviderInitializeBackwardCompatibilityTest {
         @Test
         @DisplayName("delegates two-arg initialize to a legacy single-arg provider")
         void delegatesTwoArgInitializeToLegacySingleArgProvider() throws Exception {
-            AtomicInteger singleArgInitCount = new AtomicInteger();
-            FeatureProvider provider = new TestProvider() {
-                @Override
-                public void initialize(EvaluationContext evaluationContext) {
-                    singleArgInitCount.incrementAndGet();
-                }
-            };
+            LegacySingleArgInitProvider provider = new LegacySingleArgInitProvider();
             FeatureProviderStateManager stateManager = new FeatureProviderStateManager(provider);
 
             stateManager.initialize(new ImmutableContext(), DOMAIN);
 
-            assertThat(singleArgInitCount).hasValue(1);
+            assertThat(provider.singleArgInitCount()).isOne();
         }
 
         @Test
         @DisplayName("only invokes two-arg initialize once for a legacy single-arg provider")
         void onlyInvokesLegacySingleArgProviderOncePerStateManagerInit() throws Exception {
-            AtomicInteger singleArgInitCount = new AtomicInteger();
-            FeatureProvider provider = new TestProvider() {
-                @Override
-                public void initialize(EvaluationContext evaluationContext) {
-                    singleArgInitCount.incrementAndGet();
-                }
-            };
+            LegacySingleArgInitProvider provider = new LegacySingleArgInitProvider();
             FeatureProviderStateManager stateManager = new FeatureProviderStateManager(provider);
 
             stateManager.initialize(new ImmutableContext(), DOMAIN);
             stateManager.initialize(new ImmutableContext(), DOMAIN);
 
-            assertThat(singleArgInitCount).hasValue(1);
+            assertThat(provider.singleArgInitCount()).isOne();
         }
     }
 
-    private abstract static class TestProvider extends EventProvider {
+    /**
+     * Legacy provider that only overrides single-arg {@link FeatureProvider#initialize(EvaluationContext)}.
+     */
+    private static final class LegacySingleArgInitProvider extends StubProvider {
+
+        private final AtomicInteger singleArgInitCount = new AtomicInteger();
+
+        @Override
+        public void initialize(EvaluationContext evaluationContext) {
+            singleArgInitCount.incrementAndGet();
+        }
+
+        int singleArgInitCount() {
+            return singleArgInitCount.get();
+        }
+    }
+
+    /**
+     * Domain-aware provider that only overrides two-arg
+     * {@link FeatureProvider#initialize(EvaluationContext, String)}. Single-arg is overridden solely to detect
+     * accidental delegation.
+     */
+    private static final class TwoArgInitProvider extends StubProvider {
+
+        private final AtomicInteger singleArgInitCount = new AtomicInteger();
+        private final AtomicReference<String> initDomain = new AtomicReference<>();
+
+        @Override
+        public void initialize(EvaluationContext evaluationContext, String domain) {
+            initDomain.set(domain);
+        }
+
+        @Override
+        public void initialize(EvaluationContext evaluationContext) {
+            singleArgInitCount.incrementAndGet();
+        }
+
+        int singleArgInitCount() {
+            return singleArgInitCount.get();
+        }
+
+        String initDomain() {
+            return initDomain.get();
+        }
+    }
+
+    private abstract static class StubProvider extends EventProvider {
 
         @Override
         public Metadata getMetadata() {
