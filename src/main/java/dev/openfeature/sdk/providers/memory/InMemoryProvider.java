@@ -157,20 +157,25 @@ public class InMemoryProvider extends EventProvider {
         T value;
         Reason reason = Reason.STATIC;
         if (flag.getContextEvaluator() != null) {
+            Object raw;
             try {
-                value = (T) flag.getContextEvaluator().evaluate(flag, evaluationContext);
+                raw = flag.getContextEvaluator().evaluate(flag, evaluationContext);
                 reason = Reason.TARGETING_MATCH;
             } catch (Exception e) {
-                value = null;
+                raw = null;
             }
-            if (value == null) {
-                value = coerceVariant(flag.getVariants().get(flag.getDefaultVariant()), expectedType);
+            if (raw == null) {
+                raw = flag.getVariants().get(flag.getDefaultVariant());
                 reason = Reason.DEFAULT;
             }
+            if (raw != null && !isAssignableTo(raw, expectedType)) {
+                throw new TypeMismatchError("flag " + key + " is not of expected type");
+            }
+            value = coerceVariant(raw, expectedType);
         } else {
             Object variant = flag.getVariants().get(flag.getDefaultVariant());
             if (!isAssignableTo(variant, expectedType)) {
-                throw new TypeMismatchError("flag " + key + "is not of expected type");
+                throw new TypeMismatchError("flag " + key + " is not of expected type");
             }
             value = coerceVariant(variant, expectedType);
         }
