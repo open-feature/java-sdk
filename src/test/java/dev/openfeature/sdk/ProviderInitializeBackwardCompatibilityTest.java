@@ -20,6 +20,12 @@ class ProviderInitializeBackwardCompatibilityTest {
     class DefaultMethodDelegation {
 
         @Test
+        @DisplayName("default isDomainScoped returns false for non-domain-scoped providers")
+        void defaultIsDomainScopedReturnsFalse() {
+            assertThat(new LegacySingleArgInitProvider().isDomainScoped()).isFalse();
+        }
+
+        @Test
         @DisplayName("two-arg default delegates to a single-arg override")
         void twoArgDefaultDelegatesToSingleArgOverride() throws Exception {
             LegacySingleArgInitProvider provider = new LegacySingleArgInitProvider();

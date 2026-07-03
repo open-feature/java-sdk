@@ -13,6 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -93,6 +94,30 @@ class DomainScopedProviderSpecTest {
     }
 
     @Test
+    @DisplayName("allows rebinding the same domain-scoped provider instance to the same named domain")
+    void allowsRebindingSameDomainScopedInstanceToSameNamedDomain() throws Exception {
+        DomainScopedTestProvider provider = new DomainScopedTestProvider();
+
+        api.setProviderAndWait(DOMAIN_A, provider);
+        api.setProviderAndWait(DOMAIN_A, provider);
+
+        assertThat(provider.initCount()).isOne();
+        assertThat(provider.initDomain.get()).isEqualTo(DOMAIN_A);
+    }
+
+    @Test
+    @DisplayName("allows rebinding the same domain-scoped provider instance as the default provider")
+    void allowsRebindingSameDomainScopedInstanceAsDefault() throws Exception {
+        DomainScopedTestProvider provider = new DomainScopedTestProvider();
+
+        api.setProviderAndWait(provider);
+        api.setProviderAndWait(provider);
+
+        assertThat(provider.initCount()).isOne();
+        assertThat(provider.initDomain.get()).isNull();
+    }
+
+    @Test
     @DisplayName("allows binding a non-domain-scoped provider to multiple domains")
     void allowsBindingNonDomainScopedProviderToMultipleDomains() throws Exception {
         FeatureProvider provider = mock(FeatureProvider.class);
@@ -128,6 +153,7 @@ class DomainScopedProviderSpecTest {
     private static final class DomainScopedTestProvider extends EventProvider {
 
         private final AtomicReference<String> initDomain = new AtomicReference<>();
+        private final AtomicInteger initializeCount = new AtomicInteger();
 
         @Override
         public Metadata getMetadata() {
@@ -141,6 +167,7 @@ class DomainScopedProviderSpecTest {
 
         @Override
         public void initialize(EvaluationContext evaluationContext, String domain) {
+            initializeCount.incrementAndGet();
             initDomain.set(domain);
         }
 
@@ -169,6 +196,10 @@ class DomainScopedProviderSpecTest {
         @Override
         public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
             return ProviderEvaluation.<Value>builder().value(defaultValue).build();
+        }
+
+        int initCount() {
+            return initializeCount.get();
         }
     }
 }

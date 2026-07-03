@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -56,6 +57,20 @@ class MultiProviderTest extends BaseStrategyTest {
         assertEquals(mockMetaData1, map.get(mockProvider1.getMetadata().getName()));
         assertEquals(mockMetaData2, map.get(mockProvider2.getMetadata().getName()));
         assertEquals("multiprovider", multiProvider.getMetadata().getName());
+    }
+
+    @SneakyThrows
+    @Test
+    void singleArgInitializeForwardsNullDomainToChildren() {
+        List<FeatureProvider> providers = new ArrayList<>(2);
+        providers.add(mockProvider1);
+        providers.add(mockProvider2);
+        MultiProvider multiProvider = new MultiProvider(providers);
+
+        multiProvider.initialize(null);
+
+        verify(mockProvider1).initialize(isNull(), isNull());
+        verify(mockProvider2).initialize(isNull(), isNull());
     }
 
     @SneakyThrows
@@ -109,6 +124,18 @@ class MultiProviderTest extends BaseStrategyTest {
         MultiProvider multiProvider = new MultiProvider(providers, strategy);
         assertThrows(ExecutionException.class, () -> multiProvider.initialize(null));
         assertDoesNotThrow(multiProvider::shutdown);
+    }
+
+    @SneakyThrows
+    @Test
+    void continuesWhenShutdownFailsAfterInitializeFailure() {
+        doThrow(new GeneralError()).when(mockProvider1).initialize(any(), isNull());
+        MultiProvider multiProvider = spy(new MultiProvider(List.of(mockProvider1)));
+        doThrow(new RuntimeException("shutdown failed")).when(multiProvider).shutdown();
+
+        assertThrows(ExecutionException.class, () -> multiProvider.initialize(null));
+
+        verify(multiProvider).shutdown();
     }
 
     @Test
