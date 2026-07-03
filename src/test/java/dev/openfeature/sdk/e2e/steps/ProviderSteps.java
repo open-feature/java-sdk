@@ -4,6 +4,7 @@ import static dev.openfeature.sdk.testutils.TestFlagsUtils.buildFlags;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
@@ -94,10 +95,10 @@ public class ProviderSteps {
                             while (true) {}
                         })
                         .when(mockProvider)
-                        .initialize(any(), any());
+                        .initialize(any(), eq(providerState.name()));
                 break;
             case FATAL:
-                doThrow(new FatalError(errorMessage)).when(mockProvider).initialize(any(), any());
+                doThrow(new FatalError(errorMessage)).when(mockProvider).initialize(any(), eq(providerState.name()));
                 break;
         }
         // Configure all evaluation methods with a single helper

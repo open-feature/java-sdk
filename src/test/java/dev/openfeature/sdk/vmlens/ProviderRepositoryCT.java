@@ -2,6 +2,7 @@ package dev.openfeature.sdk.vmlens;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -32,7 +33,7 @@ class ProviderRepositoryCT {
                 })
                 .when(provider)
                 .shutdown();
-        doAnswer(invocation -> null).when(provider).initialize(any(), any());
+        doAnswer(invocation -> null).when(provider).initialize(any(), isNull());
         return provider;
     }
 

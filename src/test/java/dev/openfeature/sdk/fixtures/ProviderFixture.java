@@ -1,6 +1,7 @@
 package dev.openfeature.sdk.fixtures;
 
 import static dev.openfeature.sdk.testutils.stubbing.ConditionStubber.doBlock;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -33,7 +34,7 @@ public class ProviderFixture {
     public static FeatureProvider createMockedErrorProvider() throws Exception {
         FeatureProvider provider = mock(FeatureProvider.class);
         doReturn(ProviderState.NOT_READY).when(provider).getState();
-        doThrow(FileNotFoundException.class).when(provider).initialize(new ImmutableContext(), nullable(String.class));
+        doThrow(FileNotFoundException.class).when(provider).initialize(any(), nullable(String.class));
         return provider;
     }
 

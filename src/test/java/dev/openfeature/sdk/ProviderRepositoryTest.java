@@ -65,7 +65,7 @@ class ProviderRepositoryTest {
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() throws Exception {
                 FeatureProvider featureProvider = createMockedProvider();
-                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(any(), any());
+                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(any(), isNull());
 
                 await().alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))
@@ -122,7 +122,7 @@ class ProviderRepositoryTest {
             @DisplayName("should immediately return when calling the domain provider mutator")
             void shouldImmediatelyReturnWhenCallingTheDomainProviderMutator() throws Exception {
                 FeatureProvider featureProvider = createMockedProvider();
-                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(any(), any());
+                doDelayResponse(Duration.ofSeconds(10)).when(featureProvider).initialize(any(), eq("a domain"));
 
                 await().alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))
@@ -153,7 +153,7 @@ class ProviderRepositoryTest {
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() throws Exception {
                 FeatureProvider newProvider = createMockedProvider();
-                doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any(), any());
+                doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any(), isNull());
 
                 await().alias("wait for provider mutator to return")
                         .pollDelay(Duration.ofMillis(1))
@@ -194,7 +194,7 @@ class ProviderRepositoryTest {
             @DisplayName("should immediately return when calling the provider mutator")
             void shouldImmediatelyReturnWhenCallingTheProviderMutator() throws Exception {
                 FeatureProvider newProvider = createMockedProvider();
-                doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any(), any());
+                doDelayResponse(Duration.ofSeconds(10)).when(newProvider).initialize(any(), eq(DOMAIN_NAME));
 
                 Future<?> providerMutation = executorService.submit(() -> providerRepository.setProvider(
                         DOMAIN_NAME,
@@ -358,7 +358,7 @@ class ProviderRepositoryTest {
                 FeatureProvider slowInitProvider = createMockedProvider();
                 AtomicBoolean shutdownCalled = new AtomicBoolean(false);
 
-                doDelayResponse(Duration.ofMillis(500)).when(slowInitProvider).initialize(any(), any());
+                doDelayResponse(Duration.ofMillis(500)).when(slowInitProvider).initialize(any(), isNull());
 
                 doAnswer(invocation -> {
                             shutdownCalled.set(true);
@@ -457,7 +457,7 @@ class ProviderRepositoryTest {
                             return null;
                         })
                         .when(oldProvider)
-                        .initialize(any(), any());
+                        .initialize(any(), isNull());
 
                 // Start async initialization (will block)
                 providerRepository.setProvider(
