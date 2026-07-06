@@ -132,6 +132,10 @@ public interface FeatureProvider {
         return value >= -MAX_SAFE_INTEGER && value <= MAX_SAFE_INTEGER;
     }
 
+    private static boolean isWithinSafeRange(double value) {
+        return value >= -(double) MAX_SAFE_INTEGER && value <= (double) MAX_SAFE_INTEGER;
+    }
+
     private static ProviderEvaluation<Long> longError(Long defaultValue, String message) {
         return ProviderEvaluation.<Long>builder()
                 .value(defaultValue)
