@@ -108,7 +108,7 @@ public interface FeatureProvider {
             if (value != Math.floor(value)) {
                 return longError(defaultValue, "Cannot convert fractional value " + value + " to long", result);
             }
-            if (Math.abs(value) > MAX_SAFE_INTEGER) {
+            if (!isWithinSafeRange(value)) {
                 return longError(
                         defaultValue,
                         "Value " + value + " exceeds safe integer range [-(2^53 - 1), 2^53 - 1] for long",
