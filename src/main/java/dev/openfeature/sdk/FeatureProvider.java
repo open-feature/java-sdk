@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface FeatureProvider {
 
-    /** Maximum integer losslessly representable as an IEEE-754 double: 2^53 - 1. */
+    /** Maximum 64 bit integer losslessly representable as an IEEE-754 double: 2^53 - 1. */
     long MAX_SAFE_INTEGER = 9_007_199_254_740_991L;
 
     /**
