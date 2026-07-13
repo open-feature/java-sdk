@@ -2,6 +2,9 @@ package dev.openfeature.sdk;
 
 /**
  * An API for the type-specific fetch methods offered to users.
+ *
+ * <p><b>API note:</b> not intended for external implementation. Additive method changes
+ * (such as new flag-value-type accessors) are considered non-breaking.
  */
 public interface Features {
 
@@ -43,6 +46,19 @@ public interface Features {
 
     FlagEvaluationDetails<Integer> getIntegerDetails(
             String key, Integer defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
+
+    Long getLongValue(String key, Long defaultValue);
+
+    Long getLongValue(String key, Long defaultValue, EvaluationContext ctx);
+
+    Long getLongValue(String key, Long defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
+
+    FlagEvaluationDetails<Long> getLongDetails(String key, Long defaultValue);
+
+    FlagEvaluationDetails<Long> getLongDetails(String key, Long defaultValue, EvaluationContext ctx);
+
+    FlagEvaluationDetails<Long> getLongDetails(
+            String key, Long defaultValue, EvaluationContext ctx, FlagEvaluationOptions options);
 
     Double getDoubleValue(String key, Double defaultValue);
 
