@@ -41,6 +41,7 @@ public class NoOpProvider implements FeatureProvider {
     }
 
     @Override
+    @Deprecated
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
         return ProviderEvaluation.<Integer>builder()
                 .value(defaultValue)
@@ -50,6 +51,7 @@ public class NoOpProvider implements FeatureProvider {
     }
 
     @Override
+    @Deprecated
     public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
         return ProviderEvaluation.<Double>builder()
                 .value(defaultValue)

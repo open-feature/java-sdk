@@ -41,4 +41,11 @@ public class NoOpProviderTest {
         ProviderEvaluation<Value> eval = p.getObjectEvaluation("key", s, null);
         assertEquals(s, eval.getValue());
     }
+
+    @Test
+    void noOpNumber() {
+        NoOpProvider p = new NoOpProvider();
+        ProviderEvaluation<Number> eval = p.getNumberEvaluation("key", 123456789L, null);
+        assertEquals(123456789.0, eval.getValue());
+    }
 }
