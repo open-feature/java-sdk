@@ -70,7 +70,22 @@ class FeatureProviderStateManager implements EventProviderListener {
             } else {
                 providerName = delegate.getMetadata().getName();
             }
-            log.debug("Provider {} transitioned from state {} to state {}", providerName, oldState, state);
+            logProviderStateTransition(providerName, oldState, state);
+        }
+    }
+
+    private void logProviderStateTransition(String providerName, ProviderState oldState, ProviderState newState) {
+        var logMessage = "Provider {} transitioned from state {} to state {}";
+        switch (newState) {
+            case ERROR:
+                log.error(logMessage, providerName, oldState, newState);
+                break;
+            case FATAL:
+                log.warn(logMessage, providerName, oldState, newState);
+                break;
+            default:
+                log.debug(logMessage, providerName, oldState, newState);
+                break;
         }
     }
 
