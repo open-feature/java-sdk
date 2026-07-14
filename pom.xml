@@ -464,6 +464,42 @@
                     </plugin>
 
                     <plugin>
+                        <groupId>org.revapi</groupId>
+                        <artifactId>revapi-maven-plugin</artifactId>
+                        <version>0.15.1</version>
+                        <configuration>
+                            <oldVersion>LATEST</oldVersion>
+                            <versionFormat>\d+\.\d+\.\d+</versionFormat>
+                            <failOnUnresolvedArtifacts>true</failOnUnresolvedArtifacts>
+                            <failOnUnresolvedDependencies>true</failOnUnresolvedDependencies>
+                            <failCriticality>error</failCriticality>
+                            <outputNonIdentifyingDifferenceInfo>false</outputNonIdentifyingDifferenceInfo>
+                            <buildFailureMessage>
+                                Fix the compatibility issue or add an exact, justified exception to api-changes.json.
+                            </buildFailureMessage>
+                            <analysisConfigurationFiles>
+                                <file>${project.basedir}/api-changes.json</file>
+                            </analysisConfigurationFiles>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.revapi</groupId>
+                                <artifactId>revapi-java</artifactId>
+                                <version>0.28.4</version>
+                            </dependency>
+                        </dependencies>
+                        <executions>
+                            <execution>
+                                <id>api-compatibility</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
                         <version>0.8.14</version>
