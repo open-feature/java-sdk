@@ -43,14 +43,15 @@ class DomainScopedProviderSpecTest {
                     + "`domain`, rejecting any attempt to bind an already-bound instance to an additional `domain`.")
     @Test
     @DisplayName("rejects binding a domain-scoped provider to a second named domain")
-    void rejectsBindingDomainScopedProviderToSecondNamedDomain() {
+    void rejectsBindingDomainScopedProviderToSecondNamedDomain() throws Exception {
         DomainScopedTestProvider provider = new DomainScopedTestProvider();
 
-        api.setProvider(DOMAIN_A, provider);
+        api.setProviderAndWait(DOMAIN_A, provider);
 
         assertThatThrownBy(() -> api.setProvider(DOMAIN_B, provider))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Domain-scoped provider cannot be bound to more than one domain");
+        assertThat(provider.initCount()).isOne();
     }
 
     @Specification(
@@ -59,14 +60,15 @@ class DomainScopedProviderSpecTest {
                     + "`domain`, rejecting any attempt to bind an already-bound instance to an additional `domain`.")
     @Test
     @DisplayName("rejects binding a domain-scoped named provider as the default provider")
-    void rejectsBindingDomainScopedNamedProviderAsDefault() {
+    void rejectsBindingDomainScopedNamedProviderAsDefault() throws Exception {
         DomainScopedTestProvider provider = new DomainScopedTestProvider();
 
-        api.setProvider(DOMAIN_A, provider);
+        api.setProviderAndWait(DOMAIN_A, provider);
 
         assertThatThrownBy(() -> api.setProvider(provider))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Domain-scoped provider cannot be bound to more than one domain");
+        assertThat(provider.initCount()).isOne();
     }
 
     @Specification(
@@ -75,14 +77,15 @@ class DomainScopedProviderSpecTest {
                     + "`domain`, rejecting any attempt to bind an already-bound instance to an additional `domain`.")
     @Test
     @DisplayName("rejects binding a domain-scoped default provider to a named domain")
-    void rejectsBindingDomainScopedDefaultProviderToNamedDomain() {
+    void rejectsBindingDomainScopedDefaultProviderToNamedDomain() throws Exception {
         DomainScopedTestProvider provider = new DomainScopedTestProvider();
 
-        api.setProvider(provider);
+        api.setProviderAndWait(provider);
 
         assertThatThrownBy(() -> api.setProvider(DOMAIN_A, provider))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Domain-scoped provider cannot be bound to more than one domain");
+        assertThat(provider.initCount()).isOne();
     }
 
     @Test

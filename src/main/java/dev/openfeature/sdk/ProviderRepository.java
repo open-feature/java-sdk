@@ -17,7 +17,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -155,7 +154,7 @@ class ProviderRepository {
     }
 
     private void prepareAndInitializeProvider(
-            @Nullable String domain,
+            String domain,
             FeatureProvider newProvider,
             Consumer<FeatureProvider> afterSet,
             Consumer<FeatureProvider> afterInit,
@@ -196,28 +195,22 @@ class ProviderRepository {
         }
     }
 
-    private void validateDomainScopedBinding(@Nullable String domain, FeatureProvider newProvider) {
+    private void validateDomainScopedBinding(String domain, FeatureProvider newProvider) {
         if (!newProvider.isDomainScoped()) {
             return;
         }
 
-        boolean currentlyDefault = isDefaultProviderInstance(newProvider);
-        List<String> boundNamedDomains = getBoundDomainsForProviderInstance(newProvider);
-
-        if (!currentlyDefault && boundNamedDomains.isEmpty()) {
+        // a re-set to the identical binding is always allowed (it's a no-op)
+        boolean alreadyBoundHere = domain == null
+                ? isDefaultProviderInstance(newProvider)
+                : getBoundDomainsForProviderInstance(newProvider).contains(domain);
+        if (alreadyBoundHere) {
             return;
         }
 
-        if (domain == null) {
-            if (!currentlyDefault) {
-                throw new IllegalArgumentException("Domain-scoped provider cannot be bound to more than one domain");
-            }
-            return;
-        }
-        if (boundNamedDomains.contains(domain)) {
-            return;
-        }
-        if (!boundNamedDomains.isEmpty() || currentlyDefault) {
+        // any other existing binding means this instance would span more than one domain
+        if (isDefaultProviderInstance(newProvider)
+                || !getBoundDomainsForProviderInstance(newProvider).isEmpty()) {
             throw new IllegalArgumentException("Domain-scoped provider cannot be bound to more than one domain");
         }
     }
@@ -254,7 +247,7 @@ class ProviderRepository {
     }
 
     private void initializeProvider(
-            @Nullable String domain,
+            String domain,
             FeatureProviderStateManager newManager,
             Consumer<FeatureProvider> afterInit,
             Consumer<FeatureProvider> afterShutdown,

@@ -19,7 +19,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -77,9 +76,8 @@ public class MultiProvider extends EventProvider {
     }
 
     /**
-     * Initialize the provider.
+     * {@inheritDoc}
      *
-     * @param evaluationContext evaluation context
      * @throws Exception on error (e.g. wrapped {@link java.util.concurrent.ExecutionException}
      *                   from a failing provider)
      */
@@ -89,15 +87,13 @@ public class MultiProvider extends EventProvider {
     }
 
     /**
-     * Initialize the provider with the bound domain, if any.
+     * {@inheritDoc}
      *
-     * @param evaluationContext evaluation context
-     * @param domain            the bound domain, or {@code null} for the default provider
      * @throws Exception on error (e.g. wrapped {@link java.util.concurrent.ExecutionException}
      *                   from a failing provider)
      */
     @Override
-    public void initialize(EvaluationContext evaluationContext, @Nullable String domain) throws Exception {
+    public void initialize(EvaluationContext evaluationContext, String domain) throws Exception {
         var metadataBuilder = MultiProviderMetadata.builder().name(NAME);
         HashMap<String, Metadata> providersMetadata = new HashMap<>();
 

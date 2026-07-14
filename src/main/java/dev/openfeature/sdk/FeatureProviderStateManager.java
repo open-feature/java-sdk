@@ -3,7 +3,6 @@ package dev.openfeature.sdk;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,7 +22,7 @@ class FeatureProviderStateManager implements EventProviderListener {
         initialize(evaluationContext, null);
     }
 
-    public void initialize(EvaluationContext evaluationContext, @Nullable String domain) throws Exception {
+    public void initialize(EvaluationContext evaluationContext, String domain) throws Exception {
         if (isInitialized.getAndSet(true)) {
             return;
         }

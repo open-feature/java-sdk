@@ -2,7 +2,6 @@ package dev.openfeature.sdk;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 
 /**
  * The interface implemented by upstream flag providers to resolve flags for
@@ -199,7 +198,7 @@ public interface FeatureProvider {
      * @param evaluationContext the global evaluation context
      * @param domain            the bound domain, or {@code null} for the default provider
      */
-    default void initialize(EvaluationContext evaluationContext, @Nullable String domain) throws Exception {
+    default void initialize(EvaluationContext evaluationContext, String domain) throws Exception {
         initialize(evaluationContext);
     }
 
