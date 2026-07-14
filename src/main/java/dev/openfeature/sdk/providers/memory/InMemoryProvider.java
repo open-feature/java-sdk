@@ -113,6 +113,12 @@ public class InMemoryProvider extends EventProvider {
     }
 
     @Override
+    public ProviderEvaluation<Long> getLongEvaluation(
+            String key, Long defaultValue, EvaluationContext evaluationContext) {
+        return getEvaluation(key, defaultValue, evaluationContext, Long.class);
+    }
+
+    @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(
             String key, Double defaultValue, EvaluationContext evaluationContext) {
         return getEvaluation(key, defaultValue, evaluationContext, Double.class);
@@ -151,20 +157,27 @@ public class InMemoryProvider extends EventProvider {
         T value;
         Reason reason = Reason.STATIC;
         if (flag.getContextEvaluator() != null) {
+            Object raw;
             try {
-                value = (T) flag.getContextEvaluator().evaluate(flag, evaluationContext);
+                raw = flag.getContextEvaluator().evaluate(flag, evaluationContext);
                 reason = Reason.TARGETING_MATCH;
             } catch (Exception e) {
-                value = null;
+                raw = null;
             }
-            if (value == null) {
-                value = (T) flag.getVariants().get(flag.getDefaultVariant());
+            if (raw == null) {
+                raw = flag.getVariants().get(flag.getDefaultVariant());
                 reason = Reason.DEFAULT;
             }
-        } else if (!expectedType.isInstance(flag.getVariants().get(flag.getDefaultVariant()))) {
-            throw new TypeMismatchError("flag " + key + "is not of expected type");
+            if (raw != null && !isAssignableTo(raw, expectedType)) {
+                throw new TypeMismatchError("flag " + key + " is not of expected type");
+            }
+            value = coerceVariant(raw, expectedType);
         } else {
-            value = (T) flag.getVariants().get(flag.getDefaultVariant());
+            Object variant = flag.getVariants().get(flag.getDefaultVariant());
+            if (!isAssignableTo(variant, expectedType)) {
+                throw new TypeMismatchError("flag " + key + " is not of expected type");
+            }
+            value = coerceVariant(variant, expectedType);
         }
         return ProviderEvaluation.<T>builder()
                 .value(value)
@@ -172,5 +185,25 @@ public class InMemoryProvider extends EventProvider {
                 .reason(reason.toString())
                 .flagMetadata(flag.getFlagMetadata())
                 .build();
+    }
+
+    // true if variant satisfies expectedType directly or via widening (Integer -> Long)
+    private static boolean isAssignableTo(Object variant, Class<?> expectedType) {
+        if (expectedType.isInstance(variant)) {
+            return true;
+        }
+        return Long.class.equals(expectedType) && variant instanceof Integer;
+    }
+
+    // coerce variant to expectedType, widening Integer -> Long when needed
+    @SuppressWarnings("unchecked")
+    private static <T> T coerceVariant(Object variant, Class<?> expectedType) {
+        if (variant == null) {
+            return null;
+        }
+        if (Long.class.equals(expectedType) && variant instanceof Integer) {
+            return (T) Long.valueOf(((Integer) variant).longValue());
+        }
+        return (T) variant;
     }
 }

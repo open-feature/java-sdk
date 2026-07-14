@@ -70,6 +70,10 @@ public class Value implements Cloneable {
         this.innerObject = value;
     }
 
+    public Value(Long value) {
+        this.innerObject = value;
+    }
+
     public Value(Double value) {
         this.innerObject = value;
     }
@@ -214,6 +218,19 @@ public class Value implements Cloneable {
     }
 
     /**
+     * Retrieve the underlying numeric value as a Long, or null.
+     * If the value is a non-integral number, it will be truncated using Number#longValue().
+     *
+     * @return Long
+     */
+    public Long asLong() {
+        if (this.isNumber() && !this.isNull()) {
+            return ((Number) this.innerObject).longValue();
+        }
+        return null;
+    }
+
+    /**
      * Retrieve the underlying numeric value as a Double, or null.
      *
      * @return Double
@@ -301,6 +318,8 @@ public class Value implements Cloneable {
             return new Value((Boolean) object);
         } else if (object instanceof Integer) {
             return new Value((Integer) object);
+        } else if (object instanceof Long) {
+            return new Value((Long) object);
         } else if (object instanceof Double) {
             return new Value((Double) object);
         } else if (object instanceof Structure) {

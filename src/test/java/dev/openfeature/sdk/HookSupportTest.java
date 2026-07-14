@@ -265,6 +265,8 @@ class HookSupportTest implements HookFixtures {
         switch (flagValueType) {
             case INTEGER:
                 return 1;
+            case LONG:
+                return 1L;
             case BOOLEAN:
                 return true;
             case STRING:
