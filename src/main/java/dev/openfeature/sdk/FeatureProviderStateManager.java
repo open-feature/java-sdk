@@ -76,16 +76,12 @@ class FeatureProviderStateManager implements EventProviderListener {
 
     private void logProviderStateTransition(String providerName, ProviderState oldState, ProviderState newState) {
         var logMessage = "Provider {} transitioned from state {} to state {}";
-        switch (newState) {
-            case ERROR:
-                log.error(logMessage, providerName, oldState, newState);
-                break;
-            case FATAL:
-                log.warn(logMessage, providerName, oldState, newState);
-                break;
-            default:
-                log.debug(logMessage, providerName, oldState, newState);
-                break;
+        if (ProviderState.FATAL.equals(newState) || ProviderState.ERROR.equals(newState)) {
+            log.error(logMessage, providerName, oldState, newState);
+        } else if (ProviderState.ERROR.equals(oldState) || ProviderState.FATAL.equals(oldState)) {
+            log.info(logMessage, providerName, oldState, newState);
+        } else {
+            log.debug(logMessage, providerName, oldState, newState);
         }
     }
 
