@@ -61,7 +61,7 @@ jobs:
       - name: Deploy
         run: |
           mvn --batch-mode \
-            --settings release/m2-settings.xml -DskipTests clean deploy
+            --settings release/m2-settings.xml -DskipTests -Drevapi.skip=true clean deploy
         env:
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
