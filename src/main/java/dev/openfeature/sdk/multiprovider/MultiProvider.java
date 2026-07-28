@@ -76,14 +76,24 @@ public class MultiProvider extends EventProvider {
     }
 
     /**
-     * Initialize the provider.
+     * {@inheritDoc}
      *
-     * @param evaluationContext evaluation context
      * @throws Exception on error (e.g. wrapped {@link java.util.concurrent.ExecutionException}
      *                   from a failing provider)
      */
     @Override
     public void initialize(EvaluationContext evaluationContext) throws Exception {
+        initialize(evaluationContext, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws Exception on error (e.g. wrapped {@link java.util.concurrent.ExecutionException}
+     *                   from a failing provider)
+     */
+    @Override
+    public void initialize(EvaluationContext evaluationContext, String domain) throws Exception {
         var metadataBuilder = MultiProviderMetadata.builder().name(NAME);
         HashMap<String, Metadata> providersMetadata = new HashMap<>();
 
@@ -98,7 +108,7 @@ public class MultiProvider extends EventProvider {
             Collection<Callable<Void>> tasks = new ArrayList<>(providers.size());
             for (FeatureProvider provider : providers.values()) {
                 tasks.add(() -> {
-                    provider.initialize(evaluationContext);
+                    provider.initialize(evaluationContext, domain);
                     return null;
                 });
                 Metadata providerMetadata = provider.getMetadata();

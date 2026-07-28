@@ -1,7 +1,9 @@
 package dev.openfeature.sdk;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -41,7 +43,22 @@ class InitializeBehaviorSpecTest {
 
             api.setProvider(featureProvider);
 
-            verify(featureProvider, timeout(1000)).initialize(any());
+            verify(featureProvider, timeout(1000)).initialize(any(), isNull());
+        }
+
+        @Specification(
+                number = "2.4.1",
+                text = "The `provider` MAY define an initialization function which accepts the global "
+                        + "`evaluation context` and an optional bound `domain`.")
+        @Test
+        @DisplayName("must pass null domain when initializing the default provider")
+        void mustPassNullDomainWhenInitializingTheDefaultProvider() throws Exception {
+            FeatureProvider featureProvider = mock(FeatureProvider.class);
+            doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
+
+            api.setProvider(featureProvider);
+
+            verify(featureProvider, timeout(1000)).initialize(any(), isNull());
         }
 
         @Specification(
@@ -55,11 +72,11 @@ class InitializeBehaviorSpecTest {
         void shouldCatchExceptionThrownByTheProviderOnInitialization() throws Exception {
             FeatureProvider featureProvider = mock(FeatureProvider.class);
             doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
-            doThrow(TestException.class).when(featureProvider).initialize(any());
+            doThrow(TestException.class).when(featureProvider).initialize(any(), isNull());
 
             assertThatCode(() -> api.setProvider(featureProvider)).doesNotThrowAnyException();
 
-            verify(featureProvider, timeout(1000)).initialize(any());
+            verify(featureProvider, timeout(1000)).initialize(any(), isNull());
         }
     }
 
@@ -80,7 +97,22 @@ class InitializeBehaviorSpecTest {
 
             api.setProvider(DOMAIN_NAME, featureProvider);
 
-            verify(featureProvider, timeout(1000)).initialize(any());
+            verify(featureProvider, timeout(1000)).initialize(any(), eq(DOMAIN_NAME));
+        }
+
+        @Specification(
+                number = "2.4.1",
+                text = "The `provider` MAY define an initialization function which accepts the global "
+                        + "`evaluation context` and an optional bound `domain`.")
+        @Test
+        @DisplayName("must pass bound domain when initializing a named provider")
+        void mustPassBoundDomainWhenInitializingANamedProvider() throws Exception {
+            FeatureProvider featureProvider = mock(FeatureProvider.class);
+            doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
+
+            api.setProvider(DOMAIN_NAME, featureProvider);
+
+            verify(featureProvider, timeout(1000)).initialize(any(), eq(DOMAIN_NAME));
         }
 
         @Specification(
@@ -94,11 +126,11 @@ class InitializeBehaviorSpecTest {
         void shouldCatchExceptionThrownByTheNamedClientProviderOnInitialization() throws Exception {
             FeatureProvider featureProvider = mock(FeatureProvider.class);
             doReturn(ProviderState.NOT_READY).when(featureProvider).getState();
-            doThrow(TestException.class).when(featureProvider).initialize(any());
+            doThrow(TestException.class).when(featureProvider).initialize(any(), eq(DOMAIN_NAME));
 
             assertThatCode(() -> api.setProvider(DOMAIN_NAME, featureProvider)).doesNotThrowAnyException();
 
-            verify(featureProvider, timeout(1000)).initialize(any());
+            verify(featureProvider, timeout(1000)).initialize(any(), eq(DOMAIN_NAME));
         }
     }
 }

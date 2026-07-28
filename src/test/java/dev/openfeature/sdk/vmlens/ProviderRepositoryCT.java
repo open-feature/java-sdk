@@ -2,6 +2,7 @@ package dev.openfeature.sdk.vmlens;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -32,7 +33,7 @@ class ProviderRepositoryCT {
                 })
                 .when(provider)
                 .shutdown();
-        doAnswer(invocation -> null).when(provider).initialize(any());
+        doAnswer(invocation -> null).when(provider).initialize(any(), isNull());
         return provider;
     }
 
@@ -152,6 +153,37 @@ class ProviderRepositoryCT {
                 assertThat(provider2ShutdownCount.get())
                         .as("Provider 2 shutdown count")
                         .isEqualTo(1);
+            }
+        }
+    }
+
+    @Test
+    void concurrentRegistrationToSameDomain_exactlyOneBoundAndLoserShutDown() throws Exception {
+        final String domain = "domain-1";
+        try (AllInterleavings allInterleavings = new AllInterleavings("Concurrent registration to the same domain")) {
+            while (allInterleavings.hasNext()) {
+                AtomicInteger provider1ShutdownCount = new AtomicInteger(0);
+                AtomicInteger provider2ShutdownCount = new AtomicInteger(0);
+                FeatureProvider provider1 = createMockedProvider("provider-1", provider1ShutdownCount);
+                FeatureProvider provider2 = createMockedProvider("provider-2", provider2ShutdownCount);
+                OpenFeatureAPI api = OpenFeatureAPITestUtil.createAPI();
+
+                // two different providers race to bind to the same domain
+                Runner.runParallel(
+                        () -> api.setProviderAndWait(domain, provider1),
+                        () -> api.setProviderAndWait(domain, provider2));
+
+                // the domain resolves to exactly one of the two providers
+                FeatureProvider bound = api.getProvider(domain);
+                assertThat(bound).isIn(provider1, provider2);
+
+                // the provider that lost the race is shut down exactly once; the winner is left running
+                AtomicInteger winner = bound == provider1 ? provider1ShutdownCount : provider2ShutdownCount;
+                AtomicInteger loser = bound == provider1 ? provider2ShutdownCount : provider1ShutdownCount;
+                assertThat(loser.get())
+                        .as("Losing provider shut down exactly once")
+                        .isEqualTo(1);
+                assertThat(winner.get()).as("Winning provider not shut down").isZero();
             }
         }
     }

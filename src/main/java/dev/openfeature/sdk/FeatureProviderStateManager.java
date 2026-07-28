@@ -19,11 +19,15 @@ class FeatureProviderStateManager implements EventProviderListener {
     }
 
     public void initialize(EvaluationContext evaluationContext) throws Exception {
+        initialize(evaluationContext, null);
+    }
+
+    public void initialize(EvaluationContext evaluationContext, String domain) throws Exception {
         if (isInitialized.getAndSet(true)) {
             return;
         }
         try {
-            delegate.initialize(evaluationContext);
+            delegate.initialize(evaluationContext, domain);
             setState(ProviderState.READY);
         } catch (OpenFeatureError openFeatureError) {
             if (ErrorCode.PROVIDER_FATAL.equals(openFeatureError.getErrorCode())) {

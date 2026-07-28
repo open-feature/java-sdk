@@ -186,6 +186,38 @@ public interface FeatureProvider {
     }
 
     /**
+     * This method is called before a provider is used to evaluate flags, with the
+     * bound domain supplied when the provider is registered to a named client.
+     *
+     * <p>
+     * The default provider is initialized with a {@code null} domain. Providers that
+     * maintain per-domain state (for example a persistent cache) should override this
+     * method and declare themselves {@linkplain #isDomainScoped() domain-scoped}.
+     * </p>
+     *
+     * @param evaluationContext the global evaluation context
+     * @param domain            the bound domain, or {@code null} for the default provider
+     */
+    default void initialize(EvaluationContext evaluationContext, String domain) throws Exception {
+        initialize(evaluationContext);
+    }
+
+    /**
+     * Returns whether this provider maintains state specific to a single domain that
+     * cannot be shared across domains.
+     *
+     * <p>
+     * Domain-scoped providers may only be bound to one domain within a single API
+     * instance.
+     * </p>
+     *
+     * @return {@code true} if this provider is domain-scoped
+     */
+    default boolean isDomainScoped() {
+        return false;
+    }
+
+    /**
      * Called when a provider is about to be replaced or the SDK is shutting down. Providers can
      * override this method if they have resources to release (background threads, connections,
      * caches, etc.).
