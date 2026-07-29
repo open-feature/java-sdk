@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.22.0](https://github.com/open-feature/java-sdk/compare/v1.21.0...v1.22.0) (2026-07-28)
+
+
+### 🐛 Bug Fixes
+
+* changed log level of provider state change transition messages to debug ([#1987](https://github.com/open-feature/java-sdk/issues/1987)) ([02e9715](https://github.com/open-feature/java-sdk/commit/02e9715c15af83e87f2bde81c75d449a6f288af2))
+* **deps:** update dependency com.fasterxml.jackson:jackson-bom to v2.22.1 ([#1988](https://github.com/open-feature/java-sdk/issues/1988)) ([71c0dfc](https://github.com/open-feature/java-sdk/commit/71c0dfcd2bfcf2f93c07c98e87ee6f7d885c5c29))
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.34.4 ([#1977](https://github.com/open-feature/java-sdk/issues/1977)) ([e0bac33](https://github.com/open-feature/java-sdk/commit/e0bac3319f6433588e652c61f0847fcd224cd2ad))
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.34.5 ([#1994](https://github.com/open-feature/java-sdk/issues/1994)) ([581948c](https://github.com/open-feature/java-sdk/commit/581948c5d8a2a7078429b0425fb3e68605d0aacf))
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.34.6 ([#1996](https://github.com/open-feature/java-sdk/issues/1996)) ([85ba6eb](https://github.com/open-feature/java-sdk/commit/85ba6ebf212ffb8c91f81af2214246b8eedf0a7f))
+* **deps:** update dependency org.junit:junit-bom to v6.1.1 ([#1979](https://github.com/open-feature/java-sdk/issues/1979)) ([473755e](https://github.com/open-feature/java-sdk/commit/473755e4a4980f3a8fff42d8a8d08859c40b2ea8))
+* **deps:** update dependency org.junit:junit-bom to v6.1.2 ([#1989](https://github.com/open-feature/java-sdk/issues/1989)) ([e9aa288](https://github.com/open-feature/java-sdk/commit/e9aa288f1391a1198e8b748aba7aaf8b88520133))
+
+
+### ✨ New Features
+
+* long support; safe delegation to int ([#1985](https://github.com/open-feature/java-sdk/issues/1985)) ([f630089](https://github.com/open-feature/java-sdk/commit/f6300893437acac2addfebc8fd4fcf8aee86fc4f))
+* supply bound domain to provider initialization ([#1982](https://github.com/open-feature/java-sdk/issues/1982)) ([33856be](https://github.com/open-feature/java-sdk/commit/33856bee154dcf02eb33515645a3305ae437805d))
+
+
+### 🧹 Chore
+
+* add API compat checks ([#1992](https://github.com/open-feature/java-sdk/issues/1992)) ([1f46ab3](https://github.com/open-feature/java-sdk/commit/1f46ab3e1b0f935d244f6af2cd82e38719c81b54))
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.8.0 ([#1980](https://github.com/open-feature/java-sdk/issues/1980)) ([1b4490e](https://github.com/open-feature/java-sdk/commit/1b4490eee948f512a1cbe9c89565caac42a8dbac))
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.9.0 ([#1998](https://github.com/open-feature/java-sdk/issues/1998)) ([d4f5d2f](https://github.com/open-feature/java-sdk/commit/d4f5d2f5fa911e2253b69543fa0129157236e534))
+* **deps:** update dependency com.github.spotbugs:spotbugs to v4.10.3 ([#1990](https://github.com/open-feature/java-sdk/issues/1990)) ([bdbeaea](https://github.com/open-feature/java-sdk/commit/bdbeaea906502949d61d5c5dabbef8ef2d026640))
+* **deps:** update dependency com.github.spotbugs:spotbugs-maven-plugin to v4.10.3.0 ([#1991](https://github.com/open-feature/java-sdk/issues/1991)) ([3ac32f3](https://github.com/open-feature/java-sdk/commit/3ac32f35179e15cd18a436a288d913dfc4210760))
+* **deps:** update dependency net.bytebuddy:byte-buddy to v1.18.11-jdk5 ([#1983](https://github.com/open-feature/java-sdk/issues/1983)) ([e37c0e0](https://github.com/open-feature/java-sdk/commit/e37c0e0fcea3f6ba0c160d74a719ab7a6216da5b))
+* **deps:** update dependency net.bytebuddy:byte-buddy-agent to v1.18.11-jdk5 ([#1984](https://github.com/open-feature/java-sdk/issues/1984)) ([a7d4e8a](https://github.com/open-feature/java-sdk/commit/a7d4e8a614e5b782f93fc1f070a7a81cb3445406))
+* **deps:** update dependency org.apache.maven.plugins:maven-jar-plugin to v3.5.1 ([#1993](https://github.com/open-feature/java-sdk/issues/1993)) ([feaaa78](https://github.com/open-feature/java-sdk/commit/feaaa789f811ab7bec3ed7f244b39d3cdb3bfa31))
+* **deps:** update dependency org.apache.maven.plugins:maven-toolchains-plugin to v3.3.0 ([#1997](https://github.com/open-feature/java-sdk/issues/1997)) ([c53f4db](https://github.com/open-feature/java-sdk/commit/c53f4db552b3dacf2b5bddfe7e4faa8b037ef35b))
+* **deps:** update dependency org.codehaus.mojo:flatten-maven-plugin to v1.8.0 ([#1995](https://github.com/open-feature/java-sdk/issues/1995)) ([c3eb89c](https://github.com/open-feature/java-sdk/commit/c3eb89cf8907014c4c33f40e71d0dec0ca0727a1))
+* fix revapi in release ([c1fa5e7](https://github.com/open-feature/java-sdk/commit/c1fa5e7d4f6df4b12fb16fb4d42fad9e76febaca))
+
 ## [1.21.0](https://github.com/open-feature/java-sdk/compare/v1.20.2...v1.21.0) (2026-06-22)
 
 
