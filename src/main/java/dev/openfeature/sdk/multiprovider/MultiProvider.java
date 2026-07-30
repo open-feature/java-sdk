@@ -55,7 +55,7 @@ public class MultiProvider extends EventProvider {
      * @param strategy  the strategy (if {@code null}, {@link FirstMatchStrategy} is used)
      */
     public MultiProvider(List<FeatureProvider> providers, Strategy strategy) {
-        this.providers = providers;
+        this.providers = Collections.unmodifiableList(new ArrayList<>(providers));
         this.strategy = Objects.requireNonNull(strategy, "strategy must not be null");
     }
 
