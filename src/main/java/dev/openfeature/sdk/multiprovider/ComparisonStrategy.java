@@ -18,7 +18,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.Getter;
 
 /**
@@ -28,8 +27,8 @@ import lombok.Getter;
  * If all providers agree on the value, the fallback provider's result is returned.
  * If providers disagree, the optional {@code onMismatch} callback is invoked
  * and the fallback provider's result is returned.
- * If any provider returns an error, all errors are collected and a
- * {@link ErrorCode#GENERAL} error is returned.
+ * If any provider returns an error, all errors are collected and a {@link MultiProviderEvaluation}
+ * with {@link ErrorCode#GENERAL} and per-provider {@link ProviderError} details is returned.
  */
 public class ComparisonStrategy implements Strategy {
 
@@ -110,7 +109,7 @@ public class ComparisonStrategy implements Strategy {
 
         int capacity = providers.size() * 4 / 3 + 1;
         Map<String, ProviderEvaluation<T>> successfulResults = new ConcurrentHashMap<>(capacity);
-        Map<String, String> providerErrors = new ConcurrentHashMap<>(capacity);
+        Map<String, ProviderError> providerErrors = new ConcurrentHashMap<>(capacity);
 
         try {
             List<Callable<Void>> tasks = new ArrayList<>(providers.size());
@@ -121,15 +120,19 @@ public class ComparisonStrategy implements Strategy {
                     try {
                         ProviderEvaluation<T> evaluation = providerFunction.apply(provider);
                         if (evaluation == null) {
-                            providerErrors.put(providerName, "null evaluation");
+                            providerErrors.put(
+                                    providerName,
+                                    ProviderError.fromResult(providerName, ErrorCode.GENERAL, "null evaluation"));
                         } else if (evaluation.getErrorCode() == null) {
                             successfulResults.put(providerName, evaluation);
                         } else {
                             providerErrors.put(
-                                    providerName, evaluation.getErrorCode() + ": " + evaluation.getErrorMessage());
+                                    providerName,
+                                    ProviderError.fromResult(
+                                            providerName, evaluation.getErrorCode(), evaluation.getErrorMessage()));
                         }
                     } catch (Exception e) {
-                        providerErrors.put(providerName, e.getClass().getSimpleName() + ": " + e.getMessage());
+                        providerErrors.put(providerName, ProviderError.fromException(providerName, e));
                     }
                     return null;
                 });
@@ -137,39 +140,28 @@ public class ComparisonStrategy implements Strategy {
             List<Future<Void>> futures = executorService.invokeAll(tasks, timeoutMs, TimeUnit.MILLISECONDS);
             for (Future<Void> future : futures) {
                 if (future.isCancelled()) {
-                    return ProviderEvaluation.<T>builder()
-                            .errorCode(ErrorCode.GENERAL)
-                            .errorMessage("Comparison strategy timed out after " + timeoutMs + "ms")
-                            .build();
+                    return errorResult(
+                            "Comparison strategy timed out after " + timeoutMs + "ms", providers, providerErrors);
                 }
                 future.get();
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return ProviderEvaluation.<T>builder()
-                    .errorCode(ErrorCode.GENERAL)
-                    .errorMessage("Comparison strategy interrupted: " + e.getMessage())
-                    .build();
+            return errorResult("Comparison strategy interrupted: " + e.getMessage(), providers, providerErrors);
         } catch (Exception e) {
-            return ProviderEvaluation.<T>builder()
-                    .errorCode(ErrorCode.GENERAL)
-                    .errorMessage("Comparison strategy failed: " + e.getMessage())
-                    .build();
+            return errorResult("Comparison strategy failed: " + e.getMessage(), providers, providerErrors);
         }
 
         if (!providerErrors.isEmpty()) {
-            return ProviderEvaluation.<T>builder()
-                    .errorCode(ErrorCode.GENERAL)
-                    .errorMessage("Provider errors: " + buildErrorSummary(providerErrors))
-                    .build();
+            return errorResult("Provider errors during comparison", providers, providerErrors);
         }
 
         ProviderEvaluation<T> fallbackResult = successfulResults.get(fallbackProvider);
         if (fallbackResult == null) {
-            return ProviderEvaluation.<T>builder()
-                    .errorCode(ErrorCode.GENERAL)
-                    .errorMessage("Fallback provider did not return a successful evaluation: " + fallbackProvider)
-                    .build();
+            return errorResult(
+                    "Fallback provider did not return a successful evaluation: " + fallbackProvider,
+                    providers,
+                    providerErrors);
         }
 
         if (allEvaluationsMatch(successfulResults)) {
@@ -177,16 +169,42 @@ public class ComparisonStrategy implements Strategy {
         }
 
         if (onMismatch != null) {
-            Map<String, ProviderEvaluation<?>> mismatchPayload = new LinkedHashMap<>(successfulResults);
-            onMismatch.accept(key, Collections.unmodifiableMap(mismatchPayload));
+            onMismatch.accept(key, orderedResults(providers, successfulResults));
         }
         return fallbackResult;
     }
 
-    private String buildErrorSummary(Map<String, String> errors) {
-        return errors.entrySet().stream()
-                .map(e -> e.getKey() + " -> " + e.getValue())
-                .collect(Collectors.joining("; "));
+    /**
+     * Builds a {@link MultiProviderEvaluation} carrying per-provider error details, ordered by the
+     * provider registration order so the aggregate message is stable across runs.
+     */
+    private <T> ProviderEvaluation<T> errorResult(
+            String baseMessage, Map<String, FeatureProvider> providers, Map<String, ProviderError> providerErrors) {
+        List<ProviderError> orderedErrors = new ArrayList<>(providerErrors.size());
+        for (String providerName : providers.keySet()) {
+            ProviderError error = providerErrors.get(providerName);
+            if (error != null) {
+                orderedErrors.add(error);
+            }
+        }
+        return MultiProviderEvaluation.<T>builder()
+                .errorCode(ErrorCode.GENERAL)
+                .errorMessage(ProviderError.buildAggregateMessage(baseMessage, orderedErrors))
+                .providerErrors(orderedErrors)
+                .build();
+    }
+
+    /** Returns the successful evaluations in provider registration order. */
+    private <T> Map<String, ProviderEvaluation<?>> orderedResults(
+            Map<String, FeatureProvider> providers, Map<String, ProviderEvaluation<T>> successfulResults) {
+        Map<String, ProviderEvaluation<?>> ordered = new LinkedHashMap<>();
+        for (String providerName : providers.keySet()) {
+            ProviderEvaluation<T> evaluation = successfulResults.get(providerName);
+            if (evaluation != null) {
+                ordered.put(providerName, evaluation);
+            }
+        }
+        return Collections.unmodifiableMap(ordered);
     }
 
     private <T> boolean allEvaluationsMatch(Map<String, ProviderEvaluation<T>> results) {

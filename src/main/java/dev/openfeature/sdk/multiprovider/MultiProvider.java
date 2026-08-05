@@ -86,6 +86,21 @@ public class MultiProvider extends EventProvider {
         this.aggregateState = determineAggregateState();
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private final List<Hook> providerHooks = List.of(new Hook() {
+        @Override
+        public Optional before(HookContext ctx, Map hints) {
+            hookExecutionContextThreadLocal.set(
+                    new HookExecutionContext(ctx.getClientMetadata(), snapshotHints(hints)));
+            return Optional.empty();
+        }
+
+        @Override
+        public void finallyAfter(HookContext ctx, FlagEvaluationDetails details, Map hints) {
+            hookExecutionContextThreadLocal.remove();
+        }
+    });
+
     /**
      * Returns provider-level hooks for this MultiProvider.
      *
@@ -96,24 +111,22 @@ public class MultiProvider extends EventProvider {
      *
      * @return the list of provider hooks
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private final List<Hook> providerHooks = List.of(new Hook() {
-        @Override
-        public Optional before(HookContext ctx, Map hints) {
-            hookExecutionContextThreadLocal.set(
-                    new HookExecutionContext(ctx.getClientMetadata(), hints != null ? hints : Collections.emptyMap()));
-            return Optional.empty();
-        }
-
-        @Override
-        public void finallyAfter(HookContext ctx, FlagEvaluationDetails details, Map hints) {
-            hookExecutionContextThreadLocal.remove();
-        }
-    });
-
     @Override
     public List<Hook> getProviderHooks() {
         return providerHooks;
+    }
+
+    /**
+     * Defensively copies the hook hints. {@code FlagEvaluationOptions.hookHints} is backed by a
+     * mutable map, and the captured hints may be read from other threads when a strategy evaluates
+     * providers in parallel. A plain copy (rather than {@code Map.copyOf}) is used so that hints
+     * containing null values are still supported.
+     */
+    private static Map<String, Object> snapshotHints(Map<String, Object> hints) {
+        if (hints == null || hints.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return Collections.unmodifiableMap(new HashMap<>(hints));
     }
 
     protected static Map<String, FeatureProvider> buildProviders(List<FeatureProvider> providers) {

@@ -28,8 +28,7 @@ class MultiProviderEventsAndTrackingTest {
         TrackingProvider provider2 = new TrackingProvider("provider2");
         MultiProvider multiProvider = new MultiProvider(List.of(provider1, provider2));
 
-        OpenFeatureAPI api = new TestOpenFeatureAPI();
-        api.shutdown();
+        OpenFeatureAPI api = OpenFeatureAPI.createIsolated();
         try {
             api.setProviderAndWait("multiProviderEvents", multiProvider);
             Client client = api.getClient("multiProviderEvents");
@@ -191,12 +190,6 @@ class MultiProviderEventsAndTrackingTest {
                                 .build())
                         .await();
             }
-        }
-    }
-
-    static class TestOpenFeatureAPI extends OpenFeatureAPI {
-        TestOpenFeatureAPI() {
-            super();
         }
     }
 }

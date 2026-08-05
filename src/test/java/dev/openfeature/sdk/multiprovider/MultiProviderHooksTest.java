@@ -91,8 +91,7 @@ class MultiProviderHooksTest {
 
         MultiProvider multiProvider = new MultiProvider(List.of(provider1, provider2), new FirstSuccessfulStrategy());
 
-        OpenFeatureAPI api = new TestOpenFeatureAPI();
-        api.shutdown();
+        OpenFeatureAPI api = OpenFeatureAPI.createIsolated();
         try {
             api.setProviderAndWait("multiProviderHooks", multiProvider);
             Client client = api.getClient("multiProviderHooks");
@@ -239,12 +238,6 @@ class MultiProviderHooksTest {
         @Override
         public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
             return ProviderEvaluation.<Value>builder().value(defaultValue).build();
-        }
-    }
-
-    static class TestOpenFeatureAPI extends OpenFeatureAPI {
-        TestOpenFeatureAPI() {
-            super();
         }
     }
 }

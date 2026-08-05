@@ -69,9 +69,12 @@ class MultiProviderHookExecutor {
         FlagEvaluationDetails<T> details = null;
         Map<String, Object> hookHints = resolveHookHints(hookExecutionContext);
 
+        // Per spec, before hooks run in registration order; after/error/finally run in reverse.
+        List<HookExecution<T>> reversedHooks = new ArrayList<>(hooks);
+        Collections.reverse(reversedHooks);
+
         try {
-            for (int i = hooks.size() - 1; i >= 0; i--) {
-                HookExecution<T> execution = hooks.get(i);
+            for (HookExecution<T> execution : hooks) {
                 HookContext<T> hookContext = createHookContext(
                         key,
                         valueType,
@@ -94,7 +97,7 @@ class MultiProviderHookExecutor {
             details = FlagEvaluationDetails.from(providerEvaluation, key);
 
             if (providerEvaluation.getErrorCode() == null) {
-                for (HookExecution<T> execution : hooks) {
+                for (HookExecution<T> execution : reversedHooks) {
                     execution.hook.after(
                             createHookContext(
                                     key,
@@ -110,7 +113,7 @@ class MultiProviderHookExecutor {
             } else {
                 enrichDetailsWithErrorDefaults(defaultValue, details);
                 Exception providerException = toEvaluationException(providerEvaluation);
-                for (HookExecution<T> execution : hooks) {
+                for (HookExecution<T> execution : reversedHooks) {
                     try {
                         execution.hook.error(
                                 createHookContext(
@@ -132,7 +135,7 @@ class MultiProviderHookExecutor {
             return providerEvaluation;
         } catch (Exception e) {
             details = buildErrorDetails(key, defaultValue, details, e);
-            for (HookExecution<T> execution : hooks) {
+            for (HookExecution<T> execution : reversedHooks) {
                 try {
                     execution.hook.error(
                             createHookContext(
@@ -157,7 +160,7 @@ class MultiProviderHookExecutor {
                             .value(defaultValue)
                             .build()
                     : details;
-            for (HookExecution<T> execution : hooks) {
+            for (HookExecution<T> execution : reversedHooks) {
                 try {
                     execution.hook.finallyAfter(
                             createHookContext(

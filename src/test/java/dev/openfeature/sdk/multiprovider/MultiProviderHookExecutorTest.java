@@ -16,6 +16,7 @@ import dev.openfeature.sdk.HookContext;
 import dev.openfeature.sdk.Metadata;
 import dev.openfeature.sdk.ProviderEvaluation;
 import dev.openfeature.sdk.Value;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,32 @@ class MultiProviderHookExecutorTest {
 
         assertTrue(called.get());
         assertEquals("direct", result.getValue());
+    }
+
+    @Test
+    void runsBeforeInRegistrationOrderAndRemainingStagesInReverse() {
+        List<String> calls = new ArrayList<>();
+        Hook<String> first = orderRecordingHook(calls, "first");
+        Hook<String> second = orderRecordingHook(calls, "second");
+
+        executor.evaluate(
+                stubProvider("p", List.of(first, second)),
+                "flag",
+                "default",
+                null,
+                null,
+                FlagValueType.STRING,
+                (p, ctx) -> ProviderEvaluation.<String>builder().value("ok").build());
+
+        assertEquals(
+                List.of(
+                        "before:first",
+                        "before:second",
+                        "after:second",
+                        "after:first",
+                        "finally:second",
+                        "finally:first"),
+                calls);
     }
 
     @Test
@@ -238,6 +265,28 @@ class MultiProviderHookExecutorTest {
                 (p, ctx) ->
                         ProviderEvaluation.<Value>builder().value(new Value()).build());
         assertNotNull(capturedDefault.get());
+    }
+
+    private static Hook<String> orderRecordingHook(List<String> calls, String name) {
+        return new Hook<String>() {
+            @Override
+            public Optional<EvaluationContext> before(HookContext<String> ctx, Map<String, Object> hints) {
+                calls.add("before:" + name);
+                return Optional.empty();
+            }
+
+            @Override
+            public void after(
+                    HookContext<String> ctx, FlagEvaluationDetails<String> details, Map<String, Object> hints) {
+                calls.add("after:" + name);
+            }
+
+            @Override
+            public void finallyAfter(
+                    HookContext<String> ctx, FlagEvaluationDetails<String> details, Map<String, Object> hints) {
+                calls.add("finally:" + name);
+            }
+        };
     }
 
     @SuppressWarnings("rawtypes")

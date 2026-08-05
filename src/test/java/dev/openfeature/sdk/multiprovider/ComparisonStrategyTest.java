@@ -10,12 +10,16 @@ import dev.openfeature.sdk.ErrorCode;
 import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.ProviderEvaluation;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
 class ComparisonStrategyTest extends BaseStrategyTest {
@@ -74,6 +78,11 @@ class ComparisonStrategyTest extends BaseStrategyTest {
 
         assertEquals(ErrorCode.GENERAL, result.getErrorCode());
         assertTrue(result.getErrorMessage().contains("provider2"));
+
+        List<ProviderError> providerErrors = ((MultiProviderEvaluation<String>) result).getProviderErrors();
+        assertEquals(1, providerErrors.size());
+        assertEquals("provider2", providerErrors.get(0).getProviderName());
+        assertEquals(ErrorCode.PARSE_ERROR, providerErrors.get(0).getErrorCode());
     }
 
     @Test
@@ -95,12 +104,11 @@ class ComparisonStrategyTest extends BaseStrategyTest {
     }
 
     @Test
-    void shouldEvaluateProvidersConcurrently() throws InterruptedException {
+    void shouldEvaluateProvidersConcurrently() {
         // Use a latch to prove that providers run in parallel:
         // both providers block on the latch, so they must be on
         // separate threads for the test to complete.
         CountDownLatch bothStarted = new CountDownLatch(2);
-        CountDownLatch proceed = new CountDownLatch(1);
         Set<String> threadNames = ConcurrentHashMap.newKeySet();
 
         Map<String, FeatureProvider> providers = new LinkedHashMap<>();
@@ -110,27 +118,34 @@ class ComparisonStrategyTest extends BaseStrategyTest {
         setupProviderSuccess(mockProvider1, "val");
         setupProviderSuccess(mockProvider2, "val");
 
-        ComparisonStrategy strategy = new ComparisonStrategy("provider1");
-        ProviderEvaluation<String> result = strategy.evaluate(providers, FLAG_KEY, DEFAULT_STRING, null, provider -> {
-            threadNames.add(Thread.currentThread().getName());
-            bothStarted.countDown();
-            try {
-                // Wait for both providers to signal they've started
-                bothStarted.await(5, TimeUnit.SECONDS);
-                proceed.countDown();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            return provider.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null);
-        });
+        // A dedicated pool of two threads: the default ForkJoinPool.commonPool() can have a
+        // parallelism of 1 on single-core runners, which would make this assertion flaky.
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        try {
+            ComparisonStrategy strategy = new ComparisonStrategy("provider1", null, executor, 5_000);
+            ProviderEvaluation<String> result =
+                    strategy.evaluate(providers, FLAG_KEY, DEFAULT_STRING, null, provider -> {
+                        threadNames.add(Thread.currentThread().getName());
+                        bothStarted.countDown();
+                        try {
+                            // Wait for both providers to signal they've started
+                            bothStarted.await(5, TimeUnit.SECONDS);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                        return provider.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null);
+                    });
 
-        assertNotNull(result);
-        assertEquals("val", result.getValue());
-        assertNull(result.getErrorCode());
-        // Verify that at least 2 different threads were used
-        assertTrue(
-                threadNames.size() >= 2,
-                "Expected concurrent execution on multiple threads, " + "but only saw: " + threadNames);
+            assertNotNull(result);
+            assertEquals("val", result.getValue());
+            assertNull(result.getErrorCode());
+            // Verify that at least 2 different threads were used
+            assertTrue(
+                    threadNames.size() >= 2,
+                    "Expected concurrent execution on multiple threads, but only saw: " + threadNames);
+        } finally {
+            executor.shutdownNow();
+        }
     }
 
     @Test
@@ -149,5 +164,34 @@ class ComparisonStrategyTest extends BaseStrategyTest {
         assertEquals(ErrorCode.GENERAL, result.getErrorCode());
         assertTrue(result.getErrorMessage().contains("provider1"), "Error should mention provider1");
         assertTrue(result.getErrorMessage().contains("provider2"), "Error should mention provider2");
+
+        // Errors follow the provider registration order, not the internal concurrent map order.
+        List<ProviderError> providerErrors = ((MultiProviderEvaluation<String>) result).getProviderErrors();
+        assertEquals(2, providerErrors.size());
+        assertEquals("provider1", providerErrors.get(0).getProviderName());
+        assertEquals(ErrorCode.PARSE_ERROR, providerErrors.get(0).getErrorCode());
+        assertEquals("provider2", providerErrors.get(1).getProviderName());
+        assertEquals(ErrorCode.FLAG_NOT_FOUND, providerErrors.get(1).getErrorCode());
+    }
+
+    @Test
+    void shouldPassSuccessfulEvaluationsInRegistrationOrderToMismatchCallback() {
+        setupProviderSuccess(mockProvider1, "first");
+        setupProviderSuccess(mockProvider2, "second");
+
+        Map<String, FeatureProvider> providers = new LinkedHashMap<>();
+        providers.put("provider1", mockProvider1);
+        providers.put("provider2", mockProvider2);
+
+        AtomicReference<Map<String, ProviderEvaluation<?>>> captured = new AtomicReference<>();
+        ComparisonStrategy strategy =
+                new ComparisonStrategy("provider2", (key, evaluations) -> captured.set(evaluations));
+
+        strategy.evaluate(
+                providers, FLAG_KEY, DEFAULT_STRING, null, p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
+
+        assertNotNull(captured.get());
+        assertEquals(
+                List.of("provider1", "provider2"), List.copyOf(captured.get().keySet()));
     }
 }
