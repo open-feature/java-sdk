@@ -3,10 +3,13 @@ package dev.openfeature.sdk;
 import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import dev.openfeature.sdk.internal.ConfigurableThreadFactory;
 import dev.openfeature.sdk.internal.TriConsumer;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -24,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class EventProvider implements FeatureProvider {
     private EventProviderListener eventProviderListener;
+    private final List<BiConsumer<ProviderEvent, ProviderEventDetails>> eventObservers = new CopyOnWriteArrayList<>();
     private final ExecutorService emitterExecutor =
             Executors.newCachedThreadPool(new ConfigurableThreadFactory("openfeature-event-emitter-thread", true));
 
@@ -71,6 +75,31 @@ public abstract class EventProvider implements FeatureProvider {
     }
 
     /**
+     * Add a provider event observer.
+     *
+     * <p>Observers are invoked whenever this provider emits an event and are intended for advanced
+     * provider composition scenarios.
+     *
+     * @param observer observer callback
+     */
+    public void addEventObserver(BiConsumer<ProviderEvent, ProviderEventDetails> observer) {
+        if (observer != null) {
+            eventObservers.add(observer);
+        }
+    }
+
+    /**
+     * Remove a previously registered provider event observer.
+     *
+     * @param observer observer callback
+     */
+    public void removeEventObserver(BiConsumer<ProviderEvent, ProviderEventDetails> observer) {
+        if (observer != null) {
+            eventObservers.remove(observer);
+        }
+    }
+
+    /**
      * Stop the event emitter executor and block until either termination has completed
      * or timeout period has elapsed.
      */
@@ -97,8 +126,9 @@ public abstract class EventProvider implements FeatureProvider {
     public Awaitable emit(final ProviderEvent event, final ProviderEventDetails details) {
         final var localEventProviderListener = this.eventProviderListener;
         final var localAttachment = this.attachment.get();
+        final var localEventObservers = this.eventObservers;
 
-        if (localEventProviderListener == null && localAttachment == null) {
+        if (localEventProviderListener == null && localAttachment == null && localEventObservers.isEmpty()) {
             return Awaitable.FINISHED;
         }
 
@@ -115,6 +145,13 @@ public abstract class EventProvider implements FeatureProvider {
                 }
                 if (localAttachment != null) {
                     localAttachment.onEmit.accept(this, event, details);
+                }
+                for (BiConsumer<ProviderEvent, ProviderEventDetails> observer : localEventObservers) {
+                    try {
+                        observer.accept(event, details);
+                    } catch (Exception e) {
+                        log.error("Exception in provider event observer {}", observer, e);
+                    }
                 }
             } finally {
                 awaitable.wakeup();
