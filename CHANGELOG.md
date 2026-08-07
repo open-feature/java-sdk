@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.22.1](https://github.com/open-feature/java-sdk/compare/v1.22.0...v1.22.1) (2026-08-07)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency org.junit:junit-bom to v6.1.3 ([#2006](https://github.com/open-feature/java-sdk/issues/2006)) ([d7e9a13](https://github.com/open-feature/java-sdk/commit/d7e9a13b134b88de8e0db287d9de3caa95ecc1db))
+
+
+### 🧹 Chore
+
+* **deps:** update dependency com.tngtech.archunit:archunit-junit5 to v1.5.0 ([#2002](https://github.com/open-feature/java-sdk/issues/2002)) ([a8e6644](https://github.com/open-feature/java-sdk/commit/a8e66441f74d40582ed47c20b1c115174cea89ef))
+* **deps:** update dependency org.cyclonedx:cyclonedx-maven-plugin to v2.9.3 ([#2000](https://github.com/open-feature/java-sdk/issues/2000)) ([060f9cb](https://github.com/open-feature/java-sdk/commit/060f9cbcf20765cdc3f1229d946ad6735283e140))
+
 ## [1.22.0](https://github.com/open-feature/java-sdk/compare/v1.21.0...v1.22.0) (2026-07-28)
 
 
