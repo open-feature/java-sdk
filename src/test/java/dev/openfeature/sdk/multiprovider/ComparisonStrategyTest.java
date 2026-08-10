@@ -119,8 +119,8 @@ class ComparisonStrategyTest extends BaseStrategyTest {
         setupProviderSuccess(mockProvider1, "val");
         setupProviderSuccess(mockProvider2, "val");
 
-        // A dedicated pool of two threads: the default ForkJoinPool.commonPool() can have a
-        // parallelism of 1 on single-core runners, which would make this assertion flaky.
+        // A dedicated pool of exactly two threads, so the assertion below cannot depend on how the
+        // strategy's shared default pool happens to be sized or already occupied.
         ExecutorService executor = Executors.newFixedThreadPool(2);
         try {
             ComparisonStrategy strategy = new ComparisonStrategy("provider1", null, executor, 5_000);
@@ -251,7 +251,7 @@ class ComparisonStrategyTest extends BaseStrategyTest {
     }
 
     @Test
-    void shouldReturnTimeoutErrorWhenProvidersExceedTheTimeout() {
+    void shouldReturnErrorWhenTheFallbackProviderExceedsTheTimeout() {
         setupProviderSuccess(mockProvider1, "ok");
         setupProviderSuccess(mockProvider2, "ok");
 
@@ -264,20 +264,126 @@ class ComparisonStrategyTest extends BaseStrategyTest {
             ComparisonStrategy strategy = new ComparisonStrategy("provider1", null, executor, 50);
             ProviderEvaluation<String> result =
                     strategy.evaluate(providers, FLAG_KEY, DEFAULT_STRING, null, provider -> {
-                        try {
-                            Thread.sleep(5_000);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
+                        sleepUninterruptibly(5_000);
                         return provider.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null);
                     });
 
             assertEquals(ErrorCode.GENERAL, result.getErrorCode());
             assertTrue(
-                    result.getErrorMessage().contains("timed out after 50ms"),
-                    "Expected a timeout message, got: " + result.getErrorMessage());
+                    result.getErrorMessage().contains("Fallback provider did not respond within 50ms: provider1"),
+                    "Expected a fallback timeout message, got: " + result.getErrorMessage());
         } finally {
             executor.shutdownNow();
+        }
+    }
+
+    @Test
+    void shouldReturnFallbackResultAndReportTimeoutWhenComparedProviderIsTooSlow() {
+        setupProviderSuccess(mockProvider1, "fast");
+        setupProviderSuccess(mockProvider2, "slow");
+
+        Map<String, FeatureProvider> providers = new LinkedHashMap<>();
+        providers.put("provider1", mockProvider1);
+        providers.put("provider2", mockProvider2);
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        try {
+            ComparisonStrategy strategy = new ComparisonStrategy("provider1", null, executor, 100);
+            ProviderEvaluation<String> result =
+                    strategy.evaluate(providers, FLAG_KEY, DEFAULT_STRING, null, provider -> {
+                        if (provider == mockProvider2) {
+                            sleepUninterruptibly(5_000);
+                        }
+                        return provider.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null);
+                    });
+
+            assertNull(result.getErrorCode(), "a slow compared provider must not fail the evaluation");
+            assertEquals("fast", result.getValue());
+
+            List<ProviderError> providerErrors = ((MultiProviderEvaluation<String>) result).getProviderErrors();
+            assertEquals(1, providerErrors.size());
+            assertEquals("provider2", providerErrors.get(0).getProviderName());
+            assertEquals(
+                    "Provider did not respond within 100ms",
+                    providerErrors.get(0).getErrorMessage());
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    void shouldNotInvokeMismatchCallbackWhenTheOnlyOtherProviderTimedOut() {
+        setupProviderSuccess(mockProvider1, "fast");
+        setupProviderSuccess(mockProvider2, "slow");
+
+        Map<String, FeatureProvider> providers = new LinkedHashMap<>();
+        providers.put("provider1", mockProvider1);
+        providers.put("provider2", mockProvider2);
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        AtomicInteger callbackCount = new AtomicInteger();
+        try {
+            ComparisonStrategy strategy = new ComparisonStrategy(
+                    "provider1", (key, evaluations) -> callbackCount.incrementAndGet(), executor, 100);
+            strategy.evaluate(providers, FLAG_KEY, DEFAULT_STRING, null, provider -> {
+                if (provider == mockProvider2) {
+                    sleepUninterruptibly(5_000);
+                }
+                return provider.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null);
+            });
+
+            assertEquals(0, callbackCount.get(), "a timed-out provider has no value to disagree with");
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    void shouldNotInvokeMismatchCallbackWhenProvidersAgree() {
+        setupProviderSuccess(mockProvider1, "same");
+        setupProviderSuccess(mockProvider2, "same");
+
+        Map<String, FeatureProvider> providers = new LinkedHashMap<>();
+        providers.put("provider1", mockProvider1);
+        providers.put("provider2", mockProvider2);
+
+        AtomicInteger callbackCount = new AtomicInteger();
+        ComparisonStrategy strategy =
+                new ComparisonStrategy("provider2", (key, evaluations) -> callbackCount.incrementAndGet());
+
+        ProviderEvaluation<String> result = strategy.evaluate(
+                providers, FLAG_KEY, DEFAULT_STRING, null, p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
+
+        assertEquals("same", result.getValue());
+        assertNull(result.getErrorCode());
+        assertEquals(0, callbackCount.get());
+    }
+
+    @Test
+    void shouldReturnErrorWhenTheExecutorRejectsTheEvaluations() {
+        setupProviderSuccess(mockProvider1, "ok");
+
+        Map<String, FeatureProvider> providers = new LinkedHashMap<>();
+        providers.put("provider1", mockProvider1);
+
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        executor.shutdown();
+
+        ComparisonStrategy strategy = new ComparisonStrategy("provider1", null, executor, 1_000);
+        ProviderEvaluation<String> result = strategy.evaluate(
+                providers, FLAG_KEY, DEFAULT_STRING, null, p -> p.getStringEvaluation(FLAG_KEY, DEFAULT_STRING, null));
+
+        assertEquals(ErrorCode.GENERAL, result.getErrorCode());
+        assertTrue(
+                result.getErrorMessage().contains("Comparison strategy failed"),
+                "Expected a strategy failure message, got: " + result.getErrorMessage());
+    }
+
+    private static void sleepUninterruptibly(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 }

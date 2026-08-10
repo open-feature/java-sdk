@@ -4,6 +4,7 @@ import dev.openfeature.sdk.ErrorCode;
 import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.ProviderEvaluation;
+import dev.openfeature.sdk.internal.ConfigurableThreadFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -14,7 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -30,10 +31,25 @@ import lombok.Getter;
  * and the fallback provider's result is returned.
  * If any provider returns an error, all errors are collected and a {@link MultiProviderEvaluation}
  * with {@link ErrorCode#GENERAL} and per-provider {@link ProviderError} details is returned.
+ *
+ * <p>Providers that do not respond before the internal timeout do not fail the evaluation. The
+ * fallback provider's result is still returned, carrying a {@link ProviderError} for each provider
+ * that timed out, so that a slow provider under comparison cannot degrade evaluations. Only a
+ * timeout of the fallback provider itself produces an error result.
  */
 public class ComparisonStrategy implements Strategy {
 
     private static final long DEFAULT_TIMEOUT_MS = 30_000;
+
+    /**
+     * Shared pool used when no executor is supplied.
+     *
+     * <p>Provider evaluations block, so they are kept off {@link java.util.concurrent.ForkJoinPool
+     * #commonPool()} to avoid starving unrelated parallel work in the host application. Threads are
+     * daemon threads, so this pool never prevents JVM shutdown.
+     */
+    private static final ExecutorService DEFAULT_EXECUTOR =
+            Executors.newCachedThreadPool(new ConfigurableThreadFactory("openfeature-comparison-strategy", true));
 
     @Getter
     private final String fallbackProvider;
@@ -45,8 +61,6 @@ public class ComparisonStrategy implements Strategy {
     /**
      * Constructs a comparison strategy with a fallback provider.
      *
-     * <p>Uses a shared {@link ForkJoinPool#commonPool()} for parallel evaluation.
-     *
      * @param fallbackProvider provider name to use as fallback when successful
      *                         providers disagree
      */
@@ -57,8 +71,6 @@ public class ComparisonStrategy implements Strategy {
     /**
      * Constructs a comparison strategy with fallback provider and mismatch callback.
      *
-     * <p>Uses a shared {@link ForkJoinPool#commonPool()} for parallel evaluation.
-     *
      * @param fallbackProvider provider name to use as fallback when successful
      *                         providers disagree
      * @param onMismatch       callback invoked with all successful evaluations
@@ -66,11 +78,14 @@ public class ComparisonStrategy implements Strategy {
      */
     public ComparisonStrategy(
             String fallbackProvider, BiConsumer<String, Map<String, ProviderEvaluation<?>>> onMismatch) {
-        this(fallbackProvider, onMismatch, ForkJoinPool.commonPool(), DEFAULT_TIMEOUT_MS);
+        this(fallbackProvider, onMismatch, DEFAULT_EXECUTOR, DEFAULT_TIMEOUT_MS);
     }
 
     /**
-     * Constructs a comparison strategy with a caller-supplied executor.
+     * Constructs a comparison strategy with a caller-supplied executor and timeout.
+     *
+     * <p>Intentionally not public: the executor and timeout are implementation details, and the
+     * public surface is kept aligned with the js-sdk reference implementation.
      *
      * @param fallbackProvider provider name to use as fallback when successful
      *                         providers disagree
@@ -80,7 +95,7 @@ public class ComparisonStrategy implements Strategy {
      * @param timeoutMs        maximum time in milliseconds to wait for all
      *                         providers to complete
      */
-    public ComparisonStrategy(
+    ComparisonStrategy(
             String fallbackProvider,
             BiConsumer<String, Map<String, ProviderEvaluation<?>>> onMismatch,
             ExecutorService executorService,
@@ -111,72 +126,92 @@ public class ComparisonStrategy implements Strategy {
         int capacity = providers.size() * 4 / 3 + 1;
         Map<String, ProviderEvaluation<T>> successfulResults = new ConcurrentHashMap<>(capacity);
         Map<String, ProviderError> providerErrors = new ConcurrentHashMap<>(capacity);
+        Map<String, ProviderError> timeoutErrors = new ConcurrentHashMap<>(capacity);
 
         Optional<ProviderEvaluation<T>> runFailure =
-                runEvaluations(providers, providerFunction, successfulResults, providerErrors);
+                runEvaluations(providers, providerFunction, successfulResults, providerErrors, timeoutErrors);
         if (runFailure.isPresent()) {
             return runFailure.get();
         }
 
         if (!providerErrors.isEmpty()) {
-            return errorResult("Provider errors during comparison", providers, providerErrors);
+            return errorResult(
+                    "Provider errors during comparison", orderedErrors(providers, providerErrors, timeoutErrors));
         }
 
         ProviderEvaluation<T> fallbackResult = successfulResults.get(fallbackProvider);
         if (fallbackResult == null) {
             return errorResult(
-                    "Fallback provider did not return a successful evaluation: " + fallbackProvider,
-                    providers,
-                    providerErrors);
+                    fallbackFailureMessage(timeoutErrors), orderedErrors(providers, providerErrors, timeoutErrors));
         }
 
-        if (allEvaluationsMatch(successfulResults)) {
-            return fallbackResult;
-        }
-
-        if (onMismatch != null) {
+        if (onMismatch != null && !allEvaluationsMatch(successfulResults)) {
             onMismatch.accept(key, orderedResults(providers, successfulResults));
         }
-        return fallbackResult;
+
+        if (timeoutErrors.isEmpty()) {
+            return fallbackResult;
+        }
+        // A provider under comparison was too slow. Report it, but keep serving the fallback result.
+        return withProviderErrors(fallbackResult, orderedErrors(providers, providerErrors, timeoutErrors));
+    }
+
+    private String fallbackFailureMessage(Map<String, ProviderError> timeoutErrors) {
+        if (timeoutErrors.containsKey(fallbackProvider)) {
+            return "Fallback provider did not respond within " + timeoutMs + "ms: " + fallbackProvider;
+        }
+        return "Fallback provider did not return a successful evaluation: " + fallbackProvider;
     }
 
     /**
-     * Evaluates every provider in parallel, recording each outcome into {@code successfulResults} or
-     * {@code providerErrors}.
+     * Evaluates every provider in parallel, recording each outcome into {@code successfulResults},
+     * {@code providerErrors}, or, for providers that did not finish in time, {@code timeoutErrors}.
      *
-     * @return an error evaluation if the parallel run itself could not complete (timeout,
-     *     interruption, or executor failure), otherwise {@link Optional#empty()}
+     * @return an error evaluation if the parallel run itself could not complete (interruption or
+     *     executor failure), otherwise {@link Optional#empty()}
      */
     private <T> Optional<ProviderEvaluation<T>> runEvaluations(
             Map<String, FeatureProvider> providers,
             Function<FeatureProvider, ProviderEvaluation<T>> providerFunction,
             Map<String, ProviderEvaluation<T>> successfulResults,
-            Map<String, ProviderError> providerErrors) {
+            Map<String, ProviderError> providerErrors,
+            Map<String, ProviderError> timeoutErrors) {
         try {
+            List<String> providerNames = new ArrayList<>(providers.keySet());
             List<Callable<Void>> tasks = new ArrayList<>(providers.size());
-            for (Map.Entry<String, FeatureProvider> entry : providers.entrySet()) {
-                String providerName = entry.getKey();
-                FeatureProvider provider = entry.getValue();
+            for (String providerName : providerNames) {
+                FeatureProvider provider = providers.get(providerName);
                 tasks.add(() -> {
                     recordEvaluation(providerName, provider, providerFunction, successfulResults, providerErrors);
                     return null;
                 });
             }
+            // invokeAll returns futures in task submission order, which matches providerNames.
             List<Future<Void>> futures = executorService.invokeAll(tasks, timeoutMs, TimeUnit.MILLISECONDS);
-            for (Future<Void> future : futures) {
+            for (int i = 0; i < futures.size(); i++) {
+                Future<Void> future = futures.get(i);
+                String providerName = providerNames.get(i);
                 if (future.isCancelled()) {
-                    return Optional.of(errorResult(
-                            "Comparison strategy timed out after " + timeoutMs + "ms", providers, providerErrors));
+                    timeoutErrors.put(
+                            providerName,
+                            ProviderError.fromResult(
+                                    providerName,
+                                    ErrorCode.GENERAL,
+                                    "Provider did not respond within " + timeoutMs + "ms"));
+                } else {
+                    future.get();
                 }
-                future.get();
             }
             return Optional.empty();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return Optional.of(
-                    errorResult("Comparison strategy interrupted: " + e.getMessage(), providers, providerErrors));
+            return Optional.of(errorResult(
+                    "Comparison strategy interrupted: " + e.getMessage(),
+                    orderedErrors(providers, providerErrors, timeoutErrors)));
         } catch (Exception e) {
-            return Optional.of(errorResult("Comparison strategy failed: " + e.getMessage(), providers, providerErrors));
+            return Optional.of(errorResult(
+                    "Comparison strategy failed: " + e.getMessage(),
+                    orderedErrors(providers, providerErrors, timeoutErrors)));
         }
     }
 
@@ -205,22 +240,47 @@ public class ComparisonStrategy implements Strategy {
         }
     }
 
+    /** Builds a {@link MultiProviderEvaluation} carrying per-provider error details. */
+    private <T> ProviderEvaluation<T> errorResult(String baseMessage, List<ProviderError> orderedErrors) {
+        return MultiProviderEvaluation.<T>builder()
+                .errorCode(ErrorCode.GENERAL)
+                .errorMessage(ProviderError.buildAggregateMessage(baseMessage, orderedErrors))
+                .providerErrors(orderedErrors)
+                .build();
+    }
+
     /**
-     * Builds a {@link MultiProviderEvaluation} carrying per-provider error details, ordered by the
-     * provider registration order so the aggregate message is stable across runs.
+     * Merges the recorded errors into a single list ordered by provider registration order, so that
+     * aggregate messages are stable across runs.
      */
-    private <T> ProviderEvaluation<T> errorResult(
-            String baseMessage, Map<String, FeatureProvider> providers, Map<String, ProviderError> providerErrors) {
-        List<ProviderError> orderedErrors = new ArrayList<>(providerErrors.size());
+    private List<ProviderError> orderedErrors(
+            Map<String, FeatureProvider> providers,
+            Map<String, ProviderError> providerErrors,
+            Map<String, ProviderError> timeoutErrors) {
+        List<ProviderError> orderedErrors = new ArrayList<>(providerErrors.size() + timeoutErrors.size());
         for (String providerName : providers.keySet()) {
             ProviderError error = providerErrors.get(providerName);
+            if (error == null) {
+                error = timeoutErrors.get(providerName);
+            }
             if (error != null) {
                 orderedErrors.add(error);
             }
         }
+        return orderedErrors;
+    }
+
+    /**
+     * Returns the successful evaluation as a {@link MultiProviderEvaluation} carrying the given
+     * per-provider errors, so callers can see which providers were skipped or timed out.
+     */
+    private <T> ProviderEvaluation<T> withProviderErrors(
+            ProviderEvaluation<T> evaluation, List<ProviderError> orderedErrors) {
         return MultiProviderEvaluation.<T>builder()
-                .errorCode(ErrorCode.GENERAL)
-                .errorMessage(ProviderError.buildAggregateMessage(baseMessage, orderedErrors))
+                .value(evaluation.getValue())
+                .variant(evaluation.getVariant())
+                .reason(evaluation.getReason())
+                .flagMetadata(evaluation.getFlagMetadata())
                 .providerErrors(orderedErrors)
                 .build();
     }
