@@ -26,6 +26,7 @@ public class EventDetails extends ProviderEventDetails {
                 .flagsChanged(providerEventDetails.getFlagsChanged())
                 .eventMetadata(providerEventDetails.getEventMetadata())
                 .message(providerEventDetails.getMessage())
+                .errorCode(providerEventDetails.getErrorCode())
                 .build();
     }
 }
