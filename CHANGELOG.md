@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.22.1](https://github.com/open-feature/java-sdk/compare/v1.22.0...v1.22.1) (2026-08-27)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency com.fasterxml.jackson:jackson-bom to v2.22.2 ([#2007](https://github.com/open-feature/java-sdk/issues/2007)) ([3ea35ba](https://github.com/open-feature/java-sdk/commit/3ea35ba88be88faa975e3c98168ad1ff456f3576))
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.34.7 ([#2010](https://github.com/open-feature/java-sdk/issues/2010)) ([c633322](https://github.com/open-feature/java-sdk/commit/c633322f3bf1b001823a51571c3e4ee34785dff5))
+* **deps:** update dependency org.junit:junit-bom to v6.1.3 ([#2006](https://github.com/open-feature/java-sdk/issues/2006)) ([d7e9a13](https://github.com/open-feature/java-sdk/commit/d7e9a13b134b88de8e0db287d9de3caa95ecc1db))
+* handle long in struct conversion ([#2020](https://github.com/open-feature/java-sdk/issues/2020)) ([9a26a51](https://github.com/open-feature/java-sdk/commit/9a26a514d43438ce16f575c959d6ec98594ab4a6))
+
+
+### 🧹 Chore
+
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.10.0 ([#2011](https://github.com/open-feature/java-sdk/issues/2011)) ([4ac67b6](https://github.com/open-feature/java-sdk/commit/4ac67b6a8f1510909b7c3e3c992f3749a00d41b7))
+* **deps:** update dependency com.github.spotbugs:spotbugs to v4.10.4 ([#2017](https://github.com/open-feature/java-sdk/issues/2017)) ([d0de022](https://github.com/open-feature/java-sdk/commit/d0de022bec46d3b9341be742d3cfd7143b81e367))
+* **deps:** update dependency com.github.spotbugs:spotbugs-maven-plugin to v4.10.4.0 ([#2018](https://github.com/open-feature/java-sdk/issues/2018)) ([be9c178](https://github.com/open-feature/java-sdk/commit/be9c178647c6c6dce261787d04f4c5485e7463ba))
+* **deps:** update dependency com.google.guava:guava to v33.7.0-jre ([#2012](https://github.com/open-feature/java-sdk/issues/2012)) ([5bf9f56](https://github.com/open-feature/java-sdk/commit/5bf9f567a529e01e138a4a4ef3f89acc0b1906bb))
+* **deps:** update dependency com.google.guava:guava to v33.7.1-jre ([#2013](https://github.com/open-feature/java-sdk/issues/2013)) ([d10c042](https://github.com/open-feature/java-sdk/commit/d10c042cd1daca42fc9ba1301fdddd7be74f71e1))
+* **deps:** update dependency com.tngtech.archunit:archunit-junit5 to v1.5.0 ([#2002](https://github.com/open-feature/java-sdk/issues/2002)) ([a8e6644](https://github.com/open-feature/java-sdk/commit/a8e66441f74d40582ed47c20b1c115174cea89ef))
+* **deps:** update dependency net.bytebuddy:byte-buddy to v1.18.12-jdk5 ([#2008](https://github.com/open-feature/java-sdk/issues/2008)) ([020b21b](https://github.com/open-feature/java-sdk/commit/020b21bd4d75b8ad13d6ffebb124aa888be5cadb))
+* **deps:** update dependency net.bytebuddy:byte-buddy-agent to v1.18.12-jdk5 ([#2009](https://github.com/open-feature/java-sdk/issues/2009)) ([76b311c](https://github.com/open-feature/java-sdk/commit/76b311ca5e12f5685df67c6400b6d3c80ff889d1))
+* **deps:** update dependency org.cyclonedx:cyclonedx-maven-plugin to v2.9.3 ([#2000](https://github.com/open-feature/java-sdk/issues/2000)) ([060f9cb](https://github.com/open-feature/java-sdk/commit/060f9cbcf20765cdc3f1229d946ad6735283e140))
+
 ## [1.22.0](https://github.com/open-feature/java-sdk/compare/v1.21.0...v1.22.0) (2026-07-28)
 
 
