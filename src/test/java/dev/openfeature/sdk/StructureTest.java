@@ -116,4 +116,20 @@ public class StructureTest {
         ImmutableStructure structure = new ImmutableStructure();
         assertNull(structure.convertValue(new Value((String) null)));
     }
+
+    @Test
+    void convertValueHandlesLongValue() {
+        long value = 4133980802L; // > Integer.MAX_VALUE
+        ImmutableStructure structure = new ImmutableStructure();
+        assertEquals(value, structure.convertValue(new Value(value)));
+    }
+
+    @Test
+    void asObjectMapHandlesLongValue() {
+        long value = 4133980802L;
+        Map<String, Value> map = new HashMap<>();
+        map.put("long", new Value(value));
+        ImmutableStructure structure = new ImmutableStructure(map);
+        assertEquals(value, structure.asObjectMap().get("long"));
+    }
 }

@@ -80,6 +80,8 @@ public interface Structure {
                 return numberValue.doubleValue();
             } else if (numberValue instanceof Integer) {
                 return numberValue.intValue();
+            } else if (numberValue instanceof Long) {
+                return numberValue.longValue();
             }
         }
 
