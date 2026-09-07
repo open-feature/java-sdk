@@ -1,0 +1,14 @@
+{
+  "$schema": "https://flagd.dev/schema/v0/flags.json",
+  "flags": {
+    "basic-boolean": {
+      "state": "ENABLED",
+      "defaultVariant": "true",
+      "variants": {
+        "true": true,
+        "false": false
+      },
+      "targeting": {}
+    }
+  }
+}
