@@ -6,7 +6,6 @@ import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.ProviderEvaluation;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,16 +24,15 @@ public class FirstSuccessfulStrategy implements Strategy {
 
     @Override
     public <T> ProviderEvaluation<T> evaluate(
-            Map<String, FeatureProvider> providers,
+            List<FeatureProvider> providers,
             String key,
             T defaultValue,
             EvaluationContext ctx,
             Function<FeatureProvider, ProviderEvaluation<T>> providerFunction) {
         List<ProviderError> collectedErrors = new ArrayList<>();
 
-        for (Map.Entry<String, FeatureProvider> entry : providers.entrySet()) {
-            String providerName = entry.getKey();
-            FeatureProvider provider = entry.getValue();
+        for (FeatureProvider provider : providers) {
+            String providerName = provider.getMetadata().getName();
             try {
                 ProviderEvaluation<T> res = providerFunction.apply(provider);
                 if (res.getErrorCode() == null) {
