@@ -317,7 +317,10 @@ public class OpenFeatureAPI implements EventBus<OpenFeatureAPI> {
         runHandlersForProvider(
                 provider,
                 ProviderEvent.PROVIDER_ERROR,
-                ProviderEventDetails.builder().message(exception.getMessage()).build());
+                ProviderEventDetails.builder()
+                        .message(exception.getMessage())
+                        .errorCode(exception.getErrorCode())
+                        .build());
     }
 
     private void emitErrorAndThrow(FeatureProvider provider, OpenFeatureError exception) throws OpenFeatureError {
