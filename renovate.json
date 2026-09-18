@@ -10,9 +10,10 @@
       "automerge": true
     }
   ],
-  "regexManagers": [
+  "customManagers": [
     {
-      "fileMatch": ["^README.md$", "^.github/workflows/pullrequest.yml$"],
+      "customType": "regex",
+      "managerFilePatterns": ["/^README.md$/", "/^.github/workflows/pullrequest.yml$/"],
       "matchStrings": ["ghcr\\.io\\/open-feature\\/flagd-testbed:(?<currentValue>.*?)\\n"],
       "depNameTemplate": "open-feature/test-harness",
       "datasourceTemplate": "github-releases"
