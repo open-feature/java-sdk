@@ -539,6 +539,22 @@ class EventsTest {
     }
 
     @Test
+    @DisplayName("errors the SDK raises itself must carry the error code")
+    @Specification(
+            number = "5.1.5",
+            text = "`PROVIDER_ERROR` events SHOULD populate the `provider event details`'s `error code` field.")
+    void errorsRaisedBySdkMustCarryErrorCode() {
+        final Consumer<EventDetails> handler = mockHandler();
+        api.onProviderError(handler);
+
+        api.setProvider(
+                "errorsRaisedBySdkMustCarryErrorCode", TestProvider.builder().initsToFatal());
+
+        verify(handler, timeout(TIMEOUT))
+                .accept(argThat((EventDetails details) -> ErrorCode.PROVIDER_FATAL.equals(details.getErrorCode())));
+    }
+
+    @Test
     @DisplayName("should have all properties")
     @Specification(number = "5.2.4", text = "The handler function MUST accept a event details parameter.")
     @Specification(
@@ -561,10 +577,12 @@ class EventsTest {
         ImmutableMetadata metadata =
                 ImmutableMetadata.builder().addInteger("int", 1).build();
         String message = "a message";
+        ErrorCode errorCode = ErrorCode.GENERAL;
         ProviderEventDetails details = ProviderEventDetails.builder()
                 .eventMetadata(metadata)
                 .flagsChanged(flagsChanged)
                 .message(message)
+                .errorCode(errorCode)
                 .build();
 
         provider.emit(ProviderEvent.PROVIDER_CONFIGURATION_CHANGED, details);
@@ -574,12 +592,14 @@ class EventsTest {
             return metadata.equals(eventDetails.getEventMetadata())
                     // TODO: issue for client name in events
                     && flagsChanged.equals(eventDetails.getFlagsChanged())
-                    && message.equals(eventDetails.getMessage());
+                    && message.equals(eventDetails.getMessage())
+                    && errorCode.equals(eventDetails.getErrorCode());
         }));
         verify(handler2, timeout(TIMEOUT)).accept(argThat((EventDetails eventDetails) -> {
             return metadata.equals(eventDetails.getEventMetadata())
                     && flagsChanged.equals(eventDetails.getFlagsChanged())
                     && message.equals(eventDetails.getMessage())
+                    && errorCode.equals(eventDetails.getErrorCode())
                     && name.equals(eventDetails.getDomain());
         }));
     }
