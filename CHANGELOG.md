@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.22.2](https://github.com/open-feature/java-sdk/compare/v1.22.1...v1.22.2) (2026-09-23)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.34.8 ([#2032](https://github.com/open-feature/java-sdk/issues/2032)) ([3d2c167](https://github.com/open-feature/java-sdk/commit/3d2c167700fb80e13c16a43c83c2b426759db354))
+* **deps:** update dependency org.slf4j:slf4j-api to v2.0.19 ([#2029](https://github.com/open-feature/java-sdk/issues/2029)) ([53fc6c5](https://github.com/open-feature/java-sdk/commit/53fc6c59cd8c8d1922d72bd2cb298d8a92c2b404))
+
+
+### 🧹 Chore
+
+* **config:** migrate config renovate.json ([9913fb0](https://github.com/open-feature/java-sdk/commit/9913fb0073a8ba4b2a3d7cac3a7a80f472c032c5))
+* **config:** migrate Renovate config ([#2043](https://github.com/open-feature/java-sdk/issues/2043)) ([9913fb0](https://github.com/open-feature/java-sdk/commit/9913fb0073a8ba4b2a3d7cac3a7a80f472c032c5))
+* **deps:** update codecov/codecov-action action to v7.1.0 ([#2036](https://github.com/open-feature/java-sdk/issues/2036)) ([962694c](https://github.com/open-feature/java-sdk/commit/962694c19d5b17cb5445927bbd6bc43c2bd43d84))
+* **deps:** update codecov/codecov-action action to v7.1.1 ([#2040](https://github.com/open-feature/java-sdk/issues/2040)) ([0b79607](https://github.com/open-feature/java-sdk/commit/0b79607007c4bdecc452287474203876b1bd9bbb))
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.10.1 ([#2021](https://github.com/open-feature/java-sdk/issues/2021)) ([9e5a394](https://github.com/open-feature/java-sdk/commit/9e5a394a161d03f93355877d511eabe4650b4d73))
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.10.2 ([#2030](https://github.com/open-feature/java-sdk/issues/2030)) ([1670084](https://github.com/open-feature/java-sdk/commit/1670084e88b23885e3bf9cc1fbe7ca5b84d2cff8))
+* **deps:** update dependency com.github.spotbugs:spotbugs-maven-plugin to v4.10.4.1 ([#2031](https://github.com/open-feature/java-sdk/issues/2031)) ([5e589c1](https://github.com/open-feature/java-sdk/commit/5e589c10133a5369bd7d7bf6be194703c4a9ab49))
+* **deps:** update dependency java-jdk to v17.0.20+101 ([#2037](https://github.com/open-feature/java-sdk/issues/2037)) ([6a6946a](https://github.com/open-feature/java-sdk/commit/6a6946ae82c297ce5bb38d8bd1bd5ae61f4d63b9))
+* **deps:** update dependency java-jdk to v25 ([#2038](https://github.com/open-feature/java-sdk/issues/2038)) ([e4687ae](https://github.com/open-feature/java-sdk/commit/e4687ae2bf19581b65eb0da8adc5add7ded3de0a))
+* **deps:** update dependency net.bytebuddy:byte-buddy to v1.18.13-jdk5 ([#2024](https://github.com/open-feature/java-sdk/issues/2024)) ([bb6b05d](https://github.com/open-feature/java-sdk/commit/bb6b05d1007e18da2578f48870a33cb4aa2b429d))
+* **deps:** update dependency net.bytebuddy:byte-buddy to v1.18.14-jdk5 ([#2034](https://github.com/open-feature/java-sdk/issues/2034)) ([c3adbae](https://github.com/open-feature/java-sdk/commit/c3adbae6ef55b4d65b009aaa974dd1099d2aaa8c))
+* **deps:** update dependency net.bytebuddy:byte-buddy-agent to v1.18.13-jdk5 ([#2025](https://github.com/open-feature/java-sdk/issues/2025)) ([a842285](https://github.com/open-feature/java-sdk/commit/a8422851252afdbf7baa0dfc5077759ded699bdb))
+* **deps:** update dependency net.bytebuddy:byte-buddy-agent to v1.18.14-jdk5 ([#2035](https://github.com/open-feature/java-sdk/issues/2035)) ([caf9dc4](https://github.com/open-feature/java-sdk/commit/caf9dc4b34ba481dfcf9974f0b61e8687eb18749))
+* **deps:** update dependency org.apache.maven.plugins:maven-compiler-plugin to v3.16.0 ([#2026](https://github.com/open-feature/java-sdk/issues/2026)) ([12d299d](https://github.com/open-feature/java-sdk/commit/12d299daa01fe64ab91c894d737cbb035d7373d8))
+* **deps:** update dependency org.apache.maven.plugins:maven-failsafe-plugin to v3.6.0 ([#2027](https://github.com/open-feature/java-sdk/issues/2027)) ([3801fc1](https://github.com/open-feature/java-sdk/commit/3801fc161e23739fe41d5c3084973425e9cb5df5))
+* **deps:** update dependency org.apache.maven.plugins:maven-surefire-plugin to v3.6.0 ([#2028](https://github.com/open-feature/java-sdk/issues/2028)) ([5b57e9e](https://github.com/open-feature/java-sdk/commit/5b57e9eb4211337a2689b19ae57291267b54755d))
+* **deps:** update dependency org.codehaus.mojo:exec-maven-plugin to v3.6.4 ([#2033](https://github.com/open-feature/java-sdk/issues/2033)) ([61024f6](https://github.com/open-feature/java-sdk/commit/61024f6a3ffe10a8b72fb5c8566f0a5ab4e3d671))
+* **deps:** update dependency org.jacoco:jacoco-maven-plugin to v0.8.15 ([#1959](https://github.com/open-feature/java-sdk/issues/1959)) ([3571de5](https://github.com/open-feature/java-sdk/commit/3571de56ab48395f04c82430784597c3c447cf4d))
+* **deps:** update dependency org.projectlombok:lombok to v1.18.48 ([#2023](https://github.com/open-feature/java-sdk/issues/2023)) ([7a1c7a0](https://github.com/open-feature/java-sdk/commit/7a1c7a0f9092b0217ac61b4729e695f09c7ff3e9))
+* **deps:** update dependency org.sonatype.central:central-publishing-maven-plugin to v0.11.0 ([#1968](https://github.com/open-feature/java-sdk/issues/1968)) ([54cad85](https://github.com/open-feature/java-sdk/commit/54cad855b12d5b440503109ad70ecf0a60cea75d))
+* extend org base renovate config ([#2039](https://github.com/open-feature/java-sdk/issues/2039)) ([5feb820](https://github.com/open-feature/java-sdk/commit/5feb82044ff4bd8be8751e20125cb459aaff8fd0))
+* standardize/update release please config ([#2045](https://github.com/open-feature/java-sdk/issues/2045)) ([098a594](https://github.com/open-feature/java-sdk/commit/098a59454004c7990b4791227ca937fd5b511eaf))
+
 ## [1.22.1](https://github.com/open-feature/java-sdk/compare/v1.22.0...v1.22.1) (2026-08-27)
 
 
