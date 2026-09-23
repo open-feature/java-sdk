@@ -32,5 +32,48 @@
         }
       ]
     }
+  },
+  {
+    "extension": "revapi.differences",
+    "id": "multiprovider-non-unique-names",
+    "configuration": {
+      "ignore": true,
+      "justification": "The experimental MultiProvider changed its internal provider collection from a name-keyed Map to a List to allow providers with equal names. The MultiProvider and its Strategy are experimental and not intended for external implementation. See https://github.com/open-feature/java-sdk/pull/1848.",
+      "differences": [
+        {
+          "code": "java.method.parameterTypeChanged",
+          "old": "parameter <T> dev.openfeature.sdk.ProviderEvaluation<T> dev.openfeature.sdk.multiprovider.FirstMatchStrategy::evaluate(===java.util.Map<java.lang.String, dev.openfeature.sdk.FeatureProvider>===, java.lang.String, T, dev.openfeature.sdk.EvaluationContext, java.util.function.Function<dev.openfeature.sdk.FeatureProvider, dev.openfeature.sdk.ProviderEvaluation<T>>)",
+          "new": "parameter <T> dev.openfeature.sdk.ProviderEvaluation<T> dev.openfeature.sdk.multiprovider.FirstMatchStrategy::evaluate(===java.util.List<dev.openfeature.sdk.FeatureProvider>===, java.lang.String, T, dev.openfeature.sdk.EvaluationContext, java.util.function.Function<dev.openfeature.sdk.FeatureProvider, dev.openfeature.sdk.ProviderEvaluation<T>>)",
+          "parameterIndex": "0"
+        },
+        {
+          "code": "java.method.parameterTypeChanged",
+          "old": "parameter <T> dev.openfeature.sdk.ProviderEvaluation<T> dev.openfeature.sdk.multiprovider.FirstSuccessfulStrategy::evaluate(===java.util.Map<java.lang.String, dev.openfeature.sdk.FeatureProvider>===, java.lang.String, T, dev.openfeature.sdk.EvaluationContext, java.util.function.Function<dev.openfeature.sdk.FeatureProvider, dev.openfeature.sdk.ProviderEvaluation<T>>)",
+          "new": "parameter <T> dev.openfeature.sdk.ProviderEvaluation<T> dev.openfeature.sdk.multiprovider.FirstSuccessfulStrategy::evaluate(===java.util.List<dev.openfeature.sdk.FeatureProvider>===, java.lang.String, T, dev.openfeature.sdk.EvaluationContext, java.util.function.Function<dev.openfeature.sdk.FeatureProvider, dev.openfeature.sdk.ProviderEvaluation<T>>)",
+          "parameterIndex": "0"
+        },
+        {
+          "code": "java.method.parameterTypeChanged",
+          "old": "parameter <T> dev.openfeature.sdk.ProviderEvaluation<T> dev.openfeature.sdk.multiprovider.Strategy::evaluate(===java.util.Map<java.lang.String, dev.openfeature.sdk.FeatureProvider>===, java.lang.String, T, dev.openfeature.sdk.EvaluationContext, java.util.function.Function<dev.openfeature.sdk.FeatureProvider, dev.openfeature.sdk.ProviderEvaluation<T>>)",
+          "new": "parameter <T> dev.openfeature.sdk.ProviderEvaluation<T> dev.openfeature.sdk.multiprovider.Strategy::evaluate(===java.util.List<dev.openfeature.sdk.FeatureProvider>===, java.lang.String, T, dev.openfeature.sdk.EvaluationContext, java.util.function.Function<dev.openfeature.sdk.FeatureProvider, dev.openfeature.sdk.ProviderEvaluation<T>>)",
+          "parameterIndex": "0"
+        },
+        {
+          "code": "java.method.removed",
+          "old": "method java.util.Map<java.lang.String, dev.openfeature.sdk.FeatureProvider> dev.openfeature.sdk.multiprovider.MultiProvider::buildProviders(java.util.List<dev.openfeature.sdk.FeatureProvider>)"
+        },
+        {
+          "code": "java.method.parameterTypeChanged",
+          "old": "parameter dev.openfeature.sdk.multiprovider.MultiProviderMetadata.MultiProviderMetadataBuilder dev.openfeature.sdk.multiprovider.MultiProviderMetadata.MultiProviderMetadataBuilder::originalMetadata(===java.util.Map<java.lang.String, dev.openfeature.sdk.Metadata>===)",
+          "new": "parameter dev.openfeature.sdk.multiprovider.MultiProviderMetadata.MultiProviderMetadataBuilder dev.openfeature.sdk.multiprovider.MultiProviderMetadata.MultiProviderMetadataBuilder::originalMetadata(===java.util.List<dev.openfeature.sdk.Metadata>===)",
+          "parameterIndex": "0"
+        },
+        {
+          "code": "java.method.returnTypeChanged",
+          "old": "method java.util.Map<java.lang.String, dev.openfeature.sdk.Metadata> dev.openfeature.sdk.multiprovider.MultiProviderMetadata::getOriginalMetadata()",
+          "new": "method java.util.List<dev.openfeature.sdk.Metadata> dev.openfeature.sdk.multiprovider.MultiProviderMetadata::getOriginalMetadata()"
+        }
+      ]
+    }
   }
 ]
