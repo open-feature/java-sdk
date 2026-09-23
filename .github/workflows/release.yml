@@ -6,6 +6,11 @@ on:
   push:
     branches:
       - main
+
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
+
 name: Run Release Please
 permissions:  # added using https://github.com/step-security/secure-workflows
   contents: read
@@ -20,12 +25,12 @@ jobs:
 
     # Release-please creates a PR that tracks all changes
     steps:
-      - uses: googleapis/release-please-action@v5
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
         id: release
         with:
           token: ${{secrets.RELEASE_PLEASE_ACTION_TOKEN}}
     outputs:
-      release_created: ${{ fromJSON(steps.release.outputs.paths_released)[0] != null }} # if we have a single release path, do the release
+      release_created: ${{ steps.release.outputs.releases_created }}
 
   publish:
     environment: publish
