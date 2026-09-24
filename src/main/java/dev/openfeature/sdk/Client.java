@@ -4,6 +4,9 @@ import java.util.List;
 
 /**
  * Interface used to resolve flags of varying types.
+ *
+ * <p><b>API note:</b> not intended for external implementation. Additive method changes
+ * (such as new flag-value-type accessors) are considered non-breaking.
  */
 public interface Client extends Features, Tracking, EventBus<Client> {
     ClientMetadata getMetadata();

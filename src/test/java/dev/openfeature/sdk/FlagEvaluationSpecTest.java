@@ -198,6 +198,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                         new Flag(FlagValueType.BOOLEAN.name(), "boolean", true),
                         new Flag(FlagValueType.STRING.name(), "string", "default"),
                         new Flag(FlagValueType.INTEGER.name(), "int", 400),
+                        new Flag(FlagValueType.LONG.name(), "long", 9_007_199_254_740_991L),
                         new Flag(FlagValueType.DOUBLE.name(), "double", 40.0),
                         new Flag(FlagValueType.OBJECT.name(), "obj", new Value()))
                 .initsToReady());
@@ -231,6 +232,16 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 c.getIntegerValue(
                         "int",
                         4,
+                        new ImmutableContext(),
+                        FlagEvaluationOptions.builder().build()));
+
+        assertEquals(9_007_199_254_740_991L, c.getLongValue("long", 0L));
+        assertEquals(9_007_199_254_740_991L, c.getLongValue("long", 0L, new ImmutableContext()));
+        assertEquals(
+                9_007_199_254_740_991L,
+                c.getLongValue(
+                        "long",
+                        0L,
                         new ImmutableContext(),
                         FlagEvaluationOptions.builder().build()));
 
@@ -285,6 +296,7 @@ class FlagEvaluationSpecTest implements HookFixtures {
                         new Flag(FlagValueType.BOOLEAN.name(), "boolean", true),
                         new Flag(FlagValueType.STRING.name(), "string", "default"),
                         new Flag(FlagValueType.INTEGER.name(), "int", 400),
+                        new Flag(FlagValueType.LONG.name(), "long", 9_007_199_254_740_991L),
                         new Flag(FlagValueType.DOUBLE.name(), "double", 40.0),
                         new Flag(FlagValueType.OBJECT.name(), "obj", new Value()))
                 .initsToReady());
@@ -338,6 +350,23 @@ class FlagEvaluationSpecTest implements HookFixtures {
                 c.getIntegerDetails(
                         "int",
                         4,
+                        new ImmutableContext(),
+                        FlagEvaluationOptions.builder().build()));
+
+        FlagEvaluationDetails<Long> ld = FlagEvaluationDetails.<Long>builder()
+                .flagKey("long")
+                .value(9_007_199_254_740_991L)
+                .flagMetadata(ImmutableMetadata.EMPTY)
+                .reason(Reason.STATIC.name())
+                .variant(TestProvider.DEFAULT_VARIANT)
+                .build();
+        assertEquals(ld, c.getLongDetails("long", 0L));
+        assertEquals(ld, c.getLongDetails("long", 0L, new ImmutableContext()));
+        assertEquals(
+                ld,
+                c.getLongDetails(
+                        "long",
+                        0L,
                         new ImmutableContext(),
                         FlagEvaluationOptions.builder().build()));
 

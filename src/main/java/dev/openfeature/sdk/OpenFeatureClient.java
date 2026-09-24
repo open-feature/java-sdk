@@ -5,7 +5,6 @@ import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import dev.openfeature.sdk.exceptions.OpenFeatureError;
 import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
-import dev.openfeature.sdk.internal.ObjectUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +50,7 @@ public class OpenFeatureClient implements Client {
     private final AtomicReference<EvaluationContext> evaluationContext = new AtomicReference<>();
 
     private final HookSupport hookSupport;
+    private final ClientMetadata clientMetadata;
 
     /**
      * Deprecated public constructor. Use OpenFeature.API.getClient() instead.
@@ -70,6 +70,7 @@ public class OpenFeatureClient implements Client {
         this.version = version;
         this.hookSupport = new HookSupport();
         this.clientHooks = new ConcurrentLinkedQueue<>();
+        this.clientMetadata = this::getDomain;
     }
 
     /**
@@ -170,7 +171,8 @@ public class OpenFeatureClient implements Client {
             flagOptions = options;
         }
 
-        hookSupportData.hints = Collections.unmodifiableMap(flagOptions.getHookHints());
+        var hookHints = flagOptions.getHookHints();
+        hookSupportData.hints = hookHints.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(hookHints);
         var context = new LayeredEvaluationContext(
                 openfeatureApi.getEvaluationContext(),
                 openfeatureApi.getTransactionContext(),
@@ -185,9 +187,13 @@ public class OpenFeatureClient implements Client {
             final var state = stateManager.getState();
 
             // Hooks are initialized as early as possible to enable the execution of error stages
-            var mergedHooks = ObjectUtils.merge(
-                    provider.getProviderHooks(), flagOptions.getHooks(), clientHooks, openfeatureApi.getMutableHooks());
-            hookSupport.setHooks(hookSupportData, mergedHooks, type);
+            hookSupport.setHooks(
+                    hookSupportData,
+                    provider.getProviderHooks(),
+                    flagOptions.getHooks(),
+                    clientHooks,
+                    openfeatureApi.getMutableHooks(),
+                    type);
 
             var sharedHookContext =
                     new SharedHookContext(key, type, this.getMetadata(), provider.getMetadata(), defaultValue);
@@ -296,6 +302,8 @@ public class OpenFeatureClient implements Client {
                 return provider.getStringEvaluation(key, (String) defaultValue, invocationContext);
             case INTEGER:
                 return provider.getIntegerEvaluation(key, (Integer) defaultValue, invocationContext);
+            case LONG:
+                return provider.getLongEvaluation(key, (Long) defaultValue, invocationContext);
             case DOUBLE:
                 return provider.getDoubleEvaluation(key, (Double) defaultValue, invocationContext);
             case OBJECT:
@@ -402,6 +410,37 @@ public class OpenFeatureClient implements Client {
     }
 
     @Override
+    public Long getLongValue(String key, Long defaultValue) {
+        return getLongDetails(key, defaultValue).getValue();
+    }
+
+    @Override
+    public Long getLongValue(String key, Long defaultValue, EvaluationContext ctx) {
+        return getLongDetails(key, defaultValue, ctx).getValue();
+    }
+
+    @Override
+    public Long getLongValue(String key, Long defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return getLongDetails(key, defaultValue, ctx, options).getValue();
+    }
+
+    @Override
+    public FlagEvaluationDetails<Long> getLongDetails(String key, Long defaultValue) {
+        return getLongDetails(key, defaultValue, null);
+    }
+
+    @Override
+    public FlagEvaluationDetails<Long> getLongDetails(String key, Long defaultValue, EvaluationContext ctx) {
+        return getLongDetails(key, defaultValue, ctx, FlagEvaluationOptions.EMPTY);
+    }
+
+    @Override
+    public FlagEvaluationDetails<Long> getLongDetails(
+            String key, Long defaultValue, EvaluationContext ctx, FlagEvaluationOptions options) {
+        return this.evaluateFlag(FlagValueType.LONG, key, defaultValue, ctx, options);
+    }
+
+    @Override
     public Double getDoubleValue(String key, Double defaultValue) {
         return getDoubleValue(key, defaultValue, null);
     }
@@ -467,7 +506,7 @@ public class OpenFeatureClient implements Client {
 
     @Override
     public ClientMetadata getMetadata() {
-        return this::getDomain;
+        return clientMetadata;
     }
 
     /**

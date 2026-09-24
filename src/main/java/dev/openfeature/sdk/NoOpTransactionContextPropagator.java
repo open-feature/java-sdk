@@ -12,7 +12,7 @@ public class NoOpTransactionContextPropagator implements TransactionContextPropa
      */
     @Override
     public EvaluationContext getTransactionContext() {
-        return new ImmutableContext();
+        return ImmutableContext.EMPTY;
     }
 
     /**

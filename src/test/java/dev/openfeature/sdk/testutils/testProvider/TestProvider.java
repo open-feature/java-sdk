@@ -157,6 +157,11 @@ public class TestProvider extends EventProvider {
     }
 
     @Override
+    public ProviderEvaluation<Long> getLongEvaluation(String key, Long defaultValue, EvaluationContext ctx) {
+        return getEvaluation(key, defaultValue, FlagValueType.LONG, Long.class, ctx);
+    }
+
+    @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
         return getEvaluation(key, defaultValue, FlagValueType.DOUBLE, Double.class, ctx);
     }

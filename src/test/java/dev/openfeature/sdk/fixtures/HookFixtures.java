@@ -6,6 +6,7 @@ import dev.openfeature.sdk.BooleanHook;
 import dev.openfeature.sdk.DoubleHook;
 import dev.openfeature.sdk.Hook;
 import dev.openfeature.sdk.IntegerHook;
+import dev.openfeature.sdk.LongHook;
 import dev.openfeature.sdk.ObjectHook;
 import dev.openfeature.sdk.StringHook;
 
@@ -21,6 +22,10 @@ public interface HookFixtures {
 
     default Hook<Integer> mockIntegerHook() {
         return spy(IntegerHook.class);
+    }
+
+    default Hook<Long> mockLongHook() {
+        return spy(LongHook.class);
     }
 
     default Hook<Double> mockDoubleHook() {

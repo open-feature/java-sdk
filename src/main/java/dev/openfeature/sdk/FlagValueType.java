@@ -6,5 +6,6 @@ public enum FlagValueType {
     INTEGER,
     DOUBLE,
     OBJECT,
-    BOOLEAN;
+    BOOLEAN,
+    LONG;
 }

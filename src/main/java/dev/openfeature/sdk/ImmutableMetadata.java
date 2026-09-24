@@ -101,7 +101,7 @@ public class ImmutableMetadata {
     }
 
     public Map<String, Object> asUnmodifiableMap() {
-        return Collections.unmodifiableMap(metadata);
+        return metadata.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(metadata);
     }
 
     public boolean isEmpty() {
@@ -199,6 +199,9 @@ public class ImmutableMetadata {
          * Retrieve {@link ImmutableMetadata} with provided key,value pairs.
          */
         public ImmutableMetadata build() {
+            if (metadata.isEmpty()) {
+                return EMPTY;
+            }
             return new ImmutableMetadata(this.metadata);
         }
     }

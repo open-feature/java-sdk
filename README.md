@@ -18,8 +18,8 @@
   </a>
   <!-- x-release-please-start-version -->
 
-  <a href="https://github.com/open-feature/java-sdk/releases/tag/v1.20.2">
-    <img alt="Release" src="https://img.shields.io/static/v1?label=release&message=v1.20.2&color=blue&style=for-the-badge" />
+  <a href="https://github.com/open-feature/java-sdk/releases/tag/v1.22.1">
+    <img alt="Release" src="https://img.shields.io/static/v1?label=release&message=v1.22.1&color=blue&style=for-the-badge" />
   </a>  
 
   <!-- x-release-please-end -->
@@ -59,7 +59,7 @@ Note that this library is intended to be used in server-side contexts and has no
 <dependency>
     <groupId>dev.openfeature</groupId>
     <artifactId>sdk</artifactId>
-    <version>1.20.2</version>
+    <version>1.22.1</version>
 </dependency>
 ```
 <!-- x-release-please-end-version -->
@@ -84,7 +84,7 @@ If you would like snapshot builds, this is the relevant repository information:
 <!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-    implementation 'dev.openfeature:sdk:1.20.2'
+    implementation 'dev.openfeature:sdk:1.22.1'
 }
 ```
 <!-- x-release-please-end-version -->
@@ -217,15 +217,15 @@ If the flag management system you're using supports targeting, you can provide t
 // set a value to the global context
 OpenFeatureAPI api = OpenFeatureAPI.getInstance();
 Map<String, Value> apiAttrs = new HashMap<>();
-apiAttrs.put("region", new Value(System.getEnv("us-east-1")));
+apiAttrs.put("region", new Value(System.getenv("AWS_REGION")));
 EvaluationContext apiCtx = new ImmutableContext(apiAttrs);
 api.setEvaluationContext(apiCtx);
 
 // set a value to the client context
 Map<String, Value> clientAttrs = new HashMap<>();
-clientAttrs.put("region", new Value(System.getEnv("us-east-1")));
+clientAttrs.put("region", new Value(System.getenv("AWS_REGION")));
 EvaluationContext clientCtx = new ImmutableContext(clientAttrs);
-Client client = api.getInstance().getClient();
+Client client = api.getClient();
 client.setEvaluationContext(clientCtx);
 
 // set a value to the invocation context
@@ -292,7 +292,7 @@ If a domain has no associated provider, the global provider is used.
 FeatureProvider scopedProvider = new MyProvider();
 
 // registering the default provider
-OpenFeatureAPI.getInstance().setProvider(LocalProvider());
+OpenFeatureAPI.getInstance().setProvider(new LocalProvider());
 // registering a provider to a domain
 OpenFeatureAPI.getInstance().setProvider("my-domain", new CachedProvider());
 
@@ -452,25 +452,26 @@ This can be a new repository or included in [the existing contrib repository](ht
 Implement your own hook by conforming to the `Hook interface`.
 
 ```java
-class MyHook implements Hook {
+class MyHook implements Hook<Object> {
 
     @Override
-    public Optional before(HookContext ctx, Map hints) {
+    public Optional<EvaluationContext> before(HookContext<Object> ctx, Map<String, Object> hints) {
         // code that runs before the flag evaluation
+        return Optional.empty();
     }
 
     @Override
-    public void after(HookContext ctx, FlagEvaluationDetails details, Map hints) {
+    public void after(HookContext<Object> ctx, FlagEvaluationDetails<Object> details, Map<String, Object> hints) {
         // code that runs after the flag evaluation succeeds
     }
 
     @Override
-    public void error(HookContext ctx, Exception error, Map hints) {
+    public void error(HookContext<Object> ctx, Exception error, Map<String, Object> hints) {
         // code that runs when there's an error during a flag evaluation
     }
 
     @Override
-    public void finallyAfter(HookContext ctx, FlagEvaluationDetails details, Map hints) {
+    public void finallyAfter(HookContext<Object> ctx, FlagEvaluationDetails<Object> details, Map<String, Object> hints) {
         // code that runs regardless of success or error
     }
 };

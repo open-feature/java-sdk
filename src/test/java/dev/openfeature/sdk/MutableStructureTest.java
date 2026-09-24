@@ -1,10 +1,12 @@
 package dev.openfeature.sdk;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class MutableStructureTest {
@@ -19,6 +21,20 @@ class MutableStructureTest {
     void mutableStructureWithNullBackingStructureIsEmpty() {
         MutableStructure m1 = new MutableStructure(null);
         assertTrue(m1.isEmpty());
+    }
+
+    @Test
+    void asUnmodifiableMapOnEmptyStructureIsEmpty() {
+        Map<String, Value> map = new MutableStructure().asUnmodifiableMap();
+        assertThat(map).isEmpty();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> map.put("key", new Value("val")));
+    }
+
+    @Test
+    void asUnmodifiableMapOnNullAttributesIsEmpty() {
+        Map<String, Value> map = new MutableStructure(null).asUnmodifiableMap();
+        assertThat(map).isEmpty();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> map.put("key", new Value("val")));
     }
 
     @Test

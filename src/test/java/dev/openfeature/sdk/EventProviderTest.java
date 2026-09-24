@@ -1,12 +1,16 @@
 package dev.openfeature.sdk;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock;
 import dev.openfeature.sdk.internal.TriConsumer;
 import dev.openfeature.sdk.testutils.TestStackedEmitCallsProvider;
 import io.cucumber.java.AfterAll;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,7 +40,7 @@ class EventProviderTest {
     @DisplayName("should run attached onEmit with emitters")
     void emitsEventsWhenAttached() {
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = mockOnEmit();
-        eventProvider.attach(onEmit);
+        eventProvider.attach(onEmit, new AutoCloseableReentrantReadWriteLock());
 
         ProviderEventDetails details = ProviderEventDetails.builder().build();
         eventProvider.emit(ProviderEvent.PROVIDER_READY, details);
@@ -73,17 +77,39 @@ class EventProviderTest {
     void throwsWhenOnEmitDifferent() {
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit1 = mockOnEmit();
         TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit2 = mockOnEmit();
-        eventProvider.attach(onEmit1);
-        assertThrows(IllegalStateException.class, () -> eventProvider.attach(onEmit2));
+        AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
+        eventProvider.attach(onEmit1, lock);
+        assertThrows(IllegalStateException.class, () -> eventProvider.attach(onEmit2, lock));
     }
 
     @Test
-    @DisplayName("should not throw if second same onEmit attached")
-    void doesNotThrowWhenOnEmitSame() {
-        TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit1 = mockOnEmit();
-        TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit2 = onEmit1;
-        eventProvider.attach(onEmit1);
-        eventProvider.attach(onEmit2); // should not throw, same instance. noop
+    @Timeout(value = 2, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+    @DisplayName("emit should acquire read lock when attached")
+    void emitAcquiresReadLockWhenAttached() throws Exception {
+        AutoCloseableReentrantReadWriteLock lock = new AutoCloseableReentrantReadWriteLock();
+        CountDownLatch lockAcquired = new CountDownLatch(1);
+
+        TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit = (ep, event, details) -> {
+            // When the onEmit callback runs, the read lock must already be held
+            assertThat(lock.getReadLockCount()).isGreaterThan(0);
+            lockAcquired.countDown();
+        };
+
+        eventProvider.attach(onEmit, lock);
+        eventProvider.emit(
+                ProviderEvent.PROVIDER_READY, ProviderEventDetails.builder().build());
+
+        assertThat(lockAcquired.await(1, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    @Timeout(value = 2, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+    @DisplayName("emit should not acquire lock when not attached")
+    void emitDoesNotAcquireLockWhenNotAttached() {
+        // emit without attaching — should return immediately without error
+        Awaitable result = eventProvider.emit(
+                ProviderEvent.PROVIDER_READY, ProviderEventDetails.builder().build());
+        assertThat(result).isSameAs(Awaitable.FINISHED);
     }
 
     @Test
@@ -132,8 +158,10 @@ class EventProviderTest {
         }
 
         @Override
-        public void attach(TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit) {
-            super.attach(onEmit);
+        public void attach(
+                TriConsumer<EventProvider, ProviderEvent, ProviderEventDetails> onEmit,
+                AutoCloseableReentrantReadWriteLock lock) {
+            super.attach(onEmit, lock);
         }
     }
 

@@ -131,4 +131,89 @@ class InMemoryProviderTest {
                 .accept(argThat(details ->
                         details.getFlagsChanged().size() == buildFlags().size())));
     }
+
+    @Test
+    void getLongEvaluation_nativeLongVariant() {
+        InMemoryProvider local = new InMemoryProvider(Map.of(
+                "long-flag",
+                Flag.builder()
+                        .variant("big", 9_007_199_254_740_991L)
+                        .defaultVariant("big")
+                        .build()));
+        api.setProviderAndWait(local);
+        assertEquals(9_007_199_254_740_991L, api.getClient().getLongValue("long-flag", 0L));
+    }
+
+    @Test
+    void getLongEvaluation_widensIntegerVariantToLong() {
+        InMemoryProvider local = new InMemoryProvider(Map.of(
+                "int-as-long",
+                Flag.builder().variant("v", 42).defaultVariant("v").build()));
+        api.setProviderAndWait(local);
+        assertEquals(42L, api.getClient().getLongValue("int-as-long", 0L));
+    }
+
+    @SneakyThrows
+    @Test
+    void getLongEvaluation_doesNotWidenDouble() {
+        InMemoryProvider local = new InMemoryProvider(Map.of(
+                "double-as-long",
+                Flag.builder().variant("v", 42.0).defaultVariant("v").build()));
+        local.initialize(new ImmutableContext());
+        assertThrows(
+                TypeMismatchError.class, () -> local.getLongEvaluation("double-as-long", 0L, new ImmutableContext()));
+    }
+
+    @SneakyThrows
+    @Test
+    void getIntegerEvaluation_doesNotAcceptLongVariant() {
+        InMemoryProvider local = new InMemoryProvider(Map.of(
+                "long-flag",
+                Flag.builder().variant("v", 42L).defaultVariant("v").build()));
+        local.initialize(new ImmutableContext());
+        assertThrows(TypeMismatchError.class, () -> local.getIntegerEvaluation("long-flag", 0, new ImmutableContext()));
+    }
+
+    @SneakyThrows
+    @Test
+    void contextEvaluator_widensIntegerResultToLong() {
+        Flag<Object> flag = Flag.<Object>builder()
+                .variant("v", 0L)
+                .defaultVariant("v")
+                .contextEvaluator((f, ctx) -> Integer.valueOf(42))
+                .build();
+        InMemoryProvider local = new InMemoryProvider(Map.of("targeted", flag));
+        local.initialize(new ImmutableContext());
+        assertEquals(
+                42L,
+                local.getLongEvaluation("targeted", 0L, new ImmutableContext()).getValue());
+    }
+
+    @SneakyThrows
+    @Test
+    void contextEvaluator_rejectsMismatchedResultType() {
+        Flag<Object> flag = Flag.<Object>builder()
+                .variant("v", 0L)
+                .defaultVariant("v")
+                .contextEvaluator((f, ctx) -> Double.valueOf(3.14))
+                .build();
+        InMemoryProvider local = new InMemoryProvider(Map.of("targeted", flag));
+        local.initialize(new ImmutableContext());
+        assertThrows(TypeMismatchError.class, () -> local.getLongEvaluation("targeted", 0L, new ImmutableContext()));
+    }
+
+    @SneakyThrows
+    @Test
+    void contextEvaluator_nullResultFallsBackToDefaultVariantWithTypeCheck() {
+        Flag<Object> flag = Flag.<Object>builder()
+                .variant("v", 7L)
+                .defaultVariant("v")
+                .contextEvaluator((f, ctx) -> null)
+                .build();
+        InMemoryProvider local = new InMemoryProvider(Map.of("targeted", flag));
+        local.initialize(new ImmutableContext());
+        assertEquals(
+                7L,
+                local.getLongEvaluation("targeted", 0L, new ImmutableContext()).getValue());
+    }
 }

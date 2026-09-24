@@ -1,0 +1,36 @@
+[
+  {
+    "extension": "revapi.differences",
+    "id": "long-evaluation-api",
+    "configuration": {
+      "ignore": true,
+      "justification": "Long evaluation is an intentional additive API change. Features is not intended for external implementation. See https://github.com/open-feature/java-sdk/issues/501 and https://github.com/open-feature/java-sdk/pull/1985.",
+      "differences": [
+        {
+          "code": "java.method.addedToInterface",
+          "new": "method dev.openfeature.sdk.FlagEvaluationDetails<java.lang.Long> dev.openfeature.sdk.Features::getLongDetails(java.lang.String, java.lang.Long)"
+        },
+        {
+          "code": "java.method.addedToInterface",
+          "new": "method dev.openfeature.sdk.FlagEvaluationDetails<java.lang.Long> dev.openfeature.sdk.Features::getLongDetails(java.lang.String, java.lang.Long, dev.openfeature.sdk.EvaluationContext)"
+        },
+        {
+          "code": "java.method.addedToInterface",
+          "new": "method dev.openfeature.sdk.FlagEvaluationDetails<java.lang.Long> dev.openfeature.sdk.Features::getLongDetails(java.lang.String, java.lang.Long, dev.openfeature.sdk.EvaluationContext, dev.openfeature.sdk.FlagEvaluationOptions)"
+        },
+        {
+          "code": "java.method.addedToInterface",
+          "new": "method java.lang.Long dev.openfeature.sdk.Features::getLongValue(java.lang.String, java.lang.Long)"
+        },
+        {
+          "code": "java.method.addedToInterface",
+          "new": "method java.lang.Long dev.openfeature.sdk.Features::getLongValue(java.lang.String, java.lang.Long, dev.openfeature.sdk.EvaluationContext)"
+        },
+        {
+          "code": "java.method.addedToInterface",
+          "new": "method java.lang.Long dev.openfeature.sdk.Features::getLongValue(java.lang.String, java.lang.Long, dev.openfeature.sdk.EvaluationContext, dev.openfeature.sdk.FlagEvaluationOptions)"
+        }
+      ]
+    }
+  }
+]

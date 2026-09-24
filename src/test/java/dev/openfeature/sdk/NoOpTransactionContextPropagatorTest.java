@@ -1,5 +1,6 @@
 package dev.openfeature.sdk;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
@@ -14,6 +15,11 @@ class NoOpTransactionContextPropagatorTest {
     public void emptyTransactionContext() {
         EvaluationContext result = contextPropagator.getTransactionContext();
         assertTrue(result.asMap().isEmpty());
+    }
+
+    @Test
+    public void getTransactionContextReturnsEmptySingleton() {
+        assertThat(contextPropagator.getTransactionContext()).isSameAs(ImmutableContext.EMPTY);
     }
 
     @Test

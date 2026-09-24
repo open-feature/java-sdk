@@ -5,8 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import dev.openfeature.sdk.ErrorCode;
@@ -15,8 +20,10 @@ import dev.openfeature.sdk.FeatureProvider;
 import dev.openfeature.sdk.Metadata;
 import dev.openfeature.sdk.MutableContext;
 import dev.openfeature.sdk.ProviderEvaluation;
+import dev.openfeature.sdk.ProviderState;
 import dev.openfeature.sdk.Value;
 import dev.openfeature.sdk.exceptions.GeneralError;
+import dev.openfeature.sdk.providers.memory.InMemoryProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,8 +61,61 @@ class MultiProviderTest extends BaseStrategyTest {
 
     @SneakyThrows
     @Test
+    void singleArgInitializeForwardsNullDomainToChildren() {
+        List<FeatureProvider> providers = new ArrayList<>(2);
+        providers.add(mockProvider1);
+        providers.add(mockProvider2);
+        MultiProvider multiProvider = new MultiProvider(providers);
+
+        multiProvider.initialize(null);
+
+        verify(mockProvider1).initialize(isNull(), isNull());
+        verify(mockProvider2).initialize(isNull(), isNull());
+    }
+
+    @SneakyThrows
+    @Test
+    void forwardsDomainToChildProviderInitialize() {
+        List<FeatureProvider> providers = new ArrayList<>(2);
+        providers.add(mockProvider1);
+        providers.add(mockProvider2);
+        MultiProvider multiProvider = new MultiProvider(providers);
+        EvaluationContext context = new MutableContext().add("targetingKey", "user");
+
+        multiProvider.initialize(context, "my-domain");
+
+        verify(mockProvider1).initialize(same(context), eq("my-domain"));
+        verify(mockProvider2).initialize(same(context), eq("my-domain"));
+    }
+
+    @SneakyThrows
+    @Test
+    void forwardsDomainToLegacySingleArgChildProvidersWithoutError() {
+        InMemoryProvider legacyProvider1 = new InMemoryProvider(Map.of()) {
+            @Override
+            public Metadata getMetadata() {
+                return () -> "legacy-provider-1";
+            }
+        };
+        InMemoryProvider legacyProvider2 = new InMemoryProvider(Map.of()) {
+            @Override
+            public Metadata getMetadata() {
+                return () -> "legacy-provider-2";
+            }
+        };
+        MultiProvider multiProvider = new MultiProvider(List.of(legacyProvider1, legacyProvider2));
+        EvaluationContext context = new MutableContext().add("targetingKey", "user");
+
+        multiProvider.initialize(context, "my-domain");
+
+        assertEquals(ProviderState.READY, legacyProvider1.getState());
+        assertEquals(ProviderState.READY, legacyProvider2.getState());
+    }
+
+    @SneakyThrows
+    @Test
     void shouldHandleInitializationFailure() {
-        doThrow(new GeneralError()).when(mockProvider1).initialize(any());
+        doThrow(new GeneralError()).when(mockProvider1).initialize(any(), isNull());
         doThrow(new GeneralError()).when(mockProvider1).shutdown();
         List<FeatureProvider> providers = new ArrayList<>(2);
         providers.add(mockProvider1);
@@ -64,6 +124,18 @@ class MultiProviderTest extends BaseStrategyTest {
         MultiProvider multiProvider = new MultiProvider(providers, strategy);
         assertThrows(ExecutionException.class, () -> multiProvider.initialize(null));
         assertDoesNotThrow(multiProvider::shutdown);
+    }
+
+    @SneakyThrows
+    @Test
+    void continuesWhenShutdownFailsAfterInitializeFailure() {
+        doThrow(new GeneralError()).when(mockProvider1).initialize(any(), isNull());
+        MultiProvider multiProvider = spy(new MultiProvider(List.of(mockProvider1)));
+        doThrow(new RuntimeException("shutdown failed")).when(multiProvider).shutdown();
+
+        assertThrows(ExecutionException.class, () -> multiProvider.initialize(null));
+
+        verify(multiProvider).shutdown();
     }
 
     @Test

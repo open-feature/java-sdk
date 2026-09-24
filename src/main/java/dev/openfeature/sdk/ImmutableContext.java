@@ -2,7 +2,6 @@ package dev.openfeature.sdk;
 
 import dev.openfeature.sdk.internal.ExcludeFromGeneratedCoverageReport;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import lombok.ToString;
@@ -32,7 +31,7 @@ public final class ImmutableContext implements EvaluationContext {
      * provided.
      */
     public ImmutableContext() {
-        this(new HashMap<>());
+        this(Collections.emptyMap());
     }
 
     /**
@@ -41,7 +40,7 @@ public final class ImmutableContext implements EvaluationContext {
      * @param targetingKey targeting key
      */
     public ImmutableContext(String targetingKey) {
-        this(targetingKey, new HashMap<>());
+        this(targetingKey, Collections.emptyMap());
     }
 
     /**
@@ -63,6 +62,8 @@ public final class ImmutableContext implements EvaluationContext {
     public ImmutableContext(String targetingKey, Map<String, Value> attributes) {
         if (targetingKey != null) {
             this.structure = new ImmutableStructure(targetingKey, attributes);
+        } else if (attributes == null || attributes.isEmpty()) {
+            this.structure = ImmutableStructure.EMPTY;
         } else {
             this.structure = new ImmutableStructure(attributes);
         }
@@ -87,6 +88,9 @@ public final class ImmutableContext implements EvaluationContext {
     @Override
     public EvaluationContext merge(EvaluationContext overridingContext) {
         if (overridingContext == null || overridingContext.isEmpty()) {
+            if (this.isEmpty()) {
+                return ImmutableContext.EMPTY;
+            }
             return new ImmutableContext(this.asUnmodifiableMap());
         }
         if (this.isEmpty()) {

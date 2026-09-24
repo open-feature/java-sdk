@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import dev.openfeature.sdk.exceptions.FatalError;
 import dev.openfeature.sdk.exceptions.GeneralError;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,13 @@ class FeatureProviderStateManagerTest {
     public void setUp() {
         testDelegate = new TestDelegate();
         wrapper = new FeatureProviderStateManager(testDelegate);
+    }
+
+    @SneakyThrows
+    @Test
+    void shouldPassDomainToDelegateOnInit() {
+        wrapper.initialize(null, "billing");
+        assertThat(testDelegate.initDomain.get()).isEqualTo("billing");
     }
 
     @SneakyThrows
@@ -156,6 +164,7 @@ class FeatureProviderStateManagerTest {
     static class TestDelegate extends EventProvider {
         private final AtomicInteger initCalled = new AtomicInteger();
         private final AtomicInteger shutdownCalled = new AtomicInteger();
+        private final AtomicReference<String> initDomain = new AtomicReference<>();
         private @Nullable Exception throwOnInit;
 
         @Override
@@ -188,6 +197,12 @@ class FeatureProviderStateManagerTest {
         @Override
         public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
             return null;
+        }
+
+        @Override
+        public void initialize(EvaluationContext evaluationContext, String domain) throws Exception {
+            initDomain.set(domain);
+            initialize(evaluationContext);
         }
 
         @Override

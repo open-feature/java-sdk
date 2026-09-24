@@ -1,5 +1,8 @@
 package dev.openfeature.sdk;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import dev.openfeature.sdk.fixtures.ProviderFixture;
@@ -131,16 +134,32 @@ class ShutdownBehaviorSpecTest {
         }
 
         @Test
-        @DisplayName("once shutdown is complete, api must be ready to use again")
-        void apiIsReadyToUseAfterShutdown() {
+        @Specification(
+                number = "1.6.2",
+                text =
+                        "The API's `shutdown` function MUST reset all state of the API, removing all hooks, event handlers, evaluation context, transaction context propagators, and providers.")
+        @DisplayName("shutdown must reset the state of the API")
+        void apiStateMustBeResetOnShuttingDownApi() {
 
-            NoOpProvider p1 = new NoOpProvider();
-            api.setProvider(p1);
+            FeatureProvider provider = ProviderFixture.createMockedProvider();
+            TransactionContextPropagator transactionContextPropagator = mock(TransactionContextPropagator.class);
+            EvaluationContext evaluationContext = mock(EvaluationContext.class);
+
+            api.addHooks(mock(Hook.class));
+            api.setProvider(provider);
+            api.setEvaluationContext(evaluationContext);
+            api.setTransactionContextPropagator(transactionContextPropagator);
 
             api.shutdown();
 
-            NoOpProvider p2 = new NoOpProvider();
-            api.setProvider(p2);
+            assertNotEquals(provider, api.getProvider());
+            assertTrue(api.getHooks().isEmpty());
+            assertNotEquals(evaluationContext, api.getEvaluationContext());
+            assertNotEquals(transactionContextPropagator, api.getTransactionContextPropagator());
+
+            assertInstanceOf(NoOpProvider.class, api.getProvider());
+            assertInstanceOf(ImmutableContext.class, api.getEvaluationContext());
+            assertInstanceOf(NoOpTransactionContextPropagator.class, api.getTransactionContextPropagator());
         }
 
         @Test

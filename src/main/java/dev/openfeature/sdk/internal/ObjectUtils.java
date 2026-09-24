@@ -63,7 +63,9 @@ public class ObjectUtils {
      * @param sources bunch of lists.
      * @param <T>     list type
      * @return resulting object
+     * @deprecated Not used in the project anymore. This method will be removed in a future release.
      */
+    @Deprecated(forRemoval = true)
     @SafeVarargs
     public static <T> List<T> merge(Collection<T>... sources) {
         List<T> merged = new ArrayList<>();
