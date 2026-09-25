@@ -193,12 +193,14 @@ public class MultiProvider extends EventProvider {
 
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookCtx = currentHookExecutionContext();
         return strategy.evaluate(
                 providers,
                 key,
                 defaultValue,
                 ctx,
                 provider -> evaluateChild(
+                        hookCtx,
                         provider,
                         key,
                         defaultValue,
@@ -209,12 +211,14 @@ public class MultiProvider extends EventProvider {
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookCtx = currentHookExecutionContext();
         return strategy.evaluate(
                 providers,
                 key,
                 defaultValue,
                 ctx,
                 provider -> evaluateChild(
+                        hookCtx,
                         provider,
                         key,
                         defaultValue,
@@ -225,12 +229,14 @@ public class MultiProvider extends EventProvider {
 
     @Override
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookCtx = currentHookExecutionContext();
         return strategy.evaluate(
                 providers,
                 key,
                 defaultValue,
                 ctx,
                 provider -> evaluateChild(
+                        hookCtx,
                         provider,
                         key,
                         defaultValue,
@@ -241,12 +247,14 @@ public class MultiProvider extends EventProvider {
 
     @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookCtx = currentHookExecutionContext();
         return strategy.evaluate(
                 providers,
                 key,
                 defaultValue,
                 ctx,
                 provider -> evaluateChild(
+                        hookCtx,
                         provider,
                         key,
                         defaultValue,
@@ -257,12 +265,14 @@ public class MultiProvider extends EventProvider {
 
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookCtx = currentHookExecutionContext();
         return strategy.evaluate(
                 providers,
                 key,
                 defaultValue,
                 ctx,
                 provider -> evaluateChild(
+                        hookCtx,
                         provider,
                         key,
                         defaultValue,
@@ -271,16 +281,15 @@ public class MultiProvider extends EventProvider {
                         (p, evaluationContext) -> p.getObjectEvaluation(key, defaultValue, evaluationContext)));
     }
 
-    // runs the child's own hooks around its evaluation, using captured client metadata and hints
-    // (or this provider's metadata and no hints when evaluated outside a client lifecycle)
+    // runs the child's own hooks; caller-thread snapshot
     private <T> ProviderEvaluation<T> evaluateChild(
+            HookExecutionContext hookExecutionContext,
             FeatureProvider provider,
             String key,
             T defaultValue,
             EvaluationContext ctx,
             FlagValueType type,
             BiFunction<FeatureProvider, EvaluationContext, ProviderEvaluation<T>> providerFunction) {
-        HookExecutionContext hookExecutionContext = currentHookExecutionContext();
         ClientMetadata clientMetadata =
                 hookExecutionContext != null ? hookExecutionContext.clientMetadata : hookClientMetadata;
         Map<String, Object> hints = hookExecutionContext != null ? hookExecutionContext.hints : Collections.emptyMap();
