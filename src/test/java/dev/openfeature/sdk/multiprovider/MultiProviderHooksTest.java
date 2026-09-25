@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 class MultiProviderHooksTest {
 
     @Test
-    void shouldExecuteProviderHooksAndKeepPerProviderContextIsolation() throws Exception {
+    void shouldRunChildHooksForwardTheirContextToEvaluationAndIsolatePerProvider() throws Exception {
         RecordingHook firstHook = new RecordingHook("provider1");
         RecordingHook secondHook = new RecordingHook("provider2");
 
@@ -62,6 +62,7 @@ class MultiProviderHooksTest {
         assertEquals(0, secondHook.errorCount.get());
         assertEquals(1, secondHook.finallyCount.get());
 
+        // a child hook's before-enriched context must reach that child's evaluation
         assertEquals(
                 "provider1",
                 provider1.lastEvaluationContext.getValue("hookOwner").asString());
