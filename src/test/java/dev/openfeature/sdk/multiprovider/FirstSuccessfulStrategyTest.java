@@ -134,8 +134,8 @@ class FirstSuccessfulStrategyTest extends BaseStrategyTest {
     @Test
     void shouldReturnMultiProviderEvaluationForNonExistentFlag() {
         orderedProviders.clear();
-        orderedProviders.put("old-provider", inMemoryProvider1);
-        orderedProviders.put("new-provider", inMemoryProvider2);
+        orderedProviders.add(inMemoryProvider1);
+        orderedProviders.add(inMemoryProvider2);
         ProviderEvaluation<String> result = strategy.evaluate(
                 orderedProviders,
                 FLAG_KEY,
