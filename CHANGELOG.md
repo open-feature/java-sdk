@@ -3,6 +3,8 @@
 ## [1.23.0](https://github.com/open-feature/java-sdk/compare/v1.22.1...v1.23.0) (2026-09-28)
 
 
+⚠️ BREAKING CHANGE: MultiProvider (Experimental) - `Strategy.evaluate` and `MultiProviderMetadata` now use a `List` instead of a name-keyed `Map`, allowing providers with duplicate names; custom `Strategy` implementations must update their signature.
+
 ### 🐛 Bug Fixes
 
 * carry errorCode through provider error events ([#2015](https://github.com/open-feature/java-sdk/issues/2015)) ([7b78c19](https://github.com/open-feature/java-sdk/commit/7b78c19adbe1664c4687713679808286cd0739bc)), closes [#2014](https://github.com/open-feature/java-sdk/issues/2014)
