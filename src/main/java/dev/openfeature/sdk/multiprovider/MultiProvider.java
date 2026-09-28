@@ -1,9 +1,15 @@
 package dev.openfeature.sdk.multiprovider;
 
+import dev.openfeature.sdk.ClientMetadata;
 import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.EventProvider;
 import dev.openfeature.sdk.FeatureProvider;
+import dev.openfeature.sdk.FlagEvaluationDetails;
+import dev.openfeature.sdk.FlagValueType;
+import dev.openfeature.sdk.Hook;
+import dev.openfeature.sdk.HookContext;
 import dev.openfeature.sdk.Metadata;
+import dev.openfeature.sdk.MultiProviderHookExecutor;
 import dev.openfeature.sdk.ProviderEvaluation;
 import dev.openfeature.sdk.Value;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -15,10 +21,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.BiFunction;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,6 +36,9 @@ import lombok.extern.slf4j.Slf4j;
  * <p>This provider delegates flag evaluations to multiple underlying providers using a configurable
  * {@link Strategy}. It also exposes combined metadata containing the original metadata of each
  * underlying provider.
+ *
+ * <p>Hooks registered on the child providers are executed around each child evaluation, so a child
+ * provider's own hooks observe the evaluation it takes part in.
  */
 @Slf4j
 public class MultiProvider extends EventProvider {
@@ -40,6 +51,12 @@ public class MultiProvider extends EventProvider {
 
     private final Map<String, FeatureProvider> providers;
     private final Strategy strategy;
+
+    // side-channel for hook-context not passed to resolvers; assumes before/resolve share a thread
+    private final ThreadLocal<HookExecutionContext> localHookExecutionContext = new ThreadLocal<>();
+    private final ClientMetadata hookClientMetadata = MultiProvider::getNAME;
+    private final MultiProviderHookExecutor hookExecutor = new MultiProviderHookExecutor();
+
     private MultiProviderMetadata metadata;
 
     /**
@@ -61,6 +78,37 @@ public class MultiProvider extends EventProvider {
     public MultiProvider(List<FeatureProvider> providers, Strategy strategy) {
         this.providers = buildProviders(providers);
         this.strategy = Objects.requireNonNull(strategy, "strategy must not be null");
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private final List<Hook> providerHooks = List.of(new Hook() {
+        @Override
+        public Optional before(HookContext ctx, Map hints) {
+            localHookExecutionContext.set(new HookExecutionContext(ctx.getClientMetadata(), snapshotHints(hints)));
+            return Optional.empty();
+        }
+
+        @Override
+        public void finallyAfter(HookContext ctx, FlagEvaluationDetails details, Map hints) {
+            localHookExecutionContext.remove();
+        }
+    });
+
+    /**
+     * Provider-level hooks for this MultiProvider. Includes a {@code before} hook that captures the
+     * {@link ClientMetadata} and hints from the SDK lifecycle for use during per-child hook execution.
+     */
+    @Override
+    public List<Hook> getProviderHooks() {
+        return providerHooks;
+    }
+
+    // defensive copy: mutable hookHints may be read by parallel strategies; plain copy allows nulls
+    private static Map<String, Object> snapshotHints(Map<String, Object> hints) {
+        if (hints == null || hints.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return Collections.unmodifiableMap(new HashMap<>(hints));
     }
 
     protected static Map<String, FeatureProvider> buildProviders(List<FeatureProvider> providers) {
@@ -119,13 +167,11 @@ public class MultiProvider extends EventProvider {
 
             List<Future<Void>> results = executorService.invokeAll(tasks);
             for (Future<Void> result : results) {
-                // This will re-throw any exception from the provider's initialize method,
-                // wrapped in an ExecutionException.
+                // re-throws any provider initialize exception, wrapped in an ExecutionException
                 result.get();
             }
         } catch (Exception e) {
-            // If initialization fails for any provider, attempt to shut down via the
-            // standard shutdown path to avoid a partial/limbo state.
+            // on any provider init failure, shut down via the standard path to avoid a limbo state
             try {
                 shutdown();
             } catch (Exception shutdownEx) {
@@ -147,29 +193,111 @@ public class MultiProvider extends EventProvider {
 
     @Override
     public ProviderEvaluation<Boolean> getBooleanEvaluation(String key, Boolean defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookCtx = currentHookExecutionContext();
         return strategy.evaluate(
-                providers, key, defaultValue, ctx, p -> p.getBooleanEvaluation(key, defaultValue, ctx));
+                providers,
+                key,
+                defaultValue,
+                ctx,
+                provider -> evaluateChild(
+                        hookCtx,
+                        provider,
+                        key,
+                        defaultValue,
+                        ctx,
+                        FlagValueType.BOOLEAN,
+                        (p, evaluationContext) -> p.getBooleanEvaluation(key, defaultValue, evaluationContext)));
     }
 
     @Override
     public ProviderEvaluation<String> getStringEvaluation(String key, String defaultValue, EvaluationContext ctx) {
-        return strategy.evaluate(providers, key, defaultValue, ctx, p -> p.getStringEvaluation(key, defaultValue, ctx));
+        HookExecutionContext hookCtx = currentHookExecutionContext();
+        return strategy.evaluate(
+                providers,
+                key,
+                defaultValue,
+                ctx,
+                provider -> evaluateChild(
+                        hookCtx,
+                        provider,
+                        key,
+                        defaultValue,
+                        ctx,
+                        FlagValueType.STRING,
+                        (p, evaluationContext) -> p.getStringEvaluation(key, defaultValue, evaluationContext)));
     }
 
     @Override
     public ProviderEvaluation<Integer> getIntegerEvaluation(String key, Integer defaultValue, EvaluationContext ctx) {
+        HookExecutionContext hookCtx = currentHookExecutionContext();
         return strategy.evaluate(
-                providers, key, defaultValue, ctx, p -> p.getIntegerEvaluation(key, defaultValue, ctx));
+                providers,
+                key,
+                defaultValue,
+                ctx,
+                provider -> evaluateChild(
+                        hookCtx,
+                        provider,
+                        key,
+                        defaultValue,
+                        ctx,
+                        FlagValueType.INTEGER,
+                        (p, evaluationContext) -> p.getIntegerEvaluation(key, defaultValue, evaluationContext)));
     }
 
     @Override
     public ProviderEvaluation<Double> getDoubleEvaluation(String key, Double defaultValue, EvaluationContext ctx) {
-        return strategy.evaluate(providers, key, defaultValue, ctx, p -> p.getDoubleEvaluation(key, defaultValue, ctx));
+        HookExecutionContext hookCtx = currentHookExecutionContext();
+        return strategy.evaluate(
+                providers,
+                key,
+                defaultValue,
+                ctx,
+                provider -> evaluateChild(
+                        hookCtx,
+                        provider,
+                        key,
+                        defaultValue,
+                        ctx,
+                        FlagValueType.DOUBLE,
+                        (p, evaluationContext) -> p.getDoubleEvaluation(key, defaultValue, evaluationContext)));
     }
 
     @Override
     public ProviderEvaluation<Value> getObjectEvaluation(String key, Value defaultValue, EvaluationContext ctx) {
-        return strategy.evaluate(providers, key, defaultValue, ctx, p -> p.getObjectEvaluation(key, defaultValue, ctx));
+        HookExecutionContext hookCtx = currentHookExecutionContext();
+        return strategy.evaluate(
+                providers,
+                key,
+                defaultValue,
+                ctx,
+                provider -> evaluateChild(
+                        hookCtx,
+                        provider,
+                        key,
+                        defaultValue,
+                        ctx,
+                        FlagValueType.OBJECT,
+                        (p, evaluationContext) -> p.getObjectEvaluation(key, defaultValue, evaluationContext)));
+    }
+
+    // runs the child's own hooks; caller-thread snapshot
+    private <T> ProviderEvaluation<T> evaluateChild(
+            HookExecutionContext hookExecutionContext,
+            FeatureProvider provider,
+            String key,
+            T defaultValue,
+            EvaluationContext ctx,
+            FlagValueType type,
+            BiFunction<FeatureProvider, EvaluationContext, ProviderEvaluation<T>> providerFunction) {
+        ClientMetadata clientMetadata =
+                hookExecutionContext != null ? hookExecutionContext.clientMetadata : hookClientMetadata;
+        Map<String, Object> hints = hookExecutionContext != null ? hookExecutionContext.hints : Collections.emptyMap();
+        return hookExecutor.execute(provider, key, defaultValue, type, ctx, clientMetadata, hints, providerFunction);
+    }
+
+    private HookExecutionContext currentHookExecutionContext() {
+        return localHookExecutionContext.get();
     }
 
     @Override
