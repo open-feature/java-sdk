@@ -541,9 +541,11 @@ class FlagEvaluationSpecTest implements HookFixtures {
         client.getBooleanValue("any-flag", false);
 
         // assert that the value from the global context was passed to the provider
-        verify(provider).getBooleanEvaluation(any(), any(), argThat((arg) -> arg.getValue(contextKey)
-                .asString()
-                .equals(contextValue)));
+        verify(provider)
+                .getBooleanEvaluation(
+                        any(),
+                        any(),
+                        argThat((arg) -> arg.getValue(contextKey).asString().equals(contextValue)));
     }
 
     @Specification(

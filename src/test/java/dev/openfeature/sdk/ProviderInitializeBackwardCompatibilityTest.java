@@ -88,8 +88,9 @@ class ProviderInitializeBackwardCompatibilityTest {
 
             api.setProvider(DOMAIN, provider);
 
-            await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> assertThat(provider.singleArgInitCount())
-                    .isOne());
+            await().atMost(Duration.ofSeconds(5))
+                    .untilAsserted(
+                            () -> assertThat(provider.singleArgInitCount()).isOne());
         }
 
         @Test
@@ -99,8 +100,9 @@ class ProviderInitializeBackwardCompatibilityTest {
 
             api.setProvider(provider);
 
-            await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> assertThat(provider.singleArgInitCount())
-                    .isOne());
+            await().atMost(Duration.ofSeconds(5))
+                    .untilAsserted(
+                            () -> assertThat(provider.singleArgInitCount()).isOne());
         }
 
         @Test
