@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.23.1](https://github.com/open-feature/java-sdk/compare/v1.23.0...v1.23.1) (2026-10-03)
+
+
+### 🧹 Chore
+
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.10.3 ([#2050](https://github.com/open-feature/java-sdk/issues/2050)) ([4728692](https://github.com/open-feature/java-sdk/commit/4728692e5da29be6d74a9c69ff5ea8826596565e))
+* **deps:** update dependency com.google.guava:guava to v33.7.2-jre ([#2055](https://github.com/open-feature/java-sdk/issues/2055)) ([374f3a7](https://github.com/open-feature/java-sdk/commit/374f3a7b8c0a75d6266b839e11f43a460df5da89))
+* **deps:** update dependency com.tngtech.archunit:archunit-junit5 to v1.5.1 ([#2047](https://github.com/open-feature/java-sdk/issues/2047)) ([dc5419e](https://github.com/open-feature/java-sdk/commit/dc5419e1140a0214a75987a01c125cf594688864))
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.34.9 ([#2048](https://github.com/open-feature/java-sdk/issues/2048)) ([bc35a66](https://github.com/open-feature/java-sdk/commit/bc35a66b0d0c9deb87d91ccc569cf6b616f99bfa))
+* **deps:** update dependency maven to v3.10.0 ([#2054](https://github.com/open-feature/java-sdk/issues/2054)) ([f55e0fd](https://github.com/open-feature/java-sdk/commit/f55e0fda674d133c26356b25acff580b869359dd))
+* **deps:** update dependency org.mockito:mockito-core to v5.24.0 ([#2052](https://github.com/open-feature/java-sdk/issues/2052)) ([f93b3eb](https://github.com/open-feature/java-sdk/commit/f93b3ebcf1938f4dc3983078cd49d97adc9245df))
+* **deps:** update dependency org.slf4j:slf4j-api to v2.0.20 ([#2049](https://github.com/open-feature/java-sdk/issues/2049)) ([6fc08a2](https://github.com/open-feature/java-sdk/commit/6fc08a28a224719628312a72260a2b239ba9006b))
+
 ## [1.23.0](https://github.com/open-feature/java-sdk/compare/v1.22.1...v1.23.0) (2026-09-28)
 
 
