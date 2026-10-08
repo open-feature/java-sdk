@@ -1,34 +1,31 @@
 [INFO] Scanning for projects...
 [INFO] 
 [INFO] ------------------------< dev.openfeature:sdk >-------------------------
-[INFO] Building OpenFeature Java SDK 1.12.1
+[INFO] Building OpenFeature Java SDK 1.23.0
 [INFO]   from pom.xml
 [INFO] --------------------------------[ jar ]---------------------------------
-[WARNING] Parameter 'encoding' is unknown for plugin 'maven-checkstyle-plugin:3.5.0:check (validate)'
-[WARNING] Parameter 'encoding' is unknown for plugin 'maven-checkstyle-plugin:3.5.0:check (validate)'
-[WARNING] Parameter 'encoding' is unknown for plugin 'maven-checkstyle-plugin:3.5.0:check (validate)'
 [INFO] 
 [INFO] --- clean:3.2.0:clean (default-clean) @ sdk ---
-[INFO] Deleting /home/todd/git/java-sdk/target
+[INFO] Deleting /home/local_toddbaert/git/java-sdk/target
 [INFO] 
-[INFO] --- checkstyle:3.5.0:check (validate) @ sdk ---
-[INFO] Starting audit...
-Audit done.
-[INFO] You have 0 Checkstyle violations.
+[INFO] --- flatten:1.8.0:clean (flatten.clean) @ sdk ---
+[INFO] Deleting /home/local_toddbaert/git/java-sdk/.flattened-pom.xml
 [INFO] 
-[INFO] --- jacoco:0.8.12:prepare-agent (prepare-agent) @ sdk ---
-[INFO] surefireArgLine set to -javaagent:/home/todd/.m2/repository/org/jacoco/org.jacoco.agent/0.8.12/org.jacoco.agent-0.8.12-runtime.jar=destfile=/home/todd/git/java-sdk/target/coverage-reports/jacoco-ut.exec
+[INFO] --- toolchains:3.3.0:select-jdk-toolchain (default) @ sdk ---
+[INFO] Not using an external toolchain as the current JDK 'JDK[/usr/lib/jvm/java-21-openjdk-amd64]' matches the requirements.
 [INFO] 
-[INFO] --- resources:3.3.1:resources (default-resources) @ sdk ---
-[INFO] skip non existing resourceDirectory /home/todd/git/java-sdk/src/main/resources
+[INFO] --- resources:3.5.0:resources (default-resources) @ sdk ---
+[INFO] skip non existing resourceDirectory /home/local_toddbaert/git/java-sdk/src/main/resources
 [INFO] 
-[INFO] --- compiler:3.13.0:compile (default-compile) @ sdk ---
+[INFO] --- flatten:1.8.0:flatten (flatten) @ sdk ---
+[INFO] Generating flattened POM of project dev.openfeature:sdk:jar:1.23.0...
+[INFO] 
+[INFO] --- resources:3.5.0:copy-resources (copy-license) @ sdk ---
+[INFO] Copying 1 resource from . to target/classes/META-INF
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ sdk ---
 [INFO] Recompiling the module because of changed source code.
-[INFO] Compiling 65 source files with javac [debug target 1.8] to target/classes
-[WARNING] bootstrap class path not set in conjunction with -source 8
-[WARNING] source value 8 is obsolete and will be removed in a future release
-[WARNING] target value 8 is obsolete and will be removed in a future release
-[WARNING] To suppress warnings about obsolete options, use -Xlint:-options.
+[INFO] Compiling 91 source files with javac [debug release 11] to target/classes
 [INFO] Annotation processing is enabled because one or more processors were found
   on the class path. A future release of javac may disable annotation processing
   unless at least one processor is specified by name (-processor), or a search
@@ -36,39 +33,32 @@ Audit done.
   processing is enabled explicitly (-proc:only, -proc:full).
   Use -Xlint:-options to suppress this message.
   Use -proc:none to disable annotation processing.
-[WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/MutableStructure.java:[19,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
-[WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/ImmutableStructure.java:[22,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
-[WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/EventDetails.java:[9,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
-[WARNING] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java:[27,26] finalize() in java.lang.Object has been deprecated and marked for removal
-[INFO] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/NoOpProvider.java: Some input files use or override a deprecated API.
-[INFO] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/NoOpProvider.java: Recompile with -Xlint:deprecation for details.
-[INFO] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java: Some input files use unchecked or unsafe operations.
-[INFO] /home/todd/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java: Recompile with -Xlint:unchecked for details.
+[INFO] /home/local_toddbaert/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java: Some input files use or override a deprecated API.
+[INFO] /home/local_toddbaert/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java: Recompile with -Xlint:deprecation for details.
+[INFO] /home/local_toddbaert/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java: Some input files use unchecked or unsafe operations.
+[INFO] /home/local_toddbaert/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java: Recompile with -Xlint:unchecked for details.
 [INFO] 
-[INFO] --- checkstyle:3.5.0:check (validate) @ sdk ---
-[INFO] Starting audit...
-Audit done.
-[INFO] You have 0 Checkstyle violations.
+[INFO] --- toolchains:3.3.0:select-jdk-toolchain (default) @ sdk ---
+[INFO] Not using an external toolchain as the current JDK 'JDK[/usr/lib/jvm/java-21-openjdk-amd64]' matches the requirements.
 [INFO] 
-[INFO] --- jacoco:0.8.12:prepare-agent (prepare-agent) @ sdk ---
-[INFO] surefireArgLine set to -javaagent:/home/todd/.m2/repository/org/jacoco/org.jacoco.agent/0.8.12/org.jacoco.agent-0.8.12-runtime.jar=destfile=/home/todd/git/java-sdk/target/coverage-reports/jacoco-ut.exec
+[INFO] --- resources:3.5.0:resources (default-resources) @ sdk ---
+[INFO] skip non existing resourceDirectory /home/local_toddbaert/git/java-sdk/src/main/resources
 [INFO] 
-[INFO] --- resources:3.3.1:resources (default-resources) @ sdk ---
-[INFO] skip non existing resourceDirectory /home/todd/git/java-sdk/src/main/resources
+[INFO] --- flatten:1.8.0:flatten (flatten) @ sdk ---
+[INFO] Generating flattened POM of project dev.openfeature:sdk:jar:1.23.0...
 [INFO] 
-[INFO] --- compiler:3.13.0:compile (default-compile) @ sdk ---
+[INFO] --- resources:3.5.0:copy-resources (copy-license) @ sdk ---
+[INFO] Copying 1 resource from . to target/classes/META-INF
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ sdk ---
 [INFO] Nothing to compile - all classes are up to date.
 [INFO] 
-[INFO] --- resources:3.3.1:testResources (default-testResources) @ sdk ---
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ sdk ---
 [INFO] Copying 2 resources from src/test/resources to target/test-classes
 [INFO] 
-[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ sdk ---
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ sdk ---
 [INFO] Recompiling the module because of changed dependency.
-[INFO] Compiling 52 source files with javac [debug target 1.8] to target/test-classes
-[WARNING] bootstrap class path not set in conjunction with -source 8
-[WARNING] source value 8 is obsolete and will be removed in a future release
-[WARNING] target value 8 is obsolete and will be removed in a future release
-[WARNING] To suppress warnings about obsolete options, use -Xlint:-options.
+[INFO] Compiling 101 source files with javac [debug release 11] to target/test-classes
 [INFO] Annotation processing is enabled because one or more processors were found
   on the class path. A future release of javac may disable annotation processing
   unless at least one processor is specified by name (-processor), or a search
@@ -76,28 +66,29 @@ Audit done.
   processing is enabled explicitly (-proc:only, -proc:full).
   Use -Xlint:-options to suppress this message.
   Use -proc:none to disable annotation processing.
-[INFO] /home/todd/git/java-sdk/src/test/java/dev/openfeature/sdk/EventsTest.java: Some input files use or override a deprecated API.
-[INFO] /home/todd/git/java-sdk/src/test/java/dev/openfeature/sdk/EventsTest.java: Recompile with -Xlint:deprecation for details.
-[INFO] /home/todd/git/java-sdk/src/test/java/dev/openfeature/sdk/HookSpecTest.java: Some input files use unchecked or unsafe operations.
-[INFO] /home/todd/git/java-sdk/src/test/java/dev/openfeature/sdk/HookSpecTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/DomainScopedProviderSpecTest.java: Some input files use or override a deprecated API.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/DomainScopedProviderSpecTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/HookSpecTest.java: Some input files use unchecked or unsafe operations.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/HookSpecTest.java: Recompile with -Xlint:unchecked for details.
 [INFO] 
 [INFO] >>> jmh:0.2.2:benchmark (default-cli) > process-test-resources @ sdk >>>
 [INFO] 
-[INFO] --- checkstyle:3.5.0:check (validate) @ sdk ---
-[INFO] Starting audit...
-Audit done.
-[INFO] You have 0 Checkstyle violations.
+[INFO] --- toolchains:3.3.0:select-jdk-toolchain (default) @ sdk ---
+[INFO] Not using an external toolchain as the current JDK 'JDK[/usr/lib/jvm/java-21-openjdk-amd64]' matches the requirements.
 [INFO] 
-[INFO] --- jacoco:0.8.12:prepare-agent (prepare-agent) @ sdk ---
-[INFO] surefireArgLine set to -javaagent:/home/todd/.m2/repository/org/jacoco/org.jacoco.agent/0.8.12/org.jacoco.agent-0.8.12-runtime.jar=destfile=/home/todd/git/java-sdk/target/coverage-reports/jacoco-ut.exec
+[INFO] --- resources:3.5.0:resources (default-resources) @ sdk ---
+[INFO] skip non existing resourceDirectory /home/local_toddbaert/git/java-sdk/src/main/resources
 [INFO] 
-[INFO] --- resources:3.3.1:resources (default-resources) @ sdk ---
-[INFO] skip non existing resourceDirectory /home/todd/git/java-sdk/src/main/resources
+[INFO] --- flatten:1.8.0:flatten (flatten) @ sdk ---
+[INFO] Generating flattened POM of project dev.openfeature:sdk:jar:1.23.0...
 [INFO] 
-[INFO] --- compiler:3.13.0:compile (default-compile) @ sdk ---
+[INFO] --- resources:3.5.0:copy-resources (copy-license) @ sdk ---
+[INFO] Copying 1 resource from . to target/classes/META-INF
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ sdk ---
 [INFO] Nothing to compile - all classes are up to date.
 [INFO] 
-[INFO] --- resources:3.3.1:testResources (default-testResources) @ sdk ---
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ sdk ---
 [INFO] Copying 2 resources from src/test/resources to target/test-classes
 [INFO] 
 [INFO] <<< jmh:0.2.2:benchmark (default-cli) < process-test-resources @ sdk <<<
@@ -105,15 +96,15 @@ Audit done.
 [INFO] 
 [INFO] --- jmh:0.2.2:benchmark (default-cli) @ sdk ---
 [INFO] Changes detected - recompiling the module!
-[INFO] Compiling 52 source files to /home/todd/git/java-sdk/target/test-classes
-[INFO] /home/todd/git/java-sdk/src/test/java/dev/openfeature/sdk/LockingTest.java: Some input files use or override a deprecated API.
-[INFO] /home/todd/git/java-sdk/src/test/java/dev/openfeature/sdk/LockingTest.java: Recompile with -Xlint:deprecation for details.
-[INFO] /home/todd/git/java-sdk/src/test/java/dev/openfeature/sdk/internal/TriConsumerTest.java: Some input files use unchecked or unsafe operations.
-[INFO] /home/todd/git/java-sdk/src/test/java/dev/openfeature/sdk/internal/TriConsumerTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] Compiling 101 source files to /home/local_toddbaert/git/java-sdk/target/test-classes
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/TelemetryTest.java: Some input files use or override a deprecated API.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/TelemetryTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/multiprovider/BaseStrategyTest.java: Some input files use unchecked or unsafe operations.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/multiprovider/BaseStrategyTest.java: Recompile with -Xlint:unchecked for details.
 [INFO] Executing the JMH benchmarks
 # JMH version: 1.37
-# VM version: JDK 21.0.4, OpenJDK 64-Bit Server VM, 21.0.4+7
-# VM invoker: /usr/lib/jvm/java-21-openjdk/bin/java
+# VM version: JDK 21.0.12.1, OpenJDK 64-Bit Server VM, 21.0.12.1+1-1-24.04.4-Ubuntu
+# VM invoker: /usr/lib/jvm/java-21-openjdk-amd64/bin/java
 # VM options: -Xmx1024m -XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC
 # Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
 # Warmup: <none>
@@ -125,146 +116,150 @@ Audit done.
 
 # Run progress: 0.00% complete, ETA 00:00:00
 # Fork: 1 of 1
-[0.001s][warning][gc,init] Consider setting -Xms equal to -Xmx to avoid resizing hiccups
-[0.001s][warning][gc,init] Consider enabling -XX:+AlwaysPreTouch to avoid memory commit hiccups
-Iteration   1:  num     #instances         #bytes  class name (module)
+Iteration   1: Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (/home/local_toddbaert/.m2/repository/net/bytebuddy/byte-buddy-agent/1.18.14-jdk5/byte-buddy-agent-1.18.14-jdk5.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+ num     #instances         #bytes  class name (module)
 -------------------------------------------------------
-   1:        480234       23051232  java.util.HashMap (java.base@21.0.4)
-   2:        150497       12050088  [Ljava.util.HashMap$Node; (java.base@21.0.4)
-   3:        332017       10624544  java.util.HashMap$Node (java.base@21.0.4)
-   4:         47815        9732480  [B (java.base@21.0.4)
-   5:        305991        8105872  [Ljava.lang.Object; (java.base@21.0.4)
-   6:        366682        5866912  java.util.Optional (java.base@21.0.4)
-   7:        183332        5866624  java.util.HashMap$EntryIterator (java.base@21.0.4)
-   8:        172970        5535040  java.util.Collections$UnmodifiableMap (java.base@21.0.4)
-   9:        100000        4000000  dev.openfeature.sdk.HookContext
-  10:        100000        4000000  dev.openfeature.sdk.HookContext$HookContextBuilder
-  11:        230006        3680096  dev.openfeature.sdk.Value
-  12:        200062        3200992  java.util.HashMap$EntrySet (java.base@21.0.4)
-  13:        132870        3188880  java.util.ArrayList (java.base@21.0.4)
-  14:        192292        3076672  dev.openfeature.sdk.ImmutableStructure
-  15:        182292        2916672  dev.openfeature.sdk.ImmutableContext
-  16:         50000        2000000  dev.openfeature.sdk.FlagEvaluationDetails
-  17:         50000        2000000  dev.openfeature.sdk.ProviderEvaluation
-  18:        122968        1967488  java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet (java.base@21.0.4)
-  19:           149        1884376  [Ljdk.internal.vm.FillerElement; (java.base@21.0.4)
-  20:         56476        1807232  java.util.ArrayList$Itr (java.base@21.0.4)
-  21:         37481        1799088  dev.openfeature.sdk.FlagEvaluationDetails$FlagEvaluationDetailsBuilder
-  22:        100001        1600016  dev.openfeature.sdk.NoOpProvider$$Lambda/0x000076e79c02fa78
-  23:         50000        1600000  [Ldev.openfeature.sdk.EvaluationContext;
-  24:         50000        1600000  [Ljava.util.List; (java.base@21.0.4)
-  25:        100000        1600000  dev.openfeature.sdk.OpenFeatureClient$$Lambda/0x000076e79c082800
-  26:         36720        1468800  dev.openfeature.sdk.ProviderEvaluation$ProviderEvaluationBuilder
-  27:         87481        1399696  dev.openfeature.sdk.ImmutableMetadata
-  28:         50000        1200000  dev.openfeature.sdk.FlagEvaluationOptions
-  29:         74201        1187216  dev.openfeature.sdk.ImmutableMetadata$ImmutableMetadataBuilder
-  30:         73235        1171760  java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet$UnmodifiableEntry (java.base@21.0.4)
-  31:         45869        1100856  java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet$1 (java.base@21.0.4)
-  32:         43776        1050624  dev.openfeature.sdk.FlagEvaluationOptions$FlagEvaluationOptionsBuilder
-  33:         40016         960384  dev.openfeature.sdk.HookSupport$$Lambda/0x000076e79c081b78
-  34:         39967         959208  dev.openfeature.sdk.HookSupport$$Lambda/0x000076e79c081da8
-  35:         57783         924528  dev.openfeature.sdk.internal.AutoCloseableReentrantReadWriteLock$$Lambda/0x000076e79c02eae8
-  36:          4490         721440  [I (java.base@21.0.4)
-  37:         26594         638256  java.lang.String (java.base@21.0.4)
-  38:          1461         390008  [J (java.base@21.0.4)
-  39:          2361         288784  java.lang.Class (java.base@21.0.4)
-  40:          4632         259392  jdk.internal.org.objectweb.asm.SymbolTable$Entry (java.base@21.0.4)
-  41:         10001         240024  java.lang.Double (java.base@21.0.4)
-  42:          2502         180144  java.lang.reflect.Field (java.base@21.0.4)
-  43:          6007         144168  java.lang.StringBuilder (java.base@21.0.4)
-  44:           180         140968  [Ljdk.internal.org.objectweb.asm.SymbolTable$Entry; (java.base@21.0.4)
-  45:          3827         122464  java.util.concurrent.ConcurrentHashMap$Node (java.base@21.0.4)
-  46:            48         122168  [C (java.base@21.0.4)
-  47:          1440         113512  [S (java.base@21.0.4)
-  48:          1201         105688  java.lang.reflect.Method (java.base@21.0.4)
-  49:          3031          79600  [Ljava.lang.Class; (java.base@21.0.4)
-  50:          1351          75656  jdk.internal.org.objectweb.asm.Label (java.base@21.0.4)
-  51:          1561          74928  java.lang.invoke.MemberName (java.base@21.0.4)
-  52:           334          74816  jdk.internal.org.objectweb.asm.MethodWriter (java.base@21.0.4)
-  53:          1799          71960  java.lang.invoke.MethodType (java.base@21.0.4)
-  54:          1089          69696  java.net.URL (java.base@21.0.4)
-  55:           121          50512  [Ljava.util.concurrent.ConcurrentHashMap$Node; (java.base@21.0.4)
-  56:          3147          50352  jdk.internal.util.StrongReferenceKey (java.base@21.0.4)
-  57:          1057          42280  java.io.ObjectStreamField (java.base@21.0.4)
-  58:          1225          39200  java.io.File (java.base@21.0.4)
-  59:           779          37392  jdk.internal.org.objectweb.asm.Frame (java.base@21.0.4)
-  60:           243          25272  java.util.jar.JarFile$JarFileEntry (java.base@21.0.4)
-  61:           794          25248  [Ljava.lang.String; (java.base@21.0.4)
-  62:           622          24880  java.lang.NoSuchFieldException (java.base@21.0.4)
-  63:           571          22840  java.util.LinkedHashMap$Entry (java.base@21.0.4)
-  64:           474          22752  jdk.internal.ref.CleanerImpl$PhantomCleanableRef (java.base@21.0.4)
-  65:           690          22080  jdk.internal.util.WeakReferenceKey (java.base@21.0.4)
-  66:           828          19872  jdk.internal.org.objectweb.asm.ByteVector (java.base@21.0.4)
-  67:           248          18848  [Ljava.lang.ref.SoftReference; (java.base@21.0.4)
-  68:           118          17936  jdk.internal.org.objectweb.asm.ClassWriter (java.base@21.0.4)
-  69:           380          16824  [Ljava.lang.invoke.LambdaForm$Name; (java.base@21.0.4)
-  70:           625          15000  java.lang.Long (java.base@21.0.4)
-  71:           463          14816  java.lang.invoke.LambdaForm$Name (java.base@21.0.4)
-  72:           904          14464  java.lang.Object (java.base@21.0.4)
-  73:           198          14256  java.lang.reflect.Constructor (java.base@21.0.4)
-  74:           249          13944  java.util.zip.ZipFile$ZipFileInputStream (java.base@21.0.4)
-  75:           334          13360  jdk.internal.org.objectweb.asm.Handler (java.base@21.0.4)
-  76:           202          12928  java.util.concurrent.ConcurrentHashMap (java.base@21.0.4)
-  77:           201          12864  jdk.internal.org.objectweb.asm.FieldWriter (java.base@21.0.4)
-  78:           316          12640  java.util.WeakHashMap$Entry (java.base@21.0.4)
-  79:           102          12240  java.io.ObjectStreamClass (java.base@21.0.4)
-  80:           249          11952  java.util.zip.ZipFile$ZipFileInflaterInputStream (java.base@21.0.4)
-  81:           359          11488  jdk.internal.org.objectweb.asm.Type (java.base@21.0.4)
-  82:           465          11160  java.lang.invoke.ResolvedMethodName (java.base@21.0.4)
-  83:           464          11136  jdk.internal.org.objectweb.asm.Edge (java.base@21.0.4)
-  84:           341          10912  jdk.internal.math.FDBigInteger (java.base@21.0.4)
-  85:            94          10728  [Ljava.lang.reflect.Field; (java.base@21.0.4)
-  86:           266          10640  java.lang.NoSuchMethodException (java.base@21.0.4)
-  87:           266          10640  java.security.CodeSource (java.base@21.0.4)
-  88:           221          10608  java.lang.invoke.DirectMethodHandle$Constructor (java.base@21.0.4)
-  89:           264          10560  sun.security.util.KnownOIDs (java.base@21.0.4)
-  90:            75          10200  sun.nio.fs.UnixFileAttributes (java.base@21.0.4)
-  91:           245           9800  java.lang.ref.SoftReference (java.base@21.0.4)
-  92:           118           9440  jdk.internal.event.DeserializationEvent (java.base@21.0.4)
-  93:           115           9200  [Ljava.util.WeakHashMap$Entry; (java.base@21.0.4)
-  94:           368           8832  java.lang.module.ModuleDescriptor$Exports (java.base@21.0.4)
-  95:            63           8384  [Ljava.lang.invoke.MethodHandle; (java.base@21.0.4)
-  96:           146           8176  java.io.FileCleanable (java.base@21.0.4)
-  97:           125           8000  java.lang.Class$ReflectionData (java.base@21.0.4)
-  98:           323           7752  java.util.ImmutableCollections$Set12 (java.base@21.0.4)
-  99:           121           7744  jdk.internal.org.objectweb.asm.SymbolTable (java.base@21.0.4)
- 100:            70           7280  java.lang.invoke.InnerClassLambdaMetafactory (java.base@21.0.4)
- 101:           144           6912  jdk.internal.org.objectweb.asm.AnnotationWriter (java.base@21.0.4)
- 102:           167           6680  jdk.internal.loader.URLClassPath$JarLoader$2 (java.base@21.0.4)
- 103:           199           6368  java.lang.invoke.MethodHandles$Lookup (java.base@21.0.4)
- 104:           156           6240  java.util.StringJoiner (java.base@21.0.4)
- 105:           153           6120  java.io.FileDescriptor (java.base@21.0.4)
- 106:           126           6048  java.lang.invoke.LambdaForm (java.base@21.0.4)
- 107:            77           6016  [Ljava.lang.reflect.Method; (java.base@21.0.4)
- 108:           249           5976  java.util.zip.ZipFile$InflaterCleanupAction (java.base@21.0.4)
- 109:           373           5968  java.lang.Byte (java.base@21.0.4)
- 110:            74           5920  java.util.zip.ZipFile$Source (java.base@21.0.4)
- 111:            82           5720  [Ljava.io.ObjectStreamField; (java.base@21.0.4)
- 112:            40           5640  [Ljava.lang.ClassValue$Entry; (java.base@21.0.4)
- 113:           234           5616  java.util.jar.Attributes$Name (java.base@21.0.4)
- 114:           174           5568  java.util.concurrent.locks.ReentrantLock$NonfairSync (java.base@21.0.4)
- 115:            98           5488  java.lang.Module (java.base@21.0.4)
- 116:           219           5256  java.lang.PublicMethods$MethodList (java.base@21.0.4)
- 117:            65           5200  java.net.URI (java.base@21.0.4)
- 118:           215           5104  [Ljdk.internal.org.objectweb.asm.Type; (java.base@21.0.4)
+   1:        175386       37568880  [B (java.base@21.0.12.1)
+   2:         77126        4105488  [Ljava.lang.Object; (java.base@21.0.12.1)
+   3:           164        3424000  [Ljdk.internal.vm.FillerElement; (java.base@21.0.12.1)
+   4:        113801        2731224  java.util.ArrayList (java.base@21.0.12.1)
+   5:         50000        2400000  dev.openfeature.sdk.LayeredEvaluationContext
+   6:         93931        2254344  java.lang.String (java.base@21.0.12.1)
+   7:         50000        2000000  dev.openfeature.sdk.FlagEvaluationDetails
+   8:         50000        2000000  dev.openfeature.sdk.ProviderEvaluation
+   9:         50000        1600000  dev.openfeature.sdk.HookSupportData
+  10:         50000        1600000  dev.openfeature.sdk.SharedHookContext
+  11:         21146        1300632  [I (java.base@21.0.12.1)
+  12:         39904        1276928  java.util.ArrayList$Itr (java.base@21.0.12.1)
+  13:         50004        1200096  dev.openfeature.sdk.ImmutableContext
+  14:         50000        1200000  dev.openfeature.sdk.HookContext
+  15:         50000        1200000  dev.openfeature.sdk.Pair
+  16:         20479        1146824  jdk.internal.org.objectweb.asm.SymbolTable$Entry (java.base@21.0.12.1)
+  17:         50014         800224  java.util.Optional (java.base@21.0.12.1)
+  18:         50004         800064  dev.openfeature.sdk.NoOpProvider$$Lambda/0x00007871b802f550
+  19:         50000         800000  dev.openfeature.sdk.DefaultHookData
+  20:         19335         773400  dev.openfeature.sdk.ProviderEvaluation$ProviderEvaluationBuilderImpl
+  21:         12079         579792  java.util.HashMap (java.base@21.0.12.1)
+  22:         23844         572256  net.bytebuddy.description.type.TypeDescription$Generic$OfNonGenericType$ForLoadedType
+  23:         23639         567336  java.lang.StringBuilder (java.base@21.0.12.1)
+  24:           366         556080  [C (java.base@21.0.12.1)
+  25:          4343         521720  java.lang.Class (java.base@21.0.12.1)
+  26:         11896         475840  net.bytebuddy.description.type.TypeDescription$ForLoadedType
+  27:          1570         430760  [J (java.base@21.0.12.1)
+  28:         13261         424352  java.util.AbstractList$Itr (java.base@21.0.12.1)
+  29:          4745         417560  java.lang.reflect.Method (java.base@21.0.12.1)
+  30:          6511         416704  java.net.URL (java.base@21.0.12.1)
+  31:          6888         385728  jdk.internal.org.objectweb.asm.Label (java.base@21.0.12.1)
+  32:           584         372928  [Ljdk.internal.org.objectweb.asm.SymbolTable$Entry; (java.base@21.0.12.1)
+  33:         12890         338976  [Ljava.lang.Class; (java.base@21.0.12.1)
+  34:          9810         313920  net.bytebuddy.description.method.MethodDescription$ForLoadedMethod
+  35:          9726         311232  java.util.concurrent.ConcurrentHashMap$Node (java.base@21.0.12.1)
+  36:          5594         268512  net.bytebuddy.description.method.ParameterDescription$Latent
+  37:          1193         267232  jdk.internal.org.objectweb.asm.MethodWriter (java.base@21.0.12.1)
+  38:          7606         243392  java.util.concurrent.ConcurrentLinkedQueue$Itr (java.base@21.0.12.1)
+  39:         10003         240072  java.lang.Double (java.base@21.0.12.1)
+  40:          7487         239584  java.util.HashMap$Node (java.base@21.0.12.1)
+  41:          2561         223192  [Ljava.util.HashMap$Node; (java.base@21.0.12.1)
+  42:          8680         208320  net.bytebuddy.description.type.TypeDescription$Generic$Visitor$Substitutor$ForAttachment
+  43:          4206         201888  jdk.internal.org.objectweb.asm.Frame (java.base@21.0.12.1)
+  44:          2513         180936  java.lang.reflect.Field (java.base@21.0.12.1)
+  45:          5604         179328  java.util.AbstractList$SubList (java.base@21.0.12.1)
+  46:          5436         173952  java.io.File (java.base@21.0.12.1)
+  47:          1600         166400  java.util.jar.JarFile$JarFileEntry (java.base@21.0.12.1)
+  48:          6923         166152  net.bytebuddy.description.ByteCodeElement$Token$TokenList
+  49:         10006         160096  dev.openfeature.sdk.Value
+  50:         10004         160064  dev.openfeature.sdk.ImmutableStructure
+  51:          6262         150288  net.bytebuddy.description.annotation.AnnotationList$Explicit
+  52:          3682         147280  java.lang.invoke.MethodType (java.base@21.0.12.1)
+  53:          5424         130176  net.bytebuddy.implementation.bytecode.StackManipulation$Size
+  54:           186         126112  [Ljava.util.concurrent.ConcurrentHashMap$Node; (java.base@21.0.12.1)
+  55:          2613         125424  java.lang.invoke.MemberName (java.base@21.0.12.1)
+  56:          1537         121216  [S (java.base@21.0.12.1)
+  57:          2938         117520  java.util.LinkedHashMap$Entry (java.base@21.0.12.1)
+  58:          4575         109800  net.bytebuddy.description.type.TypeList$Generic$Explicit
+  59:          5808          92928  jdk.internal.util.StrongReferenceKey (java.base@21.0.12.1)
+  60:          2975          91480  [Ljava.lang.String; (java.base@21.0.12.1)
+  61:          1602          89712  java.util.zip.ZipFile$ZipFileInputStream (java.base@21.0.12.1)
+  62:          1809          86832  jdk.internal.ref.CleanerImpl$PhantomCleanableRef (java.base@21.0.12.1)
+  63:          2710          86720  net.bytebuddy.description.method.ParameterDescription$ForLoadedParameter$OfMethod
+  64:          3533          84792  net.bytebuddy.description.type.TypeDescription$Generic$LazyProjection$ForLoadedReturnType
+  65:          2565          82080  net.bytebuddy.description.type.TypeDescription$Generic$LazyProjection$OfMethodParameter
+  66:          3363          80712  net.bytebuddy.description.method.ParameterList$ForTokens
+  67:          1602          76896  java.util.zip.ZipFile$ZipFileInflaterInputStream (java.base@21.0.12.1)
+  68:          3067          73608  java.util.Arrays$ArrayList (java.base@21.0.12.1)
+  69:          1796          71840  jdk.internal.org.objectweb.asm.Handler (java.base@21.0.12.1)
+  70:          2970          71280  jdk.internal.org.objectweb.asm.ByteVector (java.base@21.0.12.1)
+  71:          1686          67440  java.util.WeakHashMap$Entry (java.base@21.0.12.1)
+  72:          2755          66120  jdk.internal.org.objectweb.asm.Edge (java.base@21.0.12.1)
+  73:          1151          64456  net.bytebuddy.jar.asm.Label
+  74:          1600          64000  java.security.CodeSource (java.base@21.0.12.1)
+  75:          3734          59744  java.lang.Object (java.base@21.0.12.1)
+  76:          1490          59600  jdk.internal.loader.URLClassPath$JarLoader$2 (java.base@21.0.12.1)
+  77:          1832          58624  java.util.AbstractList$ListItr (java.base@21.0.12.1)
+  78:          1047          52136  [Ljava.lang.invoke.LambdaForm$Name; (java.base@21.0.12.1)
+  79:           788          50432  jdk.internal.org.objectweb.asm.FieldWriter (java.base@21.0.12.1)
+  80:           748          47872  java.util.LinkedHashMap (java.base@21.0.12.1)
+  81:          1917          46008  net.bytebuddy.description.type.TypeList$Explicit
+  82:           375          45656  [Lnet.bytebuddy.jar.asm.Label;
+  83:          1068          42720  java.io.ObjectStreamField (java.base@21.0.12.1)
+  84:          1323          42336  java.lang.invoke.LambdaForm$Name (java.base@21.0.12.1)
+  85:          1321          42272  java.util.TreeMap$ValueIterator (java.base@21.0.12.1)
+  86:          1740          41760  java.util.Arrays$ArrayItr (java.base@21.0.12.1)
+  87:          1729          41496  java.lang.PublicMethods$MethodList (java.base@21.0.12.1)
+  88:           719          40264  net.bytebuddy.jar.asm.SymbolTable$Entry
+  89:          1249          39968  java.util.HashMap$KeyIterator (java.base@21.0.12.1)
+  90:          1207          38624  jdk.internal.org.objectweb.asm.Type (java.base@21.0.12.1)
+  91:          1602          38448  java.util.zip.ZipFile$InflaterCleanupAction (java.base@21.0.12.1)
+  92:           245          37240  jdk.internal.org.objectweb.asm.ClassWriter (java.base@21.0.12.1)
+  93:          1100          35200  jdk.internal.util.WeakReferenceKey (java.base@21.0.12.1)
+  94:          2181          34896  net.bytebuddy.description.type.TypeDescription$Generic$AnnotationReader$Delegator$ForLoadedMethodReturnType
+  95:           153          34272  net.bytebuddy.jar.asm.MethodWriter
+  96:          1171          33144  [Ljava.lang.reflect.Parameter; (java.base@21.0.12.1)
+  97:           559          28504  [Ljava.lang.reflect.Method; (java.base@21.0.12.1)
+  98:           509          28504  net.bytebuddy.description.method.MethodDescription$Latent
+  99:           368          26496  java.lang.reflect.Constructor (java.base@21.0.12.1)
+ 100:           299          26312  net.bytebuddy.jar.asm.Context
+ 101:          1564          25024  java.security.SecureClassLoader$1 (java.base@21.0.12.1)
+ 102:          1564          25024  java.security.SecureClassLoader$CodeSourceKey (java.base@21.0.12.1)
+ 103:           623          24920  java.lang.NoSuchFieldException (java.base@21.0.12.1)
+ 104:          1482          23712  java.util.zip.CRC32 (java.base@21.0.12.1)
+ 105:           308          23408  [Ljava.lang.ref.SoftReference; (java.base@21.0.12.1)
+ 106:           963          23112  java.util.Collections$1 (java.base@21.0.12.1)
+ 107:           354          22656  java.lang.Class$ReflectionData (java.base@21.0.12.1)
+ 108:          1036          22176  [Ljdk.internal.org.objectweb.asm.Type; (java.base@21.0.12.1)
+ 109:           456          21888  jdk.internal.org.objectweb.asm.AnnotationWriter (java.base@21.0.12.1)
+ 110:           545          21800  java.util.StringJoiner (java.base@21.0.12.1)
+ 111:           544          21760  java.lang.reflect.Parameter (java.base@21.0.12.1)
+ 112:           853          21688  [Lnet.bytebuddy.implementation.bytecode.StackManipulation;
+ 113:           535          21400  java.lang.ref.SoftReference (java.base@21.0.12.1)
+ 114:           667          21344  net.bytebuddy.jar.asm.Type
+ 115:           645          20640  java.util.HashMap$EntryIterator (java.base@21.0.12.1)
+ 116:           642          20544  net.bytebuddy.description.method.ParameterList$ForLoadedExecutable$OfMethod
+ 117:           852          20448  java.lang.invoke.ResolvedMethodName (java.base@21.0.12.1)
+ 118:           848          20352  net.bytebuddy.description.method.MethodDescription$TypeToken
 truncated...
-Total       4452140      139359040
+Total       1512944       85381512
 
-0.186 s/op
-                 +totalAllocatedBytes:     139359040.000 bytes
-                 +totalAllocatedInstances: 4452140.000 instances
-                 +totalHeap:               521412608.000 bytes
+0.562 s/op
+                 +totalAllocatedBytes:     85381512.000 bytes
+                 +totalAllocatedInstances: 1512944.000 instances
+                 +totalHeap:               1044512768.000 bytes
 
 
 
 Secondary result "dev.openfeature.sdk.benchmark.AllocationBenchmark.run:+totalAllocatedBytes":
-  139359040.000 bytes
+  85381512.000 bytes
 
 Secondary result "dev.openfeature.sdk.benchmark.AllocationBenchmark.run:+totalAllocatedInstances":
-  4452140.000 instances
+  1512944.000 instances
 
 Secondary result "dev.openfeature.sdk.benchmark.AllocationBenchmark.run:+totalHeap":
-  521412608.000 bytes
+  1044512768.000 bytes
 
 
 # Run complete. Total time: 00:00:00
@@ -281,14 +276,14 @@ works, and factor in a small probability of new VM bugs. Additionally, while com
 different JVMs are already problematic, the performance difference caused by different Blackhole
 modes can be very significant. Please make sure you use the consistent Blackhole mode for comparisons.
 
-Benchmark                                         Mode  Cnt          Score   Error      Units
-AllocationBenchmark.run                             ss               0.186               s/op
-AllocationBenchmark.run:+totalAllocatedBytes        ss       139359040.000              bytes
-AllocationBenchmark.run:+totalAllocatedInstances    ss         4452140.000          instances
-AllocationBenchmark.run:+totalHeap                  ss       521412608.000              bytes
+Benchmark                                         Mode  Cnt           Score   Error      Units
+AllocationBenchmark.run                             ss                0.562               s/op
+AllocationBenchmark.run:+totalAllocatedBytes        ss         85381512.000              bytes
+AllocationBenchmark.run:+totalAllocatedInstances    ss          1512944.000          instances
+AllocationBenchmark.run:+totalHeap                  ss       1044512768.000              bytes
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  8.280 s
-[INFO] Finished at: 2024-10-23T12:37:24-04:00
+[INFO] Total time:  6.682 s
+[INFO] Finished at: 2026-10-08T12:50:39-04:00
 [INFO] ------------------------------------------------------------------------

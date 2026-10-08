@@ -1,0 +1,342 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< dev.openfeature:sdk >-------------------------
+[INFO] Building OpenFeature Java SDK 1.23.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ sdk ---
+[INFO] Deleting /home/local_toddbaert/git/java-sdk/target
+[INFO] 
+[INFO] --- flatten:1.8.0:clean (flatten.clean) @ sdk ---
+[INFO] Deleting /home/local_toddbaert/git/java-sdk/.flattened-pom.xml
+[INFO] 
+[INFO] --- toolchains:3.3.0:select-jdk-toolchain (default) @ sdk ---
+[INFO] Not using an external toolchain as the current JDK 'JDK[/usr/lib/jvm/java-21-openjdk-amd64]' matches the requirements.
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ sdk ---
+[INFO] skip non existing resourceDirectory /home/local_toddbaert/git/java-sdk/src/main/resources
+[INFO] 
+[INFO] --- flatten:1.8.0:flatten (flatten) @ sdk ---
+[INFO] Generating flattened POM of project dev.openfeature:sdk:jar:1.23.0...
+[INFO] 
+[INFO] --- resources:3.5.0:copy-resources (copy-license) @ sdk ---
+[INFO] Copying 1 resource from . to target/classes/META-INF
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ sdk ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 91 source files with javac [debug release 11] to target/classes
+[INFO] Annotation processing is enabled because one or more processors were found
+  on the class path. A future release of javac may disable annotation processing
+  unless at least one processor is specified by name (-processor), or a search
+  path is specified (--processor-path, --processor-module-path), or annotation
+  processing is enabled explicitly (-proc:only, -proc:full).
+  Use -Xlint:-options to suppress this message.
+  Use -proc:none to disable annotation processing.
+[INFO] /home/local_toddbaert/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java: Some input files use or override a deprecated API.
+[INFO] /home/local_toddbaert/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java: Recompile with -Xlint:deprecation for details.
+[INFO] /home/local_toddbaert/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java: Some input files use unchecked or unsafe operations.
+[INFO] /home/local_toddbaert/git/java-sdk/src/main/java/dev/openfeature/sdk/Value.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- toolchains:3.3.0:select-jdk-toolchain (default) @ sdk ---
+[INFO] Not using an external toolchain as the current JDK 'JDK[/usr/lib/jvm/java-21-openjdk-amd64]' matches the requirements.
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ sdk ---
+[INFO] skip non existing resourceDirectory /home/local_toddbaert/git/java-sdk/src/main/resources
+[INFO] 
+[INFO] --- flatten:1.8.0:flatten (flatten) @ sdk ---
+[INFO] Generating flattened POM of project dev.openfeature:sdk:jar:1.23.0...
+[INFO] 
+[INFO] --- resources:3.5.0:copy-resources (copy-license) @ sdk ---
+[INFO] Copying 1 resource from . to target/classes/META-INF
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ sdk ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ sdk ---
+[INFO] Copying 2 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ sdk ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 101 source files with javac [debug release 11] to target/test-classes
+[INFO] Annotation processing is enabled because one or more processors were found
+  on the class path. A future release of javac may disable annotation processing
+  unless at least one processor is specified by name (-processor), or a search
+  path is specified (--processor-path, --processor-module-path), or annotation
+  processing is enabled explicitly (-proc:only, -proc:full).
+  Use -Xlint:-options to suppress this message.
+  Use -proc:none to disable annotation processing.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/DomainScopedProviderSpecTest.java: Some input files use or override a deprecated API.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/DomainScopedProviderSpecTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/HookSpecTest.java: Some input files use unchecked or unsafe operations.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/HookSpecTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] >>> jmh:0.2.2:benchmark (default-cli) > process-test-resources @ sdk >>>
+[INFO] 
+[INFO] --- toolchains:3.3.0:select-jdk-toolchain (default) @ sdk ---
+[INFO] Not using an external toolchain as the current JDK 'JDK[/usr/lib/jvm/java-21-openjdk-amd64]' matches the requirements.
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ sdk ---
+[INFO] skip non existing resourceDirectory /home/local_toddbaert/git/java-sdk/src/main/resources
+[INFO] 
+[INFO] --- flatten:1.8.0:flatten (flatten) @ sdk ---
+[INFO] Generating flattened POM of project dev.openfeature:sdk:jar:1.23.0...
+[INFO] 
+[INFO] --- resources:3.5.0:copy-resources (copy-license) @ sdk ---
+[INFO] Copying 1 resource from . to target/classes/META-INF
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ sdk ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ sdk ---
+[INFO] Copying 2 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] <<< jmh:0.2.2:benchmark (default-cli) < process-test-resources @ sdk <<<
+[INFO] 
+[INFO] 
+[INFO] --- jmh:0.2.2:benchmark (default-cli) @ sdk ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 101 source files to /home/local_toddbaert/git/java-sdk/target/test-classes
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/TelemetryTest.java: Some input files use or override a deprecated API.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/TelemetryTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/multiprovider/BaseStrategyTest.java: Some input files use unchecked or unsafe operations.
+[INFO] /home/local_toddbaert/git/java-sdk/src/test/java/dev/openfeature/sdk/multiprovider/BaseStrategyTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] Executing the JMH benchmarks
+# JMH version: 1.37
+# VM version: JDK 21.0.12.1, OpenJDK 64-Bit Server VM, 21.0.12.1+1-1-24.04.4-Ubuntu
+# VM invoker: /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+# VM options: <none>
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 2 s each
+# Measurement: 5 iterations, 2 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.errorHook
+
+# Run progress: 0.00% complete, ETA 00:01:52
+# Fork: 1 of 1
+# Warmup Iteration   1: 68.478 ns/op
+# Warmup Iteration   2: 55.409 ns/op
+# Warmup Iteration   3: 56.684 ns/op
+Iteration   1: 56.036 ns/op
+Iteration   2: 55.216 ns/op
+Iteration   3: 56.187 ns/op
+Iteration   4: 56.220 ns/op
+Iteration   5: 56.216 ns/op
+
+
+Result "dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.errorHook":
+  55.975 ±(99.9%) 1.660 ns/op [Average]
+  (min, avg, max) = (55.216, 55.975, 56.220), stdev = 0.431
+  CI (99.9%): [54.315, 57.635] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.12.1, OpenJDK 64-Bit Server VM, 21.0.12.1+1-1-24.04.4-Ubuntu
+# VM invoker: /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+# VM options: <none>
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 2 s each
+# Measurement: 5 iterations, 2 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.invocationUserContext
+
+# Run progress: 14.29% complete, ETA 00:01:37
+# Fork: 1 of 1
+# Warmup Iteration   1: 67.057 ns/op
+# Warmup Iteration   2: 53.463 ns/op
+# Warmup Iteration   3: 56.169 ns/op
+Iteration   1: 54.608 ns/op
+Iteration   2: 54.807 ns/op
+Iteration   3: 54.740 ns/op
+Iteration   4: 53.589 ns/op
+Iteration   5: 54.535 ns/op
+
+
+Result "dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.invocationUserContext":
+  54.456 ±(99.9%) 1.912 ns/op [Average]
+  (min, avg, max) = (53.589, 54.456, 54.807), stdev = 0.496
+  CI (99.9%): [52.544, 56.367] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.12.1, OpenJDK 64-Bit Server VM, 21.0.12.1+1-1-24.04.4-Ubuntu
+# VM invoker: /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+# VM options: <none>
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 2 s each
+# Measurement: 5 iterations, 2 s each
+# Timeout: 10 min per iteration
+# Threads: 8 threads, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.invocationUserContext8Threads
+
+# Run progress: 28.57% complete, ETA 00:01:21
+# Fork: 1 of 1
+# Warmup Iteration   1: 120.891 ±(99.9%) 7.640 ns/op
+# Warmup Iteration   2: 115.885 ±(99.9%) 11.230 ns/op
+# Warmup Iteration   3: 114.779 ±(99.9%) 12.771 ns/op
+Iteration   1: 113.079 ±(99.9%) 12.426 ns/op
+Iteration   2: 119.102 ±(99.9%) 16.534 ns/op
+Iteration   3: 108.702 ±(99.9%) 4.106 ns/op
+Iteration   4: 108.830 ±(99.9%) 5.222 ns/op
+Iteration   5: 107.032 ±(99.9%) 9.008 ns/op
+
+
+Result "dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.invocationUserContext8Threads":
+  111.349 ±(99.9%) 18.775 ns/op [Average]
+  (min, avg, max) = (107.032, 111.349, 119.102), stdev = 4.876
+  CI (99.9%): [92.574, 130.124] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.12.1, OpenJDK 64-Bit Server VM, 21.0.12.1+1-1-24.04.4-Ubuntu
+# VM invoker: /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+# VM options: <none>
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 2 s each
+# Measurement: 5 iterations, 2 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.noContext
+
+# Run progress: 42.86% complete, ETA 00:01:05
+# Fork: 1 of 1
+# Warmup Iteration   1: 21.749 ns/op
+# Warmup Iteration   2: 17.557 ns/op
+# Warmup Iteration   3: 16.498 ns/op
+Iteration   1: 16.836 ns/op
+Iteration   2: 16.641 ns/op
+Iteration   3: 16.815 ns/op
+Iteration   4: 17.281 ns/op
+Iteration   5: 16.989 ns/op
+
+
+Result "dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.noContext":
+  16.912 ±(99.9%) 0.924 ns/op [Average]
+  (min, avg, max) = (16.641, 16.912, 17.281), stdev = 0.240
+  CI (99.9%): [15.989, 17.836] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.12.1, OpenJDK 64-Bit Server VM, 21.0.12.1+1-1-24.04.4-Ubuntu
+# VM invoker: /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+# VM options: <none>
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 2 s each
+# Measurement: 5 iterations, 2 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.noContextDeepStack
+
+# Run progress: 57.14% complete, ETA 00:00:48
+# Fork: 1 of 1
+# Warmup Iteration   1: 89.017 ns/op
+# Warmup Iteration   2: 79.788 ns/op
+# Warmup Iteration   3: 76.388 ns/op
+Iteration   1: 77.365 ns/op
+Iteration   2: 78.718 ns/op
+Iteration   3: 78.232 ns/op
+Iteration   4: 75.410 ns/op
+Iteration   5: 74.895 ns/op
+
+
+Result "dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.noContextDeepStack":
+  76.924 ±(99.9%) 6.538 ns/op [Average]
+  (min, avg, max) = (74.895, 76.924, 78.718), stdev = 1.698
+  CI (99.9%): [70.386, 83.462] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.12.1, OpenJDK 64-Bit Server VM, 21.0.12.1+1-1-24.04.4-Ubuntu
+# VM invoker: /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+# VM options: <none>
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 2 s each
+# Measurement: 5 iterations, 2 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.nonErrorHook
+
+# Run progress: 71.43% complete, ETA 00:00:32
+# Fork: 1 of 1
+# Warmup Iteration   1: 47.046 ns/op
+# Warmup Iteration   2: 37.838 ns/op
+# Warmup Iteration   3: 38.095 ns/op
+Iteration   1: 38.044 ns/op
+Iteration   2: 36.661 ns/op
+Iteration   3: 36.515 ns/op
+Iteration   4: 37.239 ns/op
+Iteration   5: 38.602 ns/op
+
+
+Result "dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.nonErrorHook":
+  37.412 ±(99.9%) 3.452 ns/op [Average]
+  (min, avg, max) = (36.515, 37.412, 38.602), stdev = 0.896
+  CI (99.9%): [33.960, 40.864] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.12.1, OpenJDK 64-Bit Server VM, 21.0.12.1+1-1-24.04.4-Ubuntu
+# VM invoker: /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+# VM options: <none>
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 2 s each
+# Measurement: 5 iterations, 2 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.transactionUserContext
+
+# Run progress: 85.71% complete, ETA 00:00:16
+# Fork: 1 of 1
+# Warmup Iteration   1: 73.078 ns/op
+# Warmup Iteration   2: 55.075 ns/op
+# Warmup Iteration   3: 55.066 ns/op
+Iteration   1: 54.939 ns/op
+Iteration   2: 53.600 ns/op
+Iteration   3: 53.975 ns/op
+Iteration   4: 55.308 ns/op
+Iteration   5: 54.425 ns/op
+
+
+Result "dev.openfeature.sdk.benchmark.NoOpLatencyBenchmark.transactionUserContext":
+  54.449 ±(99.9%) 2.670 ns/op [Average]
+  (min, avg, max) = (53.600, 54.449, 55.308), stdev = 0.693
+  CI (99.9%): [51.779, 57.120] (assumes normal distribution)
+
+
+# Run complete. Total time: 00:01:53
+
+REMEMBER: The numbers below are just data. To gain reusable insights, you need to follow up on
+why the numbers are the way they are. Use profilers (see -prof, -lprof), design factorial
+experiments, perform baseline and negative tests that provide experimental control, make sure
+the benchmarking environment is safe on JVM/OS/HW level, ask for reviews from the domain experts.
+Do not assume the numbers tell you what you want them to tell.
+
+NOTE: Current JVM experimentally supports Compiler Blackholes, and they are in use. Please exercise
+extra caution when trusting the results, look into the generated code to check the benchmark still
+works, and factor in a small probability of new VM bugs. Additionally, while comparisons between
+different JVMs are already problematic, the performance difference caused by different Blackhole
+modes can be very significant. Please make sure you use the consistent Blackhole mode for comparisons.
+
+Benchmark                                           Mode  Cnt    Score    Error  Units
+NoOpLatencyBenchmark.errorHook                      avgt    5   55.975 ±  1.660  ns/op
+NoOpLatencyBenchmark.invocationUserContext          avgt    5   54.456 ±  1.912  ns/op
+NoOpLatencyBenchmark.invocationUserContext8Threads  avgt    5  111.349 ± 18.775  ns/op
+NoOpLatencyBenchmark.noContext                      avgt    5   16.912 ±  0.924  ns/op
+NoOpLatencyBenchmark.noContextDeepStack             avgt    5   76.924 ±  6.538  ns/op
+NoOpLatencyBenchmark.nonErrorHook                   avgt    5   37.412 ±  3.452  ns/op
+NoOpLatencyBenchmark.transactionUserContext         avgt    5   54.449 ±  2.670  ns/op
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:59 min
+[INFO] Finished at: 2026-10-08T12:04:34-04:00
+[INFO] ------------------------------------------------------------------------
