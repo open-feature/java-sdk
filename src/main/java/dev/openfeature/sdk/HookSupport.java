@@ -3,7 +3,9 @@ package dev.openfeature.sdk;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -12,6 +14,21 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 class HookSupport {
+
+    private static final ClassValue<Boolean> IMPLEMENTS_ERROR_STAGE = new ClassValue<>() {
+        @Override
+        protected Boolean computeValue(Class<?> hookClass) {
+            try {
+                return hookClass
+                                .getMethod("error", HookContext.class, Exception.class, Map.class)
+                                .getDeclaringClass()
+                        != Hook.class;
+            } catch (NoSuchMethodException e) {
+                // unexpected; assume the error stage is implemented because this should never happen
+                return true;
+            }
+        }
+    };
 
     /**
      * Sets the {@link Hook}-{@link HookContext}-{@link Pair} list in the given data object with {@link HookContext}
@@ -36,23 +53,32 @@ class HookSupport {
             Collection<Hook> apiHooks,
             FlagValueType type) {
         List<Pair<Hook, HookContext>> hookContextPairs = new ArrayList<>();
-        addFilteredHooks(hookContextPairs, providerHooks, type);
-        addFilteredHooks(hookContextPairs, optionHooks, type);
-        addFilteredHooks(hookContextPairs, clientHooks, type);
-        addFilteredHooks(hookContextPairs, apiHooks, type);
+        boolean hasErrorHooks = addFilteredHooks(hookContextPairs, providerHooks, type);
+        hasErrorHooks |= addFilteredHooks(hookContextPairs, optionHooks, type);
+        hasErrorHooks |= addFilteredHooks(hookContextPairs, clientHooks, type);
+        hasErrorHooks |= addFilteredHooks(hookContextPairs, apiHooks, type);
         hookSupportData.hooks = hookContextPairs;
+        hookSupportData.hasErrorHooks = hasErrorHooks;
     }
 
-    private static void addFilteredHooks(
+    /**
+     * Adds the hooks supporting the given type to dest.
+     *
+     * @return true if any added hook implements the error stage
+     */
+    private static boolean addFilteredHooks(
             List<Pair<Hook, HookContext>> dest, Collection<Hook> source, FlagValueType type) {
         if (source.isEmpty()) {
-            return;
+            return false;
         }
+        boolean hasErrorHooks = false;
         for (Hook hook : source) {
             if (hook.supportsFlagValueType(type)) {
                 dest.add(Pair.of(hook, null));
+                hasErrorHooks |= IMPLEMENTS_ERROR_STAGE.get(hook.getClass());
             }
         }
+        return hasErrorHooks;
     }
 
     /**
@@ -94,7 +120,18 @@ class HookSupport {
         }
     }
 
-    public void executeErrorHooks(HookSupportData data, Exception error) {
+    /**
+     * Runs the error stage of all hooks. The error is only created if a hook implements the error stage,
+     * avoiding the cost of instantiating (and potentially capturing a stack trace for) unused exceptions.
+     *
+     * @param data          the hook support data
+     * @param errorSupplier supplies the error passed to the hooks
+     */
+    public void executeErrorHooks(HookSupportData data, Supplier<? extends Exception> errorSupplier) {
+        if (!data.hasErrorHooks) {
+            return;
+        }
+        Exception error = errorSupplier.get();
         for (Pair<Hook, HookContext> hookContextPair : data.getHooks()) {
             var hook = hookContextPair.getKey();
             var hookContext = hookContextPair.getValue();
