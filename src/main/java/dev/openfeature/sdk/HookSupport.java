@@ -121,7 +121,7 @@ class HookSupport {
     }
 
     /**
-     * Runs the error stage of all hooks. The error is only created if a hook implements the error stage,
+     * Runs the error stage of all hooks if any of them implements it. The error is only created in that case,
      * avoiding the cost of instantiating (and potentially capturing a stack trace for) unused exceptions.
      *
      * @param data          the hook support data
