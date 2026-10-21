@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.23.1](https://github.com/open-feature/java-sdk/compare/v1.23.0...v1.23.1) (2026-10-21)
+
+
+### 🧹 Chore
+
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.10.3 ([#2050](https://github.com/open-feature/java-sdk/issues/2050)) ([4728692](https://github.com/open-feature/java-sdk/commit/4728692e5da29be6d74a9c69ff5ea8826596565e))
+* **deps:** update dependency com.diffplug.spotless:spotless-maven-plugin to v3.10.4 ([#2058](https://github.com/open-feature/java-sdk/issues/2058)) ([2a5146e](https://github.com/open-feature/java-sdk/commit/2a5146e074b4b237c3d3c2c3fc5404b8e55839d3))
+* **deps:** update dependency com.fasterxml.jackson:jackson-bom to v2.22.4 ([#2064](https://github.com/open-feature/java-sdk/issues/2064)) ([44b8a67](https://github.com/open-feature/java-sdk/commit/44b8a67fae8f6aba2a643bacd0776f213c378d6b))
+* **deps:** update dependency com.github.spotbugs:spotbugs to v4.10.5 ([#2059](https://github.com/open-feature/java-sdk/issues/2059)) ([c74d7be](https://github.com/open-feature/java-sdk/commit/c74d7beaece173a592affd9a02086f778246b8ce))
+* **deps:** update dependency com.github.spotbugs:spotbugs-maven-plugin to v4.10.5.0 ([#2060](https://github.com/open-feature/java-sdk/issues/2060)) ([9bcbf08](https://github.com/open-feature/java-sdk/commit/9bcbf085956ffdaa960272f11d3a674b543d5a15))
+* **deps:** update dependency com.google.guava:guava to v33.7.2-jre ([#2055](https://github.com/open-feature/java-sdk/issues/2055)) ([374f3a7](https://github.com/open-feature/java-sdk/commit/374f3a7b8c0a75d6266b839e11f43a460df5da89))
+* **deps:** update dependency com.tngtech.archunit:archunit-junit5 to v1.5.1 ([#2047](https://github.com/open-feature/java-sdk/issues/2047)) ([dc5419e](https://github.com/open-feature/java-sdk/commit/dc5419e1140a0214a75987a01c125cf594688864))
+* **deps:** update dependency io.cucumber:cucumber-bom to v7.34.9 ([#2048](https://github.com/open-feature/java-sdk/issues/2048)) ([bc35a66](https://github.com/open-feature/java-sdk/commit/bc35a66b0d0c9deb87d91ccc569cf6b616f99bfa))
+* **deps:** update dependency maven to v3.10.0 ([#2054](https://github.com/open-feature/java-sdk/issues/2054)) ([f55e0fd](https://github.com/open-feature/java-sdk/commit/f55e0fda674d133c26356b25acff580b869359dd))
+* **deps:** update dependency net.bytebuddy:byte-buddy to v1.18.15-jdk5 ([#2061](https://github.com/open-feature/java-sdk/issues/2061)) ([7c61989](https://github.com/open-feature/java-sdk/commit/7c61989d75b1a9a81a1fb97b43dc0e52b9ad30f8))
+* **deps:** update dependency net.bytebuddy:byte-buddy-agent to v1.18.15-jdk5 ([#2062](https://github.com/open-feature/java-sdk/issues/2062)) ([d7f050a](https://github.com/open-feature/java-sdk/commit/d7f050a782ebf85d134d02956d4627af1741b7d5))
+* **deps:** update dependency org.mockito:mockito-core to v5.24.0 ([#2052](https://github.com/open-feature/java-sdk/issues/2052)) ([f93b3eb](https://github.com/open-feature/java-sdk/commit/f93b3ebcf1938f4dc3983078cd49d97adc9245df))
+* **deps:** update dependency org.slf4j:slf4j-api to v2.0.20 ([#2049](https://github.com/open-feature/java-sdk/issues/2049)) ([6fc08a2](https://github.com/open-feature/java-sdk/commit/6fc08a28a224719628312a72260a2b239ba9006b))
+* **deps:** update dependency org.sonatype.central:central-publishing-maven-plugin to v0.12.0 ([#2063](https://github.com/open-feature/java-sdk/issues/2063)) ([f15487f](https://github.com/open-feature/java-sdk/commit/f15487fb1f8bba5557b387eafeebcdad1ac91698))
+* update benchmarks ([034640b](https://github.com/open-feature/java-sdk/commit/034640bcef5607a80f25d12d63f012cb2f45aa27))
+
 ## [1.23.0](https://github.com/open-feature/java-sdk/compare/v1.22.1...v1.23.0) (2026-09-28)
 
 
