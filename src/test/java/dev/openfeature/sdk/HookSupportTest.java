@@ -15,10 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class HookSupportTest implements HookFixtures {
 
@@ -110,7 +112,7 @@ class HookSupportTest implements HookFixtures {
                 hookSupportData, FlagEvaluationDetails.builder().build());
         assertHookData(testHook, "before", "after", "finallyAfter");
 
-        hookSupport.executeErrorHooks(hookSupportData, mock(Exception.class));
+        hookSupport.executeErrorHooks(hookSupportData, () -> mock(Exception.class));
         assertHookData(testHook, "before", "after", "finallyAfter", "error");
     }
 
@@ -232,7 +234,7 @@ class HookSupportTest implements HookFixtures {
                 hookSupportData, FlagEvaluationDetails.builder().build());
         hookSupport.executeAfterAllHooks(
                 hookSupportData, FlagEvaluationDetails.builder().build());
-        hookSupport.executeErrorHooks(hookSupportData, mock(Exception.class));
+        hookSupport.executeErrorHooks(hookSupportData, () -> mock(Exception.class));
     }
 
     private static void assertHookData(TestHookWithData testHook, String... expectedKeys) {
@@ -284,5 +286,33 @@ class HookSupportTest implements HookFixtures {
         Map<String, Value> attributes = new HashMap<>();
         attributes.put(key, new Value(value));
         return new ImmutableContext(attributes);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    @DisplayName("should only create the error if a hook implements the error stage")
+    void shouldOnlyCreateErrorIfAHookImplementsErrorStage(boolean implementsErrorStage) {
+        Hook<Boolean> hook = implementsErrorStage ? mockBooleanHook() : new BooleanHook() {};
+        var hookSupportData = new HookSupportData();
+        hookSupport.setHooks(
+                hookSupportData,
+                List.of(hook),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                FlagValueType.BOOLEAN);
+        hookSupport.setHookContexts(
+                hookSupportData,
+                getBaseHookContextForType(FlagValueType.BOOLEAN),
+                new LayeredEvaluationContext(null, null, null, null));
+
+        var errorsCreated = new AtomicInteger();
+        hookSupport.executeErrorHooks(hookSupportData, () -> {
+            errorsCreated.incrementAndGet();
+            return new Exception();
+        });
+
+        // created once if a hook can receive it, otherwise never
+        assertThat(errorsCreated).hasValue(implementsErrorStage ? 1 : 0);
     }
 }
