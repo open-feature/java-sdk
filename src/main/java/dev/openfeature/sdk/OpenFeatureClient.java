@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,6 +38,9 @@ import lombok.extern.slf4j.Slf4j;
 })
 @Deprecated() // TODO: eventually we will make this non-public. See issue #872
 public class OpenFeatureClient implements Client {
+
+    private static final String PROVIDER_NOT_READY_MESSAGE = "Provider not yet initialized";
+    private static final String PROVIDER_FATAL_MESSAGE = "Provider is in an irrecoverable error state";
 
     private final OpenFeatureAPI openfeatureApi;
 
@@ -201,12 +205,26 @@ public class OpenFeatureClient implements Client {
 
             hookSupport.executeBeforeHooks(hookSupportData);
 
-            // "short circuit" if the provider is in NOT_READY or FATAL state
+            // "short circuit" if the provider is in NOT_READY or FATAL state, without throwing
             if (ProviderState.NOT_READY.equals(state)) {
-                throw new ProviderNotReadyError("Provider not yet initialized");
+                details = shortCircuit(
+                        hookSupportData,
+                        key,
+                        defaultValue,
+                        ErrorCode.PROVIDER_NOT_READY,
+                        PROVIDER_NOT_READY_MESSAGE,
+                        () -> new ProviderNotReadyError(PROVIDER_NOT_READY_MESSAGE));
+                return details;
             }
             if (ProviderState.FATAL.equals(state)) {
-                throw new FatalError("Provider is in an irrecoverable error state");
+                details = shortCircuit(
+                        hookSupportData,
+                        key,
+                        defaultValue,
+                        ErrorCode.PROVIDER_FATAL,
+                        PROVIDER_FATAL_MESSAGE,
+                        () -> new FatalError(PROVIDER_FATAL_MESSAGE));
+                return details;
             }
 
             var providerEval = (ProviderEvaluation<T>)
@@ -214,10 +232,11 @@ public class OpenFeatureClient implements Client {
 
             details = FlagEvaluationDetails.from(providerEval, key);
             if (details.getErrorCode() != null) {
-                var error =
-                        ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
+                var errorCode = details.getErrorCode();
+                var errorMessage = details.getErrorMessage();
                 enrichDetailsWithErrorDefaults(defaultValue, details);
-                hookSupport.executeErrorHooks(hookSupportData, error);
+                hookSupport.executeErrorHooks(
+                        hookSupportData, () -> ExceptionUtils.instantiateErrorByErrorCode(errorCode, errorMessage));
             } else {
                 hookSupport.executeAfterHooks(hookSupportData, details);
             }
@@ -233,7 +252,7 @@ public class OpenFeatureClient implements Client {
             details.setErrorMessage(e.getMessage());
             enrichDetailsWithErrorDefaults(defaultValue, details);
             if (hookSupportData.getHooks() != null) {
-                hookSupport.executeErrorHooks(hookSupportData, e);
+                hookSupport.executeErrorHooks(hookSupportData, () -> e);
             }
         } finally {
             if (hookSupportData.getHooks() != null) {
@@ -241,6 +260,23 @@ public class OpenFeatureClient implements Client {
             }
         }
 
+        return details;
+    }
+
+    private <T> FlagEvaluationDetails<T> shortCircuit(
+            HookSupportData hookSupportData,
+            String key,
+            T defaultValue,
+            ErrorCode errorCode,
+            String errorMessage,
+            Supplier<? extends Exception> errorSupplier) {
+        FlagEvaluationDetails<T> details = FlagEvaluationDetails.<T>builder()
+                .flagKey(key)
+                .errorCode(errorCode)
+                .errorMessage(errorMessage)
+                .build();
+        enrichDetailsWithErrorDefaults(defaultValue, details);
+        hookSupport.executeErrorHooks(hookSupportData, errorSupplier);
         return details;
     }
 

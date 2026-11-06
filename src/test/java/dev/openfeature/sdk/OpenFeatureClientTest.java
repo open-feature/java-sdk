@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
 import dev.openfeature.sdk.exceptions.FatalError;
+import dev.openfeature.sdk.exceptions.ProviderNotReadyError;
 import dev.openfeature.sdk.fixtures.HookFixtures;
 import dev.openfeature.sdk.testutils.testProvider.TestProvider;
 import java.util.HashMap;
@@ -185,5 +186,27 @@ class OpenFeatureClientTest implements HookFixtures {
         assertThat(evaluation.evaluationContext.getValue("hook").asString()).isEqualTo("hook");
         assertThat(evaluation.evaluationContext.getValue("override").asString()).isEqualTo("hook");
         assertThat(evaluation.evaluationContext.getTargetingKey()).isEqualTo("hook-level");
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    @DisplayName("Should only create an error in NOT_READY state if a hook implements the error stage")
+    void shouldOnlyCreateNotReadyErrorIfAHookImplementsErrorStage(boolean withErrorHook) {
+        OpenFeatureAPI api = new OpenFeatureAPI();
+        // no provider set, so the default provider is NOT_READY
+        Client client = api.getClient("shouldOnlyCreateNotReadyErrorIfAHookImplementsErrorStage");
+        var options = withErrorHook
+                ? FlagEvaluationOptions.builder().hook(mockBooleanHook()).build()
+                : FlagEvaluationOptions.EMPTY;
+
+        try (var errors = Mockito.mockConstruction(ProviderNotReadyError.class)) {
+            FlagEvaluationDetails<Boolean> details =
+                    client.getBooleanDetails("key", true, new ImmutableContext(), options);
+
+            assertThat(details.getErrorCode()).isEqualTo(ErrorCode.PROVIDER_NOT_READY);
+            assertThat(details.getValue()).isTrue();
+            // created once if a hook can receive it, otherwise never
+            assertThat(errors.constructed()).hasSize(withErrorHook ? 1 : 0);
+        }
     }
 }
