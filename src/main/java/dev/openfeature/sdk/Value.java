@@ -295,8 +295,8 @@ public class Value implements Cloneable {
             return new Value(new ImmutableStructure(this.asStructure().asUnmodifiableMap()));
         }
         if (this.isInstant()) {
-            Instant copy = Instant.ofEpochMilli(this.asInstant().toEpochMilli());
-            return new Value(copy);
+            // Instant is immutable, so the same instance is safe to share and keeps its full precision.
+            return new Value(this.asInstant());
         }
         return new Value(this.asObject());
     }

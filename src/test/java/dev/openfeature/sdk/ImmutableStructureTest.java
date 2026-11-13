@@ -74,6 +74,19 @@ class ImmutableStructureTest {
     }
 
     @Test
+    void getValueShouldPreserveInstantPrecision() {
+        String KEY = "key";
+        Instant instant = Instant.ofEpochSecond(1_700_000_000L, 123_456_789L);
+        Map<String, Value> map = new HashMap<>();
+        map.put(KEY, new Value(instant));
+        ImmutableStructure structure = new ImmutableStructure(map);
+
+        assertEquals(instant, structure.getValue(KEY).asInstant());
+        assertEquals(instant, structure.asMap().get(KEY).asInstant());
+        assertEquals(instant, structure.asObjectMap().get(KEY));
+    }
+
+    @Test
     void MutatingGetStructureValueShouldNotChangeOriginalValue() {
         String KEY = "key";
         List<Value> lists = new ArrayList<>();
