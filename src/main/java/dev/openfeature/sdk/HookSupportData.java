@@ -11,6 +11,7 @@ import lombok.Getter;
 class HookSupportData {
 
     List<Pair<Hook, HookContext>> hooks;
+    boolean hasErrorHooks;
     LayeredEvaluationContext evaluationContext;
     Map<String, Object> hints;
 

@@ -61,10 +61,11 @@ public final class MultiProviderHookExecutor {
             ProviderEvaluation<T> providerEvaluation = providerFunction.apply(provider, data.getEvaluationContext());
             details = FlagEvaluationDetails.from(providerEvaluation, key);
             if (details.getErrorCode() != null) {
-                Exception error =
-                        ExceptionUtils.instantiateErrorByErrorCode(details.getErrorCode(), details.getErrorMessage());
+                var errorCode = details.getErrorCode();
+                var errorMessage = details.getErrorMessage();
                 enrichDetailsWithErrorDefaults(defaultValue, details);
-                hookSupport.executeErrorHooks(data, error);
+                hookSupport.executeErrorHooks(
+                        data, () -> ExceptionUtils.instantiateErrorByErrorCode(errorCode, errorMessage));
             } else {
                 hookSupport.executeAfterHooks(data, details);
             }
@@ -80,7 +81,7 @@ public final class MultiProviderHookExecutor {
             }
             details.setErrorMessage(e.getMessage());
             enrichDetailsWithErrorDefaults(defaultValue, details);
-            hookSupport.executeErrorHooks(data, e);
+            hookSupport.executeErrorHooks(data, () -> e);
             throw e;
         } finally {
             // details is always set by now: from the evaluation on success, or the catch on failure
